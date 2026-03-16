@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Calendar, MapPin, Sparkles, Loader2 } from 'lucide-react';
+import { X, ExternalLink, Calendar, MapPin, Sparkles, Loader2, Phone, Mail, Navigation } from 'lucide-react';
 import { Brewery } from '@/data/breweries';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -129,15 +129,41 @@ const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
                 </div>
               </div>
 
-              {brewery.websiteUrl && (
-                <a
-                  href={brewery.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
-                >
-                  Visit Website <ExternalLink size={14} />
-                </a>
+              {(brewery.address || brewery.phone || brewery.email || brewery.websiteUrl) && (
+                <div>
+                  <h3 className="font-serif text-lg mb-3">Contact</h3>
+                  <div className="space-y-2">
+                    {brewery.address && (
+                      <div className="flex items-start gap-2 text-sm">
+                        <Navigation size={14} className="mt-0.5 text-muted-foreground shrink-0" />
+                        <span>{brewery.address}</span>
+                      </div>
+                    )}
+                    {brewery.phone && (
+                      <a href={`tel:${brewery.phone}`} className="flex items-center gap-2 text-sm text-accent hover:underline">
+                        <Phone size={14} className="shrink-0" />
+                        {brewery.phone}
+                      </a>
+                    )}
+                    {brewery.email && (
+                      <a href={`mailto:${brewery.email}`} className="flex items-center gap-2 text-sm text-accent hover:underline">
+                        <Mail size={14} className="shrink-0" />
+                        {brewery.email}
+                      </a>
+                    )}
+                    {brewery.websiteUrl && (
+                      <a
+                        href={brewery.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-accent hover:underline"
+                      >
+                        <ExternalLink size={14} className="shrink-0" />
+                        Website
+                      </a>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>

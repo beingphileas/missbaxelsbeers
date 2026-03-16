@@ -63,12 +63,15 @@ export type Database = {
       }
       breweries: {
         Row: {
+          address: string | null
           created_at: string
+          email: string | null
           established_year: number | null
           id: string
           lat: number
           lng: number
           name: string
+          phone: string | null
           province: string
           story: string | null
           type: string
@@ -76,12 +79,15 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          address?: string | null
           created_at?: string
+          email?: string | null
           established_year?: number | null
           id?: string
           lat: number
           lng: number
           name: string
+          phone?: string | null
           province: string
           story?: string | null
           type: string
@@ -89,12 +95,15 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          address?: string | null
           created_at?: string
+          email?: string | null
           established_year?: number | null
           id?: string
           lat?: number
           lng?: number
           name?: string
+          phone?: string | null
           province?: string
           story?: string | null
           type?: string

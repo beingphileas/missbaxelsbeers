@@ -23,6 +23,9 @@ export interface Brewery {
   story: string;
   establishedYear: number;
   websiteUrl: string;
+  address: string;
+  phone: string;
+  email: string;
   beers: Beer[];
 }
 
@@ -50,6 +53,9 @@ async function fetchBreweries(): Promise<Brewery[]> {
     story: b.story ?? '',
     establishedYear: b.established_year ?? 0,
     websiteUrl: b.website_url ?? '',
+    address: (b as any).address ?? '',
+    phone: (b as any).phone ?? '',
+    email: (b as any).email ?? '',
     beers: (beerRows ?? [])
       .filter(beer => beer.brewery_id === b.id)
       .map(beer => ({
