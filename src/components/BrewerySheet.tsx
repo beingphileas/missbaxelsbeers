@@ -79,7 +79,21 @@ const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed">{brewery.story}</p>
+              {brewery.story ? (
+                <p className="text-sm leading-relaxed">{brewery.story}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No story yet.</p>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateStory}
+                disabled={generating}
+                className="gap-1.5"
+              >
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                {generating ? 'Generating…' : 'Generate AI Story'}
+              </Button>
 
               <div>
                 <h3 className="font-serif text-lg mb-3">Beers</h3>
