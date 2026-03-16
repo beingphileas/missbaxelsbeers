@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.import-breweries]
 verify_jwt = false
+
+[functions.verify-venue-ratings]
+verify_jwt = false
+
+[functions.scrape-venue-urls]
+verify_jwt = false
