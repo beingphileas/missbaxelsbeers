@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      beers: {
+        Row: {
+          abv: number | null
+          brewery_id: string
+          created_at: string
+          flavor_profile: string[] | null
+          food_pairing: string | null
+          id: string
+          is_hidden_gem: boolean | null
+          name: string
+          style: string
+          updated_at: string
+        }
+        Insert: {
+          abv?: number | null
+          brewery_id: string
+          created_at?: string
+          flavor_profile?: string[] | null
+          food_pairing?: string | null
+          id?: string
+          is_hidden_gem?: boolean | null
+          name: string
+          style: string
+          updated_at?: string
+        }
+        Update: {
+          abv?: number | null
+          brewery_id?: string
+          created_at?: string
+          flavor_profile?: string[] | null
+          food_pairing?: string | null
+          id?: string
+          is_hidden_gem?: boolean | null
+          name?: string
+          style?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beers_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      breweries: {
+        Row: {
+          created_at: string
+          established_year: number | null
+          id: string
+          lat: number
+          lng: number
+          name: string
+          province: string
+          story: string | null
+          type: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          established_year?: number | null
+          id?: string
+          lat: number
+          lng: number
+          name: string
+          province: string
+          story?: string | null
+          type: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          established_year?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          province?: string
+          story?: string | null
+          type?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
