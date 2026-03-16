@@ -61,6 +61,79 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          beer_id: string | null
+          brewery_id: string | null
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          venue_id: string | null
+        }
+        Insert: {
+          beer_id?: string | null
+          brewery_id?: string | null
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          venue_id?: string | null
+        }
+        Update: {
+          beer_id?: string | null
+          brewery_id?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          venue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_beer_id_fkey"
+            columns: ["beer_id"]
+            isOneToOne: false
+            referencedRelation: "beers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       breweries: {
         Row: {
           address: string | null
@@ -108,6 +181,60 @@ export type Database = {
           story?: string | null
           type?: string
           updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      venues: {
+        Row: {
+          address: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          is_verified: boolean
+          lat: number
+          lng: number
+          name: string
+          phone: string | null
+          province: string
+          updated_at: string
+          venue_type: string
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_verified?: boolean
+          lat: number
+          lng: number
+          name: string
+          phone?: string | null
+          province: string
+          updated_at?: string
+          venue_type?: string
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_verified?: boolean
+          lat?: number
+          lng?: number
+          name?: string
+          phone?: string | null
+          province?: string
+          updated_at?: string
+          venue_type?: string
           website_url?: string | null
         }
         Relationships: []
