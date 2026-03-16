@@ -126,7 +126,7 @@ export default function Beers() {
             >
               <div className="space-y-1">
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Stijl</label>
-                <Select value={style} onValueChange={setStyle}>
+                <Select value={style || 'all'} onValueChange={v => setStyle(v === 'all' ? '' : v)}>
                   <SelectTrigger className="w-[180px] h-8 text-xs">
                     <SelectValue placeholder="Alle stijlen" />
                   </SelectTrigger>
