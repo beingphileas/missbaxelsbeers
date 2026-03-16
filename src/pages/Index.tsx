@@ -44,38 +44,44 @@ const Index = () => {
     });
   }, [breweries, search, province, type, style]);
 
+  const searchOverlay = (
+    <GlassSearchOverlay
+      search={search}
+      onSearchChange={setSearch}
+      province={province}
+      type={type}
+      style={style}
+      provinces={provinces}
+      beerStyles={beerStyles}
+      onProvinceChange={setProvince}
+      onTypeChange={setType}
+      onStyleChange={setStyle}
+      resultCount={filtered.length}
+      isLoading={isLoading}
+      view={view}
+      onViewChange={setView}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Content */}
       {!isLoading && (
         <div className="max-w-[1400px] mx-auto">
-          {/* Split view: map side panel + cards */}
+          {/* Split view */}
           {view === 'split' && (
             <div className="flex flex-col md:flex-row">
-              {/* Map side panel with floating search */}
-              <div className="relative md:sticky md:top-14 md:w-[55%] lg:w-[60%] h-[50vh] md:h-[calc(100vh-56px)] border-b md:border-b-0 md:border-r border-border/60">
+              {/* Map + overlay wrapper */}
+              <div className="relative md:sticky md:top-14 md:w-[55%] lg:w-[60%] h-[55vh] md:h-[calc(100vh-56px)] border-b md:border-b-0 md:border-r border-border/60">
                 <MultiLayerMap
                   breweries={filtered}
                   venues={venues}
                   posts={posts}
                   onSelectBrewery={setSelected}
                 />
-                <GlassSearchOverlay
-                  search={search}
-                  onSearchChange={setSearch}
-                  province={province}
-                  type={type}
-                  style={style}
-                  provinces={provinces}
-                  beerStyles={beerStyles}
-                  onProvinceChange={setProvince}
-                  onTypeChange={setType}
-                  onStyleChange={setStyle}
-                  resultCount={filtered.length}
-                  isLoading={isLoading}
-                  view={view}
-                  onViewChange={setView}
-                />
+                {/* Overlay floats inside — z-index above map layers */}
+                <div className="absolute inset-0 pointer-events-none z-[1001]">
+                  {searchOverlay}
+                </div>
               </div>
               {/* Cards panel */}
               <div className="flex-1 p-4 md:p-5 md:overflow-y-auto md:h-[calc(100vh-56px)]">
@@ -102,46 +108,17 @@ const Index = () => {
                 posts={posts}
                 onSelectBrewery={setSelected}
               />
-              <GlassSearchOverlay
-                search={search}
-                onSearchChange={setSearch}
-                province={province}
-                type={type}
-                style={style}
-                provinces={provinces}
-                beerStyles={beerStyles}
-                onProvinceChange={setProvince}
-                onTypeChange={setType}
-                onStyleChange={setStyle}
-                resultCount={filtered.length}
-                isLoading={isLoading}
-                view={view}
-                onViewChange={setView}
-              />
+              <div className="absolute inset-0 pointer-events-none z-[1001]">
+                {searchOverlay}
+              </div>
             </div>
           )}
 
-          {/* List only view */}
+          {/* List view */}
           {view === 'list' && (
             <div className="relative">
-              {/* Compact glass bar for list view */}
-              <div className="sticky top-14 z-30 px-4 md:px-5 py-3">
-                <GlassSearchOverlay
-                  search={search}
-                  onSearchChange={setSearch}
-                  province={province}
-                  type={type}
-                  style={style}
-                  provinces={provinces}
-                  beerStyles={beerStyles}
-                  onProvinceChange={setProvince}
-                  onTypeChange={setType}
-                  onStyleChange={setStyle}
-                  resultCount={filtered.length}
-                  isLoading={isLoading}
-                  view={view}
-                  onViewChange={setView}
-                />
+              <div className="sticky top-14 z-30 py-3 px-3 md:px-5 bg-background/80 backdrop-blur-sm">
+                {searchOverlay}
               </div>
               <div className="px-4 md:px-5 py-6">
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
