@@ -106,6 +106,8 @@
   .shadow-scrapbook-hover {
     box-shadow: var(--shadow-scrapbook-hover);
   }
+
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
