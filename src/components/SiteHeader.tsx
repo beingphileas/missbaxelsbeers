@@ -1,13 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Map, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { label: 'Home', path: '/' },
   { label: 'Tastings', path: '/tastings' },
   { label: 'Brouwerijen', path: '/breweries' },
-  { label: 'Waar?', path: '/venues' },
+  { label: 'Venues', path: '/venues' },
   { label: 'Kaart', path: '/map' },
   { label: 'Over', path: '/about' },
 ];
@@ -16,73 +15,71 @@ export default function SiteHeader() {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Close mobile menu on route change
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
   return (
-    <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/60">
+      <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-serif text-2xl tracking-tight text-foreground">
-            MissBaxel<span className="text-accent">'s</span> Beers
+        <Link to="/" className="flex items-center gap-1.5 group">
+          <span className="font-serif text-xl tracking-tight text-foreground">
+            MissBaxel<span className="text-accent font-normal">'s</span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-0.5">
           {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
-              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-[13px] font-medium rounded-full transition-colors ${
                 pathname === item.path
-                  ? 'text-accent bg-accent/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'text-accent bg-accent/8'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {item.label}
             </Link>
           ))}
-        </div>
-
-        {/* Desktop actions */}
-        <div className="hidden md:flex items-center gap-2">
-          <Link to="/map">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Map size={14} />
-              Kaart
-            </Button>
-          </Link>
-        </div>
+        </nav>
 
         {/* Mobile toggle */}
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="md:hidden h-9 w-9"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </Button>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background px-4 pb-4">
+        <nav className="md:hidden border-t border-border/60 bg-background px-5 py-3 space-y-0.5">
+          <Link
+            to="/"
+            className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
+              pathname === '/' ? 'text-accent bg-accent/8' : 'text-muted-foreground'
+            }`}
+          >
+            Home
+          </Link>
           {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
-              onClick={() => setMobileOpen(false)}
-              className={`block px-3 py-2.5 text-sm font-medium rounded-md ${
-                pathname === item.path
-                  ? 'text-accent bg-accent/10'
-                  : 'text-muted-foreground'
+              className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
+                pathname === item.path ? 'text-accent bg-accent/8' : 'text-muted-foreground'
               }`}
             >
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
       )}
-    </nav>
+    </header>
   );
 }

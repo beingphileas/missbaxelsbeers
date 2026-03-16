@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MapPin, ExternalLink, Phone, CheckCircle } from 'lucide-react';
+import { MapPin, ExternalLink, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const ALL = '__all__';
@@ -39,16 +39,16 @@ export default function Venues() {
   return (
     <div className="min-h-screen bg-background">
       {/* Filters */}
-      <div className="sticky top-14 z-30 border-b border-border bg-background">
-        <div className="max-w-[1400px] mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
+      <div className="sticky top-14 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-5 py-3 flex flex-wrap items-center gap-2.5">
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Zoek..."
-            className="flex-1 min-w-[180px] max-w-xs h-9 text-sm"
+            placeholder="Zoek venues…"
+            className="flex-1 min-w-[160px] max-w-xs h-10 text-sm rounded-xl"
           />
           <Select value={province} onValueChange={setProvince}>
-            <SelectTrigger className="w-[170px] h-9 text-sm">
+            <SelectTrigger className="w-[160px] h-10 text-sm rounded-xl">
               <SelectValue placeholder="Provincie" />
             </SelectTrigger>
             <SelectContent>
@@ -59,7 +59,7 @@ export default function Venues() {
             </SelectContent>
           </Select>
           <Select value={venueType} onValueChange={setVenueType}>
-            <SelectTrigger className="w-[150px] h-9 text-sm">
+            <SelectTrigger className="w-[140px] h-10 text-sm rounded-xl">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -69,18 +69,18 @@ export default function Venues() {
               ))}
             </SelectContent>
           </Select>
-          <span className="text-xs text-muted-foreground ml-auto">
+          <span className="text-xs text-muted-foreground ml-auto tabular-nums">
             {filtered.length} venues
           </span>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
+      <div className="max-w-5xl mx-auto px-5 py-8">
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-square bg-muted animate-pulse" />
+              <div key={i} className="aspect-square rounded-xl bg-secondary animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -88,10 +88,10 @@ export default function Venues() {
             <p className="text-muted-foreground">Geen venues gevonden.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map(venue => (
               <div key={venue.id} className="group">
-                <div className="aspect-square overflow-hidden bg-muted">
+                <div className="aspect-square overflow-hidden rounded-xl bg-secondary">
                   {venue.coverImageUrl ? (
                     <img
                       src={venue.coverImageUrl}
@@ -99,8 +99,8 @@ export default function Venues() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <MapPin size={24} className="text-muted-foreground/30" />
+                    <div className="w-full h-full flex items-center justify-center">
+                      <MapPin size={24} className="text-muted-foreground/25" />
                     </div>
                   )}
                 </div>
@@ -119,7 +119,7 @@ export default function Venues() {
                       href={venue.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-accent hover:underline mt-1 inline-flex items-center gap-1"
+                      className="text-xs text-accent hover:underline mt-1.5 inline-flex items-center gap-1 transition-colors"
                     >
                       Website <ExternalLink size={10} />
                     </a>

@@ -31,7 +31,7 @@ export default function BlogPost() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Laden…</p>
+        <p className="text-muted-foreground text-sm">Laden…</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function BlogPost() {
     <div className="min-h-screen bg-background">
       {/* Cover image */}
       {post.cover_image_url && (
-        <div className="w-full h-48 sm:h-64 md:h-80 lg:h-[28rem] overflow-hidden bg-muted">
+        <div className="w-full max-h-[28rem] overflow-hidden bg-secondary">
           <img
             src={post.cover_image_url}
             alt={post.title}
@@ -72,10 +72,10 @@ export default function BlogPost() {
         </div>
       )}
 
-      <article className="max-w-2xl mx-auto px-5 sm:px-6 py-6 md:py-12">
+      <article className="max-w-2xl mx-auto px-5 py-8 md:py-14">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 -ml-0.5 py-1"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft size={14} />
           Terug
@@ -84,39 +84,39 @@ export default function BlogPost() {
         {/* Tags */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           {(post.tags ?? []).map((tag: string) => (
-            <Badge key={tag} variant="secondary" className="text-[10px] uppercase tracking-widest">
+            <Badge key={tag} variant="secondary" className="text-[10px] uppercase tracking-widest rounded-full px-2.5">
               {tag}
             </Badge>
           ))}
         </div>
 
-        <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-4">
+        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-[1.12] mb-5">
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-6 pb-6 border-b border-border">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-8 pb-8 border-b border-border/60">
           {date && (
             <span className="flex items-center gap-1.5">
-              <Calendar size={14} />
+              <Calendar size={13} />
               {date}
             </span>
           )}
           {brewery?.name && (
             <span className="flex items-center gap-1.5 text-accent">
-              <MapPin size={14} />
+              <MapPin size={13} />
               {brewery.name} · {brewery.province}
             </span>
           )}
           {beer?.name && (
             <span className="flex items-center gap-1.5">
-              <Beer size={14} />
+              <Beer size={13} />
               {beer.name} ({beer.style}, {beer.abv}%)
             </span>
           )}
         </div>
 
         {/* Content */}
-        <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-a:text-accent prose-img:rounded-xl prose-p:leading-relaxed prose-li:leading-relaxed">
+        <div className="prose prose-neutral max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-a:text-accent prose-img:rounded-xl prose-p:leading-[1.8] prose-li:leading-[1.8] prose-p:text-[15px] prose-li:text-[15px]">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </div>
       </article>
