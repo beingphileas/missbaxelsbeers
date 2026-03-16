@@ -19,6 +19,7 @@ export type Database = {
           abv: number | null
           brewery_id: string
           created_at: string
+          featured: boolean
           flavor_profile: string[] | null
           food_pairing: string | null
           id: string
@@ -31,6 +32,7 @@ export type Database = {
           abv?: number | null
           brewery_id: string
           created_at?: string
+          featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
           id?: string
@@ -43,6 +45,7 @@ export type Database = {
           abv?: number | null
           brewery_id?: string
           created_at?: string
+          featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
           id?: string
@@ -140,6 +143,7 @@ export type Database = {
           created_at: string
           email: string | null
           established_year: number | null
+          featured: boolean
           id: string
           lat: number
           lng: number
@@ -156,6 +160,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           established_year?: number | null
+          featured?: boolean
           id?: string
           lat: number
           lng: number
@@ -172,6 +177,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           established_year?: number | null
+          featured?: boolean
           id?: string
           lat?: number
           lng?: number
