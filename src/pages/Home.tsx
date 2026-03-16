@@ -11,6 +11,14 @@ import { useCallback } from 'react';
 export default function Home() {
   const { data: breweries = [] } = useBreweries();
   const { data: posts = [] } = useBlogPosts();
+  const navigate = useNavigate();
+
+  const handleMapPin = useCallback((breweryId: string) => {
+    const brewery = breweries.find(b => b.id === breweryId);
+    if (brewery) {
+      navigate(`/map?lat=${brewery.lat}&lng=${brewery.lng}&zoom=14`);
+    }
+  }, [breweries, navigate]);
 
   const hero = posts[0];
   const secondary = posts.slice(1, 3);
