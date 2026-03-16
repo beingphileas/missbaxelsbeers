@@ -112,6 +112,17 @@ export default function Venues() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={sort} onValueChange={v => setSort(v as SortOption)}>
+            <SelectTrigger className="w-[130px] h-9 text-xs border-border/60">
+              <ArrowUpDown size={12} className="mr-1 shrink-0 text-muted-foreground" />
+              <SelectValue placeholder="Sortering" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="random">Willekeurig</SelectItem>
+              <SelectItem value="name">Naam A→Z</SelectItem>
+              <SelectItem value="rating">Beste rating</SelectItem>
+            </SelectContent>
+          </Select>
           <span className="text-[10px] text-muted-foreground ml-auto tabular-nums tracking-wide">
             {filtered.length} venues
           </span>
