@@ -35,6 +35,12 @@ export interface Venue {
   email: string;
   isVerified: boolean;
   coverImageUrl: string;
+  googleRating: number | null;
+  googleUrl: string;
+  tripadvisorRating: number | null;
+  tripadvisorUrl: string;
+  untappdRating: number | null;
+  untappdUrl: string;
 }
 
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
@@ -93,6 +99,12 @@ async function fetchVenues(): Promise<Venue[]> {
     email: v.email ?? '',
     isVerified: v.is_verified,
     coverImageUrl: v.cover_image_url ?? '',
+    googleRating: v.google_rating,
+    googleUrl: v.google_url ?? '',
+    tripadvisorRating: v.tripadvisor_rating,
+    tripadvisorUrl: v.tripadvisor_url ?? '',
+    untappdRating: v.untappd_rating,
+    untappdUrl: v.untappd_url ?? '',
   }));
 }
 

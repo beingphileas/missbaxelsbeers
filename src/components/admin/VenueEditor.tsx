@@ -43,6 +43,12 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
   const [email, setEmail] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [googleRating, setGoogleRating] = useState('');
+  const [googleUrl, setGoogleUrl] = useState('');
+  const [tripadvisorRating, setTripadvisorRating] = useState('');
+  const [tripadvisorUrl, setTripadvisorUrl] = useState('');
+  const [untappdRating, setUntappdRating] = useState('');
+  const [untappdUrl, setUntappdUrl] = useState('');
 
   useEffect(() => {
     if (venueId) {
@@ -65,6 +71,12 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
             setEmail(data.email ?? '');
             setIsVerified(data.is_verified);
             setCoverImageUrl(data.cover_image_url ?? '');
+            setGoogleRating(data.google_rating != null ? String(data.google_rating) : '');
+            setGoogleUrl(data.google_url ?? '');
+            setTripadvisorRating(data.tripadvisor_rating != null ? String(data.tripadvisor_rating) : '');
+            setTripadvisorUrl(data.tripadvisor_url ?? '');
+            setUntappdRating(data.untappd_rating != null ? String(data.untappd_rating) : '');
+            setUntappdUrl(data.untappd_url ?? '');
           }
         });
     }
@@ -90,6 +102,12 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
       email: email.trim() || null,
       is_verified: isVerified,
       cover_image_url: coverImageUrl.trim() || null,
+      google_rating: googleRating ? parseFloat(googleRating) : null,
+      google_url: googleUrl.trim() || null,
+      tripadvisor_rating: tripadvisorRating ? parseFloat(tripadvisorRating) : null,
+      tripadvisor_url: tripadvisorUrl.trim() || null,
+      untappd_rating: untappdRating ? parseFloat(untappdRating) : null,
+      untappd_url: untappdUrl.trim() || null,
     };
 
     let error;
@@ -195,6 +213,37 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
           <div className="flex items-center gap-3 pt-2">
             <Switch checked={isVerified} onCheckedChange={setIsVerified} />
             <Label className="text-sm">Verified by the Whisperer 🏅</Label>
+          </div>
+
+          {/* Ratings */}
+          <div className="border-t border-border/50 pt-4 mt-4">
+            <h3 className="text-sm font-bold mb-3">Ratings & Links</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Google Rating (0-5)</Label>
+                <Input value={googleRating} onChange={e => setGoogleRating(e.target.value)} placeholder="4.2" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Google Maps URL</Label>
+                <Input value={googleUrl} onChange={e => setGoogleUrl(e.target.value)} placeholder="https://maps.google.com/..." />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">TripAdvisor Rating (0-5)</Label>
+                <Input value={tripadvisorRating} onChange={e => setTripadvisorRating(e.target.value)} placeholder="4.0" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">TripAdvisor URL</Label>
+                <Input value={tripadvisorUrl} onChange={e => setTripadvisorUrl(e.target.value)} placeholder="https://tripadvisor.com/..." />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Untappd Rating (0-5)</Label>
+                <Input value={untappdRating} onChange={e => setUntappdRating(e.target.value)} placeholder="3.8" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Untappd URL</Label>
+                <Input value={untappdUrl} onChange={e => setUntappdUrl(e.target.value)} placeholder="https://untappd.com/v/..." />
+              </div>
+            </div>
           </div>
         </div>
       </div>

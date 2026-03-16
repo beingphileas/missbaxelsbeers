@@ -192,6 +192,8 @@ export type Database = {
           created_at: string
           description: string | null
           email: string | null
+          google_rating: number | null
+          google_url: string | null
           id: string
           is_verified: boolean
           lat: number
@@ -199,6 +201,10 @@ export type Database = {
           name: string
           phone: string | null
           province: string
+          tripadvisor_rating: number | null
+          tripadvisor_url: string | null
+          untappd_rating: number | null
+          untappd_url: string | null
           updated_at: string
           venue_type: string
           website_url: string | null
@@ -209,6 +215,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          google_rating?: number | null
+          google_url?: string | null
           id?: string
           is_verified?: boolean
           lat: number
@@ -216,6 +224,10 @@ export type Database = {
           name: string
           phone?: string | null
           province: string
+          tripadvisor_rating?: number | null
+          tripadvisor_url?: string | null
+          untappd_rating?: number | null
+          untappd_url?: string | null
           updated_at?: string
           venue_type?: string
           website_url?: string | null
@@ -226,6 +238,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          google_rating?: number | null
+          google_url?: string | null
           id?: string
           is_verified?: boolean
           lat?: number
@@ -233,6 +247,10 @@ export type Database = {
           name?: string
           phone?: string | null
           province?: string
+          tripadvisor_rating?: number | null
+          tripadvisor_url?: string | null
+          untappd_rating?: number | null
+          untappd_url?: string | null
           updated_at?: string
           venue_type?: string
           website_url?: string | null
