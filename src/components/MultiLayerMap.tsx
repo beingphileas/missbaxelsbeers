@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Brewery } from '@/data/breweries';
 import { Venue, BlogPost } from '@/data/blog';
 
@@ -51,9 +54,31 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
 export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const layersRef = useRef<Record<LayerKey, L.LayerGroup>>({
-    breweries: L.layerGroup(),
-    venues: L.layerGroup(),
+  const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
+    breweries: (L as any).markerClusterGroup({
+      maxClusterRadius: 40,
+      iconCreateFunction: (cluster: any) => {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:#6B3A2A;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);">${count}</div>`,
+          className: '',
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+        });
+      },
+    }),
+    venues: (L as any).markerClusterGroup({
+      maxClusterRadius: 40,
+      iconCreateFunction: (cluster: any) => {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:${VENUE_COLOR};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);">${count}</div>`,
+          className: '',
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+        });
+      },
+    }),
     stories: L.layerGroup(),
   });
 
@@ -123,19 +148,17 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
     });
   }, [venues]);
 
-  // Populate story pins (blog posts linked to a brewery with coords)
+  // Populate story pins
   useEffect(() => {
     const lg = layersRef.current.stories;
     lg.clearLayers();
     posts.forEach(p => {
-      // Find linked brewery to get coords
       const brewery = p.breweryId ? breweries.find(b => b.id === p.breweryId) : null;
       if (!brewery) return;
-      // Offset slightly so pins don't stack exactly on brewery
       const lat = brewery.lat + 0.008;
       const lng = brewery.lng + 0.008;
       const m = L.marker([lat, lng], { icon: storyIcon });
-      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:#e04040;">Lees artikel →</a></div>`);
+      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:${STORY_COLOR};">Lees artikel →</a></div>`);
       lg.addLayer(m);
     });
   }, [posts, breweries]);
@@ -150,9 +173,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
           <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-muted transition-colors">
             <span
               className="w-3 h-3 rounded-full shrink-0 border border-border"
-              style={{
-                background: visible[key] ? LAYER_META[key].color : 'transparent',
-              }}
+              style={{ background: visible[key] ? LAYER_META[key].color : 'transparent' }}
             />
             <input
               type="checkbox"

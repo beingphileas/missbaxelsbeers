@@ -11,6 +11,7 @@ import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle } from 'lucide-rea
 import { Link, useNavigate } from 'react-router-dom';
 import BlogEditor from '@/components/admin/BlogEditor';
 import VenueEditor from '@/components/admin/VenueEditor';
+import CoordFixer from '@/components/admin/CoordFixer';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -176,6 +177,7 @@ export default function Admin() {
           <TabsList className="mb-4">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
+            <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
           {/* Posts Tab */}
@@ -304,6 +306,11 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Coords Tab */}
+          <TabsContent value="coords">
+            <CoordFixer />
           </TabsContent>
         </Tabs>
       </div>
