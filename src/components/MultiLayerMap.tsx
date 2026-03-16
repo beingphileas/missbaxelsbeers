@@ -41,6 +41,7 @@ interface MultiLayerMapProps {
   venues: Venue[];
   posts: BlogPost[];
   onSelectBrewery?: (brewery: Brewery) => void;
+  focusLocation?: { lat: number; lng: number } | null;
 }
 
 type LayerKey = 'breweries' | 'venues' | 'stories';
