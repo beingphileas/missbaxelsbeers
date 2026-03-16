@@ -48,7 +48,8 @@ export default function GlassSearchOverlay({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="pointer-events-auto rounded-2xl border border-white/20 bg-background/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden"
+        className="pointer-events-auto rounded-2xl border border-white/20 bg-background/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-1px_1px_rgba(0,0,0,0.05)] ring-1 ring-white/[0.08] overflow-hidden"
+        style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.18), inset 0 -1px 2px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.06), 0 0 40px -12px rgba(218,165,32,0.08)' }}
       >
         {/* Search input */}
         <div className="relative">
