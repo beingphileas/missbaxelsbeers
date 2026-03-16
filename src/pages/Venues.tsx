@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MapPin, ExternalLink, CheckCircle, Star, Phone, Mail } from 'lucide-react';
+import { MapPin, ExternalLink, CheckCircle, Phone, Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const ALL = '__all__';
