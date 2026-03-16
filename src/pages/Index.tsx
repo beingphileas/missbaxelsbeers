@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Map, List } from 'lucide-react';
-import { breweries, Brewery } from '@/data/breweries';
+import { useBreweries, Brewery, breweryTypes } from '@/data/breweries';
 import MapView from '@/components/MapView';
 import BreweryCard from '@/components/BreweryCard';
 import BrewerySheet from '@/components/BrewerySheet';
@@ -9,12 +9,16 @@ import SearchBar from '@/components/SearchBar';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
+  const { data: breweries = [], isLoading } = useBreweries();
   const [view, setView] = useState<'map' | 'list'>('map');
   const [search, setSearch] = useState('');
   const [province, setProvince] = useState('');
   const [type, setType] = useState('');
   const [style, setStyle] = useState('');
   const [selected, setSelected] = useState<Brewery | null>(null);
+
+  const provinces = useMemo(() => [...new Set(breweries.map(b => b.province))].sort(), [breweries]);
+  const beerStyles = useMemo(() => [...new Set(breweries.flatMap(b => b.beers.map(beer => beer.style)))].sort(), [breweries]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -37,11 +41,10 @@ const Index = () => {
       }
       return true;
     });
-  }, [search, province, type, style]);
+  }, [breweries, search, province, type, style]);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <nav className="sticky top-0 z-30 h-14 bg-background/80 backdrop-blur-md border-b border-foreground/5 px-4 flex items-center justify-between">
         <h1 className="font-serif text-xl tracking-tight">Belgian Beer Explorer</h1>
         <div className="flex gap-1">
@@ -70,6 +73,8 @@ const Index = () => {
           selectedProvince={province}
           selectedType={type}
           selectedStyle={style}
+          provinces={provinces}
+          beerStyles={beerStyles}
           onProvinceChange={setProvince}
           onTypeChange={setType}
           onStyleChange={setStyle}
@@ -77,7 +82,7 @@ const Index = () => {
 
         <div className="flex items-baseline justify-between">
           <p className="text-xs text-muted-foreground tabular-nums">
-            {filtered.length} {filtered.length === 1 ? 'brewery' : 'breweries'}
+            {isLoading ? 'Loading…' : `${filtered.length} ${filtered.length === 1 ? 'brewery' : 'breweries'}`}
           </p>
           {(search || province || type || style) && (
             <button
@@ -89,7 +94,7 @@ const Index = () => {
           )}
         </div>
 
-        {view === 'map' && (
+        {view === 'map' && !isLoading && (
           <MapView breweries={filtered} onSelectBrewery={setSelected} />
         )}
 
@@ -99,7 +104,7 @@ const Index = () => {
           ))}
         </div>
 
-        {filtered.length === 0 && (
+        {!isLoading && filtered.length === 0 && (
           <div className="text-center py-16">
             <p className="text-muted-foreground">No breweries match your search.</p>
           </div>
