@@ -1,0 +1,144 @@
+import { useState } from 'react';
+import { Search, X, SlidersHorizontal, Map, List } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { breweryTypes } from '@/data/breweries';
+
+interface GlassSearchOverlayProps {
+  search: string;
+  onSearchChange: (v: string) => void;
+  province: string;
+  type: string;
+  style: string;
+  provinces: string[];
+  beerStyles: string[];
+  onProvinceChange: (v: string) => void;
+  onTypeChange: (v: string) => void;
+  onStyleChange: (v: string) => void;
+  resultCount: number;
+  isLoading: boolean;
+  view: 'split' | 'map' | 'list';
+  onViewChange: (v: 'split' | 'map' | 'list') => void;
+}
+
+export default function GlassSearchOverlay({
+  search, onSearchChange,
+  province, type, style,
+  provinces, beerStyles,
+  onProvinceChange, onTypeChange, onStyleChange,
+  resultCount, isLoading,
+  view, onViewChange,
+}: GlassSearchOverlayProps) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const hasFilters = !!(province || type || style);
+  const activeCount = [province, type, style].filter(Boolean).length;
+
+  const clearAll = () => {
+    onSearchChange('');
+    onProvinceChange('');
+    onTypeChange('');
+    onStyleChange('');
+  };
+
+  const selectClass =
+    "h-9 px-3 bg-white/10 border border-white/20 text-foreground text-xs rounded-lg appearance-none cursor-pointer backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-accent/40 transition-all duration-200";
+
+  return (
+    <div className="absolute top-4 left-4 right-4 md:left-6 md:top-6 md:right-auto md:w-[380px] z-20 pointer-events-none">
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="pointer-events-auto rounded-2xl border border-white/20 bg-background/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden"
+      >
+        {/* Search input */}
+        <div className="relative">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => onSearchChange(e.target.value)}
+            placeholder="Zoek brouwerijen, bieren, smaken…"
+            className="w-full h-12 pl-11 pr-20 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {(search || hasFilters) && (
+              <button
+                onClick={clearAll}
+                className="p-1.5 rounded-lg hover:bg-foreground/10 transition-colors"
+                title="Wis alles"
+              >
+                <X size={14} className="text-muted-foreground" />
+              </button>
+            )}
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className={`p-1.5 rounded-lg transition-colors relative ${filtersOpen ? 'bg-accent/20 text-accent' : 'hover:bg-foreground/10 text-muted-foreground'}`}
+              title="Filters"
+            >
+              <SlidersHorizontal size={14} />
+              {activeCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Expandable filters */}
+        <AnimatePresence>
+          {filtersOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 pb-3 pt-1 space-y-2 border-t border-white/10">
+                <select value={province} onChange={e => onProvinceChange(e.target.value)} className={selectClass + ' w-full'}>
+                  <option value="">Alle Provincies</option>
+                  {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <select value={type} onChange={e => onTypeChange(e.target.value)} className={selectClass + ' w-full'}>
+                  <option value="">Alle Types</option>
+                  {breweryTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <select value={style} onChange={e => onStyleChange(e.target.value)} className={selectClass + ' w-full'}>
+                  <option value="">Alle Stijlen</option>
+                  {beerStyles.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Footer: count + view toggles */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/10 bg-foreground/[0.03]">
+          <p className="text-[11px] text-muted-foreground tabular-nums">
+            {isLoading ? 'Laden…' : `${resultCount} brouwerijen`}
+          </p>
+          <div className="hidden md:flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
+            {([
+              { key: 'split' as const, label: 'Split' },
+              { key: 'map' as const, icon: <Map size={12} /> },
+              { key: 'list' as const, icon: <List size={12} /> },
+            ]).map(item => (
+              <button
+                key={item.key}
+                onClick={() => onViewChange(item.key)}
+                className={`px-2.5 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wide transition-all ${
+                  view === item.key
+                    ? 'bg-accent text-accent-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.icon || item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
