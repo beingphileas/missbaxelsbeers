@@ -254,5 +254,6 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
         </div>
       </div>
     </motion.div>
+    </Link>
   );
 }
