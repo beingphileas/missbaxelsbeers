@@ -46,11 +46,11 @@ export default function BlogSidebar({ beers, locations, focusLocation }: BlogSid
       {locations.length > 0 && (
         <motion.div
           layout
-          className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] overflow-hidden rounded-lg"
+          className="bg-card border-2 border-border [box-shadow:var(--shadow-scrapbook)] overflow-hidden rounded-lg"
         >
-          <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2">
+          <div className="px-3 py-2.5 border-b-2 border-border bg-secondary/50 flex items-center gap-2">
             <MapPin size={12} className="text-accent" />
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Locaties</span>
+            <span className="text-[10px] uppercase tracking-wider font-bold text-foreground">Locaties</span>
           </div>
           <AnimatePresence mode="wait">
             <motion.div
