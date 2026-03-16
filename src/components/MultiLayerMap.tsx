@@ -56,7 +56,7 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
 const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>';
 
-export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery }: MultiLayerMapProps) {
+export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
