@@ -19,25 +19,27 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
   if (featured) {
     return (
       <Link to={`/post/${post.slug}`} className="block group">
-        <article className="relative overflow-hidden bg-card border-2 border-foreground hover:shadow-hard transition-all duration-150 md:grid md:grid-cols-5">
+        <article className="relative overflow-hidden bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] transition-all duration-300 md:grid md:grid-cols-5">
+          {/* Decorative pin */}
+          <div className="absolute top-3 right-4 z-10 w-3 h-3 rounded-full bg-accent/80 border-2 border-card shadow-sm" />
           <div className="md:col-span-3 aspect-video md:aspect-auto md:h-full overflow-hidden bg-muted">
             {post.coverImageUrl ? (
               <img
                 src={post.coverImageUrl}
                 alt={post.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full min-h-[240px] bg-secondary flex items-center justify-center">
-                <span className="font-display text-6xl text-muted-foreground/20">🍺</span>
+              <div className="w-full h-full min-h-[240px] bg-gradient-to-br from-parchment to-secondary flex items-center justify-center">
+                <span className="font-display text-6xl text-muted-foreground/10">🍺</span>
               </div>
             )}
           </div>
           <div className="md:col-span-2 p-5 md:p-6 flex flex-col justify-center">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {post.tags.slice(0, 2).map(tag => (
-                <span key={tag} className="text-[10px] uppercase tracking-wide text-accent font-bold bg-secondary px-2 py-0.5">
+                <span key={tag} className="text-[10px] uppercase tracking-wide text-accent font-bold bg-accent/8 border border-accent/15 px-2 py-0.5">
                   {tag}
                 </span>
               ))}
@@ -45,7 +47,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             <h2 className="font-display text-lg md:text-xl leading-tight mb-3 group-hover:text-accent transition-colors">
               {post.title}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4">
+            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4 italic">
               {post.excerpt}
             </p>
             <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-muted-foreground">
@@ -70,18 +72,20 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
 
   return (
     <Link to={`/post/${post.slug}`} className="block h-full group">
-      <article className="flex flex-col overflow-hidden bg-card border-2 border-foreground hover:shadow-hard transition-all duration-150 h-full">
-        <div className="aspect-[16/10] overflow-hidden bg-muted">
+      <article className="flex flex-col overflow-hidden bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 h-full">
+        {/* Decorative tape */}
+        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-accent/10 z-10" />
+        <div className="aspect-[16/10] overflow-hidden bg-muted relative">
           {post.coverImageUrl ? (
             <img
               src={post.coverImageUrl}
               alt={post.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-secondary flex items-center justify-center">
-              <span className="font-display text-4xl text-muted-foreground/20">🍺</span>
+            <div className="w-full h-full bg-gradient-to-br from-parchment to-secondary flex items-center justify-center">
+              <span className="font-display text-4xl text-muted-foreground/10">🍺</span>
             </div>
           )}
         </div>
@@ -93,7 +97,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               </span>
             ))}
             {post.breweryName && (
-              <span className="text-[10px] text-muted-foreground truncate">
+              <span className="text-[10px] text-muted-foreground truncate italic">
                 · {post.breweryName}
               </span>
             )}
@@ -104,7 +108,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1 leading-relaxed">
             {post.excerpt}
           </p>
-          <time className="text-[10px] text-muted-foreground mt-3 font-medium flex items-center gap-1.5">
+          <time className="text-[10px] text-muted-foreground mt-3 font-medium flex items-center gap-1.5 font-sans">
             <Calendar size={10} />
             {date}
           </time>
