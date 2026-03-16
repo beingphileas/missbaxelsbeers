@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle } from 'lucide-react';
+import QuickTasting from '@/components/admin/QuickTasting';
 import { Link, useNavigate } from 'react-router-dom';
 import BlogEditor from '@/components/admin/BlogEditor';
 import VenueEditor from '@/components/admin/VenueEditor';
