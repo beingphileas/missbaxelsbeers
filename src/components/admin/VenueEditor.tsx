@@ -70,6 +70,12 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
             setEmail(data.email ?? '');
             setIsVerified(data.is_verified);
             setCoverImageUrl(data.cover_image_url ?? '');
+            setGoogleRating(data.google_rating != null ? String(data.google_rating) : '');
+            setGoogleUrl(data.google_url ?? '');
+            setTripadvisorRating(data.tripadvisor_rating != null ? String(data.tripadvisor_rating) : '');
+            setTripadvisorUrl(data.tripadvisor_url ?? '');
+            setUntappdRating(data.untappd_rating != null ? String(data.untappd_rating) : '');
+            setUntappdUrl(data.untappd_url ?? '');
           }
         });
     }
