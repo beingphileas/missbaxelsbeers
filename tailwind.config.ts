@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Fraunces", "Georgia", "serif"],
-        sans: ["Geist Sans", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Lora", "Georgia", "serif"],
+        sans: ["Nunito", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
