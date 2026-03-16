@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Venues from "./pages/Venues";
 import Beers from "./pages/Beers";
+import BeerDetail from "./pages/BeerDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
