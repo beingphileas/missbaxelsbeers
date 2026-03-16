@@ -8,7 +8,7 @@ interface BlogCardProps {
   onMapPin?: (breweryId: string) => void;
 }
 
-export default function BlogCard({ post, featured = false }: BlogCardProps) {
+export default function BlogCard({ post, featured = false, onMapPin }: BlogCardProps) {
   const date = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('nl-BE', {
         day: 'numeric',
