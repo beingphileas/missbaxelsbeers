@@ -7,15 +7,15 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.5rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1280px",
       },
     },
     extend: {
       fontFamily: {
         serif: ["Lora", "Georgia", "serif"],
-        sans: ["Nunito", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["DM Sans", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,11 +51,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        gold: "hsl(var(--gold))",
-        abbey: "hsl(var(--abbey))",
-        stone: "hsl(var(--stone))",
-        paper: "hsl(var(--paper))",
-        roast: "hsl(var(--roast))",
+        warm: "hsl(var(--warm))",
+        amber: "hsl(var(--amber))",
+        copper: "hsl(var(--copper))",
+        cream: "hsl(var(--cream))",
+        espresso: "hsl(var(--espresso))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -85,11 +85,16 @@ export default {
           from: { transform: "translateY(100%)" },
           to: { transform: "translateY(0)" },
         },
+        "fade-in": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-up": "slide-up 0.3s cubic-bezier(0.2, 0.0, 0, 1.0)",
+        "fade-in": "fade-in 0.4s ease-out forwards",
       },
     },
   },

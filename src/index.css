@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    --background: 36 33% 97%;
+    --foreground: 24 10% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
+    --card: 36 33% 99%;
+    --card-foreground: 24 10% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover: 36 33% 99%;
+    --popover-foreground: 24 10% 15%;
 
-    --primary: 0 0% 8%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 24 10% 15%;
+    --primary-foreground: 36 33% 97%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 36 20% 93%;
+    --secondary-foreground: 24 10% 15%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 36 20% 93%;
+    --muted-foreground: 24 8% 48%;
 
-    --accent: 4 80% 58%;
+    --accent: 24 80% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 4 80% 58%;
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 24 80% 50%;
 
-    --radius: 0rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 8%;
-    --sidebar-primary: 0 0% 8%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 8%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 4 80% 58%;
+    --sidebar-background: 36 33% 97%;
+    --sidebar-foreground: 24 10% 15%;
+    --sidebar-primary: 24 10% 15%;
+    --sidebar-primary-foreground: 36 33% 97%;
+    --sidebar-accent: 36 20% 93%;
+    --sidebar-accent-foreground: 24 10% 15%;
+    --sidebar-border: 30 15% 88%;
+    --sidebar-ring: 24 80% 50%;
 
     /* Custom tokens */
-    --gold: 4 80% 58%;
-    --abbey: 0 0% 8%;
-    --stone: 0 0% 96%;
-    --paper: 0 0% 100%;
-    --roast: 0 0% 8%;
+    --warm: 30 60% 96%;
+    --amber: 24 80% 50%;
+    --copper: 18 70% 40%;
+    --cream: 36 33% 97%;
+    --espresso: 24 10% 15%;
 
-    --shadow-card: none;
-    --shadow-card-hover: none;
-    --shadow-active: 0 0 0 2px hsl(4 80% 58%);
+    --shadow-soft: 0 1px 3px 0 hsl(24 10% 15% / 0.04), 0 1px 2px -1px hsl(24 10% 15% / 0.04);
+    --shadow-card: 0 2px 8px -2px hsl(24 10% 15% / 0.06), 0 1px 3px -1px hsl(24 10% 15% / 0.04);
+    --shadow-elevated: 0 8px 24px -4px hsl(24 10% 15% / 0.08), 0 2px 8px -2px hsl(24 10% 15% / 0.04);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -67,12 +67,13 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-optical-sizing: auto;
   }
 
   .font-serif {
     font-family: 'Lora', Georgia, serif;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -81,16 +82,16 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
 
-  .shadow-card-hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-
-  .shadow-active {
-    box-shadow: var(--shadow-active);
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -104,13 +105,13 @@
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background: hsl(var(--background));
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 12px;
+  box-shadow: var(--shadow-elevated);
   border: none;
 }
 
