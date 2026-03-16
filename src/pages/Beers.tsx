@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { motion } from 'framer-motion';
 import { Search, Star, SlidersHorizontal, X } from 'lucide-react';
