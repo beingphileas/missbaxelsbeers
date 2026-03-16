@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-export type BreweryType = 'Trappist' | 'Family-owned' | 'Microbrewery' | 'Industrial';
+export type BreweryType = 'Trappist' | 'Family-owned' | 'Microbrewery' | 'Industrial' | 'Contract brewer';
 
 export interface Beer {
   id: string;
