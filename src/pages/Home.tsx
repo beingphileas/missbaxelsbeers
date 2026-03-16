@@ -58,7 +58,8 @@ export default function Home() {
             </div>
 
             {featuredPost && (
-              <div className="mb-8">
+              <div className="mb-8" style={{ border: '2px solid red', minHeight: 100 }}>
+                <p>DEBUG: featuredPost title = {featuredPost.title}</p>
                 <BlogCard post={featuredPost} featured />
               </div>
             )}
