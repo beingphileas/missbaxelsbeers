@@ -1,0 +1,171 @@
+import { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Brewery } from '@/data/breweries';
+import { Venue, BlogPost } from '@/data/blog';
+
+/* ── Layer colors ── */
+const breweryTypeColors: Record<string, string> = {
+  Trappist: '#6B3A2A',
+  'Family-owned': '#8B6914',
+  Microbrewery: '#7A8450',
+  Industrial: '#5A5A5A',
+};
+
+const VENUE_COLOR = '#2563eb';
+const STORY_COLOR = '#e04040';
+
+const dot = (color: string, size = 26) =>
+  L.divIcon({
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>`,
+    className: '',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+
+const storyIcon = L.divIcon({
+  html: `<div style="width:30px;height:30px;border-radius:50%;background:${STORY_COLOR};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+  </div>`,
+  className: '',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
+
+/* ── Props ── */
+interface MultiLayerMapProps {
+  breweries: Brewery[];
+  venues: Venue[];
+  posts: BlogPost[];
+  onSelectBrewery?: (brewery: Brewery) => void;
+}
+
+type LayerKey = 'breweries' | 'venues' | 'stories';
+
+const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
+  breweries: { label: 'Brouwerijen', color: '#6B3A2A' },
+  venues: { label: 'Cafés & Restaurants', color: VENUE_COLOR },
+  stories: { label: 'Story Pins', color: STORY_COLOR },
+};
+
+export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery }: MultiLayerMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const layersRef = useRef<Record<LayerKey, L.LayerGroup>>({
+    breweries: L.layerGroup(),
+    venues: L.layerGroup(),
+    stories: L.layerGroup(),
+  });
+
+  const [visible, setVisible] = useState<Record<LayerKey, boolean>>({
+    breweries: true,
+    venues: true,
+    stories: true,
+  });
+
+  const toggle = (key: LayerKey) =>
+    setVisible(prev => ({ ...prev, [key]: !prev[key] }));
+
+  // Init map
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [50.5, 4.5],
+      zoom: 8,
+      zoomControl: false,
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
+    }).addTo(map);
+
+    Object.values(layersRef.current).forEach(lg => lg.addTo(map));
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Sync visibility
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    (Object.keys(visible) as LayerKey[]).forEach(key => {
+      const lg = layersRef.current[key];
+      if (visible[key] && !map.hasLayer(lg)) map.addLayer(lg);
+      if (!visible[key] && map.hasLayer(lg)) map.removeLayer(lg);
+    });
+  }, [visible]);
+
+  // Populate brewery markers
+  useEffect(() => {
+    const lg = layersRef.current.breweries;
+    lg.clearLayers();
+    breweries.forEach(b => {
+      const m = L.marker([b.lat, b.lng], { icon: dot(breweryTypeColors[b.type] || '#6B3A2A') });
+      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${b.name}</strong><br/><span style="font-size:11px;color:#888;">${b.type} · ${b.province}</span></div>`);
+      if (onSelectBrewery) m.on('click', () => onSelectBrewery(b));
+      lg.addLayer(m);
+    });
+  }, [breweries, onSelectBrewery]);
+
+  // Populate venue markers
+  useEffect(() => {
+    const lg = layersRef.current.venues;
+    lg.clearLayers();
+    venues.forEach(v => {
+      const m = L.marker([v.lat, v.lng], { icon: dot(VENUE_COLOR, 22) });
+      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${v.name}</strong><br/><span style="font-size:11px;color:#888;">${v.venueType} · ${v.province}</span>${v.address ? `<br/><span style="font-size:11px;">${v.address}</span>` : ''}</div>`);
+      lg.addLayer(m);
+    });
+  }, [venues]);
+
+  // Populate story pins (blog posts linked to a brewery with coords)
+  useEffect(() => {
+    const lg = layersRef.current.stories;
+    lg.clearLayers();
+    posts.forEach(p => {
+      // Find linked brewery to get coords
+      const brewery = p.breweryId ? breweries.find(b => b.id === p.breweryId) : null;
+      if (!brewery) return;
+      // Offset slightly so pins don't stack exactly on brewery
+      const lat = brewery.lat + 0.008;
+      const lng = brewery.lng + 0.008;
+      const m = L.marker([lat, lng], { icon: storyIcon });
+      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:#e04040;">Lees artikel →</a></div>`);
+      lg.addLayer(m);
+    });
+  }, [posts, breweries]);
+
+  return (
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="w-full h-full z-0" />
+
+      {/* Layer toggles */}
+      <div className="absolute top-3 right-3 z-[1000] bg-background border border-border p-2 flex flex-col gap-1.5 text-sm">
+        {(Object.keys(LAYER_META) as LayerKey[]).map(key => (
+          <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-muted transition-colors">
+            <span
+              className="w-3 h-3 rounded-full shrink-0 border border-border"
+              style={{
+                background: visible[key] ? LAYER_META[key].color : 'transparent',
+              }}
+            />
+            <input
+              type="checkbox"
+              checked={visible[key]}
+              onChange={() => toggle(key)}
+              className="sr-only"
+            />
+            <span className={visible[key] ? 'text-foreground' : 'text-muted-foreground'}>
+              {LAYER_META[key].label}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
