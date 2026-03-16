@@ -117,7 +117,7 @@ const Index = () => {
           {/* List view */}
           {view === 'list' && (
             <div className="relative">
-              <div className="sticky top-14 z-30 py-3 px-3 md:px-5 bg-background/80 backdrop-blur-sm">
+              <div className="sticky top-14 z-30 py-3 px-3 md:px-5 bg-background backdrop-blur-md border-b border-border/40">
                 {searchOverlay}
               </div>
               <div className="px-4 md:px-5 py-6">
