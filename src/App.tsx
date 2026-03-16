@@ -52,7 +52,6 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <WhisperFAB />
-        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
