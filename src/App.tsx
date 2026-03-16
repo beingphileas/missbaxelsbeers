@@ -11,6 +11,7 @@ import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Venues from "./pages/Venues";
+import Beers from "./pages/Beers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/explore" element={<Explore />} />
           <Route path="/post/:slug" element={<BlogPost />} />
           <Route path="/venues" element={<Venues />} />
+          <Route path="/beers" element={<Beers />} />
           <Route path="/about" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route
