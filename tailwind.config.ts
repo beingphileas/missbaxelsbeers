@@ -55,6 +55,11 @@ export default {
         charcoal: "hsl(var(--charcoal))",
         rust: "hsl(var(--rust))",
         slate: "hsl(var(--slate))",
+        parchment: "hsl(var(--parchment))",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
