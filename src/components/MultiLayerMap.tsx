@@ -41,6 +41,7 @@ interface MultiLayerMapProps {
   venues: Venue[];
   posts: BlogPost[];
   onSelectBrewery?: (brewery: Brewery) => void;
+  focusLocation?: { lat: number; lng: number } | null;
 }
 
 type LayerKey = 'breweries' | 'venues' | 'stories';
@@ -55,7 +56,7 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
 const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>';
 
-export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery }: MultiLayerMapProps) {
+export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
@@ -164,6 +165,12 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       lg.addLayer(m);
     });
   }, [posts, breweries]);
+
+  // Fly to focus location
+  useEffect(() => {
+    if (!focusLocation || !mapRef.current) return;
+    mapRef.current.flyTo([focusLocation.lat, focusLocation.lng], 14, { duration: 1.2 });
+  }, [focusLocation]);
 
   return (
     <div className="relative w-full h-full">

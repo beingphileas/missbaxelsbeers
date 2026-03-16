@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import SiteHeader from "@/components/SiteHeader";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
+import Explore from "./pages/Explore";
 import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
@@ -26,7 +27,8 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/map" element={<Index />} />
           <Route path="/breweries" element={<Index />} />
-          <Route path="/tastings" element={<Home />} />
+          <Route path="/tastings" element={<Explore />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/post/:slug" element={<BlogPost />} />
           <Route path="/venues" element={<Venues />} />
           <Route path="/about" element={<Home />} />
