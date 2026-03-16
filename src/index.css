@@ -67,13 +67,12 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
-    font-feature-settings: 'ss01', 'ss02';
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
   }
 
   .font-serif {
-    font-family: 'Fraunces', Georgia, serif;
-    letter-spacing: -0.02em;
+    font-family: 'Lora', Georgia, serif;
+    letter-spacing: -0.01em;
   }
 }
 
