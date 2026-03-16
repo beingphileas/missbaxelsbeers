@@ -307,6 +307,11 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Coords Tab */}
+          <TabsContent value="coords">
+            <CoordFixer />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
