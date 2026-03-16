@@ -64,6 +64,42 @@ export type Database = {
           },
         ]
       }
+      blog_post_beers: {
+        Row: {
+          beer_id: string
+          blog_post_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          beer_id: string
+          blog_post_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          beer_id?: string
+          blog_post_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_beers_beer_id_fkey"
+            columns: ["beer_id"]
+            isOneToOne: false
+            referencedRelation: "beers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_beers_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           beer_id: string | null

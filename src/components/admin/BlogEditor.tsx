@@ -34,30 +34,30 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [breweryId, setBreweryId] = useState<string>('');
   const [beerId, setBeerId] = useState<string>('');
+  const [selectedBeerIds, setSelectedBeerIds] = useState<string[]>([]);
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('draft');
 
   // Load post if editing
   useEffect(() => {
     if (postId) {
-      supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('id', postId)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            setTitle(data.title);
-            setSlug(data.slug);
-            setExcerpt(data.excerpt ?? '');
-            setContent(data.content);
-            setCoverImageUrl(data.cover_image_url ?? '');
-            setBreweryId(data.brewery_id ?? '');
-            setBeerId(data.beer_id ?? '');
-            setTags((data.tags ?? []).join(', '));
-            setStatus(data.status);
-          }
-        });
+      Promise.all([
+        supabase.from('blog_posts').select('*').eq('id', postId).single(),
+        supabase.from('blog_post_beers').select('beer_id').eq('blog_post_id', postId),
+      ]).then(([{ data }, { data: links }]) => {
+        if (data) {
+          setTitle(data.title);
+          setSlug(data.slug);
+          setExcerpt(data.excerpt ?? '');
+          setContent(data.content);
+          setCoverImageUrl(data.cover_image_url ?? '');
+          setBreweryId(data.brewery_id ?? '');
+          setBeerId(data.beer_id ?? '');
+          setSelectedBeerIds((links ?? []).map((l: any) => l.beer_id));
+          setTags((data.tags ?? []).join(', '));
+          setStatus(data.status);
+        }
+      });
     }
   }, [postId]);
 
@@ -73,6 +73,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     } else {
       setBeers([]);
       setBeerId('');
+      setSelectedBeerIds([]);
     }
   }, [breweryId]);
 
@@ -115,13 +116,29 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     };
 
     let error;
+    let savedPostId = postId;
     if (postId) {
       ({ error } = await supabase
         .from('blog_posts')
         .update(postData)
         .eq('id', postId));
     } else {
-      ({ error } = await supabase.from('blog_posts').insert(postData));
+      const { data: inserted, error: insertErr } = await supabase
+        .from('blog_posts')
+        .insert(postData)
+        .select('id')
+        .single();
+      error = insertErr;
+      savedPostId = inserted?.id ?? null;
+    }
+
+    // Sync junction table
+    if (!error && savedPostId && selectedBeerIds.length > 0) {
+      await supabase.from('blog_post_beers').delete().eq('blog_post_id', savedPostId);
+      const links = selectedBeerIds.map(bid => ({ blog_post_id: savedPostId!, beer_id: bid }));
+      await supabase.from('blog_post_beers').insert(links);
+    } else if (!error && savedPostId) {
+      await supabase.from('blog_post_beers').delete().eq('blog_post_id', savedPostId);
     }
 
     if (error) {
@@ -220,19 +237,31 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Bier</Label>
-              <Select value={beerId} onValueChange={setBeerId} disabled={!breweryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder={breweryId ? 'Kies bier' : 'Kies eerst brouwerij'} />
-                </SelectTrigger>
-                <SelectContent>
+              <Label className="text-xs text-muted-foreground">Bieren (meerdere selecteerbaar)</Label>
+              {!breweryId ? (
+                <p className="text-xs text-muted-foreground py-2">Kies eerst een brouwerij</p>
+              ) : (
+                <div className="border border-input rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
                   {beers.map(b => (
-                    <SelectItem key={b.id} value={b.id}>
+                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/50 px-1 py-0.5 rounded">
+                      <input
+                        type="checkbox"
+                        checked={selectedBeerIds.includes(b.id)}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setSelectedBeerIds(prev => [...prev, b.id]);
+                            if (!beerId) setBeerId(b.id);
+                          } else {
+                            setSelectedBeerIds(prev => prev.filter(id => id !== b.id));
+                          }
+                        }}
+                        className="accent-[hsl(var(--accent))]"
+                      />
                       {b.name}
-                    </SelectItem>
+                    </label>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Tags (komma-gescheiden)</Label>
