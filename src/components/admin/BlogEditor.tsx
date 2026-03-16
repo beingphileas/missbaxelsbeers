@@ -73,6 +73,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     } else {
       setBeers([]);
       setBeerId('');
+      setSelectedBeerIds([]);
     }
   }, [breweryId]);
 
