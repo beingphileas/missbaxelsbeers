@@ -91,6 +91,9 @@ export default function Home() {
         </section>
       )}
 
+      {/* Featured Beers */}
+      <FeaturedBeers beers={breweries.flatMap(b => b.beers)} />
+
       {/* Featured Breweries */}
       <FeaturedBreweries breweries={breweries} />
 
