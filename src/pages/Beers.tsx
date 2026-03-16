@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { motion } from 'framer-motion';
-import { Search, Star, SlidersHorizontal, X } from 'lucide-react';
+import { Search, Star, SlidersHorizontal, X, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
