@@ -100,6 +100,78 @@ export type Database = {
           },
         ]
       }
+      blog_post_breweries: {
+        Row: {
+          blog_post_id: string
+          brewery_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blog_post_id: string
+          brewery_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blog_post_id?: string
+          brewery_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_breweries_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_breweries_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_venues: {
+        Row: {
+          blog_post_id: string
+          created_at: string
+          id: string
+          venue_id: string
+        }
+        Insert: {
+          blog_post_id: string
+          created_at?: string
+          id?: string
+          venue_id: string
+        }
+        Update: {
+          blog_post_id?: string
+          created_at?: string
+          id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_venues_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_venues_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           beer_id: string | null
