@@ -157,6 +157,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
   useEffect(() => {
     const lg = layersRef.current.stories;
     lg.clearLayers();
+    storyMarkersRef.current.clear();
     posts.forEach(p => {
       const brewery = p.breweryId ? breweries.find(b => b.id === p.breweryId) : null;
       if (!brewery) return;
@@ -165,8 +166,22 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       const m = L.marker([lat, lng], { icon: storyIcon });
       m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:${STORY_COLOR};">Lees artikel →</a></div>`);
       lg.addLayer(m);
+      storyMarkersRef.current.set(p.id, m);
     });
   }, [posts, breweries]);
+
+  // Pulse hovered story pin
+  useEffect(() => {
+    storyMarkersRef.current.forEach((marker, id) => {
+      const el = marker.getElement();
+      if (!el) return;
+      if (id === hoveredPostId) {
+        el.classList.add('map-pin-pulse');
+      } else {
+        el.classList.remove('map-pin-pulse');
+      }
+    });
+  }, [hoveredPostId]);
 
   // Fly to focus location
   useEffect(() => {
