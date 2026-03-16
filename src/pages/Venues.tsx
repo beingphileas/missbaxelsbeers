@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MapPin, ExternalLink, CheckCircle, Star, Phone, Mail } from 'lucide-react';
+import { MapPin, ExternalLink, CheckCircle, Phone, Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const ALL = '__all__';
@@ -132,23 +132,41 @@ export default function Venues() {
                   )}
 
                   {/* Ratings */}
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-1.5 pt-1">
                     {venue.googleRating != null && (
                       <a href={venue.googleUrl || '#'} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
-                        <Star size={9} className="text-amber-500 fill-amber-500" /> {venue.googleRating.toFixed(1)} Google
+                        title={`Google: ${venue.googleRating.toFixed(1)}/5`}
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-[#4285F4] hover:bg-[#4285F4]/5 transition-colors inline-flex items-center gap-1 rounded-sm">
+                        <svg width="10" height="10" viewBox="0 0 24 24" className="shrink-0">
+                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        <span className="font-bold">{venue.googleRating.toFixed(1)}</span>
                       </a>
                     )}
                     {venue.tripadvisorRating != null && (
                       <a href={venue.tripadvisorUrl || '#'} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
-                        <Star size={9} className="text-green-600 fill-green-600" /> {venue.tripadvisorRating.toFixed(1)} TripAdvisor
+                        title={`TripAdvisor: ${venue.tripadvisorRating.toFixed(1)}/5`}
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-[#00AF87] hover:bg-[#00AF87]/5 transition-colors inline-flex items-center gap-1 rounded-sm">
+                        <svg width="10" height="10" viewBox="0 0 24 24" className="shrink-0">
+                          <circle cx="8.5" cy="14" r="2.5" fill="none" stroke="#00AF87" strokeWidth="2"/>
+                          <circle cx="15.5" cy="14" r="2.5" fill="none" stroke="#00AF87" strokeWidth="2"/>
+                          <path d="M12 5C7 5 3 8 3 12h3a6 6 0 0112 0h3c0-4-4-7-9-7z" fill="#00AF87"/>
+                          <circle cx="12" cy="5" r="1.5" fill="#FF3722"/>
+                        </svg>
+                        <span className="font-bold">{venue.tripadvisorRating.toFixed(1)}</span>
                       </a>
                     )}
                     {venue.untappdRating != null && (
                       <a href={venue.untappdUrl || '#'} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
-                        <Star size={9} className="text-yellow-600 fill-yellow-600" /> {venue.untappdRating.toFixed(1)} Untappd
+                        title={`Untappd: ${venue.untappdRating.toFixed(1)}/5`}
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-[#FFC000] hover:bg-[#FFC000]/5 transition-colors inline-flex items-center gap-1 rounded-sm">
+                        <svg width="10" height="10" viewBox="0 0 24 24" className="shrink-0">
+                          <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7L12 2z" fill="#FFC000"/>
+                        </svg>
+                        <span className="font-bold">{venue.untappdRating.toFixed(1)}</span>
                       </a>
                     )}
                   </div>
