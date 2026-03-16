@@ -148,6 +148,68 @@
   }
 }
 
+/* ═══ Editorial "New Yorker meets Craft Beer" typography ═══ */
+.prose-editorial {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: hsl(var(--foreground));
+}
+
+.prose-editorial p {
+  margin-bottom: 1.5em;
+}
+
+/* Drop cap on first paragraph */
+.prose-editorial > p:first-of-type::first-letter {
+  font-family: 'Fraunces', 'Playfair Display', serif;
+  font-size: 3.8em;
+  float: left;
+  line-height: 0.8;
+  padding-right: 0.08em;
+  margin-top: 0.05em;
+  color: hsl(var(--accent));
+  font-weight: 700;
+}
+
+.prose-editorial a {
+  color: hsl(var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: hsl(var(--accent) / 0.3);
+  transition: text-decoration-color 0.2s;
+}
+
+.prose-editorial a:hover {
+  text-decoration-color: hsl(var(--accent));
+}
+
+.prose-editorial ul, .prose-editorial ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose-editorial li {
+  margin-bottom: 0.5em;
+}
+
+.prose-editorial strong {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.prose-editorial em {
+  font-style: italic;
+}
+
+.prose-editorial hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.4), transparent);
+  margin: 2.5em 0;
+}
+}
+
 /* Leaflet overrides */
 .leaflet-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
