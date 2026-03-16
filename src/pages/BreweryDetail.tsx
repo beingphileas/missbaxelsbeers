@@ -1,59 +1,53 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBreweries } from '@/data/breweries';
+import { useVenues, useBlogPosts } from '@/data/blog';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Globe, Phone, Mail, Calendar, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, Phone, Mail, Calendar, Star, BookOpen, FlaskConical, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-
-function MiniMap({ lat, lng, name }: { lat: number; lng: number; name: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-
-    const map = L.map(containerRef.current, {
-      center: [lat, lng],
-      zoom: 13,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-    });
-
-    L.tileLayer(DARK_TILES, { maxZoom: 18 }).addTo(map);
-
-    const icon = L.divIcon({
-      html: `<div style="width:20px;height:20px;border-radius:50%;background:hsl(25,90%,45%);border:2.5px solid rgba(255,255,255,0.95);box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-      className: '',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-    });
-
-    L.marker([lat, lng], { icon }).addTo(map).bindPopup(name);
-    mapRef.current = map;
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [lat, lng, name]);
-
-  return <div ref={containerRef} className="w-full h-full rounded-none" />;
-}
+import ContextMap from '@/components/ContextMap';
 
 export default function BreweryDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: breweries = [], isLoading } = useBreweries();
+  const { data: venues = [] } = useVenues();
+  const { data: posts = [] } = useBlogPosts();
 
   const brewery = useMemo(() => breweries.find(b => b.id === id), [breweries, id]);
+
+  // Related blog posts
+  const relatedPosts = useMemo(() => {
+    if (!brewery) return [];
+    return posts.filter(p => p.breweryId === brewery.id);
+  }, [posts, brewery]);
+
+  // Nearby venues
+  const nearbyVenues = useMemo(() => {
+    if (!brewery) return [];
+    return venues
+      .map(v => {
+        const d = Math.sqrt(Math.pow(v.lat - brewery.lat, 2) + Math.pow(v.lng - brewery.lng, 2));
+        return { venue: v, distance: d };
+      })
+      .filter(v => v.distance < 0.15)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 6)
+      .map(v => v.venue);
+  }, [brewery, venues]);
+
+  // Map markers
+  const mapMarkers = useMemo(() => {
+    if (!brewery) return [];
+    const markers = [
+      { lat: brewery.lat, lng: brewery.lng, name: brewery.name, color: '#D4AF37', type: brewery.type },
+    ];
+    nearbyVenues.forEach(v => {
+      markers.push({ lat: v.lat, lng: v.lng, name: v.name, color: '#c2703e', type: v.venueType });
+    });
+    return markers;
+  }, [brewery, nearbyVenues]);
 
   if (isLoading) {
     return (
@@ -73,9 +67,7 @@ export default function BreweryDetail() {
         <div className="text-center">
           <p className="text-muted-foreground mb-4">Brouwerij niet gevonden.</p>
           <Button asChild variant="outline">
-            <Link to="/breweries">
-              <ArrowLeft size={14} /> Terug naar kaart
-            </Link>
+            <Link to="/breweries"><ArrowLeft size={14} /> Terug naar kaart</Link>
           </Button>
         </div>
       </div>
@@ -103,9 +95,7 @@ export default function BreweryDetail() {
                 <Badge className="bg-accent/10 text-accent border-accent/20 text-[9px]">Featured</Badge>
               )}
             </div>
-
             <h1 className="font-display text-3xl md:text-5xl mb-2">{brewery.name}</h1>
-
             <div className="flex flex-wrap items-center gap-3 text-muted-foreground text-sm">
               <span className="inline-flex items-center gap-1">
                 <MapPin size={12} /> {brewery.province}
@@ -120,79 +110,205 @@ export default function BreweryDetail() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-5 py-8">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Map */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] overflow-hidden h-64 md:h-80"
-          >
-            <MiniMap lat={brewery.lat} lng={brewery.lng} name={brewery.name} />
-          </motion.div>
+      <div className="max-w-4xl mx-auto px-5 py-8 space-y-10">
 
-          {/* Info card */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5"
-          >
-            <h2 className="font-display text-lg mb-4 border-b border-dashed border-border/40 pb-2">
-              Info
-            </h2>
+        {/* ═══════ LAYER 1: THE STORY ═══════ */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen size={16} className="text-accent" />
+            <h2 className="font-display text-xl">Het Verhaal</h2>
+          </div>
 
-            {brewery.story && (
-              <p className="text-sm leading-relaxed text-muted-foreground mb-4">{brewery.story}</p>
-            )}
+          {brewery.story ? (
+            <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5 md:p-6 relative">
+              {/* Decorative tape */}
+              <div className="absolute -top-2 left-8 w-14 h-4 bg-accent/12 border-x border-accent/8 z-10" />
+              <blockquote className="font-serif italic text-sm md:text-base leading-relaxed text-muted-foreground border-l-2 border-accent/30 pl-4">
+                {brewery.story}
+              </blockquote>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              Het verhaal van {brewery.name} wordt nog geschreven…
+            </p>
+          )}
 
-            <dl className="space-y-2.5 text-sm">
-              {brewery.address && (
-                <div className="flex items-start gap-2">
-                  <MapPin size={13} className="text-muted-foreground mt-0.5 shrink-0" />
-                  <dd>{brewery.address}</dd>
+          {/* Related blog posts */}
+          {relatedPosts.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                Artikelen over {brewery.name}
+              </p>
+              {relatedPosts.map(post => (
+                <Link
+                  key={post.id}
+                  to={`/post/${post.slug}`}
+                  className="group flex gap-4 bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                >
+                  {post.coverImageUrl && (
+                    <img src={post.coverImageUrl} alt={post.title} className="w-24 h-20 object-cover shrink-0" />
+                  )}
+                  <div className="py-2.5 pr-3 flex flex-col justify-center">
+                    <h3 className="font-display text-sm leading-tight group-hover:text-accent transition-colors mb-0.5">
+                      {post.title}
+                    </h3>
+                    {post.excerpt && (
+                      <p className="text-[10px] text-muted-foreground line-clamp-1">{post.excerpt}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </motion.section>
+
+        {/* ═══════ LAYER 2: THE DATA ═══════ */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <FlaskConical size={16} className="text-accent" />
+            <h2 className="font-display text-xl">De Data</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {/* Info card */}
+            <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
+              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">
+                Info
+              </h3>
+              <dl className="space-y-2.5 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Type</dt>
+                  <dd className="font-medium">{brewery.type}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Provincie</dt>
+                  <dd className="font-medium">{brewery.province}</dd>
+                </div>
+                {brewery.establishedYear > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Opgericht</dt>
+                    <dd className="font-medium tabular-nums">{brewery.establishedYear}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Bieren</dt>
+                  <dd className="font-medium tabular-nums">{brewery.beers.length}</dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* Contact card */}
+            <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
+              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">
+                Contact
+              </h3>
+              <dl className="space-y-2.5 text-sm">
+                {brewery.address && (
+                  <div className="flex items-start gap-2">
+                    <MapPin size={13} className="text-muted-foreground mt-0.5 shrink-0" />
+                    <dd>{brewery.address}</dd>
+                  </div>
+                )}
+                {brewery.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone size={13} className="text-muted-foreground shrink-0" />
+                    <dd>{brewery.phone}</dd>
+                  </div>
+                )}
+                {brewery.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail size={13} className="text-muted-foreground shrink-0" />
+                    <a href={`mailto:${brewery.email}`} className="text-accent hover:underline">{brewery.email}</a>
+                  </div>
+                )}
+                {brewery.websiteUrl && (
+                  <div className="flex items-center gap-2">
+                    <Globe size={13} className="text-muted-foreground shrink-0" />
+                    <a
+                      href={brewery.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline truncate"
+                    >
+                      {brewery.websiteUrl.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
+                )}
+              </dl>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* ═══════ LAYER 3: THE CONTEXT ═══════ */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Map size={16} className="text-accent" />
+            <h2 className="font-display text-xl">De Context</h2>
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-5">
+            {/* Map */}
+            <div className="md:col-span-3 bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] overflow-hidden h-64 md:h-80">
+              <ContextMap
+                center={{ lat: brewery.lat, lng: brewery.lng }}
+                markers={mapMarkers}
+                zoom={nearbyVenues.length > 0 ? 12 : 13}
+              />
+            </div>
+
+            {/* Nearby venues */}
+            <div className="md:col-span-2">
+              <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3">
+                {nearbyVenues.length > 0 ? 'Cafés & venues in de buurt' : 'Locatie'}
+              </h3>
+              {nearbyVenues.length > 0 ? (
+                <div className="space-y-2">
+                  {nearbyVenues.map(v => (
+                    <div key={v.id} className="bg-card border border-border/60 p-2.5 text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="font-medium text-xs">{v.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{v.venueType} · {v.province}</p>
+                        </div>
+                        {v.googleRating && (
+                          <span className="text-[10px] font-bold tabular-nums text-accent shrink-0">
+                            ★ {v.googleRating}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-card border border-border/60 p-3">
+                  <p className="text-sm font-medium">{brewery.name}</p>
+                  {brewery.address && (
+                    <p className="text-[11px] text-muted-foreground mt-1">{brewery.address}</p>
+                  )}
                 </div>
               )}
-              {brewery.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone size={13} className="text-muted-foreground shrink-0" />
-                  <dd>{brewery.phone}</dd>
-                </div>
-              )}
-              {brewery.email && (
-                <div className="flex items-center gap-2">
-                  <Mail size={13} className="text-muted-foreground shrink-0" />
-                  <a href={`mailto:${brewery.email}`} className="text-accent hover:underline">
-                    {brewery.email}
-                  </a>
-                </div>
-              )}
-              {brewery.websiteUrl && (
-                <div className="flex items-center gap-2">
-                  <Globe size={13} className="text-muted-foreground shrink-0" />
-                  <a
-                    href={brewery.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent hover:underline truncate"
-                  >
-                    {brewery.websiteUrl.replace(/^https?:\/\//, '')}
-                  </a>
-                </div>
-              )}
-            </dl>
-          </motion.div>
-        </div>
+            </div>
+          </div>
+        </motion.section>
 
         {/* Beers */}
         {brewery.beers.length > 0 && (
-          <motion.div
+          <motion.section
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="mt-10"
+            transition={{ delay: 0.3 }}
           >
             <h2 className="font-display text-xl mb-1">
               Bieren <span className="text-muted-foreground text-sm font-sans">({brewery.beers.length})</span>
@@ -210,9 +326,7 @@ export default function BreweryDetail() {
                     <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">
                       {beer.style}
                     </span>
-                    <span className="text-[11px] font-sans font-bold tabular-nums shrink-0">
-                      {beer.abv}%
-                    </span>
+                    <span className="text-[11px] font-sans font-bold tabular-nums shrink-0">{beer.abv}%</span>
                   </div>
                   <div className="p-3">
                     <h3 className="font-display text-sm leading-tight group-hover:text-accent transition-colors mb-1">
@@ -230,18 +344,16 @@ export default function BreweryDetail() {
                         ))}
                       </div>
                     )}
-                    <div className="flex gap-1.5 mt-2">
-                      {beer.isHiddenGem && (
-                        <span className="inline-flex items-center gap-0.5 text-success text-[8px] font-bold uppercase">
-                          <Star size={8} /> Gem
-                        </span>
-                      )}
-                    </div>
+                    {beer.isHiddenGem && (
+                      <span className="inline-flex items-center gap-0.5 text-success text-[8px] font-bold uppercase mt-2">
+                        <Star size={8} /> Gem
+                      </span>
+                    )}
                   </div>
                 </Link>
               ))}
             </div>
-          </motion.div>
+          </motion.section>
         )}
       </div>
     </div>
