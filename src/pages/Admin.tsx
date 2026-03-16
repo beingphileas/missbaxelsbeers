@@ -330,6 +330,18 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Brewery Import Tab */}
+          <TabsContent value="breweries-import">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Brouwerijen Import / Sync</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
