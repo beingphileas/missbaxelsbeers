@@ -115,26 +115,63 @@ export default function Venues() {
                     </div>
                   )}
                 </div>
-                <div className="mt-3">
+                <div className="mt-3 space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-serif text-sm leading-snug">{venue.name}</h3>
+                    <h3 className="font-display text-sm font-bold leading-snug">{venue.name}</h3>
                     {venue.isVerified && (
                       <CheckCircle size={12} className="text-accent shrink-0" />
                     )}
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 tracking-wide">
+                  <p className="text-[10px] text-muted-foreground tracking-wide">
                     {venue.venueType} · {venue.province}
                   </p>
-                  {venue.websiteUrl && (
-                    <a
-                      href={venue.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-accent hover:underline mt-1 inline-flex items-center gap-1 transition-colors"
-                    >
-                      Website <ExternalLink size={9} />
-                    </a>
+                  {venue.address && (
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <MapPin size={9} className="shrink-0" /> {venue.address}
+                    </p>
                   )}
+
+                  {/* Ratings */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {venue.googleRating != null && (
+                      <a href={venue.googleUrl || '#'} target="_blank" rel="noopener noreferrer"
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
+                        <Star size={9} className="text-amber-500 fill-amber-500" /> {venue.googleRating.toFixed(1)} Google
+                      </a>
+                    )}
+                    {venue.tripadvisorRating != null && (
+                      <a href={venue.tripadvisorUrl || '#'} target="_blank" rel="noopener noreferrer"
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
+                        <Star size={9} className="text-green-600 fill-green-600" /> {venue.tripadvisorRating.toFixed(1)} TripAdvisor
+                      </a>
+                    )}
+                    {venue.untappdRating != null && (
+                      <a href={venue.untappdUrl || '#'} target="_blank" rel="noopener noreferrer"
+                        className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-accent transition-colors inline-flex items-center gap-1">
+                        <Star size={9} className="text-yellow-600 fill-yellow-600" /> {venue.untappdRating.toFixed(1)} Untappd
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Contact & links */}
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                    {venue.websiteUrl && (
+                      <a href={venue.websiteUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 transition-colors">
+                        Website <ExternalLink size={9} />
+                      </a>
+                    )}
+                    {venue.phone && (
+                      <a href={`tel:${venue.phone}`} className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+                        <Phone size={9} /> {venue.phone}
+                      </a>
+                    )}
+                    {venue.email && (
+                      <a href={`mailto:${venue.email}`} className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+                        <Mail size={9} /> {venue.email}
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

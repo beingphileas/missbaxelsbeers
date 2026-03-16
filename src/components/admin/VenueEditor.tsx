@@ -213,6 +213,37 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
             <Switch checked={isVerified} onCheckedChange={setIsVerified} />
             <Label className="text-sm">Verified by the Whisperer 🏅</Label>
           </div>
+
+          {/* Ratings */}
+          <div className="border-t border-border/50 pt-4 mt-4">
+            <h3 className="text-sm font-bold mb-3">Ratings & Links</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Google Rating (0-5)</Label>
+                <Input value={googleRating} onChange={e => setGoogleRating(e.target.value)} placeholder="4.2" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Google Maps URL</Label>
+                <Input value={googleUrl} onChange={e => setGoogleUrl(e.target.value)} placeholder="https://maps.google.com/..." />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">TripAdvisor Rating (0-5)</Label>
+                <Input value={tripadvisorRating} onChange={e => setTripadvisorRating(e.target.value)} placeholder="4.0" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">TripAdvisor URL</Label>
+                <Input value={tripadvisorUrl} onChange={e => setTripadvisorUrl(e.target.value)} placeholder="https://tripadvisor.com/..." />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Untappd Rating (0-5)</Label>
+                <Input value={untappdRating} onChange={e => setUntappdRating(e.target.value)} placeholder="3.8" type="number" step="0.1" min="0" max="5" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Untappd URL</Label>
+                <Input value={untappdUrl} onChange={e => setUntappdUrl(e.target.value)} placeholder="https://untappd.com/v/..." />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
