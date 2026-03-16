@@ -9,6 +9,7 @@ export interface BlogPost {
   content: string;
   coverImageUrl: string;
   beerId: string | null;
+  beerIds: string[];
   breweryId: string | null;
   venueId: string | null;
   tags: string[];
@@ -18,6 +19,7 @@ export interface BlogPost {
   // Joined data
   breweryName?: string;
   beerName?: string;
+  beerNames?: string[];
   venueName?: string;
 }
 
