@@ -70,7 +70,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
   }
 
   return (
-    <Link to={`/post/${post.slug}`}>
+    <Link to={`/post/${post.slug}`} className="block">
       <motion.article
         whileHover={{ y: -2 }}
         transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
