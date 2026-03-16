@@ -9,10 +9,15 @@ interface FeaturedBreweriesProps {
 
 export default function FeaturedBreweries({ breweries }: FeaturedBreweriesProps) {
   const featured = breweries
-    .filter(b => b.type === 'Trappist' || b.beers.length > 0)
+    .filter(b => b.featured)
     .slice(0, 6);
 
-  if (featured.length === 0) return null;
+  // Fallback: if none are featured yet, show Trappist + breweries with beers
+  const display = featured.length > 0
+    ? featured
+    : breweries.filter(b => b.type === 'Trappist' || b.beers.length > 0).slice(0, 6);
+
+  if (display.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20 bg-secondary border-t-2 border-foreground">
@@ -31,7 +36,7 @@ export default function FeaturedBreweries({ breweries }: FeaturedBreweriesProps)
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((b, i) => (
+          {display.map((b, i) => (
             <motion.div
               key={b.id}
               initial={{ opacity: 0, y: 12 }}
