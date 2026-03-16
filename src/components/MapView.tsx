@@ -4,16 +4,16 @@ import 'leaflet/dist/leaflet.css';
 import { Brewery } from '@/data/breweries';
 
 const typeColors: Record<string, string> = {
-  Trappist: '#92400e',
-  'Family-owned': '#a16207',
-  Microbrewery: '#65a30d',
+  Trappist: '#6B3A2A',
+  'Family-owned': '#8B6914',
+  Microbrewery: '#7A8450',
   Industrial: '#6b7280',
 };
 
 const createIcon = (type: string) => {
-  const color = typeColors[type] || '#92400e';
+  const color = typeColors[type] || '#6B3A2A';
   return L.divIcon({
-    html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:2.5px solid rgba(255,255,255,0.95);box-shadow:0 2px 6px rgba(0,0,0,0.15);transition:transform 0.2s;"></div>`,
+    html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:2.5px solid rgba(255,255,255,0.95);box-shadow:0 2px 6px rgba(0,0,0,0.2);"></div>`,
     className: '',
     iconSize: [24, 24],
     iconAnchor: [12, 12],
@@ -24,6 +24,8 @@ interface MapViewProps {
   breweries: Brewery[];
   onSelectBrewery: (brewery: Brewery) => void;
 }
+
+const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
 const MapView = ({ breweries, onSelectBrewery }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
@@ -39,7 +41,7 @@ const MapView = ({ breweries, onSelectBrewery }: MapViewProps) => {
       zoomControl: false,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer(DARK_TILES, {
       attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
     }).addTo(map);
 
