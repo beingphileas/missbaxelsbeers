@@ -101,6 +101,12 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
       email: email.trim() || null,
       is_verified: isVerified,
       cover_image_url: coverImageUrl.trim() || null,
+      google_rating: googleRating ? parseFloat(googleRating) : null,
+      google_url: googleUrl.trim() || null,
+      tripadvisor_rating: tripadvisorRating ? parseFloat(tripadvisorRating) : null,
+      tripadvisor_url: tripadvisorUrl.trim() || null,
+      untappd_rating: untappdRating ? parseFloat(untappdRating) : null,
+      untappd_url: untappdUrl.trim() || null,
     };
 
     let error;
