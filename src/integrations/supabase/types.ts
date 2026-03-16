@@ -193,6 +193,7 @@ export type Database = {
           description: string | null
           email: string | null
           google_rating: number | null
+          google_review_count: number | null
           google_url: string | null
           id: string
           is_verified: boolean
@@ -202,8 +203,10 @@ export type Database = {
           phone: string | null
           province: string
           tripadvisor_rating: number | null
+          tripadvisor_review_count: number | null
           tripadvisor_url: string | null
           untappd_rating: number | null
+          untappd_review_count: number | null
           untappd_url: string | null
           updated_at: string
           venue_type: string
@@ -216,6 +219,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           google_rating?: number | null
+          google_review_count?: number | null
           google_url?: string | null
           id?: string
           is_verified?: boolean
@@ -225,8 +229,10 @@ export type Database = {
           phone?: string | null
           province: string
           tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
           tripadvisor_url?: string | null
           untappd_rating?: number | null
+          untappd_review_count?: number | null
           untappd_url?: string | null
           updated_at?: string
           venue_type?: string
@@ -239,6 +245,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           google_rating?: number | null
+          google_review_count?: number | null
           google_url?: string | null
           id?: string
           is_verified?: boolean
@@ -248,8 +255,10 @@ export type Database = {
           phone?: string | null
           province?: string
           tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
           tripadvisor_url?: string | null
           untappd_rating?: number | null
+          untappd_review_count?: number | null
           untappd_url?: string | null
           updated_at?: string
           venue_type?: string
