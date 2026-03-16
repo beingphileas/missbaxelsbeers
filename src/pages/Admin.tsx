@@ -13,6 +13,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import BlogEditor from '@/components/admin/BlogEditor';
 import VenueEditor from '@/components/admin/VenueEditor';
 import CoordFixer from '@/components/admin/CoordFixer';
+import FeaturedManager from '@/components/admin/FeaturedManager';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -183,6 +184,7 @@ export default function Admin() {
           <TabsList className="mb-4">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
+            <TabsTrigger value="featured">Featured</TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
@@ -310,6 +312,18 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Featured Tab */}
+          <TabsContent value="featured">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Featured Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FeaturedManager />
               </CardContent>
             </Card>
           </TabsContent>
