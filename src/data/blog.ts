@@ -35,6 +35,12 @@ export interface Venue {
   email: string;
   isVerified: boolean;
   coverImageUrl: string;
+  googleRating: number | null;
+  googleUrl: string;
+  tripadvisorRating: number | null;
+  tripadvisorUrl: string;
+  untappdRating: number | null;
+  untappdUrl: string;
 }
 
 async function fetchPublishedPosts(): Promise<BlogPost[]> {
