@@ -77,4 +77,4 @@ export function useBreweries() {
   });
 }
 
-export const breweryTypes: BreweryType[] = ['Trappist', 'Family-owned', 'Microbrewery', 'Industrial'];
+export const breweryTypes: BreweryType[] = ['Trappist', 'Family-owned', 'Microbrewery', 'Industrial', 'Contract brewer'];
