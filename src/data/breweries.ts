@@ -29,6 +29,7 @@ export interface Brewery {
   address: string;
   phone: string;
   email: string;
+  featured: boolean;
   beers: Beer[];
 }
 
