@@ -2,11 +2,19 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import heroLogo from '@/assets/missbaxels-logo.jpg';
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-4">
+    <section className="relative overflow-hidden py-16 md:py-24">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
+        style={{ backgroundImage: `url(${heroLogo})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
+
+      <div className="relative max-w-6xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,11 +47,6 @@ export default function HeroSection() {
             </Link>
           </div>
         </motion.div>
-      </div>
-
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-1/3 h-full opacity-5 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-l from-accent to-transparent" />
       </div>
     </section>
   );
