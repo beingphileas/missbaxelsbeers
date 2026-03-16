@@ -60,6 +60,10 @@ export default function Home() {
                             src={hero.coverImageUrl}
                             alt={hero.title}
                             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                            width={800}
+                            height={500}
+                            decoding="async"
+                            fetchPriority="high"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
@@ -115,6 +119,10 @@ export default function Home() {
                             src={post.coverImageUrl}
                             alt={post.title}
                             className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700"
+                            width={128}
+                            height={128}
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
