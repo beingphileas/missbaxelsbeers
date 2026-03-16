@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 48 30% 98%;
-    --foreground: 25 20% 12%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
 
-    --card: 48 30% 100%;
-    --card-foreground: 25 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
 
-    --popover: 48 30% 100%;
-    --popover-foreground: 25 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
 
-    --primary: 28 60% 25%;
-    --primary-foreground: 48 30% 98%;
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 20% 92%;
-    --secondary-foreground: 25 20% 12%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 40 20% 92%;
-    --muted-foreground: 25 12% 45%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 43 50% 55%;
-    --accent-foreground: 25 20% 12%;
+    --accent: 4 80% 58%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 25 10% 88%;
-    --input: 25 10% 88%;
-    --ring: 43 50% 55%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 4 80% 58%;
 
-    --radius: 0.75rem;
+    --radius: 0rem;
 
-    --sidebar-background: 40 20% 96%;
-    --sidebar-foreground: 25 20% 12%;
-    --sidebar-primary: 28 60% 25%;
-    --sidebar-primary-foreground: 48 30% 98%;
-    --sidebar-accent: 40 20% 92%;
-    --sidebar-accent-foreground: 25 20% 12%;
-    --sidebar-border: 25 10% 88%;
-    --sidebar-ring: 43 50% 55%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 8%;
+    --sidebar-primary: 0 0% 8%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 8%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 4 80% 58%;
 
     /* Custom tokens */
-    --gold: 43 50% 55%;
-    --abbey: 28 60% 25%;
-    --stone: 40 20% 92%;
-    --paper: 48 30% 98%;
-    --roast: 25 20% 12%;
+    --gold: 4 80% 58%;
+    --abbey: 0 0% 8%;
+    --stone: 0 0% 96%;
+    --paper: 0 0% 100%;
+    --roast: 0 0% 8%;
 
-    --shadow-card: 0 0 0 1px rgba(28, 25, 23, 0.05), 0 2px 4px rgba(28, 25, 23, 0.05);
-    --shadow-card-hover: 0 0 0 1px rgba(28, 25, 23, 0.1), 0 8px 16px rgba(28, 25, 23, 0.05);
-    --shadow-active: 0 0 0 2px hsl(43 50% 55%);
+    --shadow-card: none;
+    --shadow-card-hover: none;
+    --shadow-active: 0 0 0 2px hsl(4 80% 58%);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -67,7 +67,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Geist Sans', system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
     font-feature-settings: 'ss01', 'ss02';
   }
 
@@ -105,13 +105,13 @@
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: 'Geist Sans', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   background: hsl(var(--background));
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 0.75rem;
-  box-shadow: var(--shadow-card-hover);
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   border: none;
 }
 
