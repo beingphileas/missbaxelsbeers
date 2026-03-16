@@ -5,6 +5,7 @@ import { Calendar, MapPin } from 'lucide-react';
 interface BlogCardProps {
   post: BlogPost;
   featured?: boolean;
+  onMapPin?: (breweryId: string) => void;
 }
 
 export default function BlogCard({ post, featured = false }: BlogCardProps) {
