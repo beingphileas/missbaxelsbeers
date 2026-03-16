@@ -14,6 +14,7 @@ export interface Beer {
   featured: boolean;
   breweryId: string;
   breweryName?: string;
+  hasPost?: boolean;
 }
 
 export interface Brewery {
