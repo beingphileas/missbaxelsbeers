@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '@/integrations/supabase/client';
 import { useBreweries } from '@/data/breweries';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Save, Send } from 'lucide-react';
+import ImageUpload, { uploadInlineImage } from './ImageUpload';
 
 interface BlogEditorProps {
   postId: string | null;
