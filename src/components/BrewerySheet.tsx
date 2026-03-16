@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Calendar, MapPin, Sparkles, Loader2 } from 'lucide-react';
+import { X, ExternalLink, Calendar, MapPin, Sparkles, Loader2, Phone, Mail, Navigation } from 'lucide-react';
 import { Brewery } from '@/data/breweries';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
