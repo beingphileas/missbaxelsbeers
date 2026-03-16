@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { motion } from 'framer-motion';
 import { Search, Star, SlidersHorizontal, X } from 'lucide-react';
@@ -187,6 +188,7 @@ export default function Beers() {
 
 function BeerCard({ beer, index }: { beer: Beer; index: number }) {
   return (
+    <Link to={`/beers/${beer.id}`}>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -253,5 +255,6 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
         </div>
       </div>
     </motion.div>
+    </Link>
   );
 }
