@@ -17,7 +17,7 @@ export default function FeaturedBreweries({ breweries }: FeaturedBreweriesProps)
     ? featured
     : breweries.filter(b => b.type === 'Trappist' || b.beers.length > 0).slice(0, 6);
 
-  if (featured.length === 0) return null;
+  if (display.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20 bg-secondary border-t-2 border-foreground">
