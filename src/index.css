@@ -208,7 +208,6 @@
   background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.4), transparent);
   margin: 2.5em 0;
 }
-}
 
 /* Leaflet overrides */
 .leaflet-container {
