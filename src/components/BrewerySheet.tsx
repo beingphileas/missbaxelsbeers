@@ -120,7 +120,7 @@ const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
                           </span>
                         ))}
                         {beer.isHiddenGem && (
-                          <span className="px-2 py-0.5 bg-accent/10 text-accent border border-accent/20 text-[9px] font-medium uppercase tracking-[0.15em]">
+                          <span className="px-2 py-0.5 bg-success/10 text-success border border-success/20 text-[9px] font-medium uppercase tracking-[0.15em]">
                             Hidden Gem
                           </span>
                         )}

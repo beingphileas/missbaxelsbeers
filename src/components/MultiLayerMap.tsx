@@ -42,6 +42,7 @@ interface MultiLayerMapProps {
   posts: BlogPost[];
   onSelectBrewery?: (brewery: Brewery) => void;
   focusLocation?: { lat: number; lng: number } | null;
+  hoveredPostId?: string | null;
 }
 
 type LayerKey = 'breweries' | 'venues' | 'stories';
@@ -56,9 +57,10 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
 const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>';
 
-export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation }: MultiLayerMapProps) {
+export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation, hoveredPostId }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const storyMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
     breweries: (L as any).markerClusterGroup({
       maxClusterRadius: 40,
@@ -155,6 +157,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
   useEffect(() => {
     const lg = layersRef.current.stories;
     lg.clearLayers();
+    storyMarkersRef.current.clear();
     posts.forEach(p => {
       const brewery = p.breweryId ? breweries.find(b => b.id === p.breweryId) : null;
       if (!brewery) return;
@@ -163,8 +166,22 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       const m = L.marker([lat, lng], { icon: storyIcon });
       m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:${STORY_COLOR};">Lees artikel →</a></div>`);
       lg.addLayer(m);
+      storyMarkersRef.current.set(p.id, m);
     });
   }, [posts, breweries]);
+
+  // Pulse hovered story pin
+  useEffect(() => {
+    storyMarkersRef.current.forEach((marker, id) => {
+      const el = marker.getElement();
+      if (!el) return;
+      if (id === hoveredPostId) {
+        el.classList.add('map-pin-pulse');
+      } else {
+        el.classList.remove('map-pin-pulse');
+      }
+    });
+  }, [hoveredPostId]);
 
   // Fly to focus location
   useEffect(() => {

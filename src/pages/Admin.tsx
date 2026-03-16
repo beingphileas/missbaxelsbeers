@@ -280,7 +280,7 @@ export default function Admin() {
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-medium truncate">{venue.name}</h3>
                             {venue.is_verified && (
-                              <Badge variant="default" className="shrink-0 text-[10px] gap-0.5">
+                              <Badge variant="default" className="shrink-0 text-[10px] gap-0.5 bg-success text-success-foreground">
                                 <CheckCircle size={10} /> Verified
                               </Badge>
                             )}

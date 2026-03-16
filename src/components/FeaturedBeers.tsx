@@ -49,7 +49,7 @@ export default function FeaturedBeers({ beers }: FeaturedBeersProps) {
                   </p>
                 )}
                 {beer.isHiddenGem && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-secondary text-[9px] font-bold uppercase tracking-wide">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success text-success-foreground text-[9px] font-bold uppercase tracking-wide">
                     <Star size={10} /> Hidden gem
                   </span>
                 )}

@@ -66,7 +66,7 @@ const BreweryCard = ({ brewery, onClick }: BreweryCardProps) => {
                 </span>
               ))}
               {beer.isHiddenGem && (
-                <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[9px] font-bold uppercase tracking-wide">
+                <span className="px-2 py-0.5 bg-success text-success-foreground text-[9px] font-bold uppercase tracking-wide">
                   Hidden Gem
                 </span>
               )}

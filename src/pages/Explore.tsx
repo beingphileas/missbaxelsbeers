@@ -16,6 +16,7 @@ export default function Explore() {
   const [selected, setSelected] = useState<Brewery | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showMap, setShowMap] = useState(false);
+  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const handlePostClick = useCallback(
@@ -103,7 +104,11 @@ export default function Explore() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
                   >
-                    <div className="relative group/pin">
+                    <div
+                      className="relative group/pin"
+                      onMouseEnter={() => setHoveredPostId(post.id)}
+                      onMouseLeave={() => setHoveredPostId(null)}
+                    >
                       <BlogCard post={post} featured={i === 0} />
                       {/* Map pin button overlay */}
                       {(post.breweryId || post.venueId) && (
@@ -140,6 +145,7 @@ export default function Explore() {
             posts={posts}
             onSelectBrewery={setSelected}
             focusLocation={focusLocation}
+            hoveredPostId={hoveredPostId}
           />
         </div>
       </div>
