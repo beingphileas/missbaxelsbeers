@@ -80,6 +80,9 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
             setTripadvisorUrl(data.tripadvisor_url ?? '');
             setUntappdRating(data.untappd_rating != null ? String(data.untappd_rating) : '');
             setUntappdUrl(data.untappd_url ?? '');
+            setGoogleReviewCount(data.google_review_count != null ? String(data.google_review_count) : '');
+            setTripadvisorReviewCount(data.tripadvisor_review_count != null ? String(data.tripadvisor_review_count) : '');
+            setUntappdReviewCount(data.untappd_review_count != null ? String(data.untappd_review_count) : '');
           }
         });
     }
