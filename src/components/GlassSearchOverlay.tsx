@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, X, SlidersHorizontal, Map, List } from 'lucide-react';
+import { Search, X, SlidersHorizontal, Map, List, LayoutGrid } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { breweryTypes } from '@/data/breweries';
 
@@ -42,26 +42,32 @@ export default function GlassSearchOverlay({
   const selectClass =
     "h-9 px-3 bg-white/10 border border-white/20 text-foreground text-xs rounded-lg appearance-none cursor-pointer backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-accent/40 transition-all duration-200";
 
+  const viewItems = [
+    { key: 'split' as const, icon: <LayoutGrid size={13} />, label: 'Split' },
+    { key: 'map' as const, icon: <Map size={13} />, label: 'Kaart' },
+    { key: 'list' as const, icon: <List size={13} />, label: 'Lijst' },
+  ];
+
   return (
-    <div className="absolute top-4 left-4 right-4 md:left-6 md:top-6 md:right-auto md:w-[380px] z-20 pointer-events-none">
+    <div className="absolute top-3 left-3 right-3 md:left-5 md:top-5 md:right-auto md:w-[360px] z-20 pointer-events-none">
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="pointer-events-auto rounded-2xl border border-white/20 bg-background/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-1px_1px_rgba(0,0,0,0.05)] ring-1 ring-white/[0.08] overflow-hidden"
+        className="pointer-events-auto rounded-2xl border border-white/20 bg-background/65 backdrop-blur-xl ring-1 ring-white/[0.08] overflow-hidden"
         style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.18), inset 0 -1px 2px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.06), 0 0 40px -12px rgba(218,165,32,0.08)' }}
       >
-        {/* Search input */}
+        {/* Search row */}
         <div className="relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
           <input
             type="text"
             value={search}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder="Zoek brouwerijen, bieren, smaken…"
-            className="w-full h-12 pl-11 pr-20 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+            placeholder="Zoek brouwerijen, bieren…"
+            className="w-full h-11 md:h-12 pl-10 pr-16 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
             {(search || hasFilters) && (
               <button
                 onClick={clearAll}
@@ -96,7 +102,7 @@ export default function GlassSearchOverlay({
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-3 pt-1 space-y-2 border-t border-white/10">
+              <div className="px-3.5 pb-3 pt-1 space-y-2 border-t border-white/10">
                 <select value={province} onChange={e => onProvinceChange(e.target.value)} className={selectClass + ' w-full'}>
                   <option value="">Alle Provincies</option>
                   {provinces.map(p => <option key={p} value={p}>{p}</option>)}
@@ -114,27 +120,24 @@ export default function GlassSearchOverlay({
           )}
         </AnimatePresence>
 
-        {/* Footer: count + view toggles */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/10 bg-foreground/[0.03]">
-          <p className="text-[11px] text-muted-foreground tabular-nums">
+        {/* Footer: count + view toggles (visible on all screens) */}
+        <div className="flex items-center justify-between px-3.5 py-2 border-t border-white/10 bg-foreground/[0.03]">
+          <p className="text-[10px] md:text-[11px] text-muted-foreground tabular-nums">
             {isLoading ? 'Laden…' : `${resultCount} brouwerijen`}
           </p>
-          <div className="hidden md:flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
-            {([
-              { key: 'split' as const, label: 'Split' },
-              { key: 'map' as const, icon: <Map size={12} /> },
-              { key: 'list' as const, icon: <List size={12} /> },
-            ]).map(item => (
+          <div className="flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
+            {viewItems.map(item => (
               <button
                 key={item.key}
                 onClick={() => onViewChange(item.key)}
-                className={`px-2.5 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wide transition-all ${
+                className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wide transition-all ${
                   view === item.key
                     ? 'bg-accent text-accent-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {item.icon || item.label}
+                {item.icon}
+                <span className="hidden md:inline">{item.label}</span>
               </button>
             ))}
           </div>
