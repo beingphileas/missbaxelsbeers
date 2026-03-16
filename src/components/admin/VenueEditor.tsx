@@ -49,6 +49,9 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
   const [tripadvisorUrl, setTripadvisorUrl] = useState('');
   const [untappdRating, setUntappdRating] = useState('');
   const [untappdUrl, setUntappdUrl] = useState('');
+  const [googleReviewCount, setGoogleReviewCount] = useState('');
+  const [tripadvisorReviewCount, setTripadvisorReviewCount] = useState('');
+  const [untappdReviewCount, setUntappdReviewCount] = useState('');
 
   useEffect(() => {
     if (venueId) {
