@@ -189,12 +189,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
               <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="post-url-slug" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Cover afbeelding URL</Label>
-              <Input
-                value={coverImageUrl}
-                onChange={e => setCoverImageUrl(e.target.value)}
-                placeholder="https://..."
-              />
+              <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} />
             </div>
           </div>
 
