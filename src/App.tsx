@@ -7,6 +7,9 @@ import SiteHeader from "@/components/SiteHeader";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import BlogPost from "./pages/BlogPost";
+import Login from "./pages/Login";
+import Admin from "./pages/Admin";
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +29,15 @@ const App = () => (
           <Route path="/post/:slug" element={<BlogPost />} />
           <Route path="/venues" element={<Home />} />
           <Route path="/about" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
