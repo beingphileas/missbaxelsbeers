@@ -30,8 +30,7 @@ export default function HeroSection() {
   // Fallback when no posts
   if (slides.length === 0) {
     return (
-      <section className="relative py-20 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-parchment via-background to-warm" />
+      <section className="relative py-20 md:py-32 overflow-hidden bg-foreground text-primary-foreground">
         <div className="relative max-w-5xl mx-auto px-5">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -39,27 +38,25 @@ export default function HeroSection() {
             transition={{ duration: 0.6 }}
             className="max-w-xl"
           >
-            <p className="text-accent font-medium text-xs uppercase tracking-[0.2em] mb-5">
-              Belgian Beer Whisperer
+            <p className="text-accent font-bold text-xs uppercase tracking-[0.3em] mb-5">
+              BELGIAN BEER WHISPERER
             </p>
-            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6">
-              Elk bier heeft{' '}
-              <em className="text-accent italic">een verhaal</em>
+            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.95] mb-6">
+              ELK BIER HEEFT EEN VERHAAL
             </h1>
-            <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-10 max-w-md">
-              Persoonlijke proefnotities, verborgen brouwerijen, en de beste cafés
-              van België.
+            <p className="text-white/60 text-base md:text-lg leading-relaxed mb-10 max-w-md">
+              Persoonlijke proefnotities, verborgen brouwerijen, en de beste cafés van België.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link to="/breweries">
-                <Button size="lg" className="gap-2 rounded-sm font-medium px-7 bg-accent text-accent-foreground hover:bg-accent/90">
-                  Ontdek Brouwerijen
+                <Button size="lg" className="gap-2 font-bold px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                  ONTDEK BROUWERIJEN
                   <ArrowRight size={16} />
                 </Button>
               </Link>
               <Link to="/map">
-                <Button variant="outline" size="lg" className="gap-2 rounded-sm font-medium px-7 border-foreground/20">
-                  Bekijk de Kaart
+                <Button variant="outline" size="lg" className="gap-2 font-bold px-8 border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                  BEKIJK DE KAART
                 </Button>
               </Link>
             </div>
@@ -72,8 +69,8 @@ export default function HeroSection() {
   const slide = slides[current];
 
   return (
-    <section className="relative bg-foreground text-primary-foreground overflow-hidden">
-      <div className="relative h-[420px] md:h-[520px]">
+    <section className="relative bg-charcoal text-white overflow-hidden">
+      <div className="relative h-[480px] md:h-[600px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
@@ -91,16 +88,16 @@ export default function HeroSection() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-espresso to-copper" />
+              <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
             )}
             {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/60 to-foreground/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/70 to-charcoal/30" />
           </motion.div>
         </AnimatePresence>
 
         {/* Content */}
         <div className="absolute inset-0 flex items-end">
-          <div className="max-w-5xl mx-auto px-5 pb-10 md:pb-14 w-full">
+          <div className="max-w-5xl mx-auto px-5 pb-12 md:pb-16 w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={slide.id + '-text'}
@@ -110,24 +107,24 @@ export default function HeroSection() {
                 transition={{ duration: 0.4, delay: 0.1 }}
                 className="max-w-lg"
               >
-                <p className="text-accent text-xs uppercase tracking-[0.2em] font-medium mb-3">
-                  {slide.tags[0] || 'Verhaal'}
+                <p className="text-accent text-xs uppercase tracking-[0.3em] font-bold mb-3">
+                  {slide.tags[0] || 'VERHAAL'}
                   {slide.breweryName && ` · ${slide.breweryName}`}
                 </p>
-                <h2 className="font-display text-2xl md:text-4xl leading-tight mb-4 text-white">
+                <h2 className="font-display text-3xl md:text-5xl leading-[0.95] mb-4 text-white">
                   {slide.title}
                 </h2>
                 {slide.excerpt && (
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed line-clamp-2 mb-6">
+                  <p className="text-white/60 text-sm md:text-base leading-relaxed line-clamp-2 mb-6">
                     {slide.excerpt}
                   </p>
                 )}
                 <Link to={`/post/${slide.slug}`}>
                   <Button
                     size="lg"
-                    className="gap-2 rounded-sm font-medium px-7 bg-accent text-accent-foreground hover:bg-accent/90"
+                    className="gap-2 font-bold px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                   >
-                    Lees het Verhaal
+                    LEES HET VERHAAL
                     <ArrowRight size={16} />
                   </Button>
                 </Link>
@@ -138,31 +135,31 @@ export default function HeroSection() {
 
         {/* Navigation arrows */}
         {slides.length > 1 && (
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-3 md:px-5 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-4 pointer-events-none">
             <button
               onClick={prev}
-              className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="pointer-events-auto w-12 h-12 border-2 border-white/30 flex items-center justify-center hover:border-white hover:bg-white/10 transition-colors"
             >
-              <ChevronLeft size={20} className="text-white" />
+              <ChevronLeft size={24} className="text-white" />
             </button>
             <button
               onClick={next}
-              className="pointer-events-auto w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="pointer-events-auto w-12 h-12 border-2 border-white/30 flex items-center justify-center hover:border-white hover:bg-white/10 transition-colors"
             >
-              <ChevronRight size={20} className="text-white" />
+              <ChevronRight size={24} className="text-white" />
             </button>
           </div>
         )}
 
         {/* Dots */}
         {slides.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === current ? 'w-6 bg-accent' : 'w-1.5 bg-white/40'
+                className={`h-2 transition-all duration-300 ${
+                  i === current ? 'w-8 bg-accent' : 'w-2 bg-white/40'
                 }`}
               />
             ))}
