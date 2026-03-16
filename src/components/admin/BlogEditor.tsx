@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '@/integrations/supabase/client';
 import { useBreweries } from '@/data/breweries';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Save, Send } from 'lucide-react';
+import ImageUpload, { uploadInlineImage } from './ImageUpload';
 
 interface BlogEditorProps {
   postId: string | null;
@@ -188,12 +189,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
               <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="post-url-slug" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Cover afbeelding URL</Label>
-              <Input
-                value={coverImageUrl}
-                onChange={e => setCoverImageUrl(e.target.value)}
-                placeholder="https://..."
-              />
+              <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} />
             </div>
           </div>
 
@@ -249,8 +245,36 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
           </div>
         </div>
 
-        {/* Markdown Editor */}
-        <div data-color-mode="light" className="border rounded-lg overflow-hidden">
+        {/* Markdown Editor with inline image paste/drop */}
+        <div
+          data-color-mode="light"
+          className="border rounded-lg overflow-hidden"
+          onPaste={async (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of Array.from(items)) {
+              if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                if (!file) return;
+                const url = await uploadInlineImage(file);
+                if (url) setContent(prev => prev + `\n![](${url})\n`);
+                return;
+              }
+            }
+          }}
+          onDrop={async (e) => {
+            const file = e.dataTransfer?.files[0];
+            if (file?.type.startsWith('image/')) {
+              e.preventDefault();
+              const url = await uploadInlineImage(file);
+              if (url) setContent(prev => prev + `\n![](${url})\n`);
+            }
+          }}
+          onDragOver={(e) => {
+            if (e.dataTransfer?.types.includes('Files')) e.preventDefault();
+          }}
+        >
           <MDEditor
             value={content}
             onChange={val => setContent(val ?? '')}
