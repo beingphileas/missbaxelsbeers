@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SiteHeader from "@/components/SiteHeader";
+import WhisperFAB from "@/components/WhisperFAB";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
