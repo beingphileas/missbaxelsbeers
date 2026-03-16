@@ -14,6 +14,7 @@ export interface Beer {
   featured: boolean;
   breweryId: string;
   breweryName?: string;
+  hasPost?: boolean;
 }
 
 export interface Brewery {
@@ -30,22 +31,30 @@ export interface Brewery {
   phone: string;
   email: string;
   featured: boolean;
+  hasPost?: boolean;
   beers: Beer[];
 }
 
 async function fetchBreweries(): Promise<Brewery[]> {
-  const { data: breweryRows, error: bErr } = await supabase
-    .from('breweries')
-    .select('*')
-    .order('name');
+  const [{ data: breweryRows, error: bErr }, { data: beerRows, error: beErr }, { data: postRows, error: pErr }] = await Promise.all([
+    supabase.from('breweries').select('*').order('name'),
+    supabase.from('beers').select('*'),
+    supabase.from('blog_posts').select('brewery_id, beer_id, blog_post_beers(beer_id)').eq('status', 'published'),
+  ]);
 
   if (bErr) throw bErr;
-
-  const { data: beerRows, error: beErr } = await supabase
-    .from('beers')
-    .select('*');
-
   if (beErr) throw beErr;
+
+  // Build sets of IDs that have blog posts
+  const breweryIdsWithPost = new Set<string>();
+  const beerIdsWithPost = new Set<string>();
+  for (const p of postRows ?? []) {
+    if (p.brewery_id) breweryIdsWithPost.add(p.brewery_id);
+    if (p.beer_id) beerIdsWithPost.add(p.beer_id);
+    for (const link of (p as any).blog_post_beers ?? []) {
+      if (link.beer_id) beerIdsWithPost.add(link.beer_id);
+    }
+  }
 
   return (breweryRows ?? []).map(b => ({
     id: b.id,
@@ -61,6 +70,7 @@ async function fetchBreweries(): Promise<Brewery[]> {
     phone: (b as any).phone ?? '',
     email: (b as any).email ?? '',
     featured: (b as any).featured ?? false,
+    hasPost: breweryIdsWithPost.has(b.id),
     beers: (beerRows ?? [])
       .filter(beer => beer.brewery_id === b.id)
       .map(beer => ({
@@ -74,6 +84,7 @@ async function fetchBreweries(): Promise<Brewery[]> {
         featured: (beer as any).featured ?? false,
         breweryId: beer.brewery_id,
         breweryName: b.name,
+        hasPost: beerIdsWithPost.has(beer.id),
       })),
   }));
 }

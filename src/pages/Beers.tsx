@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { motion } from 'framer-motion';
-import { Search, Star, SlidersHorizontal, X } from 'lucide-react';
+import { Search, Star, SlidersHorizontal, X, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -245,6 +245,11 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
           {beer.isHiddenGem && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success/10 text-success border border-success/20 text-[9px] font-bold uppercase tracking-wide">
               <Star size={9} /> Hidden gem
+            </span>
+          )}
+          {beer.hasPost && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/15 text-accent border border-accent/25 text-[9px] font-bold uppercase tracking-wide">
+              <Sparkles size={9} /> Verified
             </span>
           )}
           {beer.featured && (
