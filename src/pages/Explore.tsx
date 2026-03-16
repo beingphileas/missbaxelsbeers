@@ -16,6 +16,7 @@ export default function Explore() {
   const [selected, setSelected] = useState<Brewery | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showMap, setShowMap] = useState(false);
+  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const handlePostClick = useCallback(
