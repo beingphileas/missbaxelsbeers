@@ -11,17 +11,14 @@ const BreweryCard = ({ brewery, onClick }: BreweryCardProps) => {
 
   return (
     <motion.div
-      whileHover={{ y: -4, rotate: 0 }}
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
       onClick={() => onClick(brewery)}
-      className="group relative bg-card cursor-pointer border border-border/60 transition-all duration-300 hover:[box-shadow:var(--shadow-scrapbook-hover)] [box-shadow:var(--shadow-scrapbook)]"
+      className="group relative bg-card cursor-pointer rounded-lg border border-border/50 shadow-scrapbook hover:shadow-scrapbook-hover transition-all duration-300"
     >
-      {/* Decorative tape strip */}
-      <div className="absolute -top-2 left-6 w-16 h-4 bg-accent/15 border-x border-accent/10 z-10" />
-
       {/* Type ribbon */}
-      <div className="bg-foreground/5 border-b border-border/40 px-4 py-2.5 flex justify-between items-center">
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+      <div className="bg-secondary/60 rounded-t-lg border-b border-border/40 px-4 py-2.5 flex justify-between items-center">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           {brewery.type}
         </span>
         {brewery.establishedYear > 0 && (
@@ -63,13 +60,13 @@ const BreweryCard = ({ brewery, onClick }: BreweryCardProps) => {
               {beer.flavorProfile.slice(0, 3).map(tag => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 bg-secondary/80 border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground"
+                  className="px-2 py-0.5 bg-secondary/80 rounded-sm border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground"
                 >
                   {tag}
                 </span>
               ))}
               {beer.isHiddenGem && (
-                <span className="px-2 py-0.5 bg-success/10 text-success border border-success/20 text-[9px] font-bold uppercase tracking-wide">
+                <span className="px-2 py-0.5 bg-success/10 text-success rounded-sm border border-success/20 text-[9px] font-bold uppercase tracking-wide">
                   Hidden Gem
                 </span>
               )}

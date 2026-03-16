@@ -20,9 +20,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
   if (featured) {
     return (
       <Link to={`/post/${post.slug}`} className="block group">
-        <article className="relative overflow-hidden bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] transition-all duration-300 md:grid md:grid-cols-5">
-          {/* Decorative pin */}
-          <div className="absolute top-3 right-4 z-10 w-3 h-3 rounded-full bg-accent/80 border-2 border-card shadow-sm" />
+        <article className="relative overflow-hidden bg-card rounded-lg border border-border/50 shadow-scrapbook hover:shadow-scrapbook-hover transition-all duration-300 md:grid md:grid-cols-5">
           <div className="md:col-span-3 aspect-video md:aspect-auto md:h-full overflow-hidden bg-muted">
             {post.coverImageUrl ? (
               <img
@@ -40,7 +38,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
           <div className="md:col-span-2 p-5 md:p-6 flex flex-col justify-center">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {post.tags.slice(0, 2).map(tag => (
-                <span key={tag} className="text-[10px] uppercase tracking-wide text-accent font-bold bg-accent/8 border border-accent/15 px-2 py-0.5">
+                <span key={tag} className="text-[10px] uppercase tracking-wider text-accent font-semibold bg-accent/8 border border-accent/15 px-2.5 py-0.5 rounded-sm">
                   {tag}
                 </span>
               ))}
@@ -67,11 +65,11 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
               {post.breweryId && onMapPin && (
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
-                  className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors bg-accent/10 px-2 py-0.5 border border-accent/20"
+                  className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors bg-accent/10 px-2 py-0.5 rounded-sm border border-accent/20"
                   title="Toon op kaart"
                 >
                   <MapPin size={12} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Kaart</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider">Kaart</span>
                 </button>
               )}
             </div>
@@ -83,9 +81,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
 
   return (
     <Link to={`/post/${post.slug}`} className="block h-full group">
-      <article className="flex flex-col overflow-hidden bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 h-full">
-        {/* Decorative tape */}
-        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-accent/10 z-10" />
+      <article className="flex flex-col overflow-hidden bg-card rounded-lg border border-border/50 shadow-scrapbook hover:shadow-scrapbook-hover hover:-translate-y-1 transition-all duration-300 h-full">
         <div className="aspect-[16/10] overflow-hidden bg-muted relative">
           {post.coverImageUrl ? (
             <img
@@ -103,7 +99,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
         <div className="p-4 flex flex-col flex-1">
           <div className="flex items-center gap-2 mb-2">
             {post.tags.slice(0, 1).map(tag => (
-              <span key={tag} className="text-[10px] uppercase tracking-wide text-accent font-bold">
+              <span key={tag} className="text-[10px] uppercase tracking-wider text-accent font-semibold">
                 {tag}
               </span>
             ))}
@@ -119,7 +115,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1 leading-relaxed">
             {post.excerpt}
           </p>
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
             <time className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 font-sans">
               <Calendar size={10} />
               {date}
