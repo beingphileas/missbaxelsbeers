@@ -11,6 +11,9 @@ export interface Beer {
   flavorProfile: string[];
   foodPairing: string;
   isHiddenGem: boolean;
+  featured: boolean;
+  breweryId: string;
+  breweryName?: string;
 }
 
 export interface Brewery {
