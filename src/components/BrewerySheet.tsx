@@ -14,6 +14,27 @@ interface BrewerySheetProps {
 }
 
 const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
+  const [generating, setGenerating] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleGenerateStory = async () => {
+    if (!brewery) return;
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-brewery-story', {
+        body: { breweryId: brewery.id },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Story generated!');
+      queryClient.invalidateQueries({ queryKey: ['breweries'] });
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate story');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {brewery && (
