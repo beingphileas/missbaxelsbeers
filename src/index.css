@@ -24,7 +24,7 @@
     --muted: 35 15% 88%;
     --muted-foreground: 24 20% 45%;
 
-    --accent: 25 90% 45%;
+    --accent: 46 65% 52%;
     --accent-foreground: 0 0% 100%;
 
     --success: 90 42% 24%;
@@ -35,7 +35,7 @@
 
     --border: 35 15% 80%;
     --input: 35 15% 80%;
-    --ring: 25 90% 45%;
+    --ring: 46 65% 52%;
 
     --radius: 0px;
 
@@ -46,7 +46,7 @@
     --sidebar-accent: 35 20% 92%;
     --sidebar-accent-foreground: 24 56% 10%;
     --sidebar-border: 35 15% 80%;
-    --sidebar-ring: 25 90% 45%;
+    --sidebar-ring: 46 65% 52%;
 
     /* Raw/Bold palette */
     --charcoal: 24 56% 10%;

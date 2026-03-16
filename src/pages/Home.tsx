@@ -3,13 +3,22 @@ import { useBlogPosts } from '@/data/blog';
 import BlogCard from '@/components/BlogCard';
 import FeaturedBreweries from '@/components/FeaturedBreweries';
 import FeaturedBeers from '@/components/FeaturedBeers';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Beer } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCallback } from 'react';
 
 export default function Home() {
   const { data: breweries = [] } = useBreweries();
   const { data: posts = [] } = useBlogPosts();
+  const navigate = useNavigate();
+
+  const handleMapPin = useCallback((breweryId: string) => {
+    const brewery = breweries.find(b => b.id === breweryId);
+    if (brewery) {
+      navigate(`/map?lat=${brewery.lat}&lng=${brewery.lng}&zoom=14`);
+    }
+  }, [breweries, navigate]);
 
   const hero = posts[0];
   const secondary = posts.slice(1, 3);
@@ -162,7 +171,7 @@ export default function Home() {
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {rest.map(post => (
-                <BlogCard key={post.id} post={post} />
+                <BlogCard key={post.id} post={post} onMapPin={handleMapPin} />
               ))}
             </div>
           </div>
