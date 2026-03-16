@@ -1,15 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Menu, X } from 'lucide-react';
+import { Map, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { label: 'Home', path: '/' },
-  { label: 'A-Z', path: '/tastings' },
-  { label: 'Over mezelf', path: '/about' },
+  { label: 'Tastings', path: '/tastings' },
+  { label: 'Brouwerijen', path: '/breweries' },
   { label: 'Waar?', path: '/venues' },
   { label: 'Kaart', path: '/map' },
-  { label: 'Brouwerijen', path: '/breweries' },
+  { label: 'Over', path: '/about' },
 ];
 
 export default function SiteHeader() {
@@ -17,25 +17,25 @@ export default function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="shrink-0">
-          <span className="text-lg font-bold tracking-tight text-foreground">
-            MissBaxel's Beers
+        <Link to="/" className="flex items-center gap-2">
+          <span className="font-serif text-2xl tracking-tight text-foreground">
+            MissBaxel<span className="text-accent">'s</span> Beers
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-0.5 ml-8">
+        <div className="hidden md:flex items-center gap-1">
           {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
-              className={`px-3 py-1.5 text-sm transition-colors ${
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 pathname === item.path
-                  ? 'text-accent underline underline-offset-4 decoration-2'
-                  : 'text-foreground hover:text-accent'
+                  ? 'text-accent bg-accent/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               {item.label}
@@ -43,11 +43,14 @@ export default function SiteHeader() {
           ))}
         </div>
 
-        {/* Desktop search */}
-        <div className="hidden md:flex items-center">
-          <span className="text-sm text-foreground cursor-pointer hover:text-accent transition-colors">
-            Search
-          </span>
+        {/* Desktop actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link to="/map">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Map size={14} />
+              Kaart
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -63,16 +66,16 @@ export default function SiteHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background px-6 pb-4">
+        <div className="md:hidden border-t border-border bg-background px-4 pb-4">
           {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setMobileOpen(false)}
-              className={`block py-2.5 text-sm ${
+              className={`block px-3 py-2.5 text-sm font-medium rounded-md ${
                 pathname === item.path
-                  ? 'text-accent'
-                  : 'text-foreground'
+                  ? 'text-accent bg-accent/10'
+                  : 'text-muted-foreground'
               }`}
             >
               {item.label}

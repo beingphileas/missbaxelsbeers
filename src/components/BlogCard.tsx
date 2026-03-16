@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blog';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, MapPin } from 'lucide-react';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -7,10 +9,66 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, featured = false }: BlogCardProps) {
+  const date = post.publishedAt
+    ? new Date(post.publishedAt).toLocaleDateString('nl-BE', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : '';
+
+  if (featured) {
+    return (
+      <Link to={`/post/${post.slug}`} className="block">
+        <article className="group relative overflow-hidden bg-card border border-border transition-all hover:border-accent/30">
+          <div className="aspect-video overflow-hidden bg-muted">
+            {post.coverImageUrl ? (
+              <img
+                src={post.coverImageUrl}
+                alt={post.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <span className="font-serif text-4xl text-accent/40">🍺</span>
+              </div>
+            )}
+          </div>
+          <div className="p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-3">
+              {post.tags.slice(0, 2).map(tag => (
+                <Badge key={tag} variant="secondary" className="text-[10px] uppercase tracking-widest font-bold">
+                  {tag}
+                </Badge>
+              ))}
+              {post.breweryName && (
+                <span className="text-[11px] text-accent font-medium flex items-center gap-1">
+                  <MapPin size={10} />
+                  {post.breweryName}
+                </span>
+              )}
+            </div>
+            <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-3 group-hover:text-accent transition-colors">
+              {post.title}
+            </h2>
+            <p className="text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+              {post.excerpt}
+            </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Calendar size={12} />
+              <time>{date}</time>
+            </div>
+          </div>
+        </article>
+      </Link>
+    );
+  }
+
   return (
-    <Link to={`/post/${post.slug}`} className="block group">
-      <article>
-        <div className="aspect-square overflow-hidden bg-muted">
+    <Link to={`/post/${post.slug}`} className="block h-full">
+      <article className="group flex flex-col overflow-hidden bg-card border border-border hover:border-accent/30 transition-all h-full">
+        <div className="aspect-[4/3] overflow-hidden bg-muted">
           {post.coverImageUrl ? (
             <img
               src={post.coverImageUrl}
@@ -20,13 +78,34 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">
-              <span className="font-serif text-4xl text-muted-foreground/30">🍺</span>
+              <span className="font-serif text-3xl text-accent/30">🍺</span>
             </div>
           )}
         </div>
-        <h3 className="font-serif text-base md:text-lg mt-3 leading-snug group-hover:text-accent transition-colors">
-          {post.title}
-        </h3>
+        <div className="p-5 flex flex-col flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            {post.tags.slice(0, 1).map(tag => (
+              <span key={tag} className="text-[10px] uppercase tracking-widest text-accent font-bold">
+                {tag}
+              </span>
+            ))}
+            {post.breweryName && (
+              <span className="text-[10px] text-muted-foreground">
+                · {post.breweryName}
+              </span>
+            )}
+          </div>
+          <h3 className="font-serif text-lg leading-snug mb-2 group-hover:text-accent transition-colors">
+            {post.title}
+          </h3>
+          <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
+            {post.excerpt}
+          </p>
+          <time className="text-[11px] text-muted-foreground mt-3 flex items-center gap-1">
+            <Calendar size={10} />
+            {date}
+          </time>
+        </div>
       </article>
     </Link>
   );
