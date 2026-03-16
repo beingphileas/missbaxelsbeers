@@ -63,7 +63,7 @@ export default function BlogPost() {
     <div className="min-h-screen bg-background">
       {/* Cover image */}
       {post.cover_image_url && (
-        <div className="w-full h-64 md:h-96 overflow-hidden bg-muted">
+        <div className="w-full h-48 sm:h-64 md:h-80 lg:h-[28rem] overflow-hidden bg-muted">
           <img
             src={post.cover_image_url}
             alt={post.title}
@@ -72,17 +72,17 @@ export default function BlogPost() {
         </div>
       )}
 
-      <article className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+      <article className="max-w-2xl mx-auto px-5 sm:px-6 py-6 md:py-12">
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 -ml-0.5 py-1"
         >
           <ArrowLeft size={14} />
           Terug
         </Link>
 
-        {/* Meta */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Tags */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
           {(post.tags ?? []).map((tag: string) => (
             <Badge key={tag} variant="secondary" className="text-[10px] uppercase tracking-widest">
               {tag}
@@ -90,25 +90,25 @@ export default function BlogPost() {
           ))}
         </div>
 
-        <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-4">
+        <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-4">
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-6 pb-6 border-b border-border">
           {date && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <Calendar size={14} />
               {date}
             </span>
           )}
           {brewery?.name && (
-            <span className="flex items-center gap-1 text-accent">
+            <span className="flex items-center gap-1.5 text-accent">
               <MapPin size={14} />
               {brewery.name} · {brewery.province}
             </span>
           )}
           {beer?.name && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <Beer size={14} />
               {beer.name} ({beer.style}, {beer.abv}%)
             </span>
@@ -116,7 +116,7 @@ export default function BlogPost() {
         </div>
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-a:text-accent prose-img:rounded-xl">
+        <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-a:text-accent prose-img:rounded-xl prose-p:leading-relaxed prose-li:leading-relaxed">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </div>
       </article>

@@ -46,7 +46,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-6xl mx-auto p-4 md:p-8 space-y-4">
+      <main className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
         <SearchBar value={search} onChange={setSearch} />
         <FilterBar
           selectedProvince={province}
@@ -74,7 +74,7 @@ const Index = () => {
         </div>
 
         {!isLoading && (
-          <div className="w-full h-[55vh] md:h-[65vh] border border-border overflow-hidden">
+          <div className="w-full h-[50vh] sm:h-[55vh] md:h-[65vh] border border-border overflow-hidden rounded-lg">
             <MultiLayerMap
               breweries={filtered}
               venues={venues}
@@ -84,14 +84,14 @@ const Index = () => {
           </div>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map(brewery => (
             <BreweryCard key={brewery.id} brewery={brewery} onClick={setSelected} />
           ))}
         </div>
 
         {!isLoading && filtered.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-12 sm:py-16">
             <p className="text-muted-foreground">Geen brouwerijen gevonden.</p>
           </div>
         )}

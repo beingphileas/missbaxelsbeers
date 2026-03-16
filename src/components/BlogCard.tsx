@@ -20,8 +20,8 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
   if (featured) {
     return (
       <Link to={`/post/${post.slug}`} className="block">
-        <article className="group relative overflow-hidden bg-card border border-border transition-all hover:border-accent/30">
-          <div className="aspect-video overflow-hidden bg-muted">
+        <article className="group relative overflow-hidden bg-card border border-border transition-all hover:border-accent/30 md:grid md:grid-cols-2">
+          <div className="aspect-video md:aspect-auto md:h-full overflow-hidden bg-muted">
             {post.coverImageUrl ? (
               <img
                 src={post.coverImageUrl}
@@ -30,13 +30,13 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
+              <div className="w-full h-full min-h-[200px] bg-muted flex items-center justify-center">
                 <span className="font-serif text-4xl text-accent/40">🍺</span>
               </div>
             )}
           </div>
-          <div className="p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-3">
+          <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
               {post.tags.slice(0, 2).map(tag => (
                 <Badge key={tag} variant="secondary" className="text-[10px] uppercase tracking-widest font-bold">
                   {tag}
@@ -49,10 +49,10 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
                 </span>
               )}
             </div>
-            <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-3 group-hover:text-accent transition-colors">
+            <h2 className="font-serif text-xl sm:text-2xl md:text-3xl leading-tight mb-2 sm:mb-3 group-hover:text-accent transition-colors">
               {post.title}
             </h2>
-            <p className="text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4">
               {post.excerpt}
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -68,7 +68,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
   return (
     <Link to={`/post/${post.slug}`} className="block h-full">
       <article className="group flex flex-col overflow-hidden bg-card border border-border hover:border-accent/30 transition-all h-full">
-        <div className="aspect-[4/3] overflow-hidden bg-muted">
+        <div className="aspect-[16/10] overflow-hidden bg-muted">
           {post.coverImageUrl ? (
             <img
               src={post.coverImageUrl}
@@ -82,20 +82,20 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             </div>
           )}
         </div>
-        <div className="p-5 flex flex-col flex-1">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="p-4 sm:p-5 flex flex-col flex-1">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
             {post.tags.slice(0, 1).map(tag => (
               <span key={tag} className="text-[10px] uppercase tracking-widest text-accent font-bold">
                 {tag}
               </span>
             ))}
             {post.breweryName && (
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground truncate">
                 · {post.breweryName}
               </span>
             )}
           </div>
-          <h3 className="font-serif text-lg leading-snug mb-2 group-hover:text-accent transition-colors">
+          <h3 className="font-serif text-base sm:text-lg leading-snug mb-1.5 sm:mb-2 group-hover:text-accent transition-colors line-clamp-2">
             {post.title}
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1">

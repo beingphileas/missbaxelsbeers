@@ -20,45 +20,43 @@ export default function Home() {
 
       {/* Stats bar */}
       <div className="border-y border-border bg-card/50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-center gap-8 md:gap-16 text-center">
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 grid grid-cols-3 text-center">
           <div>
-            <p className="font-serif text-2xl text-accent">{breweries.length}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Brouwerijen</p>
+            <p className="font-serif text-xl md:text-2xl text-accent">{breweries.length}</p>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">Brouwerijen</p>
           </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <p className="font-serif text-2xl text-accent">{posts.length}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Tastings</p>
+          <div className="border-x border-border">
+            <p className="font-serif text-xl md:text-2xl text-accent">{posts.length}</p>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">Tastings</p>
           </div>
-          <div className="w-px h-8 bg-border" />
           <div>
-            <p className="font-serif text-2xl text-accent">11</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Provincies</p>
+            <p className="font-serif text-xl md:text-2xl text-accent">11</p>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">Provincies</p>
           </div>
         </div>
       </div>
 
       {/* Latest Tastings */}
       {posts.length > 0 ? (
-        <section className="py-16">
+        <section className="py-10 md:py-16">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="flex items-end justify-between mb-8">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
               <div>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-accent font-bold mb-2 block">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-accent font-bold mb-1.5 block">
                   Recent
                 </span>
-                <h2 className="font-serif text-3xl">Laatste Tastings</h2>
+                <h2 className="font-serif text-2xl md:text-3xl">Laatste Tastings</h2>
               </div>
               <Link
                 to="/tastings"
                 className="text-sm text-accent hover:underline flex items-center gap-1"
               >
-                Alle tastings <ArrowRight size={14} />
+                Alle <span className="hidden sm:inline">tastings</span> <ArrowRight size={14} />
               </Link>
             </div>
 
             {featuredPost && (
-              <div className="mb-8">
+              <div className="mb-6 md:mb-8">
                 <BlogCard post={featuredPost} featured />
               </div>
             )}
@@ -71,7 +69,7 @@ export default function Home() {
           </div>
         </section>
       ) : (
-        <section className="py-20">
+        <section className="py-14 md:py-20">
           <div className="max-w-6xl mx-auto px-4 text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -79,8 +77,8 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <Beer size={48} className="mx-auto text-accent/30 mb-4" />
-              <h2 className="font-serif text-3xl mb-3">Tastings komen eraan</h2>
-              <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              <h2 className="font-serif text-2xl md:text-3xl mb-3">Tastings komen eraan</h2>
+              <p className="text-muted-foreground max-w-md mx-auto mb-6 text-sm md:text-base">
                 Persoonlijke bierproefnotities, brouwerijbezoeken, en verborgen pareltjes — binnenkort hier.
               </p>
               <Link
@@ -101,11 +99,11 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
+      <footer className="border-t border-border py-8 md:py-12">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="text-center md:text-left">
             <span className="font-serif text-lg">MissBaxel's Beers</span>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Belgian Beer Whisperer · Elk bier heeft een verhaal
             </p>
           </div>
