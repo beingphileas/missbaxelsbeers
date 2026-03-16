@@ -99,6 +99,12 @@ async function fetchVenues(): Promise<Venue[]> {
     email: v.email ?? '',
     isVerified: v.is_verified,
     coverImageUrl: v.cover_image_url ?? '',
+    googleRating: v.google_rating,
+    googleUrl: v.google_url ?? '',
+    tripadvisorRating: v.tripadvisor_rating,
+    tripadvisorUrl: v.tripadvisor_url ?? '',
+    untappdRating: v.untappd_rating,
+    untappdUrl: v.untappd_url ?? '',
   }));
 }
 
