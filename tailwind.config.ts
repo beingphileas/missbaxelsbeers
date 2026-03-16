@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        display: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
         serif: ["Playfair Display", "Georgia", "serif"],
       },
