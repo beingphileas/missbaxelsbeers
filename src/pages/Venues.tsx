@@ -162,7 +162,7 @@ export default function Venues() {
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-display text-sm font-bold leading-snug">{venue.name}</h3>
                     {venue.isVerified && (
-                      <CheckCircle size={12} className="text-accent shrink-0" />
+                      <CheckCircle size={12} className="text-success shrink-0" />
                     )}
                   </div>
                   <p className="text-[10px] text-muted-foreground tracking-wide">
