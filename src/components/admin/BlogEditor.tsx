@@ -34,6 +34,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [breweryId, setBreweryId] = useState<string>('');
   const [beerId, setBeerId] = useState<string>('');
+  const [selectedBeerIds, setSelectedBeerIds] = useState<string[]>([]);
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('draft');
 
