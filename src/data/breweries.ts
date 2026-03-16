@@ -31,6 +31,7 @@ export interface Brewery {
   phone: string;
   email: string;
   featured: boolean;
+  hasPost?: boolean;
   beers: Beer[];
 }
 
