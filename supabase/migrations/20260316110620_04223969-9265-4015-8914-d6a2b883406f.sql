@@ -1,0 +1,2 @@
+ALTER TABLE breweries DROP CONSTRAINT IF EXISTS breweries_type_check;
+ALTER TABLE breweries ADD CONSTRAINT breweries_type_check CHECK (type IN ('Trappist', 'Family-owned', 'Microbrewery', 'Industrial', 'Contract brewer'));

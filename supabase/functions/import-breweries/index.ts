@@ -137,7 +137,7 @@ serve(async (req) => {
 
       toInsert.push({
         name,
-        type: classifyType(name),
+        type: b.type || classifyType(name),
         province,
         lat,
         lng,
