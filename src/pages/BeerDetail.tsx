@@ -95,7 +95,7 @@ export default function BeerDetail() {
 
             {brewery && (
               <Link
-                to={`/breweries`}
+                to={`/breweries/${brewery.id}`}
                 className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-accent text-sm transition-colors"
               >
                 <MapPin size={12} />
