@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,59 +6,64 @@
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 24 56% 10%;
+    /* Belgian Vintage Palette */
+    --background: 36 27% 95%;         /* #F5F2ED warm paper */
+    --foreground: 25 73% 16%;         /* #462A09 deep saddle brown */
 
-    --card: 40 30% 99%;
-    --card-foreground: 24 56% 10%;
+    --card: 38 33% 97%;              /* warm cream card */
+    --card-foreground: 25 73% 16%;
 
-    --popover: 40 30% 99%;
-    --popover-foreground: 24 56% 10%;
+    --popover: 38 33% 97%;
+    --popover-foreground: 25 73% 16%;
 
-    --primary: 24 56% 10%;
-    --primary-foreground: 40 33% 97%;
+    --primary: 25 73% 33%;           /* #8B4513 Saddle Brown */
+    --primary-foreground: 38 40% 96%;
 
-    --secondary: 35 20% 92%;
-    --secondary-foreground: 24 56% 10%;
+    --secondary: 36 22% 90%;         /* warm tan */
+    --secondary-foreground: 25 73% 16%;
 
-    --muted: 35 15% 88%;
-    --muted-foreground: 24 20% 45%;
+    --muted: 34 16% 85%;
+    --muted-foreground: 25 25% 45%;
 
-    --accent: 46 65% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 43 74% 49%;            /* #DAA520 Goldenrod */
+    --accent-foreground: 25 73% 12%;
 
     --success: 90 42% 24%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 15% 80%;
-    --input: 35 15% 80%;
-    --ring: 46 65% 52%;
+    --border: 34 18% 82%;
+    --input: 34 18% 82%;
+    --ring: 43 74% 49%;
 
-    --radius: 0px;
+    --radius: 6px;
 
-    --sidebar-background: 40 33% 97%;
-    --sidebar-foreground: 24 56% 10%;
-    --sidebar-primary: 24 56% 10%;
-    --sidebar-primary-foreground: 40 33% 97%;
-    --sidebar-accent: 35 20% 92%;
-    --sidebar-accent-foreground: 24 56% 10%;
-    --sidebar-border: 35 15% 80%;
-    --sidebar-ring: 46 65% 52%;
+    --sidebar-background: 36 27% 95%;
+    --sidebar-foreground: 25 73% 16%;
+    --sidebar-primary: 25 73% 33%;
+    --sidebar-primary-foreground: 38 40% 96%;
+    --sidebar-accent: 36 22% 90%;
+    --sidebar-accent-foreground: 25 73% 16%;
+    --sidebar-border: 34 18% 82%;
+    --sidebar-ring: 43 74% 49%;
 
-    /* Raw/Bold palette */
-    --charcoal: 24 56% 10%;
-    --rust: 18 80% 42%;
-    --concrete: 40 33% 97%;
-    --slate: 24 30% 25%;
-    --parchment: 40 33% 97%;
+    /* Extended vintage palette */
+    --charcoal: 25 40% 12%;
+    --rust: 20 72% 38%;
+    --slate: 25 30% 25%;
+    --parchment: 36 27% 95%;
+    --vintage-gold: 43 74% 49%;
+    --vintage-cream: 40 40% 97%;
+    --vintage-sepia: 30 35% 70%;
 
-    --shadow-hard: 4px 4px 0px hsl(24 56% 10%);
-    --shadow-card: 2px 2px 0px hsl(24 56% 10%);
-    --shadow-scrapbook: 2px 3px 12px -2px hsl(24 30% 20% / 0.18), 0 1px 3px hsl(24 30% 20% / 0.08);
-    --shadow-scrapbook-hover: 4px 6px 20px -2px hsl(24 30% 20% / 0.25), 0 2px 6px hsl(24 30% 20% / 0.1);
+    /* Shadows – warm & soft */
+    --shadow-hard: 3px 3px 0px hsl(25 73% 16%);
+    --shadow-card: 0 2px 8px -2px hsl(25 40% 20% / 0.12), 0 1px 3px hsl(25 40% 20% / 0.06);
+    --shadow-scrapbook: 0 4px 16px -4px hsl(25 30% 20% / 0.15), 0 1px 4px hsl(25 30% 20% / 0.08);
+    --shadow-scrapbook-hover: 0 8px 28px -4px hsl(25 30% 20% / 0.22), 0 2px 8px hsl(25 30% 20% / 0.1);
+    --shadow-vintage: 0 1px 3px hsl(25 40% 30% / 0.08);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -72,17 +77,24 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
   }
 
+  /* Fraunces for all headings – editorial vintage feel */
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-optical-sizing: auto;
   }
 
   .font-serif {
     font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .font-headline {
+    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-optical-sizing: auto;
   }
 }
 
@@ -107,6 +119,10 @@
     box-shadow: var(--shadow-scrapbook-hover);
   }
 
+  .shadow-vintage {
+    box-shadow: var(--shadow-vintage);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -118,18 +134,30 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Vintage decorative utilities */
+  .vintage-divider {
+    background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.4), transparent);
+    height: 1px;
+  }
+
+  .vintage-paper {
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, hsl(40 30% 94% / 0.5), transparent 50%),
+      radial-gradient(ellipse at 80% 50%, hsl(36 27% 92% / 0.4), transparent 50%);
+  }
 }
 
 /* Leaflet overrides */
 .leaflet-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: hsl(24 56% 10%);
+  background: hsl(25 40% 12%);
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 0;
-  box-shadow: var(--shadow-hard);
-  border: 2px solid hsl(var(--foreground));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-scrapbook);
+  border: 1px solid hsl(var(--border));
   font-family: 'Inter', sans-serif;
 }
 
@@ -146,4 +174,10 @@
 
 .map-pin-pulse > div {
   animation: map-pulse 0.8s ease-in-out infinite;
+}
+
+/* Vintage ornament keyframe */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
