@@ -1,0 +1,216 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import { MapPin, AlertTriangle, RefreshCw, Save, Loader2 } from 'lucide-react';
+
+interface BreweryCoord {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  province: string;
+  duplicateCount?: number;
+}
+
+export default function CoordFixer() {
+  const [issues, setIssues] = useState<BreweryCoord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [regeocoding, setRegeocoding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editLat, setEditLat] = useState('');
+  const [editLng, setEditLng] = useState('');
+
+  const loadIssues = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('breweries')
+      .select('id, name, address, lat, lng, province')
+      .order('name');
+
+    if (!data) { setLoading(false); return; }
+
+    // Find duplicate coords
+    const coordMap = new Map<string, BreweryCoord[]>();
+    for (const b of data) {
+      const key = `${b.lat.toFixed(6)},${b.lng.toFixed(6)}`;
+      if (!coordMap.has(key)) coordMap.set(key, []);
+      coordMap.get(key)!.push(b as BreweryCoord);
+    }
+
+    const dupes: BreweryCoord[] = [];
+    for (const [, group] of coordMap) {
+      if (group.length > 1) {
+        group.forEach(b => {
+          b.duplicateCount = group.length;
+          dupes.push(b);
+        });
+      }
+    }
+
+    // Also add breweries without address
+    const noAddr = data.filter(b => !b.address || b.address.trim() === '');
+    noAddr.forEach(b => {
+      if (!dupes.find(d => d.id === b.id)) {
+        dupes.push({ ...b, address: b.address ?? '', duplicateCount: 0 } as BreweryCoord);
+      }
+    });
+
+    setIssues(dupes);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadIssues(); }, []);
+
+  const handleSave = async (id: string) => {
+    const lat = parseFloat(editLat);
+    const lng = parseFloat(editLng);
+    if (isNaN(lat) || isNaN(lng)) {
+      toast({ title: 'Ongeldige coördinaten', variant: 'destructive' });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('breweries')
+      .update({ lat, lng })
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Fout', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Coördinaten bijgewerkt' });
+      setEditingId(null);
+      loadIssues();
+    }
+  };
+
+  const handleRegeocode = async () => {
+    setRegeocoding(true);
+    toast({ title: 'Hergeocoding gestart...', description: 'Dit kan enkele minuten duren (1 per seconde).' });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('regeocode-breweries', {
+        body: { mode: 'duplicates' },
+      });
+
+      if (error) throw error;
+      toast({
+        title: `Hergeocoding klaar`,
+        description: `${data.fixed} gefixt, ${data.failed} gefaald van ${data.total_processed} verwerkt`,
+      });
+      loadIssues();
+    } catch (err: any) {
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+    }
+    setRegeocoding(false);
+  };
+
+  return (
+    <Card className="border border-border">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="font-serif text-xl flex items-center gap-2">
+            <AlertTriangle size={18} className="text-accent" />
+            Locatieproblemen
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">
+            {issues.length} brouwerijen met dubbele coördinaten of ontbrekend adres
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={loadIssues} disabled={loading}>
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleRegeocode}
+            disabled={regeocoding}
+            className="gap-1.5"
+          >
+            {regeocoding ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
+            Auto-hergeocoden
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p className="text-muted-foreground py-8 text-center">Laden...</p>
+        ) : issues.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center">Geen problemen gevonden! 🎉</p>
+        ) : (
+          <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
+            {issues.map(b => (
+              <div key={b.id} className="py-3 flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-medium text-sm truncate">{b.name}</span>
+                    {b.duplicateCount && b.duplicateCount > 1 && (
+                      <Badge variant="secondary" className="text-[10px] shrink-0">
+                        {b.duplicateCount}× gestapeld
+                      </Badge>
+                    )}
+                    {(!b.address || b.address.trim() === '') && (
+                      <Badge variant="destructive" className="text-[10px] shrink-0">
+                        Geen adres
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {b.address || 'Geen adres'} · {b.province}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                    {b.lat.toFixed(5)}, {b.lng.toFixed(5)}
+                  </p>
+                </div>
+
+                {editingId === b.id ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Input
+                      value={editLat}
+                      onChange={e => setEditLat(e.target.value)}
+                      className="w-24 h-7 text-xs"
+                      placeholder="lat"
+                      type="number"
+                      step="any"
+                    />
+                    <Input
+                      value={editLng}
+                      onChange={e => setEditLng(e.target.value)}
+                      className="w-24 h-7 text-xs"
+                      placeholder="lng"
+                      type="number"
+                      step="any"
+                    />
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleSave(b.id)}>
+                      <Save size={12} />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingId(null)}>
+                      ✕
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="shrink-0 text-xs"
+                    onClick={() => {
+                      setEditingId(b.id);
+                      setEditLat(String(b.lat));
+                      setEditLng(String(b.lng));
+                    }}
+                  >
+                    Bewerk
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
