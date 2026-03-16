@@ -60,6 +60,7 @@ async function fetchBreweries(): Promise<Brewery[]> {
     address: (b as any).address ?? '',
     phone: (b as any).phone ?? '',
     email: (b as any).email ?? '',
+    featured: (b as any).featured ?? false,
     beers: (beerRows ?? [])
       .filter(beer => beer.brewery_id === b.id)
       .map(beer => ({
@@ -70,6 +71,9 @@ async function fetchBreweries(): Promise<Brewery[]> {
         flavorProfile: beer.flavor_profile ?? [],
         foodPairing: beer.food_pairing ?? '',
         isHiddenGem: beer.is_hidden_gem ?? false,
+        featured: (beer as any).featured ?? false,
+        breweryId: beer.brewery_id,
+        breweryName: b.name,
       })),
   }));
 }
