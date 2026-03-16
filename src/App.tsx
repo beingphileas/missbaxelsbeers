@@ -11,6 +11,7 @@ import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Venues from "./pages/Venues";
+import Beers from "./pages/Beers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
