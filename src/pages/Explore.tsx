@@ -103,7 +103,7 @@ export default function Explore() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
                   >
-                    <div className="relative">
+                    <div className="relative group/pin">
                       <BlogCard post={post} featured={i === 0} />
                       {/* Map pin button overlay */}
                       {(post.breweryId || post.venueId) && (
@@ -114,10 +114,10 @@ export default function Explore() {
                             handlePostClick(post);
                             if (isMobile) setShowMap(true);
                           }}
-                          className="absolute top-3 right-3 z-10 w-9 h-9 bg-foreground/80 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center hover:bg-accent transition-colors group"
+                          className="absolute top-4 right-4 z-20 w-10 h-10 bg-accent text-accent-foreground border-2 border-foreground shadow-hard flex items-center justify-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                           title="Toon op kaart"
                         >
-                          <MapPin size={14} className="text-white group-hover:text-accent-foreground" />
+                          <MapPin size={16} />
                         </button>
                       )}
                     </div>
