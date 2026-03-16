@@ -104,7 +104,11 @@ export default function Explore() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
                   >
-                    <div className="relative group/pin">
+                    <div
+                      className="relative group/pin"
+                      onMouseEnter={() => setHoveredPostId(post.id)}
+                      onMouseLeave={() => setHoveredPostId(null)}
+                    >
                       <BlogCard post={post} featured={i === 0} />
                       {/* Map pin button overlay */}
                       {(post.breweryId || post.venueId) && (
