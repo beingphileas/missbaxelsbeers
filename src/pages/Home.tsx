@@ -119,6 +119,10 @@ export default function Home() {
                             src={post.coverImageUrl}
                             alt={post.title}
                             className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700"
+                            width={128}
+                            height={128}
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
