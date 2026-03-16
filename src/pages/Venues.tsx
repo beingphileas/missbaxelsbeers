@@ -43,13 +43,30 @@ export default function Venues() {
   );
 
   const filtered = useMemo(() => {
-    return venues.filter(v => {
+    let result = venues.filter(v => {
       if (province !== ALL && v.province !== province) return false;
       if (venueType !== ALL && v.venueType !== venueType) return false;
       if (search && !v.name.toLowerCase().includes(search.toLowerCase()) && !v.address.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [venues, province, venueType, search]);
+
+    switch (sort) {
+      case 'name':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'rating': {
+        const bestRating = (v: typeof result[0]) =>
+          Math.max(v.googleRating ?? 0, v.tripadvisorRating ?? 0);
+        result.sort((a, b) => bestRating(b) - bestRating(a));
+        break;
+      }
+      case 'random':
+      default:
+        result = seededShuffle(result, seedRef.current);
+        break;
+    }
+    return result;
+  }, [venues, province, venueType, search, sort]);
 
   return (
     <div className="min-h-screen bg-background">
