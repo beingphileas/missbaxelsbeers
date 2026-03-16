@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blog';
 import { Badge } from '@/components/ui/badge';
@@ -21,20 +20,17 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
   if (featured) {
     return (
       <Link to={`/post/${post.slug}`} className="block">
-        <motion.article
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
-          className="group relative overflow-hidden rounded-2xl bg-card shadow-card hover:shadow-card-hover transition-shadow"
-        >
-          <div className="aspect-[16/9] overflow-hidden bg-muted">
+        <article className="group relative overflow-hidden rounded-2xl bg-card shadow-card hover:shadow-card-hover transition-shadow">
+          <div className="aspect-video overflow-hidden bg-muted">
             {post.coverImageUrl ? (
               <img
                 src={post.coverImageUrl}
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-abbey/20 to-accent/20 flex items-center justify-center">
+              <div className="w-full h-full bg-muted flex items-center justify-center">
                 <span className="font-serif text-4xl text-accent/40">🍺</span>
               </div>
             )}
@@ -64,27 +60,24 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
               <time>{date}</time>
             </div>
           </div>
-        </motion.article>
+        </article>
       </Link>
     );
   }
 
   return (
-    <Link to={`/post/${post.slug}`} className="block">
-      <motion.article
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-        className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-card hover:shadow-card-hover transition-shadow h-full"
-      >
+    <Link to={`/post/${post.slug}`} className="block h-full">
+      <article className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-card hover:shadow-card-hover transition-shadow h-full">
         <div className="aspect-[4/3] overflow-hidden bg-muted">
           {post.coverImageUrl ? (
             <img
               src={post.coverImageUrl}
               alt={post.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-abbey/10 to-accent/10 flex items-center justify-center">
+            <div className="w-full h-full bg-muted flex items-center justify-center">
               <span className="font-serif text-3xl text-accent/30">🍺</span>
             </div>
           )}
@@ -113,7 +106,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             {date}
           </time>
         </div>
-      </motion.article>
+      </article>
     </Link>
   );
 }
