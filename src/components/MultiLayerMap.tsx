@@ -194,7 +194,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* Layer toggles */}
-      <div className="absolute top-3 right-3 z-[1000] bg-foreground/90 backdrop-blur-sm border border-white/10 p-2.5 flex flex-col gap-1.5 text-sm">
+      <div className="absolute top-16 right-3 md:top-3 md:right-3 z-[1000] bg-foreground/90 backdrop-blur-sm border border-white/10 p-2.5 flex flex-col gap-1.5 text-sm">
         {(Object.keys(LAYER_META) as LayerKey[]).map(key => (
           <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-white/5 transition-colors rounded">
             <span
