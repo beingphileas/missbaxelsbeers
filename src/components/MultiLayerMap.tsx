@@ -166,6 +166,12 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
     });
   }, [posts, breweries]);
 
+  // Fly to focus location
+  useEffect(() => {
+    if (!focusLocation || !mapRef.current) return;
+    mapRef.current.flyTo([focusLocation.lat, focusLocation.lng], 14, { duration: 1.2 });
+  }, [focusLocation]);
+
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full z-0" />
