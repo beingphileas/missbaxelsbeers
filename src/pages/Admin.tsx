@@ -174,6 +174,11 @@ export default function Admin() {
         </div>
 
         {/* Tabs */}
+        {/* Quick Tasting */}
+        <div className="mb-8">
+          <QuickTasting onPublished={refreshPosts} />
+        </div>
+
         <Tabs defaultValue="posts">
           <TabsList className="mb-4">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
