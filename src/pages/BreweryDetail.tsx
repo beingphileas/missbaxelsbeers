@@ -41,7 +41,7 @@ export default function BreweryDetail() {
   const mapMarkers = useMemo(() => {
     if (!brewery) return [];
     const markers = [
-      { lat: brewery.lat, lng: brewery.lng, name: brewery.name, color: '#D4AF37', type: brewery.type },
+      { lat: brewery.lat, lng: brewery.lng, name: brewery.name, color: '#D4AF37', type: brewery.type as string },
     ];
     nearbyVenues.forEach(v => {
       markers.push({ lat: v.lat, lng: v.lng, name: v.name, color: '#c2703e', type: v.venueType });
