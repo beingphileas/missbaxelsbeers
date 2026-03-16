@@ -1,16 +1,17 @@
 import { useState, useMemo } from 'react';
-import { Map, List } from 'lucide-react';
 import { useBreweries, Brewery, breweryTypes } from '@/data/breweries';
-import MapView from '@/components/MapView';
+import { useVenues, useBlogPosts } from '@/data/blog';
+import MultiLayerMap from '@/components/MultiLayerMap';
 import BreweryCard from '@/components/BreweryCard';
 import BrewerySheet from '@/components/BrewerySheet';
 import FilterBar from '@/components/FilterBar';
 import SearchBar from '@/components/SearchBar';
-import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { data: breweries = [], isLoading } = useBreweries();
-  const [view, setView] = useState<'map' | 'list'>('map');
+  const { data: venues = [] } = useVenues();
+  const { data: posts = [] } = useBlogPosts();
+
   const [search, setSearch] = useState('');
   const [province, setProvince] = useState('');
   const [type, setType] = useState('');
@@ -45,8 +46,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-
-      <main className="max-w-5xl mx-auto p-4 md:p-8 space-y-4">
+      <main className="max-w-6xl mx-auto p-4 md:p-8 space-y-4">
         <SearchBar value={search} onChange={setSearch} />
         <FilterBar
           selectedProvince={province}
@@ -61,20 +61,27 @@ const Index = () => {
 
         <div className="flex items-baseline justify-between">
           <p className="text-xs text-muted-foreground tabular-nums">
-            {isLoading ? 'Loading…' : `${filtered.length} ${filtered.length === 1 ? 'brewery' : 'breweries'}`}
+            {isLoading ? 'Laden…' : `${filtered.length} brouwerijen · ${venues.length} venues · ${posts.length} verhalen`}
           </p>
           {(search || province || type || style) && (
             <button
               onClick={() => { setSearch(''); setProvince(''); setType(''); setStyle(''); }}
               className="text-xs text-accent hover:underline"
             >
-              Clear filters
+              Filters wissen
             </button>
           )}
         </div>
 
-        {view === 'map' && !isLoading && (
-          <MapView breweries={filtered} onSelectBrewery={setSelected} />
+        {!isLoading && (
+          <div className="w-full h-[55vh] md:h-[65vh] border border-border overflow-hidden">
+            <MultiLayerMap
+              breweries={filtered}
+              venues={venues}
+              posts={posts}
+              onSelectBrewery={setSelected}
+            />
+          </div>
         )}
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,7 +92,7 @@ const Index = () => {
 
         {!isLoading && filtered.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-muted-foreground">No breweries match your search.</p>
+            <p className="text-muted-foreground">Geen brouwerijen gevonden.</p>
           </div>
         )}
       </main>
