@@ -1,1 +1,4 @@
 project_id = "mbwwrkjpxlitihftjets"
+
+[functions.generate-brewery-story]
+verify_jwt = false

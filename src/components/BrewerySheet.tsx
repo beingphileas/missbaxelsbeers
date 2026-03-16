@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Calendar, MapPin } from 'lucide-react';
+import { X, ExternalLink, Calendar, MapPin, Sparkles, Loader2 } from 'lucide-react';
 import { Brewery } from '@/data/breweries';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface BrewerySheetProps {
   brewery: Brewery | null;
@@ -10,6 +14,27 @@ interface BrewerySheetProps {
 }
 
 const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
+  const [generating, setGenerating] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleGenerateStory = async () => {
+    if (!brewery) return;
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-brewery-story', {
+        body: { breweryId: brewery.id },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success('Story generated!');
+      queryClient.invalidateQueries({ queryKey: ['breweries'] });
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to generate story');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {brewery && (
@@ -54,7 +79,21 @@ const BrewerySheet = ({ brewery, onClose }: BrewerySheetProps) => {
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed">{brewery.story}</p>
+              {brewery.story ? (
+                <p className="text-sm leading-relaxed">{brewery.story}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No story yet.</p>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateStory}
+                disabled={generating}
+                className="gap-1.5"
+              >
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                {generating ? 'Generating…' : 'Generate AI Story'}
+              </Button>
 
               <div>
                 <h3 className="font-serif text-lg mb-3">Beers</h3>
