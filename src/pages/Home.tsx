@@ -171,7 +171,7 @@ export default function Home() {
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {rest.map(post => (
-                <BlogCard key={post.id} post={post} />
+                <BlogCard key={post.id} post={post} onMapPin={handleMapPin} />
               ))}
             </div>
           </div>
