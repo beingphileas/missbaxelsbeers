@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,59 +6,53 @@
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 20 20% 12%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
-    --card: 40 40% 99%;
-    --card-foreground: 20 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
 
-    --popover: 40 40% 99%;
-    --popover-foreground: 20 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 20 20% 12%;
-    --primary-foreground: 40 33% 97%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 36 25% 92%;
-    --secondary-foreground: 20 20% 12%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 36 18% 90%;
-    --muted-foreground: 20 10% 46%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 18 75% 42%;
+    --accent: 25 90% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 86%;
-    --input: 30 20% 86%;
-    --ring: 18 75% 42%;
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 25 90% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0px;
 
-    --sidebar-background: 40 33% 97%;
-    --sidebar-foreground: 20 20% 12%;
-    --sidebar-primary: 20 20% 12%;
-    --sidebar-primary-foreground: 40 33% 97%;
-    --sidebar-accent: 36 25% 92%;
-    --sidebar-accent-foreground: 20 20% 12%;
-    --sidebar-border: 30 20% 86%;
-    --sidebar-ring: 18 75% 42%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 80%;
+    --sidebar-ring: 25 90% 45%;
 
-    /* Heritage palette */
-    --warm: 36 40% 95%;
-    --amber: 18 75% 42%;
-    --copper: 16 65% 35%;
-    --cream: 40 33% 97%;
-    --espresso: 20 20% 12%;
-    --parchment: 39 40% 94%;
-    --gold: 43 80% 50%;
-    --burgundy: 345 50% 30%;
+    /* Raw/Bold palette */
+    --charcoal: 0 0% 15%;
+    --rust: 18 80% 42%;
+    --concrete: 0 0% 96%;
+    --slate: 0 0% 25%;
 
-    --shadow-soft: 0 1px 3px 0 hsl(20 20% 12% / 0.03);
-    --shadow-card: 0 1px 4px -1px hsl(20 20% 12% / 0.06), 0 1px 2px -1px hsl(20 20% 12% / 0.03);
-    --shadow-elevated: 0 8px 30px -6px hsl(20 20% 12% / 0.1), 0 2px 8px -2px hsl(20 20% 12% / 0.04);
-    --shadow-label: 0 2px 12px -3px hsl(20 20% 12% / 0.08), 0 0 0 1px hsl(20 20% 12% / 0.03);
+    --shadow-hard: 4px 4px 0px hsl(0 0% 10%);
+    --shadow-card: 2px 2px 0px hsl(0 0% 10%);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -71,18 +65,18 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-    font-optical-sizing: auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-serif {
-    font-family: 'Lora', Georgia, serif;
-    letter-spacing: -0.01em;
-  }
-
-  .font-display {
-    font-family: 'Playfair Display', 'Lora', Georgia, serif;
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-weight: 600;
     letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
   }
 }
 
@@ -91,20 +85,12 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
+  .shadow-hard {
+    box-shadow: var(--shadow-hard);
   }
 
   .shadow-card {
     box-shadow: var(--shadow-card);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .shadow-label {
-    box-shadow: var(--shadow-label);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -118,42 +104,21 @@
   .text-balance {
     text-wrap: balance;
   }
-
-  /* Vintage ornament line */
-  .ornament::after {
-    content: '◆';
-    display: block;
-    text-align: center;
-    font-size: 8px;
-    letter-spacing: 1em;
-    color: hsl(var(--accent) / 0.3);
-    margin-top: 1rem;
-  }
 }
 
-/* Leaflet overrides — Vintage/dark style */
+/* Leaflet overrides */
 .leaflet-container {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: hsl(20 15% 14%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: hsl(0 0% 15%);
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  box-shadow: var(--shadow-elevated);
-  border: 1px solid hsl(var(--border));
-  font-family: 'DM Sans', sans-serif;
+  border-radius: 0;
+  box-shadow: var(--shadow-hard);
+  border: 2px solid hsl(var(--foreground));
+  font-family: 'Inter', sans-serif;
 }
 
 .leaflet-popup-tip {
   box-shadow: none;
-}
-
-/* Prose styling for blog content */
-.prose-heritage {
-  font-family: 'Lora', Georgia, serif;
-}
-.prose-heritage h1,
-.prose-heritage h2,
-.prose-heritage h3 {
-  font-family: 'Playfair Display', 'Lora', Georgia, serif;
 }
