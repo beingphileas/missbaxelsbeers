@@ -187,6 +187,7 @@ export default function Beers() {
 
 function BeerCard({ beer, index }: { beer: Beer; index: number }) {
   return (
+    <Link to={`/beers/${beer.id}`}>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
