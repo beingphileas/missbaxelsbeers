@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { Brewery } from '@/data/breweries';
 
 interface BreweryCardProps {
