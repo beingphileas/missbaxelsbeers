@@ -41,6 +41,7 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [googleRating, setGoogleRating] = useState('');
   const [googleUrl, setGoogleUrl] = useState('');
