@@ -18,17 +18,17 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <HeroSection />
 
-      {/* Stats */}
-      <div className="border-y border-border/60 bg-card">
-        <div className="max-w-5xl mx-auto px-5 py-4 flex justify-center gap-10 md:gap-16">
+      {/* Stats ribbon */}
+      <div className="border-y border-border/50 bg-parchment">
+        <div className="max-w-5xl mx-auto px-5 py-5 flex justify-center gap-12 md:gap-20">
           {[
             { value: breweries.length, label: 'Brouwerijen' },
             { value: posts.length, label: 'Tastings' },
             { value: '11', label: 'Provincies' },
           ].map(stat => (
             <div key={stat.label} className="text-center">
-              <p className="font-serif text-2xl md:text-3xl text-accent">{stat.value}</p>
-              <p className="text-[10px] md:text-xs uppercase tracking-widest text-muted-foreground mt-0.5">
+              <p className="font-display text-3xl md:text-4xl text-accent">{stat.value}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1 font-medium">
                 {stat.label}
               </p>
             </div>
@@ -38,12 +38,12 @@ export default function Home() {
 
       {/* Latest Tastings */}
       {posts.length > 0 ? (
-        <section className="py-14 md:py-20">
+        <section className="py-16 md:py-24">
           <div className="max-w-5xl mx-auto px-5">
-            <div className="flex items-end justify-between mb-8 md:mb-10">
+            <div className="flex items-end justify-between mb-10 md:mb-12">
               <div>
-                <p className="text-accent text-xs font-semibold uppercase tracking-widest mb-1">Recent</p>
-                <h2 className="font-serif text-2xl md:text-3xl">Laatste Tastings</h2>
+                <p className="text-accent text-[10px] font-semibold uppercase tracking-[0.25em] mb-2">Recent</p>
+                <h2 className="font-display text-3xl md:text-4xl">Laatste Tastings</h2>
               </div>
               <Link
                 to="/tastings"
@@ -67,16 +67,16 @@ export default function Home() {
           </div>
         </section>
       ) : (
-        <section className="py-20 md:py-28">
+        <section className="py-24 md:py-32">
           <div className="max-w-5xl mx-auto px-5 text-center">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <Beer size={40} className="mx-auto text-accent/25 mb-5" />
-              <h2 className="font-serif text-2xl md:text-3xl mb-3">Tastings komen eraan</h2>
-              <p className="text-muted-foreground max-w-sm mx-auto text-sm md:text-base mb-6">
+              <Beer size={40} className="mx-auto text-accent/20 mb-6" />
+              <h2 className="font-display text-3xl md:text-4xl mb-4">Tastings komen eraan</h2>
+              <p className="text-muted-foreground max-w-sm mx-auto text-sm md:text-base mb-8">
                 Persoonlijke bierproefnotities, brouwerijbezoeken, en verborgen pareltjes — binnenkort hier.
               </p>
               <Link
@@ -94,18 +94,19 @@ export default function Home() {
       <FeaturedBreweries breweries={breweries} />
 
       {/* Footer */}
-      <footer className="border-t border-border/60 py-10 md:py-14">
-        <div className="max-w-5xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-border/50 bg-foreground text-primary-foreground py-12 md:py-16">
+        <div className="max-w-5xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
-            <span className="font-serif text-lg">MissBaxel's Beers</span>
-            <p className="text-xs text-muted-foreground mt-1">
+            <span className="font-display text-xl">MissBaxel's Beers</span>
+            <p className="text-xs text-white/50 mt-1.5 tracking-wide">
               Belgian Beer Whisperer · Elk bier heeft een verhaal
             </p>
           </div>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link to="/about" className="hover:text-foreground transition-colors">Over</Link>
-            <Link to="/map" className="hover:text-foreground transition-colors">Kaart</Link>
-            <Link to="/breweries" className="hover:text-foreground transition-colors">Brouwerijen</Link>
+          <div className="flex gap-8 text-sm text-white/60">
+            <Link to="/about" className="hover:text-white transition-colors">Over</Link>
+            <Link to="/map" className="hover:text-white transition-colors">Kaart</Link>
+            <Link to="/breweries" className="hover:text-white transition-colors">Brouwerijen</Link>
+            <Link to="/venues" className="hover:text-white transition-colors">Venues</Link>
           </div>
         </div>
       </footer>

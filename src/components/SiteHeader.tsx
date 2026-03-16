@@ -15,28 +15,27 @@ export default function SiteHeader() {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/60">
-      <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
+      <div className="max-w-[1400px] mx-auto px-5 h-14 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-1.5 group">
-          <span className="font-serif text-xl tracking-tight text-foreground">
-            MissBaxel<span className="text-accent font-normal">'s</span>
+        <Link to="/" className="flex items-center gap-2 group">
+          <span className="font-display text-xl tracking-tight text-foreground">
+            MissBaxel<span className="text-accent">'s</span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-0.5">
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}
-              className={`px-3 py-1.5 text-[13px] font-medium rounded-full transition-colors ${
+              className={`px-3 py-1.5 text-[13px] font-medium transition-colors ${
                 pathname === item.path
-                  ? 'text-accent bg-accent/8'
+                  ? 'text-accent'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -58,11 +57,11 @@ export default function SiteHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border/60 bg-background px-5 py-3 space-y-0.5">
+        <nav className="md:hidden border-t border-border/50 bg-background px-5 py-3 space-y-0.5">
           <Link
             to="/"
-            className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
-              pathname === '/' ? 'text-accent bg-accent/8' : 'text-muted-foreground'
+            className={`block px-3 py-2.5 text-sm font-medium ${
+              pathname === '/' ? 'text-accent' : 'text-muted-foreground'
             }`}
           >
             Home
@@ -71,8 +70,8 @@ export default function SiteHeader() {
             <Link
               key={item.path}
               to={item.path}
-              className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
-                pathname === item.path ? 'text-accent bg-accent/8' : 'text-muted-foreground'
+              className={`block px-3 py-2.5 text-sm font-medium ${
+                pathname === item.path ? 'text-accent' : 'text-muted-foreground'
               }`}
             >
               {item.label}
