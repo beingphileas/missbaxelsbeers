@@ -184,6 +184,7 @@ export default function Admin() {
           <TabsList className="mb-4">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
+            <TabsTrigger value="featured">Featured</TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
