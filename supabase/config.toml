@@ -2,3 +2,12 @@ project_id = "mbwwrkjpxlitihftjets"
 
 [functions.generate-brewery-story]
 verify_jwt = false
+
+[functions.geocode-breweries]
+verify_jwt = false
+
+[functions.fix-brewery-coords]
+verify_jwt = false
+
+[functions.import-breweries]
+verify_jwt = false
