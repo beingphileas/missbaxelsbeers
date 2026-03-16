@@ -245,8 +245,36 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
           </div>
         </div>
 
-        {/* Markdown Editor */}
-        <div data-color-mode="light" className="border rounded-lg overflow-hidden">
+        {/* Markdown Editor with inline image paste/drop */}
+        <div
+          data-color-mode="light"
+          className="border rounded-lg overflow-hidden"
+          onPaste={async (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of Array.from(items)) {
+              if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                if (!file) return;
+                const url = await uploadInlineImage(file);
+                if (url) setContent(prev => prev + `\n![](${url})\n`);
+                return;
+              }
+            }
+          }}
+          onDrop={async (e) => {
+            const file = e.dataTransfer?.files[0];
+            if (file?.type.startsWith('image/')) {
+              e.preventDefault();
+              const url = await uploadInlineImage(file);
+              if (url) setContent(prev => prev + `\n![](${url})\n`);
+            }
+          }}
+          onDragOver={(e) => {
+            if (e.dataTransfer?.types.includes('Files')) e.preventDefault();
+          }}
+        >
           <MDEditor
             value={content}
             onChange={val => setContent(val ?? '')}
