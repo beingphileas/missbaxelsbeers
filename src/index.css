@@ -113,7 +113,7 @@
 /* Leaflet overrides */
 .leaflet-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: hsl(0 0% 15%);
+  background: hsl(24 56% 10%);
 }
 
 .leaflet-popup-content-wrapper {
@@ -125,4 +125,15 @@
 
 .leaflet-popup-tip {
   box-shadow: none;
+}
+
+/* Map pin pulse animation */
+@keyframes map-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.map-pin-pulse > div {
+  animation: map-pulse 0.8s ease-in-out infinite;
 }

@@ -145,6 +145,7 @@ export default function Explore() {
             posts={posts}
             onSelectBrewery={setSelected}
             focusLocation={focusLocation}
+            hoveredPostId={hoveredPostId}
           />
         </div>
       </div>
