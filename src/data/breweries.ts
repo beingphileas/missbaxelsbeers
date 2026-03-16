@@ -23,6 +23,9 @@ export interface Brewery {
   story: string;
   establishedYear: number;
   websiteUrl: string;
+  address: string;
+  phone: string;
+  email: string;
   beers: Beer[];
 }
 
