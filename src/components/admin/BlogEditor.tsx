@@ -41,24 +41,23 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   // Load post if editing
   useEffect(() => {
     if (postId) {
-      supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('id', postId)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            setTitle(data.title);
-            setSlug(data.slug);
-            setExcerpt(data.excerpt ?? '');
-            setContent(data.content);
-            setCoverImageUrl(data.cover_image_url ?? '');
-            setBreweryId(data.brewery_id ?? '');
-            setBeerId(data.beer_id ?? '');
-            setTags((data.tags ?? []).join(', '));
-            setStatus(data.status);
-          }
-        });
+      Promise.all([
+        supabase.from('blog_posts').select('*').eq('id', postId).single(),
+        supabase.from('blog_post_beers').select('beer_id').eq('blog_post_id', postId),
+      ]).then(([{ data }, { data: links }]) => {
+        if (data) {
+          setTitle(data.title);
+          setSlug(data.slug);
+          setExcerpt(data.excerpt ?? '');
+          setContent(data.content);
+          setCoverImageUrl(data.cover_image_url ?? '');
+          setBreweryId(data.brewery_id ?? '');
+          setBeerId(data.beer_id ?? '');
+          setSelectedBeerIds((links ?? []).map((l: any) => l.beer_id));
+          setTags((data.tags ?? []).join(', '));
+          setStatus(data.status);
+        }
+      });
     }
   }, [postId]);
 
