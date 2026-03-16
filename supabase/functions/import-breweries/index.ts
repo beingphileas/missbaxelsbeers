@@ -58,7 +58,6 @@ const provinceMap: Record<string, string> = {
   "West-Vlaanderen": "West Flanders",
 };
 
-// Known brewery types
 const trappists = new Set([
   "brouwerij der trappisten van westmalle",
   "brasserie de l'abbaye n.d. de scourmont",
@@ -74,22 +73,20 @@ const industrial = new Set([
   "brouwerij martens",
 ]);
 
-function classifyType(name: string): string {
+function classifyType(name: string, code: string): string {
   const lower = name.toLowerCase();
   if (trappists.has(lower)) return "Trappist";
   if (industrial.has(lower)) return "Industrial";
-  // Check for family-owned indicators
+  // Code prefix: B = brewery, S = sub-site (skip), C = contract brewer
+  if (code.startsWith("C")) return "Contract brewer";
   if (lower.includes("famille") || lower.includes("family") || lower.includes("frères")) return "Family-owned";
   return "Microbrewery";
 }
 
 function cleanWebsite(url: string): string {
   if (!url) return "";
-  // Remove markdown link syntax
   url = url.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-  // Remove backslash escapes
   url = url.replace(/\\/g, "");
-  // Add https:// if missing
   if (url && !url.startsWith("http")) {
     url = "https://" + url;
   }
@@ -99,6 +96,12 @@ function cleanWebsite(url: string): string {
 function cleanEmail(email: string): string {
   if (!email) return "";
   return email.replace(/\\/g, "").replace("@", "@");
+}
+
+function normalizeForMatch(name: string): string {
+  return name.toLowerCase().trim()
+    .replace(/[''`]/g, "'")
+    .replace(/\s+/g, " ");
 }
 
 serve(async (req) => {
@@ -118,58 +121,125 @@ serve(async (req) => {
   }
 
   try {
-    const { breweries } = await req.json();
+    const { breweries: incoming, mode = "sync" } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Get existing brewery names
-    const { data: existing } = await supabase.from("breweries").select("name");
-    const existingNames = new Set(
-      (existing || []).map((b: any) => b.name.toLowerCase().trim())
-    );
+    // Fetch ALL existing breweries
+    const { data: existing } = await supabase.from("breweries").select("id, name, province, type, address, phone, email, website_url");
+    const existingMap = new Map<string, any>();
+    for (const b of (existing || [])) {
+      existingMap.set(normalizeForMatch(b.name), b);
+    }
 
-    const toInsert: any[] = [];
-
-    for (const b of breweries) {
+    // Build incoming map (skip S-codes = sub-sites, they're not separate entities)
+    const incomingMap = new Map<string, any>();
+    for (const b of incoming) {
       const name = (b.name || "").trim();
+      const code = (b.code || "").trim();
       if (!name) continue;
-      if (existingNames.has(name.toLowerCase())) continue;
+      // Skip sub-sites (S-codes) — they share the parent brewery entry
+      if (code.startsWith("S")) continue;
+
+      const key = normalizeForMatch(name);
+      // If duplicate name in spreadsheet, keep the first
+      if (incomingMap.has(key)) continue;
 
       const postalCode = (b.postal_code || "1000").toString();
       const [baseLat, baseLng] = postalCodeToCoords(postalCode);
-      // Small random offset to prevent overlapping markers
-      const lat = baseLat + (Math.random() - 0.5) * 0.015;
-      const lng = baseLng + (Math.random() - 0.5) * 0.015;
-
       const province = provinceMap[b.province] || b.province || "Brussels";
 
-      toInsert.push({
+      incomingMap.set(key, {
         name,
-        type: b.type || classifyType(name),
+        type: classifyType(name, code),
         province,
-        lat,
-        lng,
+        postal_code: postalCode,
         address: b.address || "",
         phone: b.phone || "",
         email: cleanEmail(b.email || ""),
         website_url: cleanWebsite(b.website || ""),
-        story: "",
+        lat: baseLat + (Math.random() - 0.5) * 0.015,
+        lng: baseLng + (Math.random() - 0.5) * 0.015,
       });
-
-      // Track to avoid duplicate inserts within same batch
-      existingNames.add(name.toLowerCase());
     }
 
     let insertedCount = 0;
-    // Insert in batches of 50
+    let updatedCount = 0;
+    let deletedCount = 0;
+    let skippedCount = 0;
+
+    // 1. DELETE: breweries in DB but not in incoming list
+    if (mode === "sync") {
+      const toDelete: string[] = [];
+      for (const [key, dbRow] of existingMap) {
+        if (!incomingMap.has(key)) {
+          toDelete.push(dbRow.id);
+        }
+      }
+      if (toDelete.length > 0) {
+        // Delete in batches of 50
+        for (let i = 0; i < toDelete.length; i += 50) {
+          const batch = toDelete.slice(i, i + 50);
+          const { error } = await supabase.from("breweries").delete().in("id", batch);
+          if (error) {
+            console.error("Delete error:", error.message);
+          } else {
+            deletedCount += batch.length;
+          }
+        }
+      }
+    }
+
+    // 2. UPDATE: breweries in both — update province, type, address, phone, email, website
+    const toInsert: any[] = [];
+    for (const [key, inc] of incomingMap) {
+      const existing = existingMap.get(key);
+      if (existing) {
+        // Check if any field changed
+        const updates: Record<string, any> = {};
+        if (inc.province !== existing.province) updates.province = inc.province;
+        if (inc.type !== existing.type) updates.type = inc.type;
+        if (inc.address && inc.address !== existing.address) updates.address = inc.address;
+        if (inc.phone && inc.phone !== existing.phone) updates.phone = inc.phone;
+        if (inc.email && inc.email !== existing.email) updates.email = inc.email;
+        if (inc.website_url && inc.website_url !== existing.website_url) updates.website_url = inc.website_url;
+
+        if (Object.keys(updates).length > 0) {
+          const { error } = await supabase.from("breweries").update(updates).eq("id", existing.id);
+          if (error) {
+            console.error(`Update error for ${inc.name}:`, error.message);
+          } else {
+            updatedCount++;
+          }
+        } else {
+          skippedCount++;
+        }
+      } else {
+        // 3. INSERT: new breweries
+        toInsert.push({
+          name: inc.name,
+          type: inc.type,
+          province: inc.province,
+          lat: inc.lat,
+          lng: inc.lng,
+          address: inc.address,
+          phone: inc.phone,
+          email: inc.email,
+          website_url: inc.website_url,
+          story: "",
+        });
+      }
+    }
+
+    // Batch insert new breweries
     for (let i = 0; i < toInsert.length; i += 50) {
       const batch = toInsert.slice(i, i + 50);
       const { error } = await supabase.from("breweries").insert(batch);
       if (error) {
-        console.error(`Batch ${i} error:`, error.message);
+        console.error(`Insert batch error:`, error.message);
         return new Response(
           JSON.stringify({ error: error.message, insertedSoFar: insertedCount }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -181,12 +251,16 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         inserted: insertedCount,
-        skipped: breweries.length - insertedCount,
-        total_received: breweries.length,
+        updated: updatedCount,
+        deleted: deletedCount,
+        unchanged: skippedCount,
+        total_incoming: incomingMap.size,
+        total_existing: existingMap.size,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    console.error("Import error:", (err as Error).message);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
