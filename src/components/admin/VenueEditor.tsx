@@ -114,6 +114,9 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
       tripadvisor_url: tripadvisorUrl.trim() || null,
       untappd_rating: untappdRating ? parseFloat(untappdRating) : null,
       untappd_url: untappdUrl.trim() || null,
+      google_review_count: googleReviewCount ? parseInt(googleReviewCount) : null,
+      tripadvisor_review_count: tripadvisorReviewCount ? parseInt(tripadvisorReviewCount) : null,
+      untappd_review_count: untappdReviewCount ? parseInt(untappdReviewCount) : null,
     };
 
     let error;
