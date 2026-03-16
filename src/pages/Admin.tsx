@@ -316,6 +316,18 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Featured Tab */}
+          <TabsContent value="featured">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Featured Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FeaturedManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
