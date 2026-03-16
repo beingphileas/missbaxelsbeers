@@ -3,9 +3,10 @@ import { useBlogPosts } from '@/data/blog';
 import BlogCard from '@/components/BlogCard';
 import FeaturedBreweries from '@/components/FeaturedBreweries';
 import FeaturedBeers from '@/components/FeaturedBeers';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Beer } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCallback } from 'react';
 
 export default function Home() {
   const { data: breweries = [] } = useBreweries();
