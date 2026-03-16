@@ -22,11 +22,18 @@ const BreweryCard = ({ brewery, onClick }: BreweryCardProps) => {
         <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           {brewery.type}
         </span>
-        {brewery.establishedYear > 0 && (
-          <span className="text-[10px] font-serif italic text-muted-foreground">
-            Est. {brewery.establishedYear}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {brewery.hasPost && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-accent/15 text-accent border border-accent/25 rounded-sm text-[8px] font-bold uppercase tracking-wide">
+              <Sparkles size={8} /> Verified
+            </span>
+          )}
+          {brewery.establishedYear > 0 && (
+            <span className="text-[10px] font-serif italic text-muted-foreground">
+              Est. {brewery.establishedYear}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-4">

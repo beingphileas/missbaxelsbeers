@@ -247,6 +247,11 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
               <Star size={9} /> Hidden gem
             </span>
           )}
+          {beer.hasPost && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/15 text-accent border border-accent/25 text-[9px] font-bold uppercase tracking-wide">
+              <Sparkles size={9} /> Verified
+            </span>
+          )}
           {beer.featured && (
             <span className="px-2 py-0.5 bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold uppercase tracking-wide">
               Featured
