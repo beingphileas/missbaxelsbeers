@@ -28,6 +28,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 loading="lazy"
+                decoding="async"
+                width={800}
+                height={500}
+                sizes="(max-width: 768px) 100vw, 60vw"
               />
             ) : (
               <div className="w-full h-full min-h-[240px] bg-gradient-to-br from-parchment to-secondary flex items-center justify-center">
