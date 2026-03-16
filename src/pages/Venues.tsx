@@ -38,17 +38,28 @@ export default function Venues() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-parchment border-b border-border/50">
+        <div className="max-w-5xl mx-auto px-5 py-10 md:py-14">
+          <p className="text-accent text-[10px] font-semibold uppercase tracking-[0.25em] mb-2">Directory</p>
+          <h1 className="font-display text-3xl md:text-4xl mb-2">Venues</h1>
+          <p className="text-muted-foreground text-sm max-w-md">
+            Cafés, restaurants, biershops en brouwerij-taps door heel België.
+          </p>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="sticky top-14 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <div className="sticky top-14 z-30 border-b border-border/50 bg-background/95 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-5 py-3 flex flex-wrap items-center gap-2.5">
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Zoek venues…"
-            className="flex-1 min-w-[160px] max-w-xs h-10 text-sm rounded-xl"
+            className="flex-1 min-w-[160px] max-w-xs h-9 text-sm border-border/60"
           />
           <Select value={province} onValueChange={setProvince}>
-            <SelectTrigger className="w-[160px] h-10 text-sm rounded-xl">
+            <SelectTrigger className="w-[160px] h-9 text-xs border-border/60">
               <SelectValue placeholder="Provincie" />
             </SelectTrigger>
             <SelectContent>
@@ -59,7 +70,7 @@ export default function Venues() {
             </SelectContent>
           </Select>
           <Select value={venueType} onValueChange={setVenueType}>
-            <SelectTrigger className="w-[140px] h-10 text-sm rounded-xl">
+            <SelectTrigger className="w-[140px] h-9 text-xs border-border/60">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -69,7 +80,7 @@ export default function Venues() {
               ))}
             </SelectContent>
           </Select>
-          <span className="text-xs text-muted-foreground ml-auto tabular-nums">
+          <span className="text-[10px] text-muted-foreground ml-auto tabular-nums tracking-wide">
             {filtered.length} venues
           </span>
         </div>
@@ -80,18 +91,18 @@ export default function Venues() {
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-square rounded-xl bg-secondary animate-pulse" />
+              <div key={i} className="aspect-square bg-secondary animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-muted-foreground">Geen venues gevonden.</p>
+            <p className="text-muted-foreground text-sm">Geen venues gevonden.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map(venue => (
               <div key={venue.id} className="group">
-                <div className="aspect-square overflow-hidden rounded-xl bg-secondary">
+                <div className="aspect-square overflow-hidden bg-secondary border border-border/40">
                   {venue.coverImageUrl ? (
                     <img
                       src={venue.coverImageUrl}
@@ -99,19 +110,19 @@ export default function Venues() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <MapPin size={24} className="text-muted-foreground/25" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-parchment to-secondary">
+                      <MapPin size={24} className="text-muted-foreground/20" />
                     </div>
                   )}
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-serif text-base leading-snug">{venue.name}</h3>
+                    <h3 className="font-serif text-sm leading-snug">{venue.name}</h3>
                     {venue.isVerified && (
-                      <CheckCircle size={13} className="text-accent shrink-0" />
+                      <CheckCircle size={12} className="text-accent shrink-0" />
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-[10px] text-muted-foreground mt-0.5 tracking-wide">
                     {venue.venueType} · {venue.province}
                   </p>
                   {venue.websiteUrl && (
@@ -119,9 +130,9 @@ export default function Venues() {
                       href={venue.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-accent hover:underline mt-1.5 inline-flex items-center gap-1 transition-colors"
+                      className="text-[10px] text-accent hover:underline mt-1 inline-flex items-center gap-1 transition-colors"
                     >
-                      Website <ExternalLink size={10} />
+                      Website <ExternalLink size={9} />
                     </a>
                   )}
                 </div>

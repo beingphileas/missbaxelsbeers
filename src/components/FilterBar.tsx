@@ -17,10 +17,10 @@ const FilterBar = ({
   onProvinceChange, onTypeChange, onStyleChange,
 }: FilterBarProps) => {
   const selectClass =
-    "h-10 px-3.5 rounded-xl bg-card shadow-card text-sm border-none appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all duration-200";
+    "h-9 px-3 bg-card border border-border/60 text-xs appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-accent/30 transition-all duration-200";
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
       <select value={selectedProvince} onChange={e => onProvinceChange(e.target.value)} className={selectClass}>
         <option value="">Alle Provincies</option>
         {provinces.map(p => <option key={p} value={p}>{p}</option>)}

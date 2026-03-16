@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,55 +6,59 @@
 
 @layer base {
   :root {
-    --background: 36 33% 97%;
-    --foreground: 24 10% 15%;
+    --background: 40 33% 97%;
+    --foreground: 20 20% 12%;
 
-    --card: 36 33% 99%;
-    --card-foreground: 24 10% 15%;
+    --card: 40 40% 99%;
+    --card-foreground: 20 20% 12%;
 
-    --popover: 36 33% 99%;
-    --popover-foreground: 24 10% 15%;
+    --popover: 40 40% 99%;
+    --popover-foreground: 20 20% 12%;
 
-    --primary: 24 10% 15%;
-    --primary-foreground: 36 33% 97%;
+    --primary: 20 20% 12%;
+    --primary-foreground: 40 33% 97%;
 
-    --secondary: 36 20% 93%;
-    --secondary-foreground: 24 10% 15%;
+    --secondary: 36 25% 92%;
+    --secondary-foreground: 20 20% 12%;
 
-    --muted: 36 20% 93%;
-    --muted-foreground: 24 8% 48%;
+    --muted: 36 18% 90%;
+    --muted-foreground: 20 10% 46%;
 
-    --accent: 24 80% 50%;
+    --accent: 18 75% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 24 80% 50%;
+    --border: 30 20% 86%;
+    --input: 30 20% 86%;
+    --ring: 18 75% 42%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 36 33% 97%;
-    --sidebar-foreground: 24 10% 15%;
-    --sidebar-primary: 24 10% 15%;
-    --sidebar-primary-foreground: 36 33% 97%;
-    --sidebar-accent: 36 20% 93%;
-    --sidebar-accent-foreground: 24 10% 15%;
-    --sidebar-border: 30 15% 88%;
-    --sidebar-ring: 24 80% 50%;
+    --sidebar-background: 40 33% 97%;
+    --sidebar-foreground: 20 20% 12%;
+    --sidebar-primary: 20 20% 12%;
+    --sidebar-primary-foreground: 40 33% 97%;
+    --sidebar-accent: 36 25% 92%;
+    --sidebar-accent-foreground: 20 20% 12%;
+    --sidebar-border: 30 20% 86%;
+    --sidebar-ring: 18 75% 42%;
 
-    /* Custom tokens */
-    --warm: 30 60% 96%;
-    --amber: 24 80% 50%;
-    --copper: 18 70% 40%;
-    --cream: 36 33% 97%;
-    --espresso: 24 10% 15%;
+    /* Heritage palette */
+    --warm: 36 40% 95%;
+    --amber: 18 75% 42%;
+    --copper: 16 65% 35%;
+    --cream: 40 33% 97%;
+    --espresso: 20 20% 12%;
+    --parchment: 39 40% 94%;
+    --gold: 43 80% 50%;
+    --burgundy: 345 50% 30%;
 
-    --shadow-soft: 0 1px 3px 0 hsl(24 10% 15% / 0.04), 0 1px 2px -1px hsl(24 10% 15% / 0.04);
-    --shadow-card: 0 2px 8px -2px hsl(24 10% 15% / 0.06), 0 1px 3px -1px hsl(24 10% 15% / 0.04);
-    --shadow-elevated: 0 8px 24px -4px hsl(24 10% 15% / 0.08), 0 2px 8px -2px hsl(24 10% 15% / 0.04);
+    --shadow-soft: 0 1px 3px 0 hsl(20 20% 12% / 0.03);
+    --shadow-card: 0 1px 4px -1px hsl(20 20% 12% / 0.06), 0 1px 2px -1px hsl(20 20% 12% / 0.03);
+    --shadow-elevated: 0 8px 30px -6px hsl(20 20% 12% / 0.1), 0 2px 8px -2px hsl(20 20% 12% / 0.04);
+    --shadow-label: 0 2px 12px -3px hsl(20 20% 12% / 0.08), 0 0 0 1px hsl(20 20% 12% / 0.03);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -71,8 +75,13 @@
     font-optical-sizing: auto;
   }
 
-  .font-serif {
+  h1, h2, h3, h4, h5, h6, .font-serif {
     font-family: 'Lora', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
+  .font-display {
+    font-family: 'Playfair Display', 'Lora', Georgia, serif;
     letter-spacing: -0.02em;
   }
 }
@@ -94,6 +103,10 @@
     box-shadow: var(--shadow-elevated);
   }
 
+  .shadow-label {
+    box-shadow: var(--shadow-label);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -101,20 +114,46 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Vintage ornament line */
+  .ornament::after {
+    content: '◆';
+    display: block;
+    text-align: center;
+    font-size: 8px;
+    letter-spacing: 1em;
+    color: hsl(var(--accent) / 0.3);
+    margin-top: 1rem;
+  }
 }
 
-/* Leaflet overrides */
+/* Leaflet overrides — Vintage/dark style */
 .leaflet-container {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: hsl(var(--background));
+  background: hsl(20 15% 14%);
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: var(--shadow-elevated);
-  border: none;
+  border: 1px solid hsl(var(--border));
+  font-family: 'DM Sans', sans-serif;
 }
 
 .leaflet-popup-tip {
   box-shadow: none;
+}
+
+/* Prose styling for blog content */
+.prose-heritage {
+  font-family: 'Lora', Georgia, serif;
+}
+.prose-heritage h1,
+.prose-heritage h2,
+.prose-heritage h3 {
+  font-family: 'Playfair Display', 'Lora', Georgia, serif;
 }

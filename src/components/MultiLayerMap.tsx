@@ -20,14 +20,14 @@ const STORY_COLOR = '#e04040';
 
 const dot = (color: string, size = 26) =>
   L.divIcon({
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);"></div>`,
     className: '',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
 
 const storyIcon = L.divIcon({
-  html: `<div style="width:30px;height:30px;border-radius:50%;background:${STORY_COLOR};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;">
+  html: `<div style="width:30px;height:30px;border-radius:50%;background:${STORY_COLOR};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
   </div>`,
   className: '',
@@ -51,6 +51,10 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
   stories: { label: 'Story Pins', color: STORY_COLOR },
 };
 
+/* Dark/Vintage tile URL */
+const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>';
+
 export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -60,7 +64,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       iconCreateFunction: (cluster: any) => {
         const count = cluster.getChildCount();
         return L.divIcon({
-          html: `<div style="width:36px;height:36px;border-radius:50%;background:#6B3A2A;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);">${count}</div>`,
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:#6B3A2A;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);">${count}</div>`,
           className: '',
           iconSize: [36, 36],
           iconAnchor: [18, 18],
@@ -72,7 +76,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       iconCreateFunction: (cluster: any) => {
         const count = cluster.getChildCount();
         return L.divIcon({
-          html: `<div style="width:36px;height:36px;border-radius:50%;background:${VENUE_COLOR};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.2);">${count}</div>`,
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:${VENUE_COLOR};color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);">${count}</div>`,
           className: '',
           iconSize: [36, 36],
           iconAnchor: [18, 18],
@@ -91,7 +95,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
   const toggle = (key: LayerKey) =>
     setVisible(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // Init map
+  // Init map with dark tiles
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -101,9 +105,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       zoomControl: false,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
-    }).addTo(map);
+    L.tileLayer(DARK_TILES, { attribution: TILE_ATTR }).addTo(map);
 
     Object.values(layersRef.current).forEach(lg => lg.addTo(map));
     mapRef.current = map;
@@ -131,7 +133,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
     lg.clearLayers();
     breweries.forEach(b => {
       const m = L.marker([b.lat, b.lng], { icon: dot(breweryTypeColors[b.type] || '#6B3A2A') });
-      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${b.name}</strong><br/><span style="font-size:11px;color:#888;">${b.type} · ${b.province}</span></div>`);
+      m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;background:hsl(20,20%,12%);color:#fff;padding:8px 12px;border-radius:4px;"><strong>${b.name}</strong><br/><span style="font-size:11px;opacity:0.7;">${b.type} · ${b.province}</span></div>`, { className: 'dark-popup' });
       if (onSelectBrewery) m.on('click', () => onSelectBrewery(b));
       lg.addLayer(m);
     });
@@ -143,7 +145,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
     lg.clearLayers();
     venues.forEach(v => {
       const m = L.marker([v.lat, v.lng], { icon: dot(VENUE_COLOR, 22) });
-      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${v.name}</strong><br/><span style="font-size:11px;color:#888;">${v.venueType} · ${v.province}</span>${v.address ? `<br/><span style="font-size:11px;">${v.address}</span>` : ''}</div>`);
+      m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;"><strong>${v.name}</strong><br/><span style="font-size:11px;color:#888;">${v.venueType} · ${v.province}</span>${v.address ? `<br/><span style="font-size:11px;">${v.address}</span>` : ''}</div>`);
       lg.addLayer(m);
     });
   }, [venues]);
@@ -158,7 +160,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       const lat = brewery.lat + 0.008;
       const lng = brewery.lng + 0.008;
       const m = L.marker([lat, lng], { icon: storyIcon });
-      m.bindPopup(`<div style="font-family:sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:${STORY_COLOR};">Lees artikel →</a></div>`);
+      m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;"><strong>${p.title}</strong><br/><span style="font-size:11px;color:#888;">${brewery.name}</span><br/><a href="/post/${p.slug}" style="font-size:12px;color:${STORY_COLOR};">Lees artikel →</a></div>`);
       lg.addLayer(m);
     });
   }, [posts, breweries]);
@@ -168,11 +170,11 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* Layer toggles */}
-      <div className="absolute top-3 right-3 z-[1000] bg-background border border-border p-2 flex flex-col gap-1.5 text-sm">
+      <div className="absolute top-3 right-3 z-[1000] bg-foreground/90 backdrop-blur-sm border border-white/10 p-2.5 flex flex-col gap-1.5 text-sm">
         {(Object.keys(LAYER_META) as LayerKey[]).map(key => (
-          <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-muted transition-colors">
+          <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-white/5 transition-colors rounded">
             <span
-              className="w-3 h-3 rounded-full shrink-0 border border-border"
+              className="w-3 h-3 rounded-full shrink-0 border border-white/20"
               style={{ background: visible[key] ? LAYER_META[key].color : 'transparent' }}
             />
             <input
@@ -181,7 +183,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
               onChange={() => toggle(key)}
               className="sr-only"
             />
-            <span className={visible[key] ? 'text-foreground' : 'text-muted-foreground'}>
+            <span className={`text-xs ${visible[key] ? 'text-white' : 'text-white/40'}`}>
               {LAYER_META[key].label}
             </span>
           </label>
