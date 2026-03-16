@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { label: 'TASTINGS', path: '/tastings' },
-  { label: 'BROUWERIJEN', path: '/breweries' },
+  { label: 'THE STORIES', path: '/tastings' },
+  { label: 'THE MAP', path: '/map' },
+  { label: 'BREWERIES', path: '/breweries' },
   { label: 'VENUES', path: '/venues' },
-  { label: 'KAART', path: '/map' },
 ];
 
 export default function SiteHeader() {
