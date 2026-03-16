@@ -45,27 +45,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-30 h-14 bg-background/80 backdrop-blur-md border-b border-foreground/5 px-4 flex items-center justify-between">
-        <h1 className="font-serif text-xl tracking-tight">Belgian Beer Explorer</h1>
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setView('map')}
-            className={view === 'map' ? 'text-accent' : 'text-muted-foreground'}
-          >
-            <Map size={20} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setView('list')}
-            className={view === 'list' ? 'text-accent' : 'text-muted-foreground'}
-          >
-            <List size={20} />
-          </Button>
-        </div>
-      </nav>
 
       <main className="max-w-5xl mx-auto p-4 md:p-8 space-y-4">
         <SearchBar value={search} onChange={setSearch} />
