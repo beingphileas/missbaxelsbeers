@@ -119,10 +119,21 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1 leading-relaxed">
             {post.excerpt}
           </p>
-          <time className="text-[10px] text-muted-foreground mt-3 font-medium flex items-center gap-1.5 font-sans">
-            <Calendar size={10} />
-            {date}
-          </time>
+          <div className="flex items-center gap-2 mt-3">
+            <time className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 font-sans">
+              <Calendar size={10} />
+              {date}
+            </time>
+            {post.breweryId && onMapPin && (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
+                className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors"
+                title="Toon op kaart"
+              >
+                <MapPin size={12} />
+              </button>
+            )}
+          </div>
         </div>
       </article>
     </Link>
