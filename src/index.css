@@ -99,7 +99,13 @@
     box-shadow: var(--shadow-card);
   }
 
-  .no-scrollbar::-webkit-scrollbar {
+  .shadow-scrapbook {
+    box-shadow: var(--shadow-scrapbook);
+  }
+
+  .shadow-scrapbook-hover {
+    box-shadow: var(--shadow-scrapbook-hover);
+  }
     display: none;
   }
   .no-scrollbar {

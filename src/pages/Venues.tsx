@@ -144,8 +144,8 @@ export default function Venues() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map(venue => (
-              <div key={venue.id} className="group">
-                <div className="aspect-square overflow-hidden bg-secondary border border-border/40">
+              <div key={venue.id} className="group relative">
+                <div className="aspect-square overflow-hidden bg-secondary border border-border/40 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300">
                   {venue.coverImageUrl ? (
                     <img
                       src={venue.coverImageUrl}
