@@ -12,11 +12,26 @@ import { Input } from '@/components/ui/input';
 
 const ALL = '__all__';
 
+type SortOption = 'random' | 'name' | 'rating';
+
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const result = [...arr];
+  let s = seed;
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647;
+    const j = s % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 export default function Venues() {
   const { data: venues = [], isLoading } = useVenues();
   const [province, setProvince] = useState(ALL);
   const [venueType, setVenueType] = useState(ALL);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortOption>('random');
+  const seedRef = useRef(Date.now());
 
   const provinces = useMemo(
     () => [...new Set(venues.map(v => v.province))].sort(),
