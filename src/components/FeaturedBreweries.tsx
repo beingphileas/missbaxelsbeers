@@ -9,8 +9,13 @@ interface FeaturedBreweriesProps {
 
 export default function FeaturedBreweries({ breweries }: FeaturedBreweriesProps) {
   const featured = breweries
-    .filter(b => b.type === 'Trappist' || b.beers.length > 0)
+    .filter(b => b.featured)
     .slice(0, 6);
+
+  // Fallback: if none are featured yet, show Trappist + breweries with beers
+  const display = featured.length > 0
+    ? featured
+    : breweries.filter(b => b.type === 'Trappist' || b.beers.length > 0).slice(0, 6);
 
   if (featured.length === 0) return null;
 
