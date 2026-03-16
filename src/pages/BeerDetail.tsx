@@ -19,10 +19,12 @@ export default function BeerDetail() {
   const beer = useMemo(() => allBeers.find(b => b.id === id), [allBeers, id]);
   const brewery = useMemo(() => breweries.find(b => b.id === beer?.breweryId), [breweries, beer]);
 
-  // Blog posts related to this beer or its brewery
+  // Blog posts related to this beer (via junction table or legacy beer_id) or its brewery
   const relatedPosts = useMemo(() => {
     if (!beer) return [];
-    return posts.filter(p => p.beerId === beer.id || p.breweryId === beer.breweryId);
+    return posts.filter(p =>
+      p.beerIds?.includes(beer.id) || p.beerId === beer.id || p.breweryId === beer.breweryId
+    );
   }, [posts, beer]);
 
   // Nearby venues (within ~15km of brewery)

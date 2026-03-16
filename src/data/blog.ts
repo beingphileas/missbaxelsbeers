@@ -52,31 +52,39 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
       *,
       breweries:brewery_id(name),
       beers:beer_id(name),
-      venues:venue_id(name)
+      venues:venue_id(name),
+      blog_post_beers(beer_id, beers(name))
     `)
     .eq('status', 'published')
     .order('published_at', { ascending: false });
 
   if (error) throw error;
 
-  return (data ?? []).map((p: any) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug,
-    excerpt: p.excerpt ?? '',
-    content: p.content,
-    coverImageUrl: p.cover_image_url ?? '',
-    beerId: p.beer_id,
-    breweryId: p.brewery_id,
-    venueId: p.venue_id,
-    tags: p.tags ?? [],
-    status: p.status,
-    publishedAt: p.published_at,
-    createdAt: p.created_at,
-    breweryName: p.breweries?.name,
-    beerName: p.beers?.name,
-    venueName: p.venues?.name,
-  }));
+  return (data ?? []).map((p: any) => {
+    const linkedBeers = (p.blog_post_beers ?? []) as any[];
+    const beerIds = linkedBeers.map((b: any) => b.beer_id as string);
+    const beerNames = linkedBeers.map((b: any) => b.beers?.name).filter(Boolean) as string[];
+    return {
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      excerpt: p.excerpt ?? '',
+      content: p.content,
+      coverImageUrl: p.cover_image_url ?? '',
+      beerId: p.beer_id,
+      beerIds,
+      breweryId: p.brewery_id,
+      venueId: p.venue_id,
+      tags: p.tags ?? [],
+      status: p.status,
+      publishedAt: p.published_at,
+      createdAt: p.created_at,
+      breweryName: p.breweries?.name,
+      beerName: p.beers?.name,
+      beerNames,
+      venueName: p.venues?.name,
+    };
+  });
 }
 
 async function fetchVenues(): Promise<Venue[]> {

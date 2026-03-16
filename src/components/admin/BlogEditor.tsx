@@ -237,19 +237,31 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Bier</Label>
-              <Select value={beerId} onValueChange={setBeerId} disabled={!breweryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder={breweryId ? 'Kies bier' : 'Kies eerst brouwerij'} />
-                </SelectTrigger>
-                <SelectContent>
+              <Label className="text-xs text-muted-foreground">Bieren (meerdere selecteerbaar)</Label>
+              {!breweryId ? (
+                <p className="text-xs text-muted-foreground py-2">Kies eerst een brouwerij</p>
+              ) : (
+                <div className="border border-input rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
                   {beers.map(b => (
-                    <SelectItem key={b.id} value={b.id}>
+                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/50 px-1 py-0.5 rounded">
+                      <input
+                        type="checkbox"
+                        checked={selectedBeerIds.includes(b.id)}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setSelectedBeerIds(prev => [...prev, b.id]);
+                            if (!beerId) setBeerId(b.id);
+                          } else {
+                            setSelectedBeerIds(prev => prev.filter(id => id !== b.id));
+                          }
+                        }}
+                        className="accent-[hsl(var(--accent))]"
+                      />
                       {b.name}
-                    </SelectItem>
+                    </label>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Tags (komma-gescheiden)</Label>
