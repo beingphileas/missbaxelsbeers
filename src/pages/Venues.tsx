@@ -159,14 +159,14 @@ export default function Venues() {
                         <span className="font-bold">{venue.tripadvisorRating.toFixed(1)}</span>
                       </a>
                     )}
-                    {venue.untappdRating != null && (
-                      <a href={venue.untappdUrl || '#'} target="_blank" rel="noopener noreferrer"
-                        title={`Untappd: ${venue.untappdRating.toFixed(1)}/5`}
+                    {venue.untappdUrl && (
+                      <a href={venue.untappdUrl} target="_blank" rel="noopener noreferrer"
+                        title="Untappd"
                         className="text-[10px] bg-secondary px-1.5 py-0.5 border border-border/60 hover:border-[#FFC000] hover:bg-[#FFC000]/5 transition-colors inline-flex items-center gap-1 rounded-sm">
                         <svg width="10" height="10" viewBox="0 0 24 24" className="shrink-0">
                           <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7L12 2z" fill="#FFC000"/>
                         </svg>
-                        <span className="font-bold">{venue.untappdRating.toFixed(1)}</span>
+                        <span className="font-bold">Untappd</span>
                       </a>
                     )}
                   </div>
