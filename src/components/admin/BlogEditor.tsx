@@ -116,13 +116,29 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     };
 
     let error;
+    let savedPostId = postId;
     if (postId) {
       ({ error } = await supabase
         .from('blog_posts')
         .update(postData)
         .eq('id', postId));
     } else {
-      ({ error } = await supabase.from('blog_posts').insert(postData));
+      const { data: inserted, error: insertErr } = await supabase
+        .from('blog_posts')
+        .insert(postData)
+        .select('id')
+        .single();
+      error = insertErr;
+      savedPostId = inserted?.id ?? null;
+    }
+
+    // Sync junction table
+    if (!error && savedPostId && selectedBeerIds.length > 0) {
+      await supabase.from('blog_post_beers').delete().eq('blog_post_id', savedPostId);
+      const links = selectedBeerIds.map(bid => ({ blog_post_id: savedPostId!, beer_id: bid }));
+      await supabase.from('blog_post_beers').insert(links);
+    } else if (!error && savedPostId) {
+      await supabase.from('blog_post_beers').delete().eq('blog_post_id', savedPostId);
     }
 
     if (error) {
