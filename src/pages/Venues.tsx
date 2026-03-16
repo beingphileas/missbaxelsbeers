@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useVenues } from '@/data/blog';
 import {
   Select,
@@ -7,16 +7,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MapPin, ExternalLink, CheckCircle, Phone, Mail } from 'lucide-react';
+import { MapPin, ExternalLink, CheckCircle, Phone, Mail, ArrowUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const ALL = '__all__';
+
+type SortOption = 'random' | 'name' | 'rating';
+
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const result = [...arr];
+  let s = seed;
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647;
+    const j = s % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 export default function Venues() {
   const { data: venues = [], isLoading } = useVenues();
   const [province, setProvince] = useState(ALL);
   const [venueType, setVenueType] = useState(ALL);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortOption>('random');
+  const seedRef = useRef(Date.now());
 
   const provinces = useMemo(
     () => [...new Set(venues.map(v => v.province))].sort(),
@@ -28,13 +43,30 @@ export default function Venues() {
   );
 
   const filtered = useMemo(() => {
-    return venues.filter(v => {
+    let result = venues.filter(v => {
       if (province !== ALL && v.province !== province) return false;
       if (venueType !== ALL && v.venueType !== venueType) return false;
       if (search && !v.name.toLowerCase().includes(search.toLowerCase()) && !v.address.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [venues, province, venueType, search]);
+
+    switch (sort) {
+      case 'name':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'rating': {
+        const bestRating = (v: typeof result[0]) =>
+          Math.max(v.googleRating ?? 0, v.tripadvisorRating ?? 0);
+        result.sort((a, b) => bestRating(b) - bestRating(a));
+        break;
+      }
+      case 'random':
+      default:
+        result = seededShuffle(result, seedRef.current);
+        break;
+    }
+    return result;
+  }, [venues, province, venueType, search, sort]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,6 +110,17 @@ export default function Venues() {
               {types.map(t => (
                 <SelectItem key={t} value={t}>{t}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={v => setSort(v as SortOption)}>
+            <SelectTrigger className="w-[130px] h-9 text-xs border-border/60">
+              <ArrowUpDown size={12} className="mr-1 shrink-0 text-muted-foreground" />
+              <SelectValue placeholder="Sortering" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="random">Willekeurig</SelectItem>
+              <SelectItem value="name">Naam A→Z</SelectItem>
+              <SelectItem value="rating">Beste rating</SelectItem>
             </SelectContent>
           </Select>
           <span className="text-[10px] text-muted-foreground ml-auto tabular-nums tracking-wide">
