@@ -36,7 +36,7 @@ export default function FeaturedBreweries({ breweries }: FeaturedBreweriesProps)
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((b, i) => (
+          {display.map((b, i) => (
             <motion.div
               key={b.id}
               initial={{ opacity: 0, y: 12 }}
