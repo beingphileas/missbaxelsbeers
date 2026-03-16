@@ -1,9 +1,11 @@
-import { provinces, breweryTypes, beerStyles, BreweryType } from '@/data/breweries';
+import { breweryTypes, BreweryType } from '@/data/breweries';
 
 interface FilterBarProps {
   selectedProvince: string;
   selectedType: string;
   selectedStyle: string;
+  provinces: string[];
+  beerStyles: string[];
   onProvinceChange: (v: string) => void;
   onTypeChange: (v: string) => void;
   onStyleChange: (v: string) => void;
@@ -11,6 +13,7 @@ interface FilterBarProps {
 
 const FilterBar = ({
   selectedProvince, selectedType, selectedStyle,
+  provinces, beerStyles,
   onProvinceChange, onTypeChange, onStyleChange,
 }: FilterBarProps) => {
   const selectClass =
