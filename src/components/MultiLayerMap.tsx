@@ -60,6 +60,7 @@ const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy;
 export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation, hoveredPostId }: MultiLayerMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const storyMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
     breweries: (L as any).markerClusterGroup({
       maxClusterRadius: 40,
