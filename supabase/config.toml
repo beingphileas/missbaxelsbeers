@@ -17,3 +17,12 @@ verify_jwt = false
 
 [functions.scrape-venue-urls]
 verify_jwt = false
+
+[functions.ask-whisperer]
+verify_jwt = false
+
+[functions.format-tasting]
+verify_jwt = false
+
+[functions.regeocode-breweries]
+verify_jwt = false
