@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import Venues from "./pages/Venues";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
