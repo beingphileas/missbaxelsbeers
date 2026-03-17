@@ -80,6 +80,13 @@ async function extractBeersFromScreenshot(
 ): Promise<any[]> {
   if (!screenshotBase64) return [];
 
+  const screenshotInput = screenshotBase64.trim();
+  const screenshotUrl = screenshotInput.startsWith("http://") || screenshotInput.startsWith("https://")
+    ? screenshotInput
+    : screenshotInput.startsWith("data:")
+      ? screenshotInput
+      : `data:image/png;base64,${screenshotInput}`;
+
   try {
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -98,7 +105,7 @@ async function extractBeersFromScreenshot(
             role: "user",
             content: [
               { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
-              { type: "image_url", image_url: { url: screenshotBase64.startsWith("data:") ? screenshotBase64 : `data:image/png;base64,${screenshotBase64}` } },
+              { type: "image_url", image_url: { url: screenshotUrl } },
             ],
           },
         ],
