@@ -224,6 +224,97 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   };
 
   const handleDeleteDuplicates = async (removeIds: string[]) => {
+
+  const handleBulkEnrich = async () => {
+    setBulkRunning(true);
+    bulkAbortRef.current = false;
+    setBulkStats({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
+
+    let processed = 0;
+    let totalImported = 0;
+    let totalSkipped = 0;
+    let totalRejected = 0;
+
+    while (!bulkAbortRef.current) {
+      try {
+        const res = await supabase.functions.invoke('bulk-enrich-beers', {
+          body: { brewery_id: 'next', skip_recent_hours: 24 },
+        });
+
+        if (res.error) {
+          toast({ title: 'Bulk fout', description: res.error.message, variant: 'destructive' });
+          break;
+        }
+
+        const data = res.data;
+
+        if (data.done) {
+          toast({ title: '🎉 Bulk verrijking voltooid!', description: `Alle brouwerijen zijn verwerkt.` });
+          break;
+        }
+
+        if (data.error) {
+          setBulkStats(prev => ({
+            ...prev,
+            processed: prev.processed + 1,
+            remaining: data.remaining || 0,
+            log: [...prev.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
+          }));
+          processed++;
+          continue;
+        }
+
+        processed++;
+        totalImported += data.new_imported || 0;
+        totalSkipped += data.skipped_existing || 0;
+        totalRejected += data.rejected || 0;
+
+        setBulkStats({
+          processed,
+          totalImported,
+          totalSkipped,
+          totalRejected,
+          remaining: data.remaining || 0,
+          log: [
+            ...bulkStats.log,
+            {
+              name: data.brewery_name,
+              imported: data.new_imported || 0,
+              scraped: data.scraped || 0,
+              skipped: data.skipped_existing || 0,
+            },
+          ],
+        });
+
+        // Update log via functional update to get latest
+        setBulkStats(prev => ({
+          ...prev,
+          processed,
+          totalImported,
+          totalSkipped,
+          totalRejected,
+          remaining: data.remaining || 0,
+          log: [...prev.log, {
+            name: data.brewery_name,
+            imported: data.new_imported || 0,
+            scraped: data.scraped || 0,
+            skipped: data.skipped_existing || 0,
+          }],
+        }));
+
+      } catch (err: any) {
+        toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+        break;
+      }
+    }
+
+    setBulkRunning(false);
+    onComplete?.();
+  };
+
+  const handleStopBulk = () => {
+    bulkAbortRef.current = true;
+  };
     if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
     const { error } = await supabase.from('beers').delete().in('id', removeIds);
     if (error) {
