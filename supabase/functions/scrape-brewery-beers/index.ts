@@ -999,6 +999,8 @@ Be strict but fair. When in doubt about association, mark as VALID. Belgian brew
       }
     }
 
+    await markScrapeTimestamp();
+
     return new Response(
       JSON.stringify({
         brewery_name: brewery.name,
