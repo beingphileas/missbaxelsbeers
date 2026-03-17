@@ -380,8 +380,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                   <th className="px-3 py-2 text-left">Bier</th>
                   <th className="px-3 py-2 text-left">Stijl</th>
                   <th className="px-3 py-2 text-left w-16">ABV</th>
-                  <th className="px-3 py-2 text-left">Invoer brouwerij</th>
-                  <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
+                   <th className="px-3 py-2 text-left">Bron</th>
+                   <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
