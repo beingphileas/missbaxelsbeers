@@ -32,3 +32,9 @@ verify_jwt = false
 
 [functions.scrape-brewery-beers]
 verify_jwt = false
+
+[functions.bulk-enrich-beers]
+verify_jwt = false
+
+[functions.check-brewery-beers]
+verify_jwt = false

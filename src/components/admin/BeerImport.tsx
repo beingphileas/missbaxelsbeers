@@ -26,6 +26,9 @@ import {
   ShieldCheck,
   Trash2,
   Copy,
+  Zap,
+  Play,
+  Square,
 } from 'lucide-react';
 
 interface BreweryMatch {
@@ -83,6 +86,18 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     issues: { beer_id: string; beer_name: string; severity: string; message: string }[];
     summary: string;
   } | null>(null);
+
+  // Bulk enrichment state
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const bulkAbortRef = useRef(false);
+  const [bulkStats, setBulkStats] = useState<{
+    processed: number;
+    totalImported: number;
+    totalSkipped: number;
+    totalRejected: number;
+    remaining: number;
+    log: { name: string; imported: number; scraped: number; skipped: number; error?: string }[];
+  }>({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
 
   useEffect(() => {
     const loadAll = async () => {
@@ -209,6 +224,93 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   };
 
   const handleDeleteDuplicates = async (removeIds: string[]) => {
+    if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
+    const { error } = await supabase.from('beers').delete().in('id', removeIds);
+    if (error) {
+      toast({ title: 'Fout bij verwijderen', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: `${removeIds.length} duplicaten verwijderd` });
+      setCheckResult(prev => prev ? {
+        ...prev,
+        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removeIds.includes(id))),
+        beer_count: prev.beer_count - removeIds.length,
+      } : null);
+      onComplete?.();
+    }
+  };
+
+  const handleBulkEnrich = async () => {
+    setBulkRunning(true);
+    bulkAbortRef.current = false;
+    setBulkStats({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
+
+    let processed = 0;
+    let totalImported = 0;
+    let totalSkipped = 0;
+    let totalRejected = 0;
+
+    while (!bulkAbortRef.current) {
+      try {
+        const res = await supabase.functions.invoke('bulk-enrich-beers', {
+          body: { brewery_id: 'next', skip_recent_hours: 24 },
+        });
+
+        if (res.error) {
+          toast({ title: 'Bulk fout', description: res.error.message, variant: 'destructive' });
+          break;
+        }
+
+        const data = res.data;
+
+        if (data.done) {
+          toast({ title: '🎉 Bulk verrijking voltooid!', description: `Alle brouwerijen zijn verwerkt.` });
+          break;
+        }
+
+        if (data.error) {
+          setBulkStats(prev => ({
+            ...prev,
+            processed: prev.processed + 1,
+            remaining: data.remaining || 0,
+            log: [...prev.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
+          }));
+          processed++;
+          continue;
+        }
+
+        processed++;
+        totalImported += data.new_imported || 0;
+        totalSkipped += data.skipped_existing || 0;
+        totalRejected += data.rejected || 0;
+
+        setBulkStats(prev => ({
+          ...prev,
+          processed,
+          totalImported,
+          totalSkipped,
+          totalRejected,
+          remaining: data.remaining || 0,
+          log: [...prev.log, {
+            name: data.brewery_name,
+            imported: data.new_imported || 0,
+            scraped: data.scraped || 0,
+            skipped: data.skipped_existing || 0,
+          }],
+        }));
+
+      } catch (err: any) {
+        toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+        break;
+      }
+    }
+
+    setBulkRunning(false);
+    onComplete?.();
+  };
+
+  const handleStopBulk = () => {
+    bulkAbortRef.current = true;
+  };
     if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
     const { error } = await supabase.from('beers').delete().in('id', removeIds);
     if (error) {
@@ -509,6 +611,79 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               )}
             </div>
           )}
+
+          {/* Bulk Enrichment */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <Zap size={16} className="text-accent" /> Bulk Verrijking — Ultieme Bierenlijst
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Doorloop <strong>alle brouwerijen</strong> automatisch: scrape website + Untappd + RateBeer + BeerAdvocate + BelgianBeer.com + OpenFoodFacts + Perplexity → AI-validatie → auto-import nieuwe bieren. Bestaande bieren worden overgeslagen.
+            </p>
+
+            <div className="flex items-center gap-3">
+              {!bulkRunning ? (
+                <Button onClick={handleBulkEnrich} className="gap-2">
+                  <Play size={14} /> Start Bulk Verrijking
+                </Button>
+              ) : (
+                <Button variant="destructive" onClick={handleStopBulk} className="gap-2">
+                  <Square size={14} /> Stop
+                </Button>
+              )}
+              {bulkRunning && (
+                <span className="text-xs text-muted-foreground animate-pulse flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin" /> Verwerking loopt...
+                </span>
+              )}
+            </div>
+
+            {(bulkStats.processed > 0 || bulkRunning) && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.processed}</p>
+                    <p className="text-[10px] text-muted-foreground">Verwerkt</p>
+                  </div>
+                  <div className="bg-success/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-success">{bulkStats.totalImported}</p>
+                    <p className="text-[10px] text-muted-foreground">Nieuw geïmporteerd</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.totalSkipped}</p>
+                    <p className="text-[10px] text-muted-foreground">Al bestaand</p>
+                  </div>
+                  <div className="bg-warning/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.remaining}</p>
+                    <p className="text-[10px] text-muted-foreground">Resterend</p>
+                  </div>
+                </div>
+
+                {bulkStats.log.length > 0 && (
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {[...bulkStats.log].reverse().map((entry, i) => (
+                      <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                        <span className="font-medium truncate">{entry.name}</span>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {entry.error ? (
+                            <span className="text-destructive text-[10px] truncate">{entry.error.substring(0, 30)}</span>
+                          ) : (
+                            <>
+                              <Badge variant="outline" className="text-[9px]">{entry.scraped} gevonden</Badge>
+                              <Badge variant="default" className="text-[9px]">+{entry.imported} nieuw</Badge>
+                              {entry.skipped > 0 && (
+                                <Badge variant="secondary" className="text-[9px]">{entry.skipped} bestaand</Badge>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="border-t border-border pt-6">
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
