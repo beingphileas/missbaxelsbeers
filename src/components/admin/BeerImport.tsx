@@ -64,22 +64,38 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase
-      .from('breweries')
-      .select('id, name, website_url')
-      .order('name')
-      .then(({ data }) => setBreweries(data ?? []));
+    const loadAll = async () => {
+      let all: { id: string; name: string; website_url: string | null }[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from('breweries')
+          .select('id, name, website_url')
+          .order('name')
+          .range(from, from + pageSize - 1);
+        if (!data || data.length === 0) break;
+        all = all.concat(data);
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      setBreweries(all);
+    };
+    loadAll();
   }, []);
+
+  const hasWebsite = (b: { website_url: string | null }) =>
+    b.website_url && b.website_url.trim().length > 0;
 
   const filteredBreweries = brewerySearch.length >= 1
     ? breweries
-        .filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && b.website_url)
+        .filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && hasWebsite(b))
         .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 30)
+        .slice(0, 50)
     : breweries
-        .filter(b => b.website_url)
+        .filter(b => hasWebsite(b))
         .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 30);
+        .slice(0, 50);
 
   const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
     setScraping(true);
