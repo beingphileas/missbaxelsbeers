@@ -666,7 +666,7 @@ serve(async (req) => {
         console.log(`  Untappd after pagination: ${beerUrls.length} total beer URLs`);
       }
 
-      // Step 4: Scrape individual beer pages (up to 60 for completeness)
+      // Step 4: Scrape individual beer pages (bounded per mode for stability)
       const toScrape = beerUrls.slice(0, untappdDetailPageLimit);
       if (toScrape.length > 0) {
         // Batch in groups of 10 to avoid overwhelming
