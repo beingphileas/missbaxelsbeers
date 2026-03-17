@@ -283,24 +283,6 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         totalSkipped += data.skipped_existing || 0;
         totalRejected += data.rejected || 0;
 
-        setBulkStats({
-          processed,
-          totalImported,
-          totalSkipped,
-          totalRejected,
-          remaining: data.remaining || 0,
-          log: [
-            ...bulkStats.log,
-            {
-              name: data.brewery_name,
-              imported: data.new_imported || 0,
-              scraped: data.scraped || 0,
-              skipped: data.skipped_existing || 0,
-            },
-          ],
-        });
-
-        // Update log via functional update to get latest
         setBulkStats(prev => ({
           ...prev,
           processed,
