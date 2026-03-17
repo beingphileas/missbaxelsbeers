@@ -12,6 +12,7 @@ import Explore from "./pages/Explore";
 import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import BreweryPortal from "./pages/BreweryPortal";
 import Venues from "./pages/Venues";
 import Beers from "./pages/Beers";
 import BeerDetail from "./pages/BeerDetail";
@@ -47,6 +48,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mijn-brouwerij"
+              element={
+                <ProtectedRoute>
+                  <BreweryPortal />
                 </ProtectedRoute>
               }
             />

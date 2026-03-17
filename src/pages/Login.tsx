@@ -9,6 +9,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { toast } from '@/hooks/use-toast';
 import { Lock } from 'lucide-react';
 
+async function determineRedirect(userId: string): Promise<string> {
+  const { data: adminRole } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .eq('role', 'admin')
+    .maybeSingle();
+  if (adminRole) return '/admin';
+
+  const { data: breweryLink } = await supabase
+    .from('brewery_users')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (breweryLink) return '/mijn-brouwerij';
+
+  return '/';
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -19,13 +38,14 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       toast({ title: 'Login mislukt', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Welkom terug!' });
-      navigate('/admin');
+      const redirect = await determineRedirect(data.user.id);
+      navigate(redirect);
     }
     setLoading(false);
   };
@@ -49,8 +69,8 @@ export default function Login() {
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
             <Lock size={20} className="text-accent" />
           </div>
-          <CardTitle className="font-serif text-2xl">Admin Login</CardTitle>
-          <CardDescription>Log in om het dashboard te beheren</CardDescription>
+          <CardTitle className="font-serif text-2xl">Inloggen</CardTitle>
+          <CardDescription>Admin of brouwerij? Log hier in.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
@@ -86,7 +106,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@missbaxel.com"
+                placeholder="jouw@email.be"
                 required
               />
             </div>
