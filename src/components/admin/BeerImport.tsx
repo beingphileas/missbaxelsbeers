@@ -257,7 +257,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               <Globe size={16} className="text-accent" /> Scrape van brouwerij website
             </h3>
             <p className="text-xs text-muted-foreground">
-              Zoek een brouwerij en scrape automatisch alle bieren van hun website via AI.
+              Zoek een brouwerij en scrape automatisch alle bieren van hun website + belgenbier.be, ratebeer, untappd en meer via AI.
             </p>
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
