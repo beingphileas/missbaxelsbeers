@@ -852,7 +852,9 @@ serve(async (req) => {
         if (name.startsWith("untappd.com (bier)")) return 1;
         if (name.startsWith("Eigen website")) return 2;
         if (name.startsWith("untappd.com")) return 3;
-        return 4;
+        if (name.startsWith("OpenFoodFacts")) return 4;
+        if (name.startsWith("Perplexity")) return 5;
+        return 6;
       };
       return rank(a.name) - rank(b.name);
     });
