@@ -125,7 +125,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
         </Button>
         {preview && (
           <div className="text-sm text-muted-foreground space-y-1">
-            <p>{preview.length} rijen geladen ({mainCount} brouwerijen, {sCodeCount} sub-sites worden overgeslagen)</p>
+            <p>{preview.length} rijen geladen ({mainCount} brouwerijen/sub-sites{uCodeCount > 0 ? `, ${uCodeCount} U-codes` : ''})</p>
             {sheetInfo.length > 1 && (
               <p className="text-xs">
                 Per tabblad: {sheetInfo.map(s => `${s.name} (${s.rows})`).join(' · ')}
