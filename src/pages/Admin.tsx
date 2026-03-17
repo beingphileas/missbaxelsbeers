@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck } from 'lucide-react';
 import QuickTasting from '@/components/admin/QuickTasting';
 import { Link, useNavigate } from 'react-router-dom';
 import BlogEditor from '@/components/admin/BlogEditor';
@@ -16,6 +16,7 @@ import CoordFixer from '@/components/admin/CoordFixer';
 import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
 import BeerImport from '@/components/admin/BeerImport';
+import FactChecker from '@/components/admin/FactChecker';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -189,6 +190,9 @@ export default function Admin() {
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
             <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
+            <TabsTrigger value="fact-check" className="gap-1.5">
+              <ShieldCheck size={12} /> Fact-check
+            </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
@@ -352,6 +356,20 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <BeerImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['beers'] })} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Fact-check Tab */}
+          <TabsContent value="fact-check">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldCheck size={18} /> AI Fact-check
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FactChecker />
               </CardContent>
             </Card>
           </TabsContent>

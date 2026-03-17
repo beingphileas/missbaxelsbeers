@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.regeocode-breweries]
 verify_jwt = false
+
+[functions.fact-check]
+verify_jwt = false
+
+[functions.scrape-brewery-beers]
+verify_jwt = false
