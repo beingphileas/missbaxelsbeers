@@ -61,7 +61,6 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
-  const [scraping, setScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
@@ -70,10 +69,13 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const [breweries, setBreweries] = useState<BreweryItem[]>([]);
   const [brewerySearch, setBrewerySearch] = useState('');
-  const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  // Track multiple simultaneous scrapes & checks
+  const [scrapingIds, setScrapingIds] = useState<Set<string>>(new Set());
+  const [checkingIds, setCheckingIds] = useState<Set<string>>(new Set());
+  const [scrapeLog, setScrapeLog] = useState<{ id: string; name: string; found: number; error?: string }[]>([]);
 
   // Fact-check state
-  const [checking, setChecking] = useState<string | null>(null); // brewery id being checked
   const [checkResult, setCheckResult] = useState<{
     brewery_name: string;
     beer_count: number;
@@ -127,19 +129,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   };
 
   const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
-    setScraping(true);
-    setScrapedBrewery(breweryName);
-    setProgress(15);
+    setScrapingIds(prev => new Set(prev).add(breweryId));
 
     try {
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
         body: { brewery_id: breweryId },
       });
 
-      setProgress(90);
-
       if (res.error) {
-        toast({ title: 'Scrape fout', description: res.error.message, variant: 'destructive' });
+        toast({ title: `Scrape fout: ${breweryName}`, description: res.error.message, variant: 'destructive' });
+        setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0, error: res.error.message }]);
         return;
       }
 
@@ -148,7 +147,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
         const srcCount = data.sources?.length || 0;
-        toast({ title: 'Geen bieren gevonden', description: `${srcCount} bronnen doorzocht, geen bieren gevonden.`, variant: 'destructive' });
+        toast({ title: `${breweryName}: geen bieren`, description: `${srcCount} bronnen doorzocht.`, variant: 'destructive' });
+        setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0 }]);
         return;
       }
 
@@ -168,22 +168,24 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
       const srcNames = (data.sources || []).map((s: any) => s.name).join(', ');
       const rejectedCount = data.rejected?.length || 0;
-      setPreview(previewBeers);
+      // Append to existing preview instead of replacing
+      setPreview(prev => [...prev, ...previewBeers]);
       setStep('preview');
-      setProgress(100);
+      setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: previewBeers.length }]);
       toast({
-        title: `${previewBeers.length} bieren gevonden${data.ai_checked ? ' (AI-gecheckt)' : ''}`,
-        description: `Bronnen: ${srcNames || breweryName}${rejectedCount > 0 ? ` · ${rejectedCount} afgekeurd door AI` : ''}`,
+        title: `${breweryName}: ${previewBeers.length} bieren${data.ai_checked ? ' (AI)' : ''}`,
+        description: `Bronnen: ${srcNames || breweryName}${rejectedCount > 0 ? ` · ${rejectedCount} afgekeurd` : ''}`,
       });
     } catch (err: any) {
-      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+      toast({ title: `Fout: ${breweryName}`, description: err.message, variant: 'destructive' });
+      setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0, error: err.message }]);
     } finally {
-      setScraping(false);
+      setScrapingIds(prev => { const n = new Set(prev); n.delete(breweryId); return n; });
     }
   };
 
   const handleCheckBrewery = async (breweryId: string) => {
-    setChecking(breweryId);
+    setCheckingIds(prev => new Set(prev).add(breweryId));
     setCheckResult(null);
     try {
       const res = await supabase.functions.invoke('check-brewery-beers', {
@@ -202,7 +204,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
-      setChecking(null);
+      setCheckingIds(prev => { const n = new Set(prev); n.delete(breweryId); return n; });
     }
   };
 
@@ -354,65 +356,86 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             <p className="text-xs text-muted-foreground">
               Zoek een brouwerij en scrape automatisch alle bieren van hun website + belgenbier.be, ratebeer, untappd en meer via AI.
             </p>
-            <div className="relative">
+             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={brewerySearch}
                 onChange={e => setBrewerySearch(e.target.value)}
                 placeholder="Zoek brouwerij op naam..."
                 className="pl-9"
-                disabled={scraping}
               />
             </div>
             {filteredBreweries.length > 0 && (
-              <div className="border rounded-lg max-h-48 overflow-auto divide-y divide-border">
-                {filteredBreweries.map(b => (
-                  <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{b.name}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>
-                      <p className="text-[10px] text-muted-foreground">{formatLastScraped(b.last_scraped_at)}</p>
+              <div className="border rounded-lg max-h-64 overflow-auto divide-y divide-border">
+                {filteredBreweries.map(b => {
+                  const isScraping = scrapingIds.has(b.id);
+                  const isChecking = checkingIds.has(b.id);
+                  return (
+                    <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{b.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>
+                        <p className="text-[10px] text-muted-foreground">{formatLastScraped(b.last_scraped_at)}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5"
+                          disabled={isChecking}
+                          onClick={() => handleCheckBrewery(b.id)}
+                        >
+                          {isChecking ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <ShieldCheck size={12} />
+                          )}
+                          Check
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5"
+                          disabled={isScraping}
+                          onClick={() => handleScrapeBrewery(b.id, b.name)}
+                        >
+                          {isScraping ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <Globe size={12} />
+                          )}
+                          Scrape
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5"
-                        disabled={scraping || checking !== null}
-                        onClick={() => handleCheckBrewery(b.id)}
-                      >
-                        {checking === b.id ? (
-                          <Loader2 size={12} className="animate-spin" />
-                        ) : (
-                          <ShieldCheck size={12} />
-                        )}
-                        Check
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5"
-                        disabled={scraping || checking !== null}
-                        onClick={() => handleScrapeBrewery(b.id, b.name)}
-                      >
-                        {scraping && scrapedBrewery === b.name ? (
-                          <Loader2 size={12} className="animate-spin" />
-                        ) : (
-                          <Globe size={12} />
-                        )}
-                        Scrape
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
-            {scraping && (
-              <div className="space-y-2">
-                <Progress value={progress} className="h-2" />
-                <p className="text-xs text-muted-foreground animate-pulse">
-                  Scraping {scrapedBrewery}... website + belgenbier.be + ratebeer + untappd doorzoeken → AI extraheert bieren
-                </p>
+            {scrapingIds.size > 0 && (
+              <div className="space-y-1">
+                {[...scrapingIds].map(id => {
+                  const b = breweries.find(br => br.id === id);
+                  return (
+                    <p key={id} className="text-xs text-muted-foreground animate-pulse flex items-center gap-1.5">
+                      <Loader2 size={10} className="animate-spin" /> Scraping {b?.name || '...'}
+                    </p>
+                  );
+                })}
+              </div>
+            )}
+            {scrapeLog.length > 0 && (
+              <div className="max-h-32 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                {[...scrapeLog].reverse().map((entry, i) => (
+                  <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                    <span className="font-medium truncate">{entry.name}</span>
+                    {entry.error ? (
+                      <span className="text-destructive text-[10px] truncate ml-2">{entry.error.substring(0, 40)}</span>
+                    ) : (
+                      <Badge variant="outline" className="text-[9px]">{entry.found} bieren</Badge>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
