@@ -186,7 +186,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   };
 
   const handleCheckBrewery = async (breweryId: string) => {
-    setChecking(breweryId);
+    setCheckingIds(prev => new Set(prev).add(breweryId));
     setCheckResult(null);
     try {
       const res = await supabase.functions.invoke('check-brewery-beers', {
@@ -205,7 +205,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
-      setChecking(null);
+      setCheckingIds(prev => { const n = new Set(prev); n.delete(breweryId); return n; });
     }
   };
 
