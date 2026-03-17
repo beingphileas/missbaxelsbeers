@@ -23,6 +23,9 @@ import {
   X,
   Globe,
   Search,
+  Play,
+  Square,
+  SkipForward,
 } from 'lucide-react';
 
 interface BreweryMatch {
