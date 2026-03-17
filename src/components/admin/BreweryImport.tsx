@@ -21,6 +21,7 @@ interface BreweryImportProps {
 export default function BreweryImport({ onComplete }: BreweryImportProps) {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<any[] | null>(null);
+  const [sheetInfo, setSheetInfo] = useState<{ name: string; rows: number }[]>([]);
   const [result, setResult] = useState<ImportResult | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
