@@ -102,8 +102,8 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
     }
   };
 
-  const sCodeCount = preview?.filter(b => b.code.startsWith('S')).length ?? 0;
-  const mainCount = preview ? preview.length - sCodeCount : 0;
+  const uCodeCount = preview?.filter(b => b.code.startsWith('U')).length ?? 0;
+  const mainCount = preview ? preview.length - uCodeCount : 0;
 
   return (
     <div className="space-y-6">
