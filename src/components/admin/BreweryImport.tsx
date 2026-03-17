@@ -102,8 +102,8 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
     }
   };
 
-  const sCodeCount = preview?.filter(b => b.code.startsWith('S')).length ?? 0;
-  const mainCount = preview ? preview.length - sCodeCount : 0;
+  const uCodeCount = preview?.filter(b => b.code.startsWith('U')).length ?? 0;
+  const mainCount = preview ? preview.length - uCodeCount : 0;
 
   return (
     <div className="space-y-6">
@@ -125,7 +125,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
         </Button>
         {preview && (
           <div className="text-sm text-muted-foreground space-y-1">
-            <p>{preview.length} rijen geladen ({mainCount} brouwerijen, {sCodeCount} sub-sites worden overgeslagen)</p>
+            <p>{preview.length} rijen geladen ({mainCount} brouwerijen/sub-sites{uCodeCount > 0 ? `, ${uCodeCount} U-codes` : ''})</p>
             {sheetInfo.length > 1 && (
               <p className="text-xs">
                 Per tabblad: {sheetInfo.map(s => `${s.name} (${s.rows})`).join(' · ')}
@@ -143,7 +143,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
               <p className="font-semibold text-warning">Let op: volledige sync</p>
               <p className="text-muted-foreground mt-1">
                 Dit zal brouwerijen die niet meer in de lijst staan <strong>verwijderen</strong>,
-                nieuwe toevoegen, en bestaande gegevens bijwerken. Sub-sites (S-codes) worden overgeslagen.
+                nieuwe toevoegen, en bestaande gegevens bijwerken. Sub-sites (S-codes) worden mee geïmporteerd.
               </p>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
               </thead>
               <tbody className="divide-y divide-border">
                 {preview.slice(0, 50).map((b, i) => (
-                  <tr key={i} className={b.code.startsWith('S') ? 'opacity-40' : ''}>
+                  <tr key={i}>
                     <td className="px-3 py-1.5 font-mono">{b.code}</td>
                     <td className="px-3 py-1.5">{b.name}</td>
                     <td className="px-3 py-1.5">{b.province}</td>
