@@ -314,9 +314,15 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       toast({ title: 'Fout bij verwijderen', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: `${removeIds.length} duplicaten verwijderd` });
+      const removedSet = new Set(removeIds);
+      setSelectedDeleteIds(prev => {
+        const next = new Set(prev);
+        removeIds.forEach(id => next.delete(id));
+        return next;
+      });
       setCheckResult(prev => prev ? {
         ...prev,
-        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removeIds.includes(id))),
+        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removedSet.has(id))),
         beer_count: prev.beer_count - removeIds.length,
       } : null);
       onComplete?.();
