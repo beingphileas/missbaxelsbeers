@@ -312,15 +312,15 @@ serve(async (req) => {
     }
 
     const isBulk = mode === "bulk";
-    const websiteMapLimit = isBulk ? 120 : 300;
-    const websiteListingLimit = isBulk ? 4 : 8;
-    const websiteDetailLimit = isBulk ? 10 : 20;
-    const websitePaginationLimit = isBulk ? 4 : 10;
-    const untappdMapLimit = isBulk ? 250 : 500;
-    const untappdPaginationMaxStart = isBulk ? 100 : 200;
-    const untappdDetailPageLimit = isBulk ? 30 : 60;
-    const screenshotExtractionLimit = isBulk ? 6 : 20;
-    const sourceExtractionLimit = isBulk ? 36 : 120;
+    const websiteMapLimit = isBulk ? 60 : 300;
+    const websiteListingLimit = isBulk ? 2 : 8;
+    const websiteDetailLimit = isBulk ? 6 : 20;
+    const websitePaginationLimit = isBulk ? 2 : 10;
+    const untappdMapLimit = isBulk ? 150 : 500;
+    const untappdPaginationMaxStart = isBulk ? 50 : 200;
+    const untappdDetailPageLimit = isBulk ? 12 : 60;
+    const screenshotExtractionLimit = isBulk ? 2 : 20;
+    const sourceExtractionLimit = isBulk ? 14 : 120;
 
     const { data: brewery, error: bErr } = await supabase
       .from("breweries")
