@@ -536,11 +536,113 @@ serve(async (req) => {
       `Result: ${allBeers.length} raw → ${enriched.length} unique beers from ${sources.length} sources`,
     );
 
+    // === AI VALIDATION: filter out false positives ===
+    let validated = enriched;
+    let rejected: { name: string; reason: string }[] = [];
+
+    if (enriched.length > 0) {
+      try {
+        const beerList = enriched.map((b, i) => `${i + 1}. "${b.name}" (style: ${b.style || "?"}, abv: ${b.abv || "?"}, source: ${b.source})`).join("\n");
+
+        const valRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "system",
+                content: `You are a Belgian beer expert and fact-checker. Your job is to validate a list of beers scraped for brewery "${brewery.name}".
+
+For each beer, determine if it is VALID or INVALID:
+
+VALID means:
+- It is a real beer (not a food item, event, merchandise, glass, gift box, mixed pack name, or category header)
+- It is actually brewed by, for, or closely associated with "${brewery.name}"
+- The name makes sense as a beer name
+
+INVALID means:
+- It is NOT a real beer product (e.g. "Proefpakket", "Cadeaubon", "Bierglas", "Verkoop", a category name, etc.)
+- It clearly belongs to a DIFFERENT brewery (e.g. a competitor's beer that appeared on the same page)
+- It is a duplicate phrasing of another beer on the list (e.g. "Beer X 33cl" vs "Beer X" — keep the shorter canonical name)
+- The name is gibberish, a URL fragment, or scraped noise
+
+Be strict but fair. When in doubt about association, mark as VALID. Belgian breweries sometimes contract-brew for others.`,
+              },
+              {
+                role: "user",
+                content: `Validate these ${enriched.length} beers for "${brewery.name}":\n\n${beerList}`,
+              },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "validate_beers",
+                  description: "Return validation results for each beer",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      results: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            index: { type: "number", description: "1-based index from the list" },
+                            valid: { type: "boolean" },
+                            reason: { type: "string", description: "Short reason if invalid" },
+                          },
+                          required: ["index", "valid"],
+                          additionalProperties: false,
+                        },
+                      },
+                    },
+                    required: ["results"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: "validate_beers" } },
+          }),
+        });
+
+        if (valRes.ok) {
+          const valData = await valRes.json();
+          const toolCall = valData.choices?.[0]?.message?.tool_calls?.[0];
+          if (toolCall?.function?.arguments) {
+            const parsed = JSON.parse(toolCall.function.arguments);
+            const results = parsed.results || [];
+
+            const invalidIndices = new Set<number>();
+            for (const r of results) {
+              if (!r.valid && r.index >= 1 && r.index <= enriched.length) {
+                invalidIndices.add(r.index - 1);
+                rejected.push({ name: enriched[r.index - 1].name, reason: r.reason || "Ongeldig" });
+              }
+            }
+
+            validated = enriched.filter((_, i) => !invalidIndices.has(i));
+            console.log(`AI validation: ${enriched.length} → ${validated.length} valid, ${rejected.length} rejected`);
+          }
+        } else {
+          console.error("AI validation failed:", valRes.status, "— skipping validation");
+        }
+      } catch (valErr) {
+        console.error("AI validation error:", (valErr as Error).message, "— skipping validation");
+      }
+    }
+
     return new Response(
       JSON.stringify({
         brewery_name: brewery.name,
         sources: sources.map((s) => ({ name: s.name, url: s.url })),
-        beers: enriched,
+        beers: validated,
+        rejected,
+        ai_checked: true,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
