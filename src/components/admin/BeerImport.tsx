@@ -23,6 +23,9 @@ import {
   X,
   Globe,
   Search,
+  ShieldCheck,
+  Trash2,
+  Copy,
 } from 'lucide-react';
 
 interface BreweryMatch {
@@ -68,6 +71,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [breweries, setBreweries] = useState<BreweryItem[]>([]);
   const [brewerySearch, setBrewerySearch] = useState('');
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  // Fact-check state
+  const [checking, setChecking] = useState<string | null>(null); // brewery id being checked
+  const [checkResult, setCheckResult] = useState<{
+    brewery_name: string;
+    beer_count: number;
+    duplicates: { keep_id: string; keep_name: string; remove_ids: string[]; remove_names: string[]; reason: string }[];
+    issues: { beer_id: string; beer_name: string; severity: string; message: string }[];
+    summary: string;
+  } | null>(null);
 
   useEffect(() => {
     const loadAll = async () => {
@@ -166,6 +179,47 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
       setScraping(false);
+    }
+  };
+
+  const handleCheckBrewery = async (breweryId: string) => {
+    setChecking(breweryId);
+    setCheckResult(null);
+    try {
+      const res = await supabase.functions.invoke('check-brewery-beers', {
+        body: { brewery_id: breweryId },
+      });
+      if (res.error) {
+        toast({ title: 'Check fout', description: res.error.message, variant: 'destructive' });
+        return;
+      }
+      setCheckResult(res.data);
+      if (res.data.duplicates?.length === 0 && res.data.issues?.length === 0) {
+        toast({ title: `✅ ${res.data.brewery_name}: alles in orde`, description: `${res.data.beer_count} bieren gecheckt, geen problemen.` });
+      } else {
+        toast({ title: `${res.data.brewery_name}: ${res.data.duplicates?.length || 0} duplicaten, ${res.data.issues?.length || 0} issues` });
+      }
+    } catch (err: any) {
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+    } finally {
+      setChecking(null);
+    }
+  };
+
+  const handleDeleteDuplicates = async (removeIds: string[]) => {
+    if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
+    const { error } = await supabase.from('beers').delete().in('id', removeIds);
+    if (error) {
+      toast({ title: 'Fout bij verwijderen', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: `${removeIds.length} duplicaten verwijderd` });
+      // Remove from check result
+      setCheckResult(prev => prev ? {
+        ...prev,
+        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removeIds.includes(id))),
+        beer_count: prev.beer_count - removeIds.length,
+      } : null);
+      onComplete?.();
     }
   };
 
@@ -319,20 +373,36 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                       <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>
                       <p className="text-[10px] text-muted-foreground">{formatLastScraped(b.last_scraped_at)}</p>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0 ml-3 gap-1.5"
-                      disabled={scraping}
-                      onClick={() => handleScrapeBrewery(b.id, b.name)}
-                    >
-                      {scraping && scrapedBrewery === b.name ? (
-                        <Loader2 size={12} className="animate-spin" />
-                      ) : (
-                        <Globe size={12} />
-                      )}
-                      Scrape
-                    </Button>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        disabled={scraping || checking !== null}
+                        onClick={() => handleCheckBrewery(b.id)}
+                      >
+                        {checking === b.id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <ShieldCheck size={12} />
+                        )}
+                        Check
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        disabled={scraping || checking !== null}
+                        onClick={() => handleScrapeBrewery(b.id, b.name)}
+                      >
+                        {scraping && scrapedBrewery === b.name ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <Globe size={12} />
+                        )}
+                        Scrape
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -346,6 +416,76 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               </div>
             )}
           </div>
+
+          {/* Check Results */}
+          {checkResult && (
+            <div className="border border-border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-serif text-base flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-accent" /> Check: {checkResult.brewery_name}
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{checkResult.beer_count} bieren</Badge>
+                  <Button variant="ghost" size="sm" onClick={() => setCheckResult(null)}>
+                    <X size={14} />
+                  </Button>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">{checkResult.summary}</p>
+
+              {checkResult.duplicates.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-1.5 text-warning">
+                    <Copy size={14} /> {checkResult.duplicates.length} duplicaat-groep(en)
+                  </h4>
+                  <div className="space-y-2">
+                    {checkResult.duplicates.map((dup, i) => (
+                      <div key={i} className="bg-warning/5 border border-warning/20 rounded-lg p-3 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="text-xs space-y-1">
+                            <p><span className="font-medium text-success">Behouden:</span> {dup.keep_name}</p>
+                            <p><span className="font-medium text-destructive">Verwijderen:</span> {dup.remove_names.join(', ')}</p>
+                            <p className="text-muted-foreground italic">{dup.reason}</p>
+                          </div>
+                          <Button size="sm" variant="destructive" className="shrink-0 gap-1.5" onClick={() => handleDeleteDuplicates(dup.remove_ids)}>
+                            <Trash2 size={12} /> Verwijder
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {checkResult.issues.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-1.5">
+                    <AlertTriangle size={14} /> {checkResult.issues.length} issue(s)
+                  </h4>
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {checkResult.issues.map((issue, i) => (
+                      <div key={i} className="px-3 py-2 flex items-start gap-2">
+                        <Badge variant={issue.severity === 'error' ? 'destructive' : issue.severity === 'warning' ? 'secondary' : 'outline'} className="text-[9px] shrink-0 mt-0.5">
+                          {issue.severity}
+                        </Badge>
+                        <div>
+                          <span className="font-medium">{issue.beer_name}:</span>{' '}
+                          <span className="text-muted-foreground">{issue.message}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {checkResult.duplicates.length === 0 && checkResult.issues.length === 0 && (
+                <div className="flex items-center gap-2 text-success text-sm">
+                  <CheckCircle size={16} /> Alles in orde — geen duplicaten of problemen gevonden.
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="border-t border-border pt-6">
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
