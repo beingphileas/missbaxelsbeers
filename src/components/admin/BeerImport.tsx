@@ -96,7 +96,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
-        toast({ title: 'Geen bieren gevonden', description: `Op ${data.source_url} zijn geen bieren gevonden.`, variant: 'destructive' });
+        const srcCount = data.sources?.length || 0;
+        toast({ title: 'Geen bieren gevonden', description: `${srcCount} bronnen doorzocht, geen bieren gevonden.`, variant: 'destructive' });
         return;
       }
 
@@ -112,12 +113,14 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         brewery_matches: [{ id: breweryId, name: breweryName, similarity: 100 }],
         brewery_id: breweryId,
         _excluded: false,
+        _source: b.source || 'website',
       }));
 
+      const srcNames = (data.sources || []).map((s: any) => s.name).join(', ');
       setPreview(previewBeers);
       setStep('preview');
       setProgress(100);
-      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Van ${breweryName}` });
+      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Bronnen: ${srcNames || breweryName}` });
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
