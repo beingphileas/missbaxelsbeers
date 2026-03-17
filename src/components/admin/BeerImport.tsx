@@ -88,16 +88,53 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   } | null>(null);
 
   // Bulk enrichment state
+  const BULK_STORAGE_KEY = 'bulk-enrich-progress';
   const [bulkRunning, setBulkRunning] = useState(false);
   const bulkAbortRef = useRef(false);
-  const [bulkStats, setBulkStats] = useState<{
+  const [bulkResumeAvailable, setBulkResumeAvailable] = useState(false);
+
+  type BulkStatsType = {
     processed: number;
     totalImported: number;
     totalSkipped: number;
     totalRejected: number;
     remaining: number;
+    lastBreweryId: string | null;
+    startedAt: string | null;
+    stoppedAt: string | null;
     log: { name: string; imported: number; scraped: number; skipped: number; error?: string }[];
-  }>({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
+  };
+
+  const emptyBulkStats: BulkStatsType = {
+    processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0,
+    remaining: 0, lastBreweryId: null, startedAt: null, stoppedAt: null, log: [],
+  };
+
+  const [bulkStats, setBulkStats] = useState<BulkStatsType>(emptyBulkStats);
+
+  // Check for saved progress on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(BULK_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as BulkStatsType;
+        if (parsed.processed > 0 && parsed.remaining > 0) {
+          setBulkResumeAvailable(true);
+          setBulkStats(parsed);
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const saveBulkProgress = (stats: BulkStatsType) => {
+    try {
+      localStorage.setItem(BULK_STORAGE_KEY, JSON.stringify(stats));
+    } catch { /* ignore */ }
+  };
+
+  const clearBulkProgress = () => {
+    try { localStorage.removeItem(BULK_STORAGE_KEY); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const loadAll = async () => {
@@ -239,15 +276,22 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
-  const handleBulkEnrich = async () => {
+  const handleBulkEnrich = async (resume = false) => {
     setBulkRunning(true);
+    setBulkResumeAvailable(false);
     bulkAbortRef.current = false;
-    setBulkStats({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
 
-    let processed = 0;
-    let totalImported = 0;
-    let totalSkipped = 0;
-    let totalRejected = 0;
+    let stats: BulkStatsType;
+    if (resume && bulkStats.processed > 0) {
+      // Keep existing stats, just continue from where we left off
+      stats = { ...bulkStats, stoppedAt: null };
+    } else {
+      stats = { ...emptyBulkStats, startedAt: new Date().toISOString() };
+      setBulkStats(stats);
+      clearBulkProgress();
+    }
+
+    let { processed, totalImported, totalSkipped, totalRejected } = stats;
 
     while (!bulkAbortRef.current) {
       try {
@@ -263,18 +307,26 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         const data = res.data;
 
         if (data.done) {
+          clearBulkProgress();
           toast({ title: '🎉 Bulk verrijking voltooid!', description: `Alle brouwerijen zijn verwerkt.` });
           break;
         }
 
         if (data.error) {
-          setBulkStats(prev => ({
-            ...prev,
-            processed: prev.processed + 1,
-            remaining: data.remaining || 0,
-            log: [...prev.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
-          }));
           processed++;
+          const updated: BulkStatsType = {
+            ...stats,
+            processed,
+            totalImported,
+            totalSkipped,
+            totalRejected,
+            remaining: data.remaining || 0,
+            lastBreweryId: data.brewery_id || null,
+            log: [...stats.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
+          };
+          stats = updated;
+          setBulkStats(updated);
+          saveBulkProgress(updated);
           continue;
         }
 
@@ -283,20 +335,24 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         totalSkipped += data.skipped_existing || 0;
         totalRejected += data.rejected || 0;
 
-        setBulkStats(prev => ({
-          ...prev,
+        const updated: BulkStatsType = {
+          ...stats,
           processed,
           totalImported,
           totalSkipped,
           totalRejected,
           remaining: data.remaining || 0,
-          log: [...prev.log, {
+          lastBreweryId: data.brewery_id || null,
+          log: [...stats.log, {
             name: data.brewery_name,
             imported: data.new_imported || 0,
             scraped: data.scraped || 0,
             skipped: data.skipped_existing || 0,
           }],
-        }));
+        };
+        stats = updated;
+        setBulkStats(updated);
+        saveBulkProgress(updated);
 
       } catch (err: any) {
         toast({ title: 'Fout', description: err.message, variant: 'destructive' });
@@ -304,7 +360,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       }
     }
 
+    // Save final state with stoppedAt timestamp
+    const finalStats: BulkStatsType = { ...stats, stoppedAt: new Date().toISOString() };
+    setBulkStats(finalStats);
+    saveBulkProgress(finalStats);
     setBulkRunning(false);
+    if (finalStats.remaining > 0) setBulkResumeAvailable(true);
     onComplete?.();
   };
 
@@ -606,11 +667,25 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               Doorloop <strong>alle brouwerijen</strong> automatisch: scrape website + Untappd + RateBeer + BeerAdvocate + BelgianBeer.com + OpenFoodFacts + Perplexity → AI-validatie → auto-import nieuwe bieren. Bestaande bieren worden overgeslagen.
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {!bulkRunning ? (
-                <Button onClick={handleBulkEnrich} className="gap-2">
-                  <Play size={14} /> Start Bulk Verrijking
-                </Button>
+                bulkResumeAvailable ? (
+                  <>
+                    <Button onClick={() => handleBulkEnrich(true)} className="gap-2">
+                      <Play size={14} /> Hervatten ({bulkStats.processed} verwerkt, {bulkStats.remaining} resterend)
+                    </Button>
+                    <Button variant="outline" onClick={() => { clearBulkProgress(); setBulkResumeAvailable(false); setBulkStats(emptyBulkStats); handleBulkEnrich(false); }} className="gap-2">
+                      <Zap size={14} /> Volledig herbeginnen
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => { clearBulkProgress(); setBulkResumeAvailable(false); setBulkStats(emptyBulkStats); }}>
+                      <X size={14} /> Wis voortgang
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => handleBulkEnrich(false)} className="gap-2">
+                    <Play size={14} /> Start Bulk Verrijking
+                  </Button>
+                )
               ) : (
                 <Button variant="destructive" onClick={handleStopBulk} className="gap-2">
                   <Square size={14} /> Stop
@@ -622,6 +697,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                 </span>
               )}
             </div>
+
+            {bulkResumeAvailable && !bulkRunning && bulkStats.stoppedAt && (
+              <p className="text-xs text-muted-foreground">
+                Gestopt op {new Date(bulkStats.stoppedAt).toLocaleString('nl-BE')} — {bulkStats.processed} brouwerijen verwerkt, {bulkStats.remaining} resterend.
+              </p>
+            )}
 
             {(bulkStats.processed > 0 || bulkRunning) && (
               <div className="space-y-3">
