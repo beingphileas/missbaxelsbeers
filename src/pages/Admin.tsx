@@ -15,6 +15,7 @@ import VenueEditor from '@/components/admin/VenueEditor';
 import CoordFixer from '@/components/admin/CoordFixer';
 import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
+import BeerImport from '@/components/admin/BeerImport';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
