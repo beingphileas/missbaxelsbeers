@@ -161,8 +161,9 @@ async function extractBeers(
 ): Promise<any[]> {
   if (!markdown || markdown.length < 30) return [];
 
-  // Use up to 15000 chars for more complete extraction
-  const truncated = markdown.substring(0, 15000);
+  // Use a larger context for brewery website pages to capture full product listings/details
+  const maxChars = sourceName.startsWith("Eigen website") ? 60000 : 20000;
+  const truncated = markdown.substring(0, maxChars);
 
   const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
