@@ -735,6 +735,10 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                             setScrapeLog(prev => [...prev, { id: b.id, name: b.name, found: previewBeers.length }]);
                           }}
                         />
+                        <BreweryBeerManager
+                          breweryId={b.id}
+                          breweryName={b.name}
+                        />
                         <a
                           href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
                           target="_blank"
