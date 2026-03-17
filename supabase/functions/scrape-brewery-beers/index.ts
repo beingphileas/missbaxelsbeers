@@ -12,46 +12,60 @@ async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
   let formatted = url.trim();
   if (!formatted.startsWith("http")) formatted = "https://" + formatted;
 
-  const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${firecrawlKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      url: formatted,
-      formats: ["markdown"],
-      onlyMainContent: true,
-      waitFor: 3000,
-    }),
-  });
+  try {
+    const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${firecrawlKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: formatted,
+        formats: ["markdown"],
+        onlyMainContent: true,
+        waitFor: 5000,
+      }),
+    });
 
-  const data = await res.json();
-  if (!res.ok || !data.success) return "";
-  return data.data?.markdown || data.markdown || "";
+    const data = await res.json();
+    if (!res.ok || !data.success) return "";
+    return data.data?.markdown || data.markdown || "";
+  } catch (e) {
+    console.error(`Scrape failed for ${formatted}:`, (e as Error).message);
+    return "";
+  }
 }
 
-// Search the web for brewery beers via Firecrawl
-async function searchWeb(query: string, firecrawlKey: string): Promise<{ url: string; markdown: string }[]> {
-  const res = await fetch("https://api.firecrawl.dev/v1/search", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${firecrawlKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      limit: 5,
-      scrapeOptions: { formats: ["markdown"] },
-    }),
-  });
+// Search the web via Firecrawl
+async function searchWeb(
+  query: string,
+  firecrawlKey: string,
+  limit = 8,
+): Promise<{ url: string; markdown: string }[]> {
+  try {
+    const res = await fetch("https://api.firecrawl.dev/v1/search", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${firecrawlKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        limit,
+        scrapeOptions: { formats: ["markdown"] },
+      }),
+    });
 
-  const data = await res.json();
-  if (!res.ok || !data.success) return [];
-  return (data.data || []).map((r: any) => ({
-    url: r.url || "",
-    markdown: (r.markdown || "").substring(0, 4000),
-  }));
+    const data = await res.json();
+    if (!res.ok || !data.success) return [];
+    return (data.data || []).map((r: any) => ({
+      url: r.url || "",
+      markdown: (r.markdown || "").substring(0, 8000),
+    }));
+  } catch (e) {
+    console.error(`Search failed for "${query}":`, (e as Error).message);
+    return [];
+  }
 }
 
 // Extract beers from markdown via AI
@@ -63,7 +77,8 @@ async function extractBeers(
 ): Promise<any[]> {
   if (!markdown || markdown.length < 30) return [];
 
-  const truncated = markdown.substring(0, 8000);
+  // Use up to 15000 chars for more complete extraction
+  const truncated = markdown.substring(0, 15000);
 
   const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -76,14 +91,24 @@ async function extractBeers(
       messages: [
         {
           role: "system",
-          content: `You are a beer data extraction expert. Extract all beers from the given content that belong to the brewery "${breweryName}".
-For each beer extract: name, style (e.g. Tripel, Blond, IPA, Dubbel, Witbier, Stout), abv (number), description (short).
-ONLY include beers that clearly belong to "${breweryName}". Skip unrelated beers, events, merchandise.
-If no beers from this brewery are found, return an empty array.`,
+          content: `You are a beer data extraction expert specializing in Belgian beers.
+
+Extract ALL beers/beer products from the given content that are brewed by or associated with "${breweryName}".
+
+Rules:
+- Extract EVERY beer mentioned, even if information is incomplete
+- Include beers where only a name is visible (set other fields to empty)
+- A beer "belongs" to this brewery if it appears on their page, is listed under their name, or the page is about this brewery
+- For contract brewers: include beers they commission even if brewed elsewhere
+- Do NOT skip beers just because they lack ABV or style info
+- Do NOT include beers clearly from a different/unrelated brewery
+- Do NOT include events, merchandise, food items, or non-beer products
+- Extract style as specifically as possible (Tripel, Blond, IPA, Dubbel, Witbier, Stout, Saison, Lambic, Kriek, Quadrupel, etc.)
+- ABV should be a number (e.g. 6.5), not a string`,
         },
         {
           role: "user",
-          content: `Extract beers for "${breweryName}" from this ${sourceName} content:\n\n${truncated}`,
+          content: `Extract ALL beers for "${breweryName}" from this ${sourceName} content:\n\n${truncated}`,
         },
       ],
       tools: [
@@ -91,7 +116,7 @@ If no beers from this brewery are found, return an empty array.`,
           type: "function",
           function: {
             name: "extract_beers",
-            description: "Return all beers found",
+            description: "Return all beers found for this brewery",
             parameters: {
               type: "object",
               properties: {
@@ -100,10 +125,10 @@ If no beers from this brewery are found, return an empty array.`,
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string" },
-                      style: { type: "string" },
-                      abv: { type: "number" },
-                      description: { type: "string" },
+                      name: { type: "string", description: "Beer name (without brewery prefix if redundant)" },
+                      style: { type: "string", description: "Beer style" },
+                      abv: { type: "number", description: "Alcohol percentage as number" },
+                      description: { type: "string", description: "Short description" },
                     },
                     required: ["name"],
                     additionalProperties: false,
@@ -172,7 +197,6 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Verify admin
   const { data: roleCheck } = await supabase
     .from("user_roles")
     .select("role")
@@ -226,11 +250,10 @@ serve(async (req) => {
 
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
-    // Gather content from multiple sources in parallel
     const sources: { name: string; url: string; markdown: string }[] = [];
 
-    // Source 1: Brewery's own website
-    const websitePromise = brewery.website_url
+    // === SOURCE 1: Brewery's own website ===
+    const websitePromise = brewery.website_url?.trim()
       ? scrapeUrl(brewery.website_url, firecrawlKey).then((md) => {
           if (md && md.length > 50) {
             let url = brewery.website_url!.trim();
@@ -240,35 +263,72 @@ serve(async (req) => {
         })
       : Promise.resolve();
 
-    // Source 2: Web search for beers on known Belgian beer databases
-    const searchPromise = searchWeb(
-      `"${brewery.name}" bieren site:belgenbier.be OR site:ratebeer.com OR site:untappd.com OR site:beeradvocate.com`,
+    // === SOURCE 2: Direct belgenbier.be scrape ===
+    // belgenbier.be has a consistent URL pattern for brewery beer lists
+    const encodedName = encodeURIComponent(brewery.name);
+    const belgenbierPromise = scrapeUrl(
+      `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
       firecrawlKey,
+    ).then((md) => {
+      if (md && md.length > 100) {
+        sources.push({
+          name: "belgenbier.be",
+          url: `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
+          markdown: md,
+        });
+      }
+    });
+
+    // === SOURCE 3: Direct untappd search ===
+    const untappdPromise = searchWeb(
+      `site:untappd.com "${brewery.name}" beer`,
+      firecrawlKey,
+      5,
     ).then((results) => {
       for (const r of results) {
-        if (r.markdown && r.markdown.length > 30) {
+        if (r.markdown && r.markdown.length > 50) {
+          sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
+        }
+      }
+    });
+
+    // === SOURCE 4: BeerAdvocate + RateBeer search ===
+    const beerDbPromise = searchWeb(
+      `"${brewery.name}" beers site:beeradvocate.com OR site:ratebeer.com`,
+      firecrawlKey,
+      5,
+    ).then((results) => {
+      for (const r of results) {
+        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url)) {
           sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
         }
       }
     });
 
-    // Source 3: General web search
-    const generalSearchPromise = searchWeb(
-      `"${brewery.name}" Belgian brewery beer list`,
+    // === SOURCE 5: General web search ===
+    const generalPromise = searchWeb(
+      `"${brewery.name}" bieren lijst complete beer list`,
       firecrawlKey,
+      5,
     ).then((results) => {
       for (const r of results) {
-        // Skip if we already have this domain
-        const domain = new URL(r.url).hostname;
-        if (!sources.find((s) => s.url === r.url) && r.markdown && r.markdown.length > 30) {
-          sources.push({ name: domain, url: r.url, markdown: r.markdown });
+        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url)) {
+          sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
         }
       }
     });
 
-    await Promise.allSettled([websitePromise, searchPromise, generalSearchPromise]);
+    await Promise.allSettled([
+      websitePromise,
+      belgenbierPromise,
+      untappdPromise,
+      beerDbPromise,
+      generalPromise,
+    ]);
 
-    console.log(`Found ${sources.length} sources for ${brewery.name}: ${sources.map((s) => s.name).join(", ")}`);
+    console.log(
+      `Found ${sources.length} sources for ${brewery.name}: ${sources.map((s) => `${s.name}(${s.markdown.length}ch)`).join(", ")}`,
+    );
 
     if (sources.length === 0) {
       return new Response(
@@ -283,10 +343,18 @@ serve(async (req) => {
     }
 
     // Extract beers from each source in parallel
-    const allBeers: { name: string; style: string; abv: number | null; description: string; source: string; source_url: string }[] = [];
+    const allBeers: {
+      name: string;
+      style: string;
+      abv: number | null;
+      description: string;
+      source: string;
+      source_url: string;
+    }[] = [];
 
     const extractionPromises = sources.map((source) =>
       extractBeers(source.markdown, brewery.name, source.name, lovableKey).then((beers) => {
+        console.log(`  ${source.name}: extracted ${beers.length} beers`);
         for (const b of beers) {
           allBeers.push({
             name: b.name || "",
@@ -305,14 +373,22 @@ serve(async (req) => {
     // Deduplicate beers by name (case-insensitive), keep the one with most data
     const deduped = new Map<string, (typeof allBeers)[0]>();
     for (const beer of allBeers) {
-      const key = beer.name.toLowerCase().trim();
+      // Normalize: lowercase, trim, remove brewery name prefix
+      let key = beer.name.toLowerCase().trim();
+      // Remove common brewery name prefixes for dedup
+      const brewLower = brewery.name.toLowerCase();
+      if (key.startsWith(brewLower + " ")) {
+        key = key.slice(brewLower.length + 1);
+      }
+      // Also remove leading "brouwerij X " patterns
+      key = key.replace(/^brouwerij\s+\S+\s+/i, "");
+
       const existing = deduped.get(key);
       if (!existing) {
         deduped.set(key, beer);
       } else {
-        // Keep the version with more info
         const score = (b: typeof beer) =>
-          (b.style ? 1 : 0) + (b.abv ? 1 : 0) + (b.description ? 1 : 0);
+          (b.style ? 1 : 0) + (b.abv ? 2 : 0) + (b.description ? 1 : 0);
         if (score(beer) > score(existing)) {
           deduped.set(key, beer);
         }
@@ -330,7 +406,9 @@ serve(async (req) => {
       source_url: b.source_url,
     }));
 
-    console.log(`Extracted ${allBeers.length} raw → ${enriched.length} unique beers from ${sources.length} sources`);
+    console.log(
+      `Result: ${allBeers.length} raw → ${enriched.length} unique beers from ${sources.length} sources`,
+    );
 
     return new Response(
       JSON.stringify({
