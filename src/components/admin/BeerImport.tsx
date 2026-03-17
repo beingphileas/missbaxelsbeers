@@ -87,6 +87,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     issues: { beer_id: string; beer_name: string; severity: string; message: string }[];
     summary: string;
   } | null>(null);
+  const [selectedDeleteIds, setSelectedDeleteIds] = useState<Set<string>>(new Set());
 
   // Bulk enrichment state
   const BULK_STORAGE_KEY = 'bulk-enrich-progress';
