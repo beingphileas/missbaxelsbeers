@@ -32,13 +32,21 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
     const data = await file.arrayBuffer();
     const wb = XLSX.read(data);
     
-    // Combine all sheets into one array
+    // Combine all sheets into one array, track per-sheet counts
     const allRows: any[] = [];
+    const info: { name: string; rows: number }[] = [];
     for (const sheetName of wb.SheetNames) {
       const ws = wb.Sheets[sheetName];
       const sheetRows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      allRows.push(...sheetRows);
+      // Filter out completely empty rows before counting
+      const validRows = sheetRows.filter(r => {
+        const naam = (r['naam'] || r['Naam'] || r['name'] || '').toString().trim();
+        return naam.length > 0;
+      });
+      info.push({ name: sheetName, rows: validRows.length });
+      allRows.push(...validRows);
     }
+    setSheetInfo(info);
 
     // Map spreadsheet columns to our format
     const mapped = allRows
