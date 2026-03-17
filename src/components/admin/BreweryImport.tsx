@@ -30,8 +30,14 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
 
     const data = await file.arrayBuffer();
     const wb = XLSX.read(data);
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    
+    // Combine all sheets into one array
+    const allRows: any[] = [];
+    for (const sheetName of wb.SheetNames) {
+      const ws = wb.Sheets[sheetName];
+      const sheetRows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      allRows.push(...sheetRows);
+    }
 
     // Map spreadsheet columns to our format
     const mapped = rows
