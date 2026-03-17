@@ -33,7 +33,7 @@ export default function ContextMap({ center, markers, zoom = 12, className = '' 
       attributionControl: false,
     });
 
-    L.tileLayer(DARK_TILES, { maxZoom: 18 }).addTo(map);
+    L.tileLayer(WARM_TILES, { maxZoom: 18 }).addTo(map);
 
     markers.forEach(m => {
       const color = m.color || 'hsl(25,90%,45%)';
