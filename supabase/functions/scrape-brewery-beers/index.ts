@@ -71,6 +71,87 @@ async function searchWeb(
   }
 }
 
+// Extract beers from a screenshot via vision AI
+async function extractBeersFromScreenshot(
+  screenshotBase64: string,
+  breweryName: string,
+  sourceName: string,
+  lovableKey: string,
+): Promise<any[]> {
+  if (!screenshotBase64) return [];
+
+  try {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot that belong to "${breweryName}". Include every beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
+          },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
+              { type: "image_url", image_url: { url: screenshotBase64.startsWith("data:") ? screenshotBase64 : `data:image/png;base64,${screenshotBase64}` } },
+            ],
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_beers",
+              description: "Return all beers found in the screenshot",
+              parameters: {
+                type: "object",
+                properties: {
+                  beers: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        style: { type: "string" },
+                        abv: { type: "number" },
+                        description: { type: "string" },
+                      },
+                      required: ["name"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["beers"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "extract_beers" } },
+      }),
+    });
+
+    if (!aiRes.ok) {
+      console.error(`Vision AI error for ${sourceName}:`, aiRes.status);
+      return [];
+    }
+
+    const aiData = await aiRes.json();
+    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall?.function?.arguments) return [];
+    const parsed = JSON.parse(toolCall.function.arguments);
+    return parsed.beers || [];
+  } catch (e) {
+    console.error(`Vision extraction failed:`, (e as Error).message);
+    return [];
+  }
+}
+
 // Extract beers from markdown via AI
 async function extractBeers(
   markdown: string,
