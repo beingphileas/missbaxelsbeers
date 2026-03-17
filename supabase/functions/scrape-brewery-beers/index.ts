@@ -334,6 +334,22 @@ serve(async (req) => {
 
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
+    // Blocklist: domains that produce too much noise / false positives
+    const BLOCKED_DOMAINS = [
+      "bloggen.be", "www.bloggen.be",
+      "facebook.com", "www.facebook.com",
+      "instagram.com", "www.instagram.com",
+      "twitter.com", "x.com",
+      "youtube.com", "www.youtube.com",
+      "pinterest.com",
+    ];
+    const isBlocked = (url: string) => {
+      try {
+        const hostname = new URL(url).hostname;
+        return BLOCKED_DOMAINS.some(d => hostname === d || hostname.endsWith("." + d));
+      } catch { return false; }
+    };
+
     const sources: { name: string; url: string; markdown: string }[] = [];
     const screenshots: { name: string; url: string; screenshot: string }[] = [];
 
