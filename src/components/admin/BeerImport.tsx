@@ -160,6 +160,86 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
+  const handleBulkScrape = async () => {
+    const eligible = breweries.filter(b => hasWebsite(b)).sort((a, b) => a.name.localeCompare(b.name));
+    if (eligible.length === 0) {
+      toast({ title: 'Geen brouwerijen met website', variant: 'destructive' });
+      return;
+    }
+
+    setBulkRunning(true);
+    bulkAbortRef.current = false;
+    setBulkLog([]);
+    setBulkStats({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
+    setBulkTotal(eligible.length);
+    setBulkIndex(0);
+
+    for (let i = 0; i < eligible.length; i++) {
+      if (bulkAbortRef.current) break;
+
+      const b = eligible[i];
+      setBulkIndex(i + 1);
+      setBulkCurrent(b.name);
+
+      try {
+        const scrapeRes = await supabase.functions.invoke('scrape-brewery-beers', {
+          body: { brewery_id: b.id },
+        });
+
+        if (scrapeRes.error || !scrapeRes.data?.beers?.length) {
+          setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: scrapeRes.error?.message || 'Geen bieren gevonden' }]);
+          setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
+          continue;
+        }
+
+        const beers = scrapeRes.data.beers;
+        const toInsert = beers
+          .filter((beer: any) => beer.name)
+          .map((beer: any) => ({
+            name: beer.name,
+            brewery_id: b.id,
+            style: beer.style || 'Onbekend',
+            abv: beer.abv || null,
+            description: beer.description || '',
+            source_url: beer.source_url || '',
+            image_url: '',
+          }));
+
+        if (toInsert.length === 0) {
+          setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted: 0, error: 'Geen geldige bieren' }]);
+          continue;
+        }
+
+        const commitRes = await supabase.functions.invoke('import-beers', {
+          body: { beers: toInsert, mode: 'commit' },
+        });
+
+        const inserted = commitRes.data?.inserted || 0;
+        const skipped = commitRes.data?.skipped || 0;
+
+        setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted }]);
+        setBulkStats(prev => ({
+          ...prev,
+          totalFound: prev.totalFound + beers.length,
+          totalInserted: prev.totalInserted + inserted,
+          totalSkipped: prev.totalSkipped + skipped,
+        }));
+      } catch (err: any) {
+        setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: err.message }]);
+        setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
+      }
+    }
+
+    setBulkRunning(false);
+    setBulkCurrent(null);
+    onComplete?.();
+    toast({ title: 'Bulk scrape voltooid!' });
+  };
+
+  const handleStopBulk = () => {
+    bulkAbortRef.current = true;
+  };
+
   const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
     // Try JSON
