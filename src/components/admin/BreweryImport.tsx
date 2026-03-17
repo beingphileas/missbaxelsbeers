@@ -40,7 +40,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
     }
 
     // Map spreadsheet columns to our format
-    const mapped = rows
+    const mapped = allRows
       .filter(r => r['naam'] || r['Naam'] || r['name'])
       .map(r => ({
         name: (r['naam'] || r['Naam'] || r['name'] || '').trim(),
