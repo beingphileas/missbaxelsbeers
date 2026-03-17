@@ -415,10 +415,10 @@ serve(async (req) => {
     ]);
 
     console.log(
-      `Found ${sources.length} sources for ${brewery.name}: ${sources.map((s) => `${s.name}(${s.markdown.length}ch)`).join(", ")}`,
+      `Found ${sources.length} text sources + ${screenshots.length} screenshots for ${brewery.name}`,
     );
 
-    if (sources.length === 0) {
+    if (sources.length === 0 && screenshots.length === 0) {
       return new Response(
         JSON.stringify({
           brewery_name: brewery.name,
