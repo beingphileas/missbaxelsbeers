@@ -223,7 +223,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
-
+  const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
     // Try JSON
     try {
