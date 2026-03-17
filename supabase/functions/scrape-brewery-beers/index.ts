@@ -472,9 +472,70 @@ serve(async (req) => {
       }
     })();
 
+    // === SOURCE 3: OpenFoodFacts — free API, no key needed ===
+    const openFoodPromise = (async () => {
+      try {
+        // Search by brand name in beer category
+        const searchName = encodeURIComponent(brewery.name);
+        const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${searchName}&tagtype_0=categories&tag_contains_0=contains&tag_0=beers&search_simple=1&action=process&json=1&page_size=100&fields=product_name,brands,categories,alcohol_value,generic_name,quantity,image_url,url`;
+
+        const res = await fetch(url, {
+          headers: { "User-Agent": "BelgiumBeerWhisperer/1.0 (contact: admin@belgiumwhisperer.be)" },
+        });
+
+        if (!res.ok) {
+          console.error(`  OpenFoodFacts: HTTP ${res.status}`);
+          return;
+        }
+
+        const data = await res.json();
+        const products = data.products || [];
+
+        if (products.length === 0) {
+          // Try simplified name
+          const simpleName = brewery.name.replace(/^(brouwerij|brasserie|brewery)\s+/i, "").trim();
+          if (simpleName !== brewery.name) {
+            const url2 = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(simpleName)}&tagtype_0=categories&tag_contains_0=contains&tag_0=beers&search_simple=1&action=process&json=1&page_size=100&fields=product_name,brands,categories,alcohol_value,generic_name,quantity,image_url,url`;
+            const res2 = await fetch(url2, {
+              headers: { "User-Agent": "BelgiumBeerWhisperer/1.0" },
+            });
+            if (res2.ok) {
+              const data2 = await res2.json();
+              products.push(...(data2.products || []));
+            }
+          }
+        }
+
+        if (products.length > 0) {
+          // Convert to markdown-like format for AI extraction
+          const lines = products.map((p: any, i: number) => {
+            const name = p.product_name || "Unknown";
+            const brand = p.brands || "";
+            const abv = p.alcohol_value ? `${p.alcohol_value}%` : "";
+            const desc = p.generic_name || "";
+            return `${i + 1}. ${name} | Brand: ${brand} | ABV: ${abv} | ${desc}`;
+          }).join("\n");
+
+          const markdown = `# OpenFoodFacts results for "${brewery.name}"\n\n${lines}`;
+          sources.push({
+            name: "OpenFoodFacts",
+            url: `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${searchName}&tag_0=beers`,
+            markdown,
+          });
+
+          console.log(`  OpenFoodFacts: found ${products.length} products`);
+        } else {
+          console.log(`  OpenFoodFacts: no results for "${brewery.name}"`);
+        }
+      } catch (e) {
+        console.error(`  OpenFoodFacts error:`, (e as Error).message);
+      }
+    })();
+
     await Promise.allSettled([
       websitePromise,
       untappdPromise,
+      openFoodPromise,
     ]);
 
     console.log(
