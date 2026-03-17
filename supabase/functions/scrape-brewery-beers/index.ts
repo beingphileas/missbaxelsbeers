@@ -316,9 +316,6 @@ serve(async (req) => {
     const websiteListingLimit = isBulk ? 2 : 8;
     const websiteDetailLimit = isBulk ? 6 : 20;
     const websitePaginationLimit = isBulk ? 2 : 10;
-    const untappdMapLimit = isBulk ? 150 : 500;
-    const untappdPaginationMaxStart = isBulk ? 50 : 200;
-    const untappdDetailPageLimit = isBulk ? 12 : 60;
     const screenshotExtractionLimit = isBulk ? 2 : 20;
     const sourceExtractionLimit = isBulk ? 14 : 120;
 
@@ -505,258 +502,7 @@ serve(async (req) => {
       );
     })();
 
-    // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
-    const untappdPromise = (async () => {
-      // Wait for website scraping to finish so we can extract Untappd links from it
-      await websitePromise;
-
-      // Step 0: Check if we found an Untappd link on the brewery's own website
-      let untappdLinkFromWebsite = "";
-      for (const src of sources) {
-        if (src.name.startsWith("Eigen website")) {
-          // Look for untappd.com links in the markdown
-          const untappdMatch = src.markdown.match(/https?:\/\/untappd\.com\/[^\s)"\]]+/i);
-          if (untappdMatch) {
-            untappdLinkFromWebsite = untappdMatch[0];
-            console.log(`  Found Untappd link on website: ${untappdLinkFromWebsite}`);
-            break;
-          }
-        }
-      }
-
-      // Generate multiple name variants for better search coverage
-      const nameVariants = new Set<string>();
-      nameVariants.add(brewery.name);
-
-      // Remove common prefixes
-      const withoutPrefix = brewery.name.replace(/^(brouwerij|brasserie|brewery|de|het|'t)\s+/i, "").trim();
-      if (withoutPrefix !== brewery.name) nameVariants.add(withoutPrefix);
-
-      // Split camelCase/PascalCase (e.g. "StraeteBrouwerie" → "Straete Brouwerie")
-      const splitCamel = brewery.name.replace(/([a-z])([A-Z])/g, "$1 $2");
-      if (splitCamel !== brewery.name) {
-        nameVariants.add(splitCamel);
-        const camelWithoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
-        if (camelWithoutSuffix !== splitCamel) nameVariants.add(camelWithoutSuffix);
-      }
-
-      // Remove trailing Brouwerij/Brewery/Brasserie
-      const withoutSuffix = brewery.name.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
-      if (withoutSuffix !== brewery.name) nameVariants.add(withoutSuffix);
-
-      console.log(`  Untappd: searching with variants: ${[...nameVariants].join(", ")}`);
-
-      // Search with all variants in parallel
-      const searchPromises = [...nameVariants].flatMap(name => [
-        searchWeb(`site:untappd.com/w/ "${name}"`, firecrawlKey, 5),
-        searchWeb(`site:untappd.com "${name}" brewery beer`, firecrawlKey, 3),
-      ]);
-
-      const searchResultSets = await Promise.all(searchPromises);
-      const allSearchResults = searchResultSets.flat();
-
-      // Find the main brewery page URL
-      // Accept multiple patterns: /w/name/ID, /Brewery_Name, /w/name
-      let breweryPageUrl = untappdLinkFromWebsite; // Prefer the link from their own website
-      const seen = new Set<string>();
-
-      for (const r of allSearchResults) {
-        if (seen.has(r.url)) continue;
-        seen.add(r.url);
-
-        // Check for brewery page patterns
-        if (!breweryPageUrl && r.url) {
-          if (/untappd\.com\/(w\/[^/]+\/\d+|w\/[^/]+$)/.test(r.url) ||
-              /untappd\.com\/[A-Z][A-Za-z_]+$/.test(r.url)) {
-            breweryPageUrl = r.url;
-          }
-        }
-
-        if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
-          sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
-        }
-      }
-
-      if (!breweryPageUrl) {
-        console.log(`  Untappd: no brewery page found, used ${allSearchResults.length} search results`);
-        return;
-      }
-
-      console.log(`  Untappd brewery page: ${breweryPageUrl}`);
-
-      // Normalize brewery page URL — strip trailing slash
-      const cleanBreweryUrl = breweryPageUrl.replace(/\/+$/, "");
-
-      // Step 2: Scrape the brewery page AND the /beer sub-page (full beer list) in parallel
-      const beerListUrl = cleanBreweryUrl + "/beer";
-      const breweryPageScrape = scrapeUrl(cleanBreweryUrl, firecrawlKey, ["markdown", "screenshot"]);
-      const beerListScrape = scrapeUrl(beerListUrl, firecrawlKey, ["markdown", "screenshot"]);
-
-      // Step 3: Use Firecrawl Map to discover all beer URLs on the brewery page
-      let beerUrls: string[] = [];
-      try {
-        const mapRes = await fetch("https://api.firecrawl.dev/v1/map", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${firecrawlKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            url: cleanBreweryUrl,
-            search: "beer",
-            limit: untappdMapLimit,
-            includeSubdomains: true,
-          }),
-        });
-        const mapData = await mapRes.json();
-        if (mapRes.ok && mapData.success && mapData.links) {
-          beerUrls = (mapData.links as string[]).filter(
-            (u: string) => /untappd\.com\/b\/[^/]+\/\d+/.test(u)
-          );
-          console.log(`  Untappd map: found ${beerUrls.length} beer URLs`);
-        }
-      } catch (e) {
-        console.error(`  Untappd map failed:`, (e as Error).message);
-      }
-
-      // Wait for brewery page + beer list page scrapes
-      const [bpResult, blResult] = await Promise.all([breweryPageScrape, beerListScrape]);
-
-      if (bpResult.markdown && bpResult.markdown.length > 50) {
-        const existing = sources.findIndex(s => s.url === cleanBreweryUrl);
-        if (existing >= 0) {
-          sources[existing].markdown = bpResult.markdown;
-        } else {
-          sources.push({ name: "untappd.com (brouwerijpagina)", url: cleanBreweryUrl, markdown: bpResult.markdown });
-        }
-        // Extract beer URLs from markdown links: /b/beer-name/12345
-        const mdBeerLinks = bpResult.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
-        for (const link of mdBeerLinks) {
-          const full = link.startsWith("http") ? link : "https://" + link;
-          if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
-        }
-      }
-      if (bpResult.screenshot) {
-        screenshots.push({ name: "untappd.com (brouwerijpagina screenshot)", url: cleanBreweryUrl, screenshot: bpResult.screenshot });
-      }
-
-      // Process beer list page (/beer)
-      if (blResult.markdown && blResult.markdown.length > 50) {
-        sources.push({ name: "untappd.com (bierlijst)", url: beerListUrl, markdown: blResult.markdown });
-        // Extract beer URLs from beer list markdown
-        const mdBeerLinks2 = blResult.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
-        for (const link of mdBeerLinks2) {
-          const full = link.startsWith("http") ? link : "https://" + link;
-          if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
-        }
-        console.log(`  Untappd beer list page: extracted ${mdBeerLinks2.length} beer links, total unique: ${beerUrls.length}`);
-      }
-      if (blResult.screenshot) {
-        screenshots.push({ name: "untappd.com (bierlijst screenshot)", url: beerListUrl, screenshot: blResult.screenshot });
-      }
-
-      // Step 3b: If still few beer URLs, try paginated beer list: /beer?sort=date&start=0,25,50...
-      if (beerUrls.length < 30) {
-        const paginatedPromises = [];
-        for (let start = 25; start <= untappdPaginationMaxStart; start += 25) {
-          const pageUrl = `${beerListUrl}?sort=date&start=${start}`;
-          paginatedPromises.push(
-            scrapeUrl(pageUrl, firecrawlKey, ["markdown"]).then((pr) => {
-              if (pr.markdown && pr.markdown.length > 50) {
-                sources.push({ name: `untappd.com (bierlijst p${Math.floor(start/25)+1})`, url: pageUrl, markdown: pr.markdown });
-                const links = pr.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
-                for (const link of links) {
-                  const full = link.startsWith("http") ? link : "https://" + link;
-                  if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
-                }
-              }
-            })
-          );
-        }
-        await Promise.allSettled(paginatedPromises);
-        console.log(`  Untappd after pagination: ${beerUrls.length} total beer URLs`);
-      }
-
-      // Step 4: Scrape individual beer pages (bounded per mode for stability)
-      const toScrape = beerUrls.slice(0, untappdDetailPageLimit);
-      if (toScrape.length > 0) {
-        // Batch in groups of 10 to avoid overwhelming
-        for (let i = 0; i < toScrape.length; i += 10) {
-          const batch = toScrape.slice(i, i + 10);
-          await Promise.allSettled(
-            batch.map(async (beerUrl) => {
-              const result = await scrapeUrl(beerUrl, firecrawlKey);
-              if (result.markdown && result.markdown.length > 30) {
-                sources.push({ name: "untappd.com (bier)", url: beerUrl, markdown: result.markdown });
-              }
-            })
-          );
-        }
-        console.log(`  Untappd: scraped ${toScrape.length} individual beer pages`);
-      }
-    })();
-
-    // === SOURCE 3: OpenFoodFacts — free API, no key needed ===
-    const openFoodPromise = (async () => {
-      try {
-        // Search by brand name in beer category
-        const searchName = encodeURIComponent(brewery.name);
-        const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${searchName}&tagtype_0=categories&tag_contains_0=contains&tag_0=beers&search_simple=1&action=process&json=1&page_size=100&fields=product_name,brands,categories,alcohol_value,generic_name,quantity,image_url,url`;
-
-        const res = await fetch(url, {
-          headers: { "User-Agent": "BelgiumBeerWhisperer/1.0 (contact: admin@belgiumwhisperer.be)" },
-        });
-
-        if (!res.ok) {
-          console.error(`  OpenFoodFacts: HTTP ${res.status}`);
-          return;
-        }
-
-        const data = await res.json();
-        const products = data.products || [];
-
-        if (products.length === 0) {
-          // Try simplified name
-          const simpleName = brewery.name.replace(/^(brouwerij|brasserie|brewery)\s+/i, "").trim();
-          if (simpleName !== brewery.name) {
-            const url2 = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(simpleName)}&tagtype_0=categories&tag_contains_0=contains&tag_0=beers&search_simple=1&action=process&json=1&page_size=100&fields=product_name,brands,categories,alcohol_value,generic_name,quantity,image_url,url`;
-            const res2 = await fetch(url2, {
-              headers: { "User-Agent": "BelgiumBeerWhisperer/1.0" },
-            });
-            if (res2.ok) {
-              const data2 = await res2.json();
-              products.push(...(data2.products || []));
-            }
-          }
-        }
-
-        if (products.length > 0) {
-          // Convert to markdown-like format for AI extraction
-          const lines = products.map((p: any, i: number) => {
-            const name = p.product_name || "Unknown";
-            const brand = p.brands || "";
-            const abv = p.alcohol_value ? `${p.alcohol_value}%` : "";
-            const desc = p.generic_name || "";
-            return `${i + 1}. ${name} | Brand: ${brand} | ABV: ${abv} | ${desc}`;
-          }).join("\n");
-
-          const markdown = `# OpenFoodFacts results for "${brewery.name}"\n\n${lines}`;
-          sources.push({
-            name: "OpenFoodFacts",
-            url: `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${searchName}&tag_0=beers`,
-            markdown,
-          });
-
-          console.log(`  OpenFoodFacts: found ${products.length} products`);
-        } else {
-          console.log(`  OpenFoodFacts: no results for "${brewery.name}"`);
-        }
-      } catch (e) {
-        console.error(`  OpenFoodFacts error:`, (e as Error).message);
-      }
-    })();
-
-    // === SOURCE 4: Perplexity AI Search — grounded web search for beers ===
+    // === SOURCE 2: Perplexity AI Search — grounded web search for beers ===
     const perplexityPromise = (async () => {
       const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
       if (!perplexityKey) {
@@ -812,12 +558,7 @@ serve(async (req) => {
       }
     })();
 
-    await Promise.allSettled([
-      websitePromise,
-      untappdPromise,
-      openFoodPromise,
-      perplexityPromise,
-    ]);
+    await Promise.allSettled([websitePromise, perplexityPromise]);
 
     console.log(
       `Found ${sources.length} text sources + ${screenshots.length} screenshots for ${brewery.name}`,
@@ -848,22 +589,17 @@ serve(async (req) => {
 
     const sortedSources = [...sources].sort((a, b) => {
       const rank = (name: string) => {
-        if (name.startsWith("untappd.com (bierlijst")) return 0;
-        if (name.startsWith("untappd.com (bier)")) return 1;
-        if (name.startsWith("Eigen website")) return 2;
-        if (name.startsWith("untappd.com")) return 3;
-        if (name.startsWith("OpenFoodFacts")) return 4;
-        if (name.startsWith("Perplexity")) return 5;
-        return 6;
+        if (name.startsWith("Eigen website")) return 0;
+        if (name.startsWith("Perplexity")) return 1;
+        return 2;
       };
       return rank(a.name) - rank(b.name);
     });
 
     const sortedScreenshots = [...screenshots].sort((a, b) => {
       const rank = (name: string) => {
-        if (name.startsWith("untappd.com (bierlijst")) return 0;
-        if (name.startsWith("Eigen website")) return 1;
-        return 2;
+        if (name.startsWith("Eigen website")) return 0;
+        return 1;
       };
       return rank(a.name) - rank(b.name);
     });
