@@ -399,7 +399,9 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                     <td className="px-3 py-2 font-medium">{beer.name}</td>
                     <td className="px-3 py-2">{beer.style || '—'}</td>
                     <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{beer.brewery_input || '—'}</td>
+                    <td className="px-3 py-2">
+                       <Badge variant="outline" className="text-[9px]">{(beer as any)._source || beer.brewery_input || '—'}</Badge>
+                     </td>
                     <td className="px-3 py-2">
                       {beer.brewery_matches.length > 0 ? (
                         <div className="flex items-center gap-2">
