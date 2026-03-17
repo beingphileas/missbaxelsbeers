@@ -303,12 +303,200 @@ serve(async (req) => {
   }
 
   try {
-    const { brewery_id, mode = "single" } = await req.json();
+    const { brewery_id, mode = "single", images: screenshotImages } = await req.json();
     if (!brewery_id) {
       return new Response(JSON.stringify({ error: "brewery_id required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // === SCREENSHOT MODE: process uploaded images directly ===
+    if (mode === "screenshot") {
+      if (!Array.isArray(screenshotImages) || screenshotImages.length === 0) {
+        return new Response(JSON.stringify({ error: "images array required for screenshot mode" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: brewery, error: bErr } = await supabase
+        .from("breweries")
+        .select("id, name, website_url")
+        .eq("id", brewery_id)
+        .single();
+
+      if (bErr || !brewery) {
+        return new Response(JSON.stringify({ error: "Brewery not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!lovableKey) {
+        return new Response(JSON.stringify({ error: "AI not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`Screenshot mode for: ${brewery.name} — ${screenshotImages.length} images`);
+
+      // Process images in batches of 3 in parallel
+      const allBeers: { name: string; style: string; abv: number | null; description: string; source: string; source_url: string }[] = [];
+      const batchSize = 3;
+
+      for (let i = 0; i < screenshotImages.length; i += batchSize) {
+        const batch = screenshotImages.slice(i, i + batchSize);
+        const results = await Promise.allSettled(
+          batch.map((img: string, idx: number) =>
+            extractBeersFromScreenshot(img, brewery.name, `Screenshot ${i + idx + 1}`, lovableKey)
+          )
+        );
+
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            for (const b of result.value) {
+              allBeers.push({
+                name: b.name || "",
+                style: b.style || "",
+                abv: b.abv || null,
+                description: b.description || "",
+                source: "Screenshot upload",
+                source_url: "",
+              });
+            }
+          }
+        }
+      }
+
+      // Deduplicate by name
+      const deduped = new Map<string, (typeof allBeers)[0]>();
+      for (const beer of allBeers) {
+        let key = beer.name.toLowerCase().trim();
+        const brewLower = brewery.name.toLowerCase();
+        if (key.startsWith(brewLower + " ")) key = key.slice(brewLower.length + 1);
+        key = key.replace(/^brouwerij\s+\S+\s+/i, "");
+
+        const existing = deduped.get(key);
+        if (!existing) {
+          deduped.set(key, beer);
+          continue;
+        }
+        // Merge: prefer richer data
+        deduped.set(key, {
+          ...existing,
+          style: existing.style || beer.style,
+          abv: existing.abv ?? beer.abv,
+          description: (beer.description?.length || 0) > (existing.description?.length || 0) ? beer.description : existing.description,
+        });
+      }
+
+      const enriched = Array.from(deduped.values()).map((b) => ({
+        name: b.name,
+        style: b.style,
+        abv: b.abv,
+        description: b.description,
+        brewery: brewery.name,
+        brewery_id: brewery.id,
+        source: b.source,
+        source_url: b.source_url,
+      }));
+
+      // AI validation (same as web-crawl mode)
+      let validated = enriched;
+      let rejected: { name: string; reason: string }[] = [];
+
+      if (enriched.length > 0) {
+        try {
+          const beerList = enriched.map((b, i) => `${i + 1}. "${b.name}" (style: ${b.style || "?"}, abv: ${b.abv || "?"})`).join("\n");
+
+          const valRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${lovableKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemini-2.5-flash",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a Belgian beer expert. Validate beers scraped for "${brewery.name}". Mark INVALID if: not a real beer, belongs to different brewery, duplicate phrasing, or scraped noise.`,
+                },
+                {
+                  role: "user",
+                  content: `Validate these ${enriched.length} beers for "${brewery.name}":\n\n${beerList}`,
+                },
+              ],
+              tools: [
+                {
+                  type: "function",
+                  function: {
+                    name: "validate_beers",
+                    description: "Return validation results",
+                    parameters: {
+                      type: "object",
+                      properties: {
+                        results: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              index: { type: "number" },
+                              valid: { type: "boolean" },
+                              reason: { type: "string" },
+                            },
+                            required: ["index", "valid"],
+                            additionalProperties: false,
+                          },
+                        },
+                      },
+                      required: ["results"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+              ],
+              tool_choice: { type: "function", function: { name: "validate_beers" } },
+            }),
+          });
+
+          if (valRes.ok) {
+            const valData = await valRes.json();
+            const toolCall = valData.choices?.[0]?.message?.tool_calls?.[0];
+            if (toolCall?.function?.arguments) {
+              const parsed = JSON.parse(toolCall.function.arguments);
+              const results = parsed.results || [];
+              const invalidIndices = new Set<number>();
+              for (const r of results) {
+                if (!r.valid && r.index >= 1 && r.index <= enriched.length) {
+                  invalidIndices.add(r.index - 1);
+                  rejected.push({ name: enriched[r.index - 1].name, reason: r.reason || "Ongeldig" });
+                }
+              }
+              validated = enriched.filter((_, i) => !invalidIndices.has(i));
+              console.log(`Screenshot AI validation: ${enriched.length} → ${validated.length} valid`);
+            }
+          }
+        } catch (e) {
+          console.error("Screenshot validation error:", (e as Error).message);
+        }
+      }
+
+      console.log(`Screenshot result: ${allBeers.length} raw → ${validated.length} validated`);
+
+      return new Response(
+        JSON.stringify({
+          brewery_name: brewery.name,
+          sources: [{ name: "Screenshot upload", url: "" }],
+          beers: validated,
+          rejected,
+          ai_checked: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     const isBulk = mode === "bulk";
