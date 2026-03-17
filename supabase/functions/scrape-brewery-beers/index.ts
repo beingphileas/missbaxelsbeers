@@ -311,12 +311,109 @@ serve(async (req) => {
   }
 
   try {
-    const { brewery_id, mode = "single", images: screenshotImages } = await req.json();
+    const { brewery_id, mode = "single", images: screenshotImages, scan_url } = await req.json();
     if (!brewery_id) {
       return new Response(JSON.stringify({ error: "brewery_id required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // === URL MODE: scrape a specific URL via Firecrawl and extract beers ===
+    if (mode === "url") {
+      if (!scan_url || typeof scan_url !== "string") {
+        return new Response(JSON.stringify({ error: "scan_url required for url mode" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: brewery, error: bErr } = await supabase
+        .from("breweries")
+        .select("id, name, website_url")
+        .eq("id", brewery_id)
+        .single();
+
+      if (bErr || !brewery) {
+        return new Response(JSON.stringify({ error: "Brewery not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!firecrawlKey || !lovableKey) {
+        return new Response(JSON.stringify({ error: "Scraping not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`URL scan mode for: ${brewery.name} — ${scan_url}`);
+
+      // Scrape the URL with Firecrawl (markdown + screenshot)
+      const scraped = await scrapeUrl(scan_url, firecrawlKey, ["markdown", "screenshot"]);
+
+      // Extract beers from both markdown and screenshot in parallel
+      const [markdownBeers, screenshotBeers] = await Promise.all([
+        extractBeers(scraped.markdown, brewery.name, "URL scan", lovableKey),
+        extractBeersFromScreenshot(scraped.screenshot, brewery.name, "URL scan (screenshot)", lovableKey),
+      ]);
+
+      // Merge and deduplicate
+      const allBeers = [...markdownBeers, ...screenshotBeers].map((b) => ({
+        name: b.name || "",
+        style: b.style || "",
+        abv: b.abv || null,
+        description: b.description || "",
+        source: "URL scan",
+        source_url: scan_url,
+      }));
+
+      const deduped = new Map<string, (typeof allBeers)[0]>();
+      for (const beer of allBeers) {
+        let key = beer.name.toLowerCase().trim();
+        const brewLower = brewery.name.toLowerCase();
+        if (key.startsWith(brewLower + " ")) key = key.slice(brewLower.length + 1);
+        key = key.replace(/^brouwerij\s+\S+\s+/i, "");
+
+        const existing = deduped.get(key);
+        if (!existing) {
+          deduped.set(key, beer);
+          continue;
+        }
+        deduped.set(key, {
+          ...existing,
+          style: existing.style || beer.style,
+          abv: existing.abv ?? beer.abv,
+          description: (beer.description?.length || 0) > (existing.description?.length || 0) ? beer.description : existing.description,
+        });
+      }
+
+      const validated = Array.from(deduped.values()).map((b) => ({
+        name: b.name,
+        style: b.style,
+        abv: b.abv,
+        description: b.description,
+        brewery: brewery.name,
+        brewery_id: brewery.id,
+        source: b.source,
+        source_url: b.source_url,
+      }));
+
+      console.log(`URL scan result: ${allBeers.length} raw → ${validated.length} deduplicated`);
+
+      return new Response(
+        JSON.stringify({
+          brewery_name: brewery.name,
+          sources: [{ name: "URL scan", url: scan_url }],
+          beers: validated,
+          rejected: [],
+          ai_checked: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // === SCREENSHOT MODE: process uploaded images directly ===
