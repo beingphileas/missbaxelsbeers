@@ -182,7 +182,48 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
-  const parseInput = useCallback((raw: string): any[] => {
+  const handleCheckBrewery = async (breweryId: string) => {
+    setChecking(breweryId);
+    setCheckResult(null);
+    try {
+      const res = await supabase.functions.invoke('check-brewery-beers', {
+        body: { brewery_id: breweryId },
+      });
+      if (res.error) {
+        toast({ title: 'Check fout', description: res.error.message, variant: 'destructive' });
+        return;
+      }
+      setCheckResult(res.data);
+      if (res.data.duplicates?.length === 0 && res.data.issues?.length === 0) {
+        toast({ title: `✅ ${res.data.brewery_name}: alles in orde`, description: `${res.data.beer_count} bieren gecheckt, geen problemen.` });
+      } else {
+        toast({ title: `${res.data.brewery_name}: ${res.data.duplicates?.length || 0} duplicaten, ${res.data.issues?.length || 0} issues` });
+      }
+    } catch (err: any) {
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+    } finally {
+      setChecking(null);
+    }
+  };
+
+  const handleDeleteDuplicates = async (removeIds: string[]) => {
+    if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
+    const { error } = await supabase.from('beers').delete().in('id', removeIds);
+    if (error) {
+      toast({ title: 'Fout bij verwijderen', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: `${removeIds.length} duplicaten verwijderd` });
+      // Remove from check result
+      setCheckResult(prev => prev ? {
+        ...prev,
+        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removeIds.includes(id))),
+        beer_count: prev.beer_count - removeIds.length,
+      } : null);
+      onComplete?.();
+    }
+  };
+
+
     const trimmed = raw.trim();
     // Try JSON
     try {
