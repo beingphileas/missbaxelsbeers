@@ -99,12 +99,12 @@ async function extractBeersFromScreenshot(
         messages: [
           {
             role: "system",
-            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot that belong to "${breweryName}". Include every beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
+            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot. The screenshot was captured for "${breweryName}" which could be a brewery, beer bar, shop, or venue. Include EVERY beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
           },
           {
             role: "user",
             content: [
-              { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
+              { type: "text", text: `Extract ALL beers visible in this ${sourceName} screenshot captured for "${breweryName}".` },
               { type: "image_url", image_url: { url: screenshotUrl } },
             ],
           },
