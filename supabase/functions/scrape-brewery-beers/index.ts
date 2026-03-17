@@ -351,19 +351,19 @@ serve(async (req) => {
         })
       : Promise.resolve();
 
-    // === SOURCE 2: Direct belgenbier.be scrape ===
-    // belgenbier.be has a consistent URL pattern for brewery beer lists
+    // === SOURCE 2: Direct belgenbier.be scrape (markdown + screenshot) ===
     const encodedName = encodeURIComponent(brewery.name);
     const belgenbierPromise = scrapeUrl(
       `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
       firecrawlKey,
-    ).then((md) => {
-      if (md && md.length > 100) {
-        sources.push({
-          name: "belgenbier.be",
-          url: `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
-          markdown: md,
-        });
+      ["markdown", "screenshot"],
+    ).then((result) => {
+      const url = `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`;
+      if (result.markdown && result.markdown.length > 100) {
+        sources.push({ name: "belgenbier.be", url, markdown: result.markdown });
+      }
+      if (result.screenshot) {
+        screenshots.push({ name: "belgenbier.be (screenshot)", url, screenshot: result.screenshot });
       }
     });
 
