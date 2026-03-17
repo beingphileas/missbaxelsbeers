@@ -130,19 +130,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   };
 
   const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
-    setScraping(true);
-    setScrapedBrewery(breweryName);
-    setProgress(15);
+    setScrapingIds(prev => new Set(prev).add(breweryId));
 
     try {
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
         body: { brewery_id: breweryId },
       });
 
-      setProgress(90);
-
       if (res.error) {
-        toast({ title: 'Scrape fout', description: res.error.message, variant: 'destructive' });
+        toast({ title: `Scrape fout: ${breweryName}`, description: res.error.message, variant: 'destructive' });
+        setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0, error: res.error.message }]);
         return;
       }
 
@@ -151,7 +148,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
         const srcCount = data.sources?.length || 0;
-        toast({ title: 'Geen bieren gevonden', description: `${srcCount} bronnen doorzocht, geen bieren gevonden.`, variant: 'destructive' });
+        toast({ title: `${breweryName}: geen bieren`, description: `${srcCount} bronnen doorzocht.`, variant: 'destructive' });
+        setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0 }]);
         return;
       }
 
@@ -171,17 +169,19 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
       const srcNames = (data.sources || []).map((s: any) => s.name).join(', ');
       const rejectedCount = data.rejected?.length || 0;
-      setPreview(previewBeers);
+      // Append to existing preview instead of replacing
+      setPreview(prev => [...prev, ...previewBeers]);
       setStep('preview');
-      setProgress(100);
+      setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: previewBeers.length }]);
       toast({
-        title: `${previewBeers.length} bieren gevonden${data.ai_checked ? ' (AI-gecheckt)' : ''}`,
-        description: `Bronnen: ${srcNames || breweryName}${rejectedCount > 0 ? ` · ${rejectedCount} afgekeurd door AI` : ''}`,
+        title: `${breweryName}: ${previewBeers.length} bieren${data.ai_checked ? ' (AI)' : ''}`,
+        description: `Bronnen: ${srcNames || breweryName}${rejectedCount > 0 ? ` · ${rejectedCount} afgekeurd` : ''}`,
       });
     } catch (err: any) {
-      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+      toast({ title: `Fout: ${breweryName}`, description: err.message, variant: 'destructive' });
+      setScrapeLog(prev => [...prev, { id: breweryId, name: breweryName, found: 0, error: err.message }]);
     } finally {
-      setScraping(false);
+      setScrapingIds(prev => { const n = new Set(prev); n.delete(breweryId); return n; });
     }
   };
 
