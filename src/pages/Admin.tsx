@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck } from 'lucide-react';
 import QuickTasting from '@/components/admin/QuickTasting';
 import { Link, useNavigate } from 'react-router-dom';
 import BlogEditor from '@/components/admin/BlogEditor';
@@ -17,6 +17,8 @@ import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
 import BeerImport from '@/components/admin/BeerImport';
 import FactChecker from '@/components/admin/FactChecker';
+import BreweryAccounts from '@/components/admin/BreweryAccounts';
+import PendingChanges from '@/components/admin/PendingChanges';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -184,9 +186,15 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="posts">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex-wrap">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
+            <TabsTrigger value="pending" className="gap-1.5">
+              <ClipboardCheck size={12} /> Moderatie
+            </TabsTrigger>
+            <TabsTrigger value="brewery-accounts" className="gap-1.5">
+              <Users size={12} /> Brouwerij-accounts
+            </TabsTrigger>
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
             <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
@@ -370,6 +378,34 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <FactChecker />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Pending Changes / Moderation Tab */}
+          <TabsContent value="pending">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ClipboardCheck size={18} /> Moderatie — ingediende wijzigingen
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PendingChanges onApproved={() => queryClient.invalidateQueries()} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Brewery Accounts Tab */}
+          <TabsContent value="brewery-accounts">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <Users size={18} /> Brouwerij-accounts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BreweryAccounts />
               </CardContent>
             </Card>
           </TabsContent>

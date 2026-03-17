@@ -1,0 +1,184 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import { Plus, Trash2, UserPlus } from 'lucide-react';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
+} from '@/components/ui/dialog';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+
+type BreweryUser = {
+  id: string;
+  user_id: string;
+  brewery_id: string;
+  brewery_name: string;
+  user_email: string;
+  created_at: string;
+};
+
+export default function BreweryAccounts() {
+  const [accounts, setAccounts] = useState<BreweryUser[]>([]);
+  const [breweries, setBreweries] = useState<{ id: string; name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [selectedBrewery, setSelectedBrewery] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  const fetchAccounts = async () => {
+    // Get brewery_users with brewery names
+    const { data: links } = await supabase
+      .from('brewery_users')
+      .select('id, user_id, brewery_id, created_at');
+
+    if (!links || links.length === 0) {
+      setAccounts([]);
+      setLoading(false);
+      return;
+    }
+
+    // Get brewery names
+    const breweryIds = [...new Set(links.map(l => l.brewery_id))];
+    const { data: brs } = await supabase
+      .from('breweries')
+      .select('id, name')
+      .in('id', breweryIds);
+
+    const breweryMap = new Map((brs || []).map(b => [b.id, b.name]));
+
+    // We can't query auth.users from client, so show user_id
+    setAccounts(links.map(l => ({
+      ...l,
+      brewery_name: breweryMap.get(l.brewery_id) || 'Onbekend',
+      user_email: l.user_id.substring(0, 8) + '...', // We'll need edge function for emails
+    })));
+    setLoading(false);
+  };
+
+  const fetchBreweries = async () => {
+    const { data } = await supabase.from('breweries').select('id, name').order('name');
+    setBreweries(data || []);
+  };
+
+  useEffect(() => {
+    fetchAccounts();
+    fetchBreweries();
+  }, []);
+
+  const handleCreate = async () => {
+    if (!newEmail || !newPassword || !selectedBrewery) {
+      toast({ title: 'Vul alle velden in', variant: 'destructive' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: 'Wachtwoord moet minimaal 6 tekens zijn', variant: 'destructive' });
+      return;
+    }
+
+    setCreating(true);
+
+    // Use edge function to create user + link
+    const { data, error } = await supabase.functions.invoke('create-brewery-user', {
+      body: { email: newEmail, password: newPassword, brewery_id: selectedBrewery },
+    });
+
+    if (error) {
+      toast({ title: 'Fout', description: error.message, variant: 'destructive' });
+    } else if (data?.error) {
+      toast({ title: 'Fout', description: data.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'Account aangemaakt', description: `${newEmail} is gekoppeld aan de brouwerij.` });
+      setDialogOpen(false);
+      setNewEmail('');
+      setNewPassword('');
+      setSelectedBrewery('');
+      fetchAccounts();
+    }
+    setCreating(false);
+  };
+
+  const handleDelete = async (account: BreweryUser) => {
+    if (!confirm(`Koppeling verwijderen?`)) return;
+    const { error } = await supabase.from('brewery_users').delete().eq('id', account.id);
+    if (error) {
+      toast({ title: 'Fout', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Koppeling verwijderd' });
+      fetchAccounts();
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">Beheer brouwerij-accounts die hun eigen gegevens en bieren kunnen bijwerken.</p>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="gap-1.5"><UserPlus size={14} /> Nieuw account</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="font-serif">Brouwerij-account aanmaken</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Brouwerij</Label>
+                <Select value={selectedBrewery} onValueChange={setSelectedBrewery}>
+                  <SelectTrigger><SelectValue placeholder="Kies brouwerij..." /></SelectTrigger>
+                  <SelectContent>
+                    {breweries.map(b => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="brouwerij@voorbeeld.be" />
+              </div>
+              <div className="space-y-2">
+                <Label>Wachtwoord</Label>
+                <Input type="text" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 6 tekens" />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild><Button variant="outline">Annuleren</Button></DialogClose>
+              <Button onClick={handleCreate} disabled={creating}>{creating ? 'Aanmaken...' : 'Account aanmaken'}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {loading ? (
+        <p className="text-muted-foreground text-center py-8">Laden...</p>
+      ) : accounts.length === 0 ? (
+        <p className="text-muted-foreground text-center py-8">Nog geen brouwerij-accounts.</p>
+      ) : (
+        <div className="divide-y divide-border">
+          {accounts.map(acc => (
+            <div key={acc.id} className="py-3 flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{acc.brewery_name}</span>
+                  <Badge variant="secondary" className="text-[10px]">Brouwerij</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">User: {acc.user_email} • {new Date(acc.created_at).toLocaleDateString('nl-BE')}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(acc)}>
+                <Trash2 size={14} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
