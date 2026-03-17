@@ -414,6 +414,10 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     onComplete?.();
   };
 
+  const handleStopBulk = () => {
+    bulkAbortRef.current = true;
+  };
+
   const handleStopBulkCheck = () => {
     bulkCheckAbortRef.current = true;
   };
