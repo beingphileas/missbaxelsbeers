@@ -353,6 +353,17 @@ serve(async (req) => {
 
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
+    const markScrapeTimestamp = async () => {
+      const { error } = await supabase
+        .from("breweries")
+        .update({ last_scraped_at: new Date().toISOString() })
+        .eq("id", brewery.id);
+
+      if (error) {
+        console.error(`Failed to store last_scraped_at for ${brewery.name}:`, error.message);
+      }
+    };
+
     // Blocklist: domains that produce too much noise / false positives
     const BLOCKED_DOMAINS = [
       "bloggen.be", "www.bloggen.be",
