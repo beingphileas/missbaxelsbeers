@@ -179,7 +179,39 @@ export default function BreweryAccounts() {
               <Button onClick={handleCreate} disabled={creating}>{creating ? 'Aanmaken...' : 'Account aanmaken'}</Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+      </Dialog>
+
+      {/* Credentials share dialog */}
+      <Dialog open={!!createdCreds} onOpenChange={(open) => !open && setCreatedCreds(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif">Account aangemaakt ✓</DialogTitle>
+          </DialogHeader>
+          {createdCreds && (
+            <div className="space-y-4">
+              <div className="rounded-lg bg-muted p-4 text-sm space-y-1 font-mono">
+                <p><span className="text-muted-foreground">Brouwerij:</span> {createdCreds.breweryName}</p>
+                <p><span className="text-muted-foreground">Email:</span> {createdCreds.email}</p>
+                <p><span className="text-muted-foreground">Wachtwoord:</span> {createdCreds.password}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button asChild className="flex-1 gap-1.5">
+                  <a href={getMailtoLink()}><Mail size={14} /> E-mail versturen</a>
+                </Button>
+                <Button variant="outline" className="gap-1.5" onClick={copyCredentials}>
+                  <Copy size={14} /> Kopiëren
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                De inloggegevens worden niet opgeslagen. Deel ze nu met de brouwerij.
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCreatedCreds(null)}>Sluiten</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       </div>
 
       {loading ? (
