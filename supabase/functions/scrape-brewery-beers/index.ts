@@ -96,15 +96,23 @@ async function extractBeersFromScreenshot(
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
+        max_tokens: 16000,
         messages: [
           {
             role: "system",
-            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot. The screenshot was captured for "${breweryName}" which could be a brewery, beer bar, shop, or venue. Include EVERY beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
+            content: `You are a beer data extraction expert. Your task is to extract EVERY SINGLE beer visible in this screenshot — do NOT stop after a few. The screenshot was captured for "${breweryName}" which could be a brewery, beer bar, shop, or venue.
+
+CRITICAL RULES:
+- Extract ALL beers from top to bottom of the image, even if there are 50+
+- Include EVERY beer even if only a name is visible
+- Do NOT stop early or summarize — list each beer individually
+- Scroll through the ENTIRE image carefully
+- Return a complete JSON "beers" array with: name (required), style, abv (number), description`,
           },
           {
             role: "user",
             content: [
-              { type: "text", text: `Extract ALL beers visible in this ${sourceName} screenshot captured for "${breweryName}".` },
+              { type: "text", text: `Extract EVERY SINGLE beer visible in this ${sourceName} screenshot captured for "${breweryName}". There may be many beers — list ALL of them, do not stop early.` },
               { type: "image_url", image_url: { url: screenshotUrl } },
             ],
           },
