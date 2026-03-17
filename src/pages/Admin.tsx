@@ -187,6 +187,7 @@ export default function Admin() {
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
+            <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
