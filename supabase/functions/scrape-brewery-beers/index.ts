@@ -647,7 +647,7 @@ serve(async (req) => {
       // Step 3b: If still few beer URLs, try paginated beer list: /beer?sort=date&start=0,25,50...
       if (beerUrls.length < 30) {
         const paginatedPromises = [];
-        for (let start = 25; start <= 200; start += 25) {
+        for (let start = 25; start <= untappdPaginationMaxStart; start += 25) {
           const pageUrl = `${beerListUrl}?sort=date&start=${start}`;
           paginatedPromises.push(
             scrapeUrl(pageUrl, firecrawlKey, ["markdown"]).then((pr) => {
