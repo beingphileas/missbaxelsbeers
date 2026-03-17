@@ -713,6 +713,27 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                           )}
                           Scrape
                         </Button>
+                        <BreweryScreenCapture
+                          breweryId={b.id}
+                          breweryName={b.name}
+                          onBeersFound={(beers) => {
+                            const previewBeers = beers.map((beer: any) => ({
+                              name: beer.name,
+                              style: beer.style || '',
+                              abv: beer.abv || null,
+                              description: beer.description || '',
+                              source_url: '',
+                              image_url: '',
+                              brewery_input: b.name,
+                              brewery_matches: [{ id: b.id, name: b.name, similarity: 100 }],
+                              brewery_id: b.id,
+                              _excluded: false,
+                            }));
+                            setPreview(prev => [...prev, ...previewBeers]);
+                            setStep('preview');
+                            setScrapeLog(prev => [...prev, { id: b.id, name: b.name, found: previewBeers.length }]);
+                          }}
+                        />
                       </div>
                     </div>
                   );
