@@ -96,7 +96,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
-        toast({ title: 'Geen bieren gevonden', description: `Op ${data.source_url} zijn geen bieren gevonden.`, variant: 'destructive' });
+        const srcCount = data.sources?.length || 0;
+        toast({ title: 'Geen bieren gevonden', description: `${srcCount} bronnen doorzocht, geen bieren gevonden.`, variant: 'destructive' });
         return;
       }
 
@@ -112,12 +113,14 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         brewery_matches: [{ id: breweryId, name: breweryName, similarity: 100 }],
         brewery_id: breweryId,
         _excluded: false,
+        _source: b.source || 'website',
       }));
 
+      const srcNames = (data.sources || []).map((s: any) => s.name).join(', ');
       setPreview(previewBeers);
       setStep('preview');
       setProgress(100);
-      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Van ${breweryName}` });
+      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Bronnen: ${srcNames || breweryName}` });
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
@@ -254,7 +257,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               <Globe size={16} className="text-accent" /> Scrape van brouwerij website
             </h3>
             <p className="text-xs text-muted-foreground">
-              Zoek een brouwerij en scrape automatisch alle bieren van hun website via AI.
+              Zoek een brouwerij en scrape automatisch alle bieren van hun website + belgenbier.be, ratebeer, untappd en meer via AI.
             </p>
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -295,9 +298,9 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             {scraping && (
               <div className="space-y-2">
                 <Progress value={progress} className="h-2" />
-                <p className="text-xs text-muted-foreground animate-pulse">
-                  Scraping {scrapedBrewery}... website ophalen → AI extraheert bieren
-                </p>
+             <p className="text-xs text-muted-foreground animate-pulse">
+                   Scraping {scrapedBrewery}... website + belgenbier.be + ratebeer + untappd doorzoeken → AI extraheert bieren
+                 </p>
               </div>
             )}
           </div>
@@ -377,8 +380,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                   <th className="px-3 py-2 text-left">Bier</th>
                   <th className="px-3 py-2 text-left">Stijl</th>
                   <th className="px-3 py-2 text-left w-16">ABV</th>
-                  <th className="px-3 py-2 text-left">Invoer brouwerij</th>
-                  <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
+                   <th className="px-3 py-2 text-left">Bron</th>
+                   <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -396,7 +399,9 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                     <td className="px-3 py-2 font-medium">{beer.name}</td>
                     <td className="px-3 py-2">{beer.style || '—'}</td>
                     <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{beer.brewery_input || '—'}</td>
+                    <td className="px-3 py-2">
+                       <Badge variant="outline" className="text-[9px]">{(beer as any)._source || beer.brewery_input || '—'}</Badge>
+                     </td>
                     <td className="px-3 py-2">
                       {beer.brewery_matches.length > 0 ? (
                         <div className="flex items-center gap-2">

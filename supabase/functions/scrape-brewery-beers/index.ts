@@ -7,6 +7,136 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Scrape a single URL via Firecrawl
+async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
+  let formatted = url.trim();
+  if (!formatted.startsWith("http")) formatted = "https://" + formatted;
+
+  const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${firecrawlKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: formatted,
+      formats: ["markdown"],
+      onlyMainContent: true,
+      waitFor: 3000,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) return "";
+  return data.data?.markdown || data.markdown || "";
+}
+
+// Search the web for brewery beers via Firecrawl
+async function searchWeb(query: string, firecrawlKey: string): Promise<{ url: string; markdown: string }[]> {
+  const res = await fetch("https://api.firecrawl.dev/v1/search", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${firecrawlKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      limit: 5,
+      scrapeOptions: { formats: ["markdown"] },
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) return [];
+  return (data.data || []).map((r: any) => ({
+    url: r.url || "",
+    markdown: (r.markdown || "").substring(0, 4000),
+  }));
+}
+
+// Extract beers from markdown via AI
+async function extractBeers(
+  markdown: string,
+  breweryName: string,
+  sourceName: string,
+  lovableKey: string,
+): Promise<any[]> {
+  if (!markdown || markdown.length < 30) return [];
+
+  const truncated = markdown.substring(0, 8000);
+
+  const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content: `You are a beer data extraction expert. Extract all beers from the given content that belong to the brewery "${breweryName}".
+For each beer extract: name, style (e.g. Tripel, Blond, IPA, Dubbel, Witbier, Stout), abv (number), description (short).
+ONLY include beers that clearly belong to "${breweryName}". Skip unrelated beers, events, merchandise.
+If no beers from this brewery are found, return an empty array.`,
+        },
+        {
+          role: "user",
+          content: `Extract beers for "${breweryName}" from this ${sourceName} content:\n\n${truncated}`,
+        },
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "extract_beers",
+            description: "Return all beers found",
+            parameters: {
+              type: "object",
+              properties: {
+                beers: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      style: { type: "string" },
+                      abv: { type: "number" },
+                      description: { type: "string" },
+                    },
+                    required: ["name"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["beers"],
+              additionalProperties: false,
+            },
+          },
+        },
+      ],
+      tool_choice: { type: "function", function: { name: "extract_beers" } },
+    }),
+  });
+
+  if (!aiRes.ok) {
+    console.error(`AI error for ${sourceName}:`, aiRes.status);
+    return [];
+  }
+
+  const aiData = await aiRes.json();
+  const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+  if (!toolCall?.function?.arguments) return [];
+
+  try {
+    const parsed = JSON.parse(toolCall.function.arguments);
+    return parsed.beers || [];
+  } catch {
+    return [];
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -24,9 +154,12 @@ serve(async (req) => {
   const anonClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: authHeader } } }
+    { global: { headers: { Authorization: authHeader } } },
   );
-  const { data: { user }, error: authErr } = await anonClient.auth.getUser();
+  const {
+    data: { user },
+    error: authErr,
+  } = await anonClient.auth.getUser();
   if (authErr || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -36,7 +169,7 @@ serve(async (req) => {
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   // Verify admin
@@ -62,7 +195,6 @@ serve(async (req) => {
       });
     }
 
-    // Get brewery info
     const { data: brewery, error: bErr } = await supabase
       .from("breweries")
       .select("id, name, website_url")
@@ -76,187 +208,143 @@ serve(async (req) => {
       });
     }
 
-    if (!brewery.website_url) {
-      return new Response(
-        JSON.stringify({ error: "Brewery has no website URL" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Step 1: Scrape website with Firecrawl
     const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
     if (!firecrawlKey) {
-      return new Response(
-        JSON.stringify({ error: "Firecrawl not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Firecrawl not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    let websiteUrl = brewery.website_url.trim();
-    if (!websiteUrl.startsWith("http")) websiteUrl = "https://" + websiteUrl;
-
-    console.log(`Scraping ${websiteUrl} for brewery ${brewery.name}`);
-
-    const scrapeRes = await fetch("https://api.firecrawl.dev/v1/scrape", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${firecrawlKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: websiteUrl,
-        formats: ["markdown"],
-        onlyMainContent: true,
-        waitFor: 3000,
-      }),
-    });
-
-    const scrapeData = await scrapeRes.json();
-    if (!scrapeRes.ok || !scrapeData.success) {
-      console.error("Firecrawl error:", JSON.stringify(scrapeData));
-      return new Response(
-        JSON.stringify({ error: `Scrape failed: ${scrapeData.error || scrapeRes.status}` }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const markdown = scrapeData.data?.markdown || scrapeData.markdown || "";
-    if (!markdown || markdown.length < 50) {
-      return new Response(
-        JSON.stringify({ error: "No usable content found on website", beers: [] }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Truncate to ~8000 chars to fit within token limits
-    const truncated = markdown.substring(0, 8000);
-
-    // Step 2: Extract beer data with AI
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
     if (!lovableKey) {
-      return new Response(
-        JSON.stringify({ error: "AI not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "AI not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You are a beer data extraction expert. Extract all beers/products from the given brewery website content.
-For each beer, extract: name, style (e.g. Tripel, Blond, IPA, Dubbel, Witbier, Stout, etc.), abv (alcohol percentage as a number), and a short description.
-If a field is not found, leave it empty. Be thorough — find every beer mentioned.
-IMPORTANT: Only extract actual beer products, not events, merchandise, or other items.`,
-          },
-          {
-            role: "user",
-            content: `Extract all beers from this brewery website content for "${brewery.name}":\n\n${truncated}`,
-          },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "extract_beers",
-              description: "Return all beers found on the brewery website",
-              parameters: {
-                type: "object",
-                properties: {
-                  beers: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        name: { type: "string", description: "Beer name" },
-                        style: { type: "string", description: "Beer style (Tripel, Blond, IPA, etc.)" },
-                        abv: { type: "number", description: "Alcohol percentage" },
-                        description: { type: "string", description: "Short description of the beer" },
-                      },
-                      required: ["name"],
-                      additionalProperties: false,
-                    },
-                  },
-                },
-                required: ["beers"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
-        tool_choice: { type: "function", function: { name: "extract_beers" } },
-      }),
+    console.log(`Multi-source scrape for: ${brewery.name}`);
+
+    // Gather content from multiple sources in parallel
+    const sources: { name: string; url: string; markdown: string }[] = [];
+
+    // Source 1: Brewery's own website
+    const websitePromise = brewery.website_url
+      ? scrapeUrl(brewery.website_url, firecrawlKey).then((md) => {
+          if (md && md.length > 50) {
+            let url = brewery.website_url!.trim();
+            if (!url.startsWith("http")) url = "https://" + url;
+            sources.push({ name: "Eigen website", url, markdown: md });
+          }
+        })
+      : Promise.resolve();
+
+    // Source 2: Web search for beers on known Belgian beer databases
+    const searchPromise = searchWeb(
+      `"${brewery.name}" bieren site:belgenbier.be OR site:ratebeer.com OR site:untappd.com OR site:beeradvocate.com`,
+      firecrawlKey,
+    ).then((results) => {
+      for (const r of results) {
+        if (r.markdown && r.markdown.length > 30) {
+          sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
+        }
+      }
     });
 
-    if (!aiRes.ok) {
-      if (aiRes.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit bereikt, probeer het later opnieuw" }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    // Source 3: General web search
+    const generalSearchPromise = searchWeb(
+      `"${brewery.name}" Belgian brewery beer list`,
+      firecrawlKey,
+    ).then((results) => {
+      for (const r of results) {
+        // Skip if we already have this domain
+        const domain = new URL(r.url).hostname;
+        if (!sources.find((s) => s.url === r.url) && r.markdown && r.markdown.length > 30) {
+          sources.push({ name: domain, url: r.url, markdown: r.markdown });
+        }
       }
-      if (aiRes.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits op, voeg credits toe in Settings → Workspace → Usage" }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const errText = await aiRes.text();
-      console.error("AI error:", aiRes.status, errText);
+    });
+
+    await Promise.allSettled([websitePromise, searchPromise, generalSearchPromise]);
+
+    console.log(`Found ${sources.length} sources for ${brewery.name}: ${sources.map((s) => s.name).join(", ")}`);
+
+    if (sources.length === 0) {
       return new Response(
-        JSON.stringify({ error: "AI extraction failed" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({
+          brewery_name: brewery.name,
+          beers: [],
+          sources: [],
+          error: "Geen bronnen gevonden om te scrapen",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const aiData = await aiRes.json();
-    let beers: any[] = [];
+    // Extract beers from each source in parallel
+    const allBeers: { name: string; style: string; abv: number | null; description: string; source: string; source_url: string }[] = [];
 
-    // Parse tool call response
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const parsed = JSON.parse(toolCall.function.arguments);
-        beers = parsed.beers || [];
-      } catch (e) {
-        console.error("Failed to parse AI response:", e);
+    const extractionPromises = sources.map((source) =>
+      extractBeers(source.markdown, brewery.name, source.name, lovableKey).then((beers) => {
+        for (const b of beers) {
+          allBeers.push({
+            name: b.name || "",
+            style: b.style || "",
+            abv: b.abv || null,
+            description: b.description || "",
+            source: source.name,
+            source_url: source.url,
+          });
+        }
+      }),
+    );
+
+    await Promise.allSettled(extractionPromises);
+
+    // Deduplicate beers by name (case-insensitive), keep the one with most data
+    const deduped = new Map<string, (typeof allBeers)[0]>();
+    for (const beer of allBeers) {
+      const key = beer.name.toLowerCase().trim();
+      const existing = deduped.get(key);
+      if (!existing) {
+        deduped.set(key, beer);
+      } else {
+        // Keep the version with more info
+        const score = (b: typeof beer) =>
+          (b.style ? 1 : 0) + (b.abv ? 1 : 0) + (b.description ? 1 : 0);
+        if (score(beer) > score(existing)) {
+          deduped.set(key, beer);
+        }
       }
     }
 
-    // Enrich with brewery info
-    const enriched = beers.map((b: any) => ({
-      name: b.name || "",
-      style: b.style || "",
-      abv: b.abv || null,
-      description: b.description || "",
+    const enriched = Array.from(deduped.values()).map((b) => ({
+      name: b.name,
+      style: b.style,
+      abv: b.abv,
+      description: b.description,
       brewery: brewery.name,
       brewery_id: brewery.id,
-      source_url: websiteUrl,
+      source: b.source,
+      source_url: b.source_url,
     }));
 
-    console.log(`Extracted ${enriched.length} beers from ${brewery.name}`);
+    console.log(`Extracted ${allBeers.length} raw → ${enriched.length} unique beers from ${sources.length} sources`);
 
     return new Response(
       JSON.stringify({
         brewery_name: brewery.name,
-        source_url: websiteUrl,
+        sources: sources.map((s) => ({ name: s.name, url: s.url })),
         beers: enriched,
-        raw_content_length: markdown.length,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     console.error("Scrape error:", (err as Error).message);
-    return new Response(
-      JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
