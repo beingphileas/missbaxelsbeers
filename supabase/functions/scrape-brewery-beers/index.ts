@@ -369,42 +369,55 @@ serve(async (req) => {
 
     // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
     const untappdPromise = (async () => {
-      // Step 1: Find the brewery's Untappd page via search
-      const searchResults = await searchWeb(
-        `site:untappd.com/w/ "${brewery.name}"`,
-        firecrawlKey,
-        5,
-      );
+      // Generate multiple name variants for better search coverage
+      const nameVariants = new Set<string>();
+      nameVariants.add(brewery.name);
 
-      // Also try simplified name
-      const simpleName = brewery.name.replace(/^(brouwerij|brasserie|brewery)\s+/i, "").trim();
-      let extraResults: { url: string; markdown: string }[] = [];
-      if (simpleName !== brewery.name) {
-        extraResults = await searchWeb(`site:untappd.com/w/ "${simpleName}"`, firecrawlKey, 3);
+      // Remove common prefixes
+      const withoutPrefix = brewery.name.replace(/^(brouwerij|brasserie|brewery|de|het|'t)\s+/i, "").trim();
+      if (withoutPrefix !== brewery.name) nameVariants.add(withoutPrefix);
+
+      // Split camelCase/PascalCase (e.g. "StraeteBrouwerie" → "Straete Brouwerie")
+      const splitCamel = brewery.name.replace(/([a-z])([A-Z])/g, "$1 $2");
+      if (splitCamel !== brewery.name) {
+        nameVariants.add(splitCamel);
+        // Also try without Brouwerie/Brouwerij suffix
+        const withoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
+        if (withoutSuffix !== splitCamel) nameVariants.add(withoutSuffix);
       }
 
-      const allSearchResults = [...searchResults, ...extraResults];
+      // Remove trailing Brouwerij/Brewery/Brasserie
+      const withoutSuffix = brewery.name.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
+      if (withoutSuffix !== brewery.name) nameVariants.add(withoutSuffix);
+
+      console.log(`  Untappd: searching with variants: ${[...nameVariants].join(", ")}`);
+
+      // Search with all variants in parallel
+      const searchPromises = [...nameVariants].flatMap(name => [
+        searchWeb(`site:untappd.com/w/ "${name}"`, firecrawlKey, 5),
+        searchWeb(`site:untappd.com "${name}" brewery beer`, firecrawlKey, 3),
+      ]);
+
+      const searchResultSets = await Promise.all(searchPromises);
+      const allSearchResults = searchResultSets.flat();
 
       // Find the main brewery page URL (matches /w/brewery-name/ID pattern)
       let breweryPageUrl = "";
+      const seen = new Set<string>();
       for (const r of allSearchResults) {
-        if (r.url && /untappd\.com\/w\/[^/]+\/\d+/.test(r.url)) {
+        if (seen.has(r.url)) continue;
+        seen.add(r.url);
+        if (r.url && /untappd\.com\/w\/[^/]+\/\d+/.test(r.url) && !breweryPageUrl) {
           breweryPageUrl = r.url;
-          // Add the search result markdown as a source
           if (r.markdown && r.markdown.length > 50) {
             sources.push({ name: "untappd.com (brouwerijpagina)", url: r.url, markdown: r.markdown });
           }
-          break;
+        } else if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
+          sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
         }
       }
 
       if (!breweryPageUrl) {
-        // Fallback: use any untappd result we found
-        for (const r of allSearchResults) {
-          if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
-            sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
-          }
-        }
         console.log(`  Untappd: no brewery page found, used ${allSearchResults.length} search results`);
         return;
       }
