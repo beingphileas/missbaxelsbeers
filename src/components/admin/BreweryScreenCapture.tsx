@@ -1,9 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Camera, X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
+import { Camera, X, Loader2, Monitor, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -24,51 +23,53 @@ export default function BreweryScreenCapture({
   onBeersFound,
 }: BreweryScreenCaptureProps) {
   const [open, setOpen] = useState(false);
-  const [images, setImages] = useState<{ file: File; preview: string; base64: string }[]>([]);
+  const [captures, setCaptures] = useState<{ dataUrl: string; base64: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [capturing, setCapturing] = useState(false);
 
-  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const captureScreen = useCallback(async () => {
+    setCapturing(true);
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'browser' } as any,
+        preferCurrentTab: false,
+      } as any);
 
-    const newImages = await Promise.all(
-      files.map(async (file) => {
-        const base64 = await fileToBase64(file);
-        return {
-          file,
-          preview: URL.createObjectURL(file),
-          base64,
-        };
-      })
-    );
+      const track = stream.getVideoTracks()[0];
+      const imageCapture = new (window as any).ImageCapture(track);
+      const bitmap = await imageCapture.grabFrame();
 
-    setImages((prev) => [...prev, ...newImages]);
-    if (fileRef.current) fileRef.current.value = '';
-  };
+      // Draw to canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(bitmap, 0, 0);
 
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        // Strip the data:...;base64, prefix
-        const base64 = result.split(',')[1] || result;
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+      // Stop stream immediately
+      stream.getTracks().forEach((t: MediaStreamTrack) => t.stop());
 
-  const removeImage = (index: number) => {
-    setImages((prev) => {
-      URL.revokeObjectURL(prev[index].preview);
-      return prev.filter((_, i) => i !== index);
-    });
+      const dataUrl = canvas.toDataURL('image/png');
+      const base64 = dataUrl.split(',')[1];
+
+      setCaptures((prev) => [...prev, { dataUrl, base64 }]);
+
+      toast({ title: 'Screenshot vastgelegd', description: 'Klik nogmaals om meer te vangen.' });
+    } catch (err: any) {
+      if (err.name !== 'NotAllowedError') {
+        toast({ title: 'Screen capture mislukt', description: err.message, variant: 'destructive' });
+      }
+    } finally {
+      setCapturing(false);
+    }
+  }, []);
+
+  const removeCapture = (index: number) => {
+    setCaptures((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
-    if (images.length === 0) return;
+    if (captures.length === 0) return;
 
     setLoading(true);
     try {
@@ -76,16 +77,12 @@ export default function BreweryScreenCapture({
         body: {
           brewery_id: breweryId,
           mode: 'screenshot',
-          images: images.map((img) => img.base64),
+          images: captures.map((c) => c.base64),
         },
       });
 
       if (res.error) {
-        toast({
-          title: 'Screenshot analyse fout',
-          description: res.error.message,
-          variant: 'destructive',
-        });
+        toast({ title: 'Analyse fout', description: res.error.message, variant: 'destructive' });
         return;
       }
 
@@ -93,7 +90,7 @@ export default function BreweryScreenCapture({
       if (!data.beers || data.beers.length === 0) {
         toast({
           title: `${breweryName}: geen bieren gevonden`,
-          description: `${images.length} screenshot(s) geanalyseerd.`,
+          description: `${captures.length} screenshot(s) geanalyseerd.`,
           variant: 'destructive',
         });
         return;
@@ -101,18 +98,14 @@ export default function BreweryScreenCapture({
 
       toast({
         title: `${breweryName}: ${data.beers.length} bieren gevonden`,
-        description: `Via ${images.length} screenshot(s)`,
+        description: `Via ${captures.length} screen capture(s)`,
       });
 
       onBeersFound(data.beers);
       setOpen(false);
-      setImages([]);
+      setCaptures([]);
     } catch (err: any) {
-      toast({
-        title: 'Fout',
-        description: err.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -122,43 +115,55 @@ export default function BreweryScreenCapture({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="gap-1.5">
-          <Camera size={12} />
-          Screenshot
+          <Monitor size={12} />
+          Capture
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif text-lg">
-            Screenshots — {breweryName}
+            Screen Capture — {breweryName}
           </DialogTitle>
         </DialogHeader>
 
         <p className="text-xs text-muted-foreground">
-          Upload foto's van bierkaarten, menu's of webpagina's. AI extraheert
-          automatisch alle bieren.
+          Vang een browser-tabblad met de bierkaart of website. Je kunt meerdere
+          screenshots maken — AI extraheert automatisch alle bieren.
         </p>
 
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={handleFiles}
-        />
+        {/* Capture button */}
+        <Button
+          variant="outline"
+          className="gap-2 w-full border-dashed border-2 h-14"
+          onClick={captureScreen}
+          disabled={capturing || loading}
+        >
+          {capturing ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : captures.length > 0 ? (
+            <Plus size={16} />
+          ) : (
+            <Camera size={16} />
+          )}
+          {capturing
+            ? 'Selecteer een tabblad…'
+            : captures.length > 0
+              ? 'Nog een tabblad vangen'
+              : 'Browser-tabblad vastleggen'}
+        </Button>
 
-        {/* Image previews */}
-        {images.length > 0 && (
+        {/* Preview grid */}
+        {captures.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
-            {images.map((img, i) => (
+            {captures.map((cap, i) => (
               <div key={i} className="relative group">
                 <img
-                  src={img.preview}
-                  alt={`Screenshot ${i + 1}`}
-                  className="w-full h-24 object-cover rounded-md border"
+                  src={cap.dataUrl}
+                  alt={`Capture ${i + 1}`}
+                  className="w-full h-24 object-cover rounded-md border border-border"
                 />
                 <button
-                  onClick={() => removeImage(i)}
+                  onClick={() => removeCapture(i)}
                   className="absolute top-1 right-1 bg-background/80 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X size={12} />
@@ -168,34 +173,21 @@ export default function BreweryScreenCapture({
           </div>
         )}
 
-        <div className="flex items-center gap-2">
+        {/* Submit */}
+        {captures.length > 0 && (
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 flex-1"
-            onClick={() => fileRef.current?.click()}
+            className="gap-1.5 w-full"
+            onClick={handleSubmit}
             disabled={loading}
           >
-            <Upload size={12} />
-            {images.length > 0 ? 'Meer toevoegen' : 'Kies afbeeldingen'}
+            {loading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Camera size={14} />
+            )}
+            Analyseer {captures.length} capture{captures.length > 1 ? 's' : ''}
           </Button>
-
-          {images.length > 0 && (
-            <Button
-              size="sm"
-              className="gap-1.5 flex-1"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 size={12} className="animate-spin" />
-              ) : (
-                <ImageIcon size={12} />
-              )}
-              Analyseer {images.length} screenshot{images.length > 1 ? 's' : ''}
-            </Button>
-          )}
-        </div>
+        )}
 
         {loading && (
           <p className="text-xs text-muted-foreground animate-pulse text-center">
