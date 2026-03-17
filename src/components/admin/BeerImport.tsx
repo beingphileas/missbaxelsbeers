@@ -616,6 +616,79 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             </div>
           )}
 
+          {/* Bulk Enrichment */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <Zap size={16} className="text-accent" /> Bulk Verrijking — Ultieme Bierenlijst
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Doorloop <strong>alle brouwerijen</strong> automatisch: scrape website + Untappd + RateBeer + BeerAdvocate + BelgianBeer.com + OpenFoodFacts + Perplexity → AI-validatie → auto-import nieuwe bieren. Bestaande bieren worden overgeslagen.
+            </p>
+
+            <div className="flex items-center gap-3">
+              {!bulkRunning ? (
+                <Button onClick={handleBulkEnrich} className="gap-2">
+                  <Play size={14} /> Start Bulk Verrijking
+                </Button>
+              ) : (
+                <Button variant="destructive" onClick={handleStopBulk} className="gap-2">
+                  <Square size={14} /> Stop
+                </Button>
+              )}
+              {bulkRunning && (
+                <span className="text-xs text-muted-foreground animate-pulse flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin" /> Verwerking loopt...
+                </span>
+              )}
+            </div>
+
+            {(bulkStats.processed > 0 || bulkRunning) && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.processed}</p>
+                    <p className="text-[10px] text-muted-foreground">Verwerkt</p>
+                  </div>
+                  <div className="bg-success/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-success">{bulkStats.totalImported}</p>
+                    <p className="text-[10px] text-muted-foreground">Nieuw geïmporteerd</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.totalSkipped}</p>
+                    <p className="text-[10px] text-muted-foreground">Al bestaand</p>
+                  </div>
+                  <div className="bg-warning/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkStats.remaining}</p>
+                    <p className="text-[10px] text-muted-foreground">Resterend</p>
+                  </div>
+                </div>
+
+                {bulkStats.log.length > 0 && (
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {[...bulkStats.log].reverse().map((entry, i) => (
+                      <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                        <span className="font-medium truncate">{entry.name}</span>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {entry.error ? (
+                            <span className="text-destructive text-[10px] truncate">{entry.error.substring(0, 30)}</span>
+                          ) : (
+                            <>
+                              <Badge variant="outline" className="text-[9px]">{entry.scraped} gevonden</Badge>
+                              <Badge variant="default" className="text-[9px]">+{entry.imported} nieuw</Badge>
+                              {entry.skipped > 0 && (
+                                <Badge variant="secondary" className="text-[9px]">{entry.skipped} bestaand</Badge>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="border-t border-border pt-6">
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
               <Upload size={16} className="text-accent" /> Of upload data handmatig
