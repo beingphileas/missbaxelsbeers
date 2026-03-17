@@ -344,6 +344,18 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Beers Import Tab */}
+          <TabsContent value="beers-import">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Bieren Import / Fuzzy Match</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BeerImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['beers'] })} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
