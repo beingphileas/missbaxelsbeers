@@ -456,7 +456,24 @@ serve(async (req) => {
       }),
     );
 
-    await Promise.allSettled(extractionPromises);
+    // Extract beers from screenshots via vision AI
+    const screenshotPromises = screenshots.map((ss) =>
+      extractBeersFromScreenshot(ss.screenshot, brewery.name, ss.name, lovableKey).then((beers) => {
+        console.log(`  ${ss.name}: extracted ${beers.length} beers from screenshot`);
+        for (const b of beers) {
+          allBeers.push({
+            name: b.name || "",
+            style: b.style || "",
+            abv: b.abv || null,
+            description: b.description || "",
+            source: ss.name,
+            source_url: ss.url,
+          });
+        }
+      }),
+    );
+
+    await Promise.allSettled([...extractionPromises, ...screenshotPromises]);
 
     // Deduplicate beers by name (case-insensitive), keep the one with most data
     const deduped = new Map<string, (typeof allBeers)[0]>();
