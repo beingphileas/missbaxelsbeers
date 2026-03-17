@@ -367,24 +367,47 @@ serve(async (req) => {
         })
       : Promise.resolve();
 
-    // === SOURCE 2: Untappd search + screenshot ===
-    const untappdPromise = searchWeb(
-      `site:untappd.com "${brewery.name}" beer`,
-      firecrawlKey,
-      5,
-    ).then(async (results) => {
-      for (const r of results) {
+    // === SOURCE 2: Untappd — multiple search queries + direct brewery page + screenshots ===
+    const untappdPromise = (async () => {
+      // Search 1: General brewery beer search
+      const search1 = searchWeb(`site:untappd.com "${brewery.name}" beer`, firecrawlKey, 10);
+      // Search 2: Brewery page directly
+      const search2 = searchWeb(`site:untappd.com/w/ "${brewery.name}"`, firecrawlKey, 5);
+      // Search 3: Alternative name patterns
+      const simpleName = brewery.name.replace(/^(brouwerij|brasserie|brewery)\s+/i, "").trim();
+      const search3 = simpleName !== brewery.name
+        ? searchWeb(`site:untappd.com "${simpleName}" beer`, firecrawlKey, 5)
+        : Promise.resolve([]);
+
+      const [results1, results2, results3] = await Promise.all([search1, search2, search3]);
+      const allResults = [...results1, ...results2, ...results3];
+
+      // Dedupe by URL
+      const seen = new Set<string>();
+      const screenshotUrls: string[] = [];
+
+      for (const r of allResults) {
+        if (seen.has(r.url)) continue;
+        seen.add(r.url);
         if (r.markdown && r.markdown.length > 50) {
           sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
         }
-      }
-      if (results.length > 0 && results[0].url) {
-        const ssResult = await scrapeUrl(results[0].url, firecrawlKey, ["screenshot"]);
-        if (ssResult.screenshot) {
-          screenshots.push({ name: "untappd.com (screenshot)", url: results[0].url, screenshot: ssResult.screenshot });
+        // Screenshot the first 3 unique Untappd pages
+        if (screenshotUrls.length < 3) {
+          screenshotUrls.push(r.url);
         }
       }
-    });
+
+      // Scrape screenshots in parallel
+      await Promise.allSettled(
+        screenshotUrls.map(async (url) => {
+          const ssResult = await scrapeUrl(url, firecrawlKey, ["screenshot"]);
+          if (ssResult.screenshot) {
+            screenshots.push({ name: "untappd.com (screenshot)", url, screenshot: ssResult.screenshot });
+          }
+        })
+      );
+    })();
 
     await Promise.allSettled([
       websitePromise,
