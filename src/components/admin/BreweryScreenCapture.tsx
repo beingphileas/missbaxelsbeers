@@ -142,11 +142,7 @@ export default function BreweryScreenCapture({
   onBeersFound,
 }: BreweryScreenCaptureProps) {
   const [open, setOpen] = useState(false);
-  const [captures, setCaptures] = useState<{ dataUrl: string; base64: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [capturing, setCapturing] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [urlInput, setUrlInput] = useState('');
   const [htmlFileName, setHtmlFileName] = useState('');
   const htmlFileRef = useRef<HTMLInputElement>(null);
 
@@ -157,16 +153,9 @@ export default function BreweryScreenCapture({
   const [savingAll, setSavingAll] = useState(false);
   const [expandedBeer, setExpandedBeer] = useState<string | null>(null);
 
-  const streamRef = useRef<MediaStream | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const intervalRef = useRef<number | null>(null);
-
-  const stopScan = useCallback(() => {
-    if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
-    if (streamRef.current) { streamRef.current.getTracks().forEach((t) => t.stop()); streamRef.current = null; }
-    if (videoRef.current) { videoRef.current.srcObject = null; }
-    setScanning(false);
-  }, []);
+  useEffect(() => {
+    if (!open) { setShowResults(false); setExtractedBeers([]); }
+  }, [open]);
 
   useEffect(() => {
     if (!open) { stopScan(); setShowResults(false); setExtractedBeers([]); }
