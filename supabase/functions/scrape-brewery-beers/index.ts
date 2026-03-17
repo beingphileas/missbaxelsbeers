@@ -444,6 +444,23 @@ serve(async (req) => {
 
     // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
     const untappdPromise = (async () => {
+      // Wait for website scraping to finish so we can extract Untappd links from it
+      await websitePromise;
+
+      // Step 0: Check if we found an Untappd link on the brewery's own website
+      let untappdLinkFromWebsite = "";
+      for (const src of sources) {
+        if (src.name.startsWith("Eigen website")) {
+          // Look for untappd.com links in the markdown
+          const untappdMatch = src.markdown.match(/https?:\/\/untappd\.com\/[^\s)"\]]+/i);
+          if (untappdMatch) {
+            untappdLinkFromWebsite = untappdMatch[0];
+            console.log(`  Found Untappd link on website: ${untappdLinkFromWebsite}`);
+            break;
+          }
+        }
+      }
+
       // Generate multiple name variants for better search coverage
       const nameVariants = new Set<string>();
       nameVariants.add(brewery.name);
@@ -456,9 +473,8 @@ serve(async (req) => {
       const splitCamel = brewery.name.replace(/([a-z])([A-Z])/g, "$1 $2");
       if (splitCamel !== brewery.name) {
         nameVariants.add(splitCamel);
-        // Also try without Brouwerie/Brouwerij suffix
-        const withoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
-        if (withoutSuffix !== splitCamel) nameVariants.add(withoutSuffix);
+        const camelWithoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
+        if (camelWithoutSuffix !== splitCamel) nameVariants.add(camelWithoutSuffix);
       }
 
       // Remove trailing Brouwerij/Brewery/Brasserie
@@ -476,18 +492,24 @@ serve(async (req) => {
       const searchResultSets = await Promise.all(searchPromises);
       const allSearchResults = searchResultSets.flat();
 
-      // Find the main brewery page URL (matches /w/brewery-name/ID pattern)
-      let breweryPageUrl = "";
+      // Find the main brewery page URL
+      // Accept multiple patterns: /w/name/ID, /Brewery_Name, /w/name
+      let breweryPageUrl = untappdLinkFromWebsite; // Prefer the link from their own website
       const seen = new Set<string>();
+
       for (const r of allSearchResults) {
         if (seen.has(r.url)) continue;
         seen.add(r.url);
-        if (r.url && /untappd\.com\/w\/[^/]+\/\d+/.test(r.url) && !breweryPageUrl) {
-          breweryPageUrl = r.url;
-          if (r.markdown && r.markdown.length > 50) {
-            sources.push({ name: "untappd.com (brouwerijpagina)", url: r.url, markdown: r.markdown });
+
+        // Check for brewery page patterns
+        if (!breweryPageUrl && r.url) {
+          if (/untappd\.com\/(w\/[^/]+\/\d+|w\/[^/]+$)/.test(r.url) ||
+              /untappd\.com\/[A-Z][A-Za-z_]+$/.test(r.url)) {
+            breweryPageUrl = r.url;
           }
-        } else if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
+        }
+
+        if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
           sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
         }
       }
