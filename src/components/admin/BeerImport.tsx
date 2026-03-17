@@ -30,7 +30,9 @@ import {
   Zap,
   Play,
   Square,
+  Camera,
 } from 'lucide-react';
+import BreweryScreenCapture from './BreweryScreenCapture';
 
 interface BreweryMatch {
   id: string;
