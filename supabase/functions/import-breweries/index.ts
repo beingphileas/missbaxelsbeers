@@ -77,8 +77,10 @@ function classifyType(name: string, code: string): string {
   const lower = name.toLowerCase();
   if (trappists.has(lower)) return "Trappist";
   if (industrial.has(lower)) return "Industrial";
-  // Code prefix: B = brewery, S = sub-site (skip), C = contract brewer
+  // Code prefix: B = brewery, S = sub-site, C = contract brewer, N = blender/stekerij
+  if (code.startsWith("S")) return "Sub-site";
   if (code.startsWith("C")) return "Contract brewer";
+  if (code.startsWith("N")) return "Blender/Stekerij";
   if (lower.includes("famille") || lower.includes("family") || lower.includes("frères")) return "Family-owned";
   return "Microbrewery";
 }

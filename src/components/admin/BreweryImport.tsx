@@ -143,7 +143,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
               <p className="font-semibold text-warning">Let op: volledige sync</p>
               <p className="text-muted-foreground mt-1">
                 Dit zal brouwerijen die niet meer in de lijst staan <strong>verwijderen</strong>,
-                nieuwe toevoegen, en bestaande gegevens bijwerken. Sub-sites (S-codes) worden overgeslagen.
+                nieuwe toevoegen, en bestaande gegevens bijwerken. Sub-sites (S-codes) worden mee geïmporteerd.
               </p>
             </div>
           </div>
