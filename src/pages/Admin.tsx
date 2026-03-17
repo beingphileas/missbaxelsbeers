@@ -382,6 +382,34 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Pending Changes / Moderation Tab */}
+          <TabsContent value="pending">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ClipboardCheck size={18} /> Moderatie — ingediende wijzigingen
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PendingChanges onApproved={() => queryClient.invalidateQueries()} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Brewery Accounts Tab */}
+          <TabsContent value="brewery-accounts">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <Users size={18} /> Brouwerij-accounts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BreweryAccounts />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
