@@ -417,7 +417,76 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             )}
           </div>
 
-          <div className="border-t border-border pt-6">
+          {/* Check Results */}
+          {checkResult && (
+            <div className="border border-border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-serif text-base flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-accent" /> Check: {checkResult.brewery_name}
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{checkResult.beer_count} bieren</Badge>
+                  <Button variant="ghost" size="sm" onClick={() => setCheckResult(null)}>
+                    <X size={14} />
+                  </Button>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">{checkResult.summary}</p>
+
+              {checkResult.duplicates.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-1.5 text-warning">
+                    <Copy size={14} /> {checkResult.duplicates.length} duplicaat-groep(en)
+                  </h4>
+                  <div className="space-y-2">
+                    {checkResult.duplicates.map((dup, i) => (
+                      <div key={i} className="bg-warning/5 border border-warning/20 rounded-lg p-3 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="text-xs space-y-1">
+                            <p><span className="font-medium text-success">Behouden:</span> {dup.keep_name}</p>
+                            <p><span className="font-medium text-destructive">Verwijderen:</span> {dup.remove_names.join(', ')}</p>
+                            <p className="text-muted-foreground italic">{dup.reason}</p>
+                          </div>
+                          <Button size="sm" variant="destructive" className="shrink-0 gap-1.5" onClick={() => handleDeleteDuplicates(dup.remove_ids)}>
+                            <Trash2 size={12} /> Verwijder
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {checkResult.issues.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-1.5">
+                    <AlertTriangle size={14} /> {checkResult.issues.length} issue(s)
+                  </h4>
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {checkResult.issues.map((issue, i) => (
+                      <div key={i} className="px-3 py-2 flex items-start gap-2">
+                        <Badge variant={issue.severity === 'error' ? 'destructive' : issue.severity === 'warning' ? 'secondary' : 'outline'} className="text-[9px] shrink-0 mt-0.5">
+                          {issue.severity}
+                        </Badge>
+                        <div>
+                          <span className="font-medium">{issue.beer_name}:</span>{' '}
+                          <span className="text-muted-foreground">{issue.message}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {checkResult.duplicates.length === 0 && checkResult.issues.length === 0 && (
+                <div className="flex items-center gap-2 text-success text-sm">
+                  <CheckCircle size={16} /> Alles in orde — geen duplicaten of problemen gevonden.
+                </div>
+              )}
+            </div>
+          )}
+
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
               <Upload size={16} className="text-accent" /> Of upload data handmatig
             </h3>
