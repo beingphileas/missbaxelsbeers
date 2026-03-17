@@ -19,6 +19,18 @@ export default function BeerDetail() {
   const { data: breweries = [], isLoading } = useBreweries();
   const { data: venues = [] } = useVenues();
   const { data: posts = [] } = useBlogPosts();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ['is-admin', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      return !!data;
+    },
+    enabled: !!user,
+  });
 
   const allBeers = useMemo(() => breweries.flatMap(b => b.beers), [breweries]);
   const beer = useMemo(() => allBeers.find(b => b.id === id), [allBeers, id]);
