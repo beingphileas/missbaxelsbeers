@@ -767,6 +767,7 @@ serve(async (req) => {
     );
 
     if (sources.length === 0 && screenshots.length === 0) {
+      await markScrapeTimestamp();
       return new Response(
         JSON.stringify({
           brewery_name: brewery.name,
