@@ -242,6 +242,32 @@ export default function BeerDetail() {
           </div>
         </motion.section>
 
+        {/* ═══════ AI ANALYSE ═══════ */}
+        <BeerAnalysisView
+          beerId={beer.id}
+          beerName={beer.name}
+          analysisJson={beer.analysisJson}
+          factcheckJson={beer.factcheckJson}
+          qualityScore={beer.qualityScore ?? null}
+          summary={beer.summary ?? null}
+          tasteNotes={beer.tasteNotes ?? null}
+          radarBody={beer.radarBody ?? null}
+          radarHops={beer.radarHops ?? null}
+          radarMalt={beer.radarMalt ?? null}
+          radarFruit={beer.radarFruit ?? null}
+          radarSpice={beer.radarSpice ?? null}
+          primaryFlavors={beer.primaryFlavors ?? null}
+          secondaryFlavors={beer.secondaryFlavors ?? null}
+          aromaProfile={beer.aromaProfile ?? null}
+          pairingFood={beer.pairingFood ?? null}
+          pairingClassic={beer.pairingClassic ?? null}
+          pairingCheese={beer.pairingCheese ?? null}
+          serveStyle={beer.serveStyle ?? null}
+          productionMethod={beer.productionMethod ?? null}
+          isAdmin={!!isAdmin}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })}
+        />
+
         {/* ═══════ LAYER 3: THE CONTEXT ═══════ */}
         {brewery && (
           <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
