@@ -26,6 +26,9 @@ import {
   ShieldCheck,
   Trash2,
   Copy,
+  Zap,
+  Play,
+  Square,
 } from 'lucide-react';
 
 interface BreweryMatch {
