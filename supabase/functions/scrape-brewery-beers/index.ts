@@ -379,7 +379,7 @@ serve(async (req) => {
             Authorization: `Bearer ${firecrawlKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url: baseUrl, limit: 100, includeSubdomains: false }),
+          body: JSON.stringify({ url: baseUrl, limit: 300, includeSubdomains: false }),
         });
         const mapData = await mapRes.json();
         if (mapRes.ok && mapData.success && mapData.links) {
@@ -390,21 +390,48 @@ serve(async (req) => {
         console.error(`  Website map failed:`, (e as Error).message);
       }
 
-      // Find beer-related subpages by URL pattern
+      const normalizePageUrl = (u: string) => {
+        try {
+          const parsed = new URL(u.startsWith("http") ? u : new URL(u, baseUrl).href);
+          parsed.hash = "";
+          return parsed.href.replace(/\/$/, "");
+        } catch {
+          return u;
+        }
+      };
+
+      // Find beer-related subpages by URL pattern and prioritize listing pages first
       const beerPatterns = /\/(shop|bieren|beers|assortiment|products|producten|onze-bieren|gamme|nos-bieres|our-beers|webshop|aanbod)/i;
-      const beerPages = subpageUrls.filter(u => beerPatterns.test(u) && u !== baseUrl);
+      const candidatePages = subpageUrls
+        .map(normalizePageUrl)
+        .filter((u) => beerPatterns.test(u) && u !== normalizePageUrl(baseUrl))
+        .filter((u) => !/\.(jpg|jpeg|png|gif|webp|svg|pdf)$/i.test(u));
+
+      const listingPages = candidatePages.filter((u) => {
+        const path = (() => {
+          try {
+            return new URL(u).pathname;
+          } catch {
+            return "";
+          }
+        })();
+        return /(\/shop|\/bieren|\/beers|\/assortiment|\/products|\/onze-bieren|\/webshop|\/aanbod)$/i.test(path);
+      });
+
+      const detailPages = candidatePages.filter((u) => !listingPages.includes(u));
+
+      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, 8), ...detailPages.slice(0, 20)])];
 
       // If no beer pages found via map, try common paths directly
-      if (beerPages.length === 0) {
+      if (prioritizedBeerPages.length === 0) {
         const commonPaths = ["/shop", "/bieren", "/beers", "/assortiment", "/onze-bieren", "/products", "/SHOP"];
         for (const path of commonPaths) {
-          beerPages.push(new URL(path, baseUrl).href);
+          prioritizedBeerPages.push(normalizePageUrl(new URL(path, baseUrl).href));
         }
       }
 
-      // Dedupe and limit
-      const uniqueBeerPages = [...new Set(beerPages)].slice(0, 5);
-      console.log(`  Website beer pages to scrape: ${uniqueBeerPages.join(", ")}`);
+      const uniqueBeerPages = [...new Set(prioritizedBeerPages)];
+      console.log(`  Website beer pages to scrape (${uniqueBeerPages.length}): ${uniqueBeerPages.join(", ")}`);
 
       // Scrape beer subpages in parallel
       const subResults = await Promise.allSettled(
