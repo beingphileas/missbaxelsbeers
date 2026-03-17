@@ -15,6 +15,24 @@ export interface Beer {
   breweryId: string;
   breweryName?: string;
   hasPost?: boolean;
+  qualityScore?: number | null;
+  analysisJson?: any;
+  factcheckJson?: any;
+  summary?: string | null;
+  tasteNotes?: string | null;
+  radarBody?: number | null;
+  radarHops?: number | null;
+  radarMalt?: number | null;
+  radarFruit?: number | null;
+  radarSpice?: number | null;
+  primaryFlavors?: string[] | null;
+  secondaryFlavors?: string[] | null;
+  aromaProfile?: string[] | null;
+  pairingFood?: string[] | null;
+  pairingClassic?: string[] | null;
+  pairingCheese?: string[] | null;
+  serveStyle?: string | null;
+  productionMethod?: string | null;
 }
 
 export interface Brewery {
@@ -85,6 +103,24 @@ async function fetchBreweries(): Promise<Brewery[]> {
         breweryId: beer.brewery_id,
         breweryName: b.name,
         hasPost: beerIdsWithPost.has(beer.id),
+        qualityScore: (beer as any).quality_score,
+        analysisJson: (beer as any).analysis_json,
+        factcheckJson: (beer as any).factcheck_json,
+        summary: (beer as any).summary,
+        tasteNotes: (beer as any).taste_notes,
+        radarBody: (beer as any).radar_body,
+        radarHops: (beer as any).radar_hops,
+        radarMalt: (beer as any).radar_malt,
+        radarFruit: (beer as any).radar_fruit,
+        radarSpice: (beer as any).radar_spice,
+        primaryFlavors: (beer as any).primary_flavors,
+        secondaryFlavors: (beer as any).secondary_flavors,
+        aromaProfile: (beer as any).aroma_profile,
+        pairingFood: (beer as any).pairing_food,
+        pairingClassic: (beer as any).pairing_classic,
+        pairingCheese: (beer as any).pairing_cheese,
+        serveStyle: (beer as any).serve_style,
+        productionMethod: (beer as any).production_method,
       })),
   }));
 }

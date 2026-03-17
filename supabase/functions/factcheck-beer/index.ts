@@ -1,0 +1,168 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const anonClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+  const { data: { user }, error: authErr } = await anonClient.auth.getUser();
+  if (authErr || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  try {
+    const { beer_id } = await req.json();
+    if (!beer_id) throw new Error("beer_id required");
+
+    const { data: beer, error: beerErr } = await supabase
+      .from("beers")
+      .select("*, breweries(*)")
+      .eq("id", beer_id)
+      .single();
+    if (beerErr || !beer) throw new Error("Beer not found");
+
+    const brewery = (beer as any).breweries;
+    const beerName = beer.name;
+    const breweryName = brewery?.name ?? "Unknown";
+
+    // Firecrawl search for factcheck sources
+    let webSources = "";
+    const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
+    if (firecrawlKey) {
+      try {
+        const queries = [
+          `"${beerName}" "${breweryName}" Untappd OR RateBeer OR BeerAdvocate rating`,
+          `"${beerName}" "${breweryName}" award prize medal beer`,
+          `"${beerName}" price EUR Belgium buy`,
+        ];
+        const allResults: any[] = [];
+        for (const q of queries) {
+          const res = await fetch("https://api.firecrawl.dev/v1/search", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${firecrawlKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: q, limit: 3 }),
+          });
+          if (res.ok) {
+            const d = await res.json();
+            allResults.push(...(d.data ?? d.results ?? []));
+          }
+        }
+        webSources = allResults
+          .map((r: any) => `URL: ${r.url}\nTitle: ${r.title}\nSnippet: ${(r.description ?? "").slice(0, 400)}`)
+          .join("\n---\n")
+          .slice(0, 5000);
+      } catch (e) {
+        console.error("Firecrawl factcheck search failed:", e);
+      }
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
+    const prompt = `Factcheck this Belgian beer based on web sources. Return JSON only.
+
+Beer: "${beerName}"
+Brewery: "${breweryName}"
+Style: "${beer.style}"
+ABV: ${beer.abv ?? 0}%
+Our data - flavor profile: ${JSON.stringify(beer.flavor_profile ?? [])}
+Our data - food pairing: ${beer.food_pairing ?? "none"}
+
+Web sources found:
+${webSources || "No web sources found."}
+
+Return this exact JSON:
+{
+  "confidence_score": <0-100 how confident the factcheck is>,
+  "abv_verified": <true/false>,
+  "abv_sources": ["<URLs confirming ABV>"],
+  "style_verified": <true/false>,
+  "style_note": "<any correction or note about style>",
+  "awards": [{"name": "<award name>", "year": <year>, "medal": "<gold/silver/bronze>"}],
+  "price_range": {"min": <EUR>, "max": <EUR>, "currency": "EUR"},
+  "external_ratings": {
+    "untappd": {"score": <number or null>, "url": "<URL or null>"},
+    "ratebeer": {"score": <number or null>, "url": "<URL or null>"},
+    "beeradvocate": {"score": <number or null>, "url": "<URL or null>"}
+  },
+  "external_links": [{"label": "<site name>", "url": "<URL>"}],
+  "issues": ["<any data inconsistencies found>"],
+  "suggestions": ["<improvements to our data>"]
+}`;
+
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: "You are a beer data verification expert. Return valid JSON only." },
+          { role: "user", content: prompt },
+        ],
+      }),
+    });
+
+    if (!aiRes.ok) {
+      const status = aiRes.status;
+      if (status === 429) return new Response(JSON.stringify({ error: "Rate limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      throw new Error(`AI call failed: ${status}`);
+    }
+
+    const aiData = await aiRes.json();
+    const rawContent = aiData.choices?.[0]?.message?.content ?? "";
+    const jsonStr = rawContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
+    const factcheck = JSON.parse(jsonStr);
+
+    // Save factcheck to DB
+    const { error: updateErr } = await supabase.from("beers").update({
+      factcheck_json: factcheck,
+    }).eq("id", beer_id);
+
+    if (updateErr) throw updateErr;
+
+    return new Response(JSON.stringify({ success: true, factcheck }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("factcheck-beer error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

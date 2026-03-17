@@ -2,6 +2,9 @@ import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { useVenues, useBlogPosts } from '@/data/blog';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, ExternalLink, MapPin, BookOpen, FlaskConical, Map, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,12 +12,25 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import ContextMap from '@/components/ContextMap';
 import SEOHead from '@/components/SEOHead';
+import BeerAnalysisView from '@/components/BeerAnalysisView';
 
 export default function BeerDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: breweries = [], isLoading } = useBreweries();
   const { data: venues = [] } = useVenues();
   const { data: posts = [] } = useBlogPosts();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ['is-admin', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      return !!data;
+    },
+    enabled: !!user,
+  });
 
   const allBeers = useMemo(() => breweries.flatMap(b => b.beers), [breweries]);
   const beer = useMemo(() => allBeers.find(b => b.id === id), [allBeers, id]);
@@ -225,6 +241,32 @@ export default function BeerDetail() {
             </div>
           </div>
         </motion.section>
+
+        {/* ═══════ AI ANALYSE ═══════ */}
+        <BeerAnalysisView
+          beerId={beer.id}
+          beerName={beer.name}
+          analysisJson={beer.analysisJson}
+          factcheckJson={beer.factcheckJson}
+          qualityScore={beer.qualityScore ?? null}
+          summary={beer.summary ?? null}
+          tasteNotes={beer.tasteNotes ?? null}
+          radarBody={beer.radarBody ?? null}
+          radarHops={beer.radarHops ?? null}
+          radarMalt={beer.radarMalt ?? null}
+          radarFruit={beer.radarFruit ?? null}
+          radarSpice={beer.radarSpice ?? null}
+          primaryFlavors={beer.primaryFlavors ?? null}
+          secondaryFlavors={beer.secondaryFlavors ?? null}
+          aromaProfile={beer.aromaProfile ?? null}
+          pairingFood={beer.pairingFood ?? null}
+          pairingClassic={beer.pairingClassic ?? null}
+          pairingCheese={beer.pairingCheese ?? null}
+          serveStyle={beer.serveStyle ?? null}
+          productionMethod={beer.productionMethod ?? null}
+          isAdmin={!!isAdmin}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })}
+        />
 
         {/* ═══════ LAYER 3: THE CONTEXT ═══════ */}
         {brewery && (

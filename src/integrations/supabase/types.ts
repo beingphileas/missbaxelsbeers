@@ -18,9 +18,13 @@ export type Database = {
         Row: {
           abv: number | null
           added_at: string
+          analysis_json: Json | null
+          aroma_profile: string[] | null
+          beer_status: string | null
           brewery_id: string
           created_at: string
           description: string | null
+          factcheck_json: Json | null
           featured: boolean
           flavor_profile: string[] | null
           food_pairing: string | null
@@ -28,16 +32,35 @@ export type Database = {
           image_url: string | null
           is_hidden_gem: boolean | null
           name: string
+          pairing_cheese: string[] | null
+          pairing_classic: string[] | null
+          pairing_food: string[] | null
+          primary_flavors: string[] | null
+          production_method: string | null
+          quality_score: number | null
+          radar_body: number | null
+          radar_fruit: number | null
+          radar_hops: number | null
+          radar_malt: number | null
+          radar_spice: number | null
+          secondary_flavors: string[] | null
+          serve_style: string | null
           source_url: string | null
           style: string
+          summary: string | null
+          taste_notes: string | null
           updated_at: string
         }
         Insert: {
           abv?: number | null
           added_at?: string
+          analysis_json?: Json | null
+          aroma_profile?: string[] | null
+          beer_status?: string | null
           brewery_id: string
           created_at?: string
           description?: string | null
+          factcheck_json?: Json | null
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
@@ -45,16 +68,35 @@ export type Database = {
           image_url?: string | null
           is_hidden_gem?: boolean | null
           name: string
+          pairing_cheese?: string[] | null
+          pairing_classic?: string[] | null
+          pairing_food?: string[] | null
+          primary_flavors?: string[] | null
+          production_method?: string | null
+          quality_score?: number | null
+          radar_body?: number | null
+          radar_fruit?: number | null
+          radar_hops?: number | null
+          radar_malt?: number | null
+          radar_spice?: number | null
+          secondary_flavors?: string[] | null
+          serve_style?: string | null
           source_url?: string | null
           style: string
+          summary?: string | null
+          taste_notes?: string | null
           updated_at?: string
         }
         Update: {
           abv?: number | null
           added_at?: string
+          analysis_json?: Json | null
+          aroma_profile?: string[] | null
+          beer_status?: string | null
           brewery_id?: string
           created_at?: string
           description?: string | null
+          factcheck_json?: Json | null
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
@@ -62,8 +104,23 @@ export type Database = {
           image_url?: string | null
           is_hidden_gem?: boolean | null
           name?: string
+          pairing_cheese?: string[] | null
+          pairing_classic?: string[] | null
+          pairing_food?: string[] | null
+          primary_flavors?: string[] | null
+          production_method?: string | null
+          quality_score?: number | null
+          radar_body?: number | null
+          radar_fruit?: number | null
+          radar_hops?: number | null
+          radar_malt?: number | null
+          radar_spice?: number | null
+          secondary_flavors?: string[] | null
+          serve_style?: string | null
           source_url?: string | null
           style?: string
+          summary?: string | null
+          taste_notes?: string | null
           updated_at?: string
         }
         Relationships: [
