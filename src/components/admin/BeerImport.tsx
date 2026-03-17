@@ -23,6 +23,9 @@ import {
   X,
   Globe,
   Search,
+  Play,
+  Square,
+  SkipForward,
 } from 'lucide-react';
 
 interface BreweryMatch {
@@ -62,6 +65,15 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [breweries, setBreweries] = useState<{ id: string; name: string; website_url: string | null }[]>([]);
   const [brewerySearch, setBrewerySearch] = useState('');
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  // Bulk scrape state
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const bulkAbortRef = useRef(false);
+  const [bulkCurrent, setBulkCurrent] = useState<string | null>(null);
+  const [bulkIndex, setBulkIndex] = useState(0);
+  const [bulkTotal, setBulkTotal] = useState(0);
+  const [bulkLog, setBulkLog] = useState<{ name: string; found: number; inserted: number; error?: string }[]>([]);
+  const [bulkStats, setBulkStats] = useState({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
 
   useEffect(() => {
     const loadAll = async () => {
@@ -146,6 +158,86 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     } finally {
       setScraping(false);
     }
+  };
+
+  const handleBulkScrape = async () => {
+    const eligible = breweries.filter(b => hasWebsite(b)).sort((a, b) => a.name.localeCompare(b.name));
+    if (eligible.length === 0) {
+      toast({ title: 'Geen brouwerijen met website', variant: 'destructive' });
+      return;
+    }
+
+    setBulkRunning(true);
+    bulkAbortRef.current = false;
+    setBulkLog([]);
+    setBulkStats({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
+    setBulkTotal(eligible.length);
+    setBulkIndex(0);
+
+    for (let i = 0; i < eligible.length; i++) {
+      if (bulkAbortRef.current) break;
+
+      const b = eligible[i];
+      setBulkIndex(i + 1);
+      setBulkCurrent(b.name);
+
+      try {
+        const scrapeRes = await supabase.functions.invoke('scrape-brewery-beers', {
+          body: { brewery_id: b.id },
+        });
+
+        if (scrapeRes.error || !scrapeRes.data?.beers?.length) {
+          setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: scrapeRes.error?.message || 'Geen bieren gevonden' }]);
+          setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
+          continue;
+        }
+
+        const beers = scrapeRes.data.beers;
+        const toInsert = beers
+          .filter((beer: any) => beer.name)
+          .map((beer: any) => ({
+            name: beer.name,
+            brewery_id: b.id,
+            style: beer.style || 'Onbekend',
+            abv: beer.abv || null,
+            description: beer.description || '',
+            source_url: beer.source_url || '',
+            image_url: '',
+          }));
+
+        if (toInsert.length === 0) {
+          setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted: 0, error: 'Geen geldige bieren' }]);
+          continue;
+        }
+
+        const commitRes = await supabase.functions.invoke('import-beers', {
+          body: { beers: toInsert, mode: 'commit' },
+        });
+
+        const inserted = commitRes.data?.inserted || 0;
+        const skipped = commitRes.data?.skipped || 0;
+
+        setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted }]);
+        setBulkStats(prev => ({
+          ...prev,
+          totalFound: prev.totalFound + beers.length,
+          totalInserted: prev.totalInserted + inserted,
+          totalSkipped: prev.totalSkipped + skipped,
+        }));
+      } catch (err: any) {
+        setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: err.message }]);
+        setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
+      }
+    }
+
+    setBulkRunning(false);
+    setBulkCurrent(null);
+    onComplete?.();
+    toast({ title: 'Bulk scrape voltooid!' });
+  };
+
+  const handleStopBulk = () => {
+    bulkAbortRef.current = true;
   };
 
   const parseInput = useCallback((raw: string): any[] => {
@@ -321,6 +413,90 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
              <p className="text-xs text-muted-foreground animate-pulse">
                    Scraping {scrapedBrewery}... website + belgenbier.be + ratebeer + untappd doorzoeken → AI extraheert bieren
                  </p>
+              </div>
+            )}
+          </div>
+
+          {/* Bulk Scrape */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <Play size={16} className="text-accent" /> Bulk scrape alle brouwerijen
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Scraped automatisch alle {breweries.filter(b => hasWebsite(b)).length} brouwerijen met een website, en importeert bieren direct. Dit kan lang duren.
+            </p>
+
+            <div className="flex gap-2">
+              {!bulkRunning ? (
+                <Button
+                  onClick={handleBulkScrape}
+                  disabled={scraping || breweries.length === 0}
+                  size="sm"
+                  className="gap-1.5"
+                >
+                  <Play size={14} /> Start bulk scrape
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleStopBulk}
+                  variant="destructive"
+                  size="sm"
+                  className="gap-1.5"
+                >
+                  <Square size={14} /> Stop
+                </Button>
+              )}
+            </div>
+
+            {bulkRunning && (
+              <div className="space-y-2">
+                <Progress value={bulkTotal > 0 ? (bulkIndex / bulkTotal) * 100 : 0} className="h-2" />
+                <p className="text-xs text-muted-foreground animate-pulse">
+                  {bulkIndex}/{bulkTotal} — Scraping {bulkCurrent}...
+                </p>
+              </div>
+            )}
+
+            {bulkLog.length > 0 && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-4 gap-3 text-center">
+                  <div>
+                    <p className="font-serif text-lg text-accent">{bulkStats.totalFound}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Gevonden</p>
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg text-success">{bulkStats.totalInserted}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Geïmporteerd</p>
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg text-muted-foreground">{bulkStats.totalSkipped}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Overgeslagen</p>
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg text-destructive">{bulkStats.totalErrors}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Fouten</p>
+                  </div>
+                </div>
+
+                <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                  {[...bulkLog].reverse().map((entry, i) => (
+                    <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                      <span className="font-medium truncate">{entry.name}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {entry.error ? (
+                          <span className="text-destructive flex items-center gap-1">
+                            <AlertTriangle size={10} /> {entry.error.substring(0, 40)}
+                          </span>
+                        ) : (
+                          <>
+                            <Badge variant="outline" className="text-[9px]">{entry.found} gevonden</Badge>
+                            <Badge variant="default" className="text-[9px]">{entry.inserted} geïmporteerd</Badge>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
