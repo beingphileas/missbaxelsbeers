@@ -223,8 +223,6 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
-  const handleDeleteDuplicates = async (removeIds: string[]) => {
-
   const handleBulkEnrich = async () => {
     setBulkRunning(true);
     bulkAbortRef.current = false;
