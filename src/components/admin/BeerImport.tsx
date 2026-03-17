@@ -373,20 +373,36 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                       <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>
                       <p className="text-[10px] text-muted-foreground">{formatLastScraped(b.last_scraped_at)}</p>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0 ml-3 gap-1.5"
-                      disabled={scraping}
-                      onClick={() => handleScrapeBrewery(b.id, b.name)}
-                    >
-                      {scraping && scrapedBrewery === b.name ? (
-                        <Loader2 size={12} className="animate-spin" />
-                      ) : (
-                        <Globe size={12} />
-                      )}
-                      Scrape
-                    </Button>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        disabled={scraping || checking !== null}
+                        onClick={() => handleCheckBrewery(b.id)}
+                      >
+                        {checking === b.id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <ShieldCheck size={12} />
+                        )}
+                        Check
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        disabled={scraping || checking !== null}
+                        onClick={() => handleScrapeBrewery(b.id, b.name)}
+                      >
+                        {scraping && scrapedBrewery === b.name ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <Globe size={12} />
+                        )}
+                        Scrape
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
