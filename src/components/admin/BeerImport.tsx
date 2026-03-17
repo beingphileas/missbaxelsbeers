@@ -72,6 +72,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [brewerySearch, setBrewerySearch] = useState('');
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
 
+  // Fact-check state
+  const [checking, setChecking] = useState<string | null>(null); // brewery id being checked
+  const [checkResult, setCheckResult] = useState<{
+    brewery_name: string;
+    beer_count: number;
+    duplicates: { keep_id: string; keep_name: string; remove_ids: string[]; remove_names: string[]; reason: string }[];
+    issues: { beer_id: string; beer_name: string; severity: string; message: string }[];
+    summary: string;
+  } | null>(null);
+
   useEffect(() => {
     const loadAll = async () => {
       let all: BreweryItem[] = [];
