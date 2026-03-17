@@ -265,6 +265,7 @@ export type Database = {
           established_year: number | null
           featured: boolean
           id: string
+          last_scraped_at: string | null
           lat: number
           lng: number
           name: string
@@ -282,6 +283,7 @@ export type Database = {
           established_year?: number | null
           featured?: boolean
           id?: string
+          last_scraped_at?: string | null
           lat: number
           lng: number
           name: string
@@ -299,6 +301,7 @@ export type Database = {
           established_year?: number | null
           featured?: boolean
           id?: string
+          last_scraped_at?: string | null
           lat?: number
           lng?: number
           name?: string

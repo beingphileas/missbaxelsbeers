@@ -1,0 +1,2 @@
+ALTER TABLE public.breweries
+ADD COLUMN IF NOT EXISTS last_scraped_at TIMESTAMP WITH TIME ZONE;

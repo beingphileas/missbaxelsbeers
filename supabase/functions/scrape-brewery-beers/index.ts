@@ -353,6 +353,17 @@ serve(async (req) => {
 
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
+    const markScrapeTimestamp = async () => {
+      const { error } = await supabase
+        .from("breweries")
+        .update({ last_scraped_at: new Date().toISOString() })
+        .eq("id", brewery.id);
+
+      if (error) {
+        console.error(`Failed to store last_scraped_at for ${brewery.name}:`, error.message);
+      }
+    };
+
     // Blocklist: domains that produce too much noise / false positives
     const BLOCKED_DOMAINS = [
       "bloggen.be", "www.bloggen.be",
@@ -756,6 +767,7 @@ serve(async (req) => {
     );
 
     if (sources.length === 0 && screenshots.length === 0) {
+      await markScrapeTimestamp();
       return new Response(
         JSON.stringify({
           brewery_name: brewery.name,
@@ -986,6 +998,8 @@ Be strict but fair. When in doubt about association, mark as VALID. Belgian brew
         console.error("AI validation error:", (valErr as Error).message, "— skipping validation");
       }
     }
+
+    await markScrapeTimestamp();
 
     return new Response(
       JSON.stringify({
