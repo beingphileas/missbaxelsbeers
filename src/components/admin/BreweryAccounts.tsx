@@ -32,9 +32,9 @@ export default function BreweryAccounts() {
   const [newPassword, setNewPassword] = useState('');
   const [selectedBrewery, setSelectedBrewery] = useState('');
   const [creating, setCreating] = useState(false);
+  const [createdCreds, setCreatedCreds] = useState<{ email: string; password: string; breweryName: string } | null>(null);
 
   const fetchAccounts = async () => {
-    // Get brewery_users with brewery names
     const { data: links } = await supabase
       .from('brewery_users')
       .select('id, user_id, brewery_id, created_at');
@@ -45,7 +45,6 @@ export default function BreweryAccounts() {
       return;
     }
 
-    // Get brewery names
     const breweryIds = [...new Set(links.map(l => l.brewery_id))];
     const { data: brs } = await supabase
       .from('breweries')
@@ -54,11 +53,10 @@ export default function BreweryAccounts() {
 
     const breweryMap = new Map((brs || []).map(b => [b.id, b.name]));
 
-    // We can't query auth.users from client, so show user_id
     setAccounts(links.map(l => ({
       ...l,
       brewery_name: breweryMap.get(l.brewery_id) || 'Onbekend',
-      user_email: l.user_id.substring(0, 8) + '...', // We'll need edge function for emails
+      user_email: l.user_id.substring(0, 8) + '...',
     })));
     setLoading(false);
   };
@@ -85,7 +83,6 @@ export default function BreweryAccounts() {
 
     setCreating(true);
 
-    // Use edge function to create user + link
     const { data, error } = await supabase.functions.invoke('create-brewery-user', {
       body: { email: newEmail, password: newPassword, brewery_id: selectedBrewery },
     });
@@ -95,14 +92,42 @@ export default function BreweryAccounts() {
     } else if (data?.error) {
       toast({ title: 'Fout', description: data.error, variant: 'destructive' });
     } else {
-      toast({ title: 'Account aangemaakt', description: `${newEmail} is gekoppeld aan de brouwerij.` });
+      const breweryName = breweries.find(b => b.id === selectedBrewery)?.name || 'Brouwerij';
+      setCreatedCreds({ email: newEmail, password: newPassword, breweryName });
       setDialogOpen(false);
       setNewEmail('');
       setNewPassword('');
       setSelectedBrewery('');
       fetchAccounts();
+      toast({ title: 'Account aangemaakt!' });
     }
     setCreating(false);
+  };
+
+  const getMailtoLink = () => {
+    if (!createdCreds) return '';
+    const subject = encodeURIComponent(`Uw login voor MissBaxel's – ${createdCreds.breweryName}`);
+    const body = encodeURIComponent(
+      `Beste,\n\nUw account voor MissBaxel's Beer Whisperer is aangemaakt.\n\n` +
+      `Brouwerij: ${createdCreds.breweryName}\n` +
+      `Login-pagina: ${window.location.origin}/login\n` +
+      `Email: ${createdCreds.email}\n` +
+      `Wachtwoord: ${createdCreds.password}\n\n` +
+      `U kunt na het inloggen uw brouwerijgegevens en bieren beheren.\n\n` +
+      `Met vriendelijke groeten,\nMissBaxel's Beer Whisperer`
+    );
+    return `mailto:${createdCreds.email}?subject=${subject}&body=${body}`;
+  };
+
+  const copyCredentials = () => {
+    if (!createdCreds) return;
+    const text =
+      `Brouwerij: ${createdCreds.breweryName}\n` +
+      `Login: ${window.location.origin}/login\n` +
+      `Email: ${createdCreds.email}\n` +
+      `Wachtwoord: ${createdCreds.password}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: 'Gekopieerd naar klembord!' });
   };
 
   const handleDelete = async (account: BreweryUser) => {
