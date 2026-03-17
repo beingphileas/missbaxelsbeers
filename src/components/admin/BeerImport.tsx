@@ -23,9 +23,6 @@ import {
   X,
   Globe,
   Search,
-  Play,
-  Square,
-  SkipForward,
 } from 'lucide-react';
 
 interface BreweryMatch {
@@ -47,6 +44,13 @@ interface BeerPreview {
   _excluded?: boolean;
 }
 
+interface BreweryItem {
+  id: string;
+  name: string;
+  website_url: string | null;
+  last_scraped_at: string | null;
+}
+
 interface BeerImportProps {
   onComplete?: () => void;
 }
@@ -61,33 +65,23 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [result, setResult] = useState<{ inserted: number; skipped: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Brewery scraping state
-  const [breweries, setBreweries] = useState<{ id: string; name: string; website_url: string | null }[]>([]);
+  const [breweries, setBreweries] = useState<BreweryItem[]>([]);
   const [brewerySearch, setBrewerySearch] = useState('');
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
 
-  // Bulk scrape state
-  const [bulkRunning, setBulkRunning] = useState(false);
-  const bulkAbortRef = useRef(false);
-  const [bulkCurrent, setBulkCurrent] = useState<string | null>(null);
-  const [bulkIndex, setBulkIndex] = useState(0);
-  const [bulkTotal, setBulkTotal] = useState(0);
-  const [bulkLog, setBulkLog] = useState<{ name: string; found: number; inserted: number; error?: string }[]>([]);
-  const [bulkStats, setBulkStats] = useState({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
-
   useEffect(() => {
     const loadAll = async () => {
-      let all: { id: string; name: string; website_url: string | null }[] = [];
+      let all: BreweryItem[] = [];
       let from = 0;
       const pageSize = 1000;
       while (true) {
         const { data } = await supabase
           .from('breweries')
-          .select('id, name, website_url')
+          .select('id, name, website_url, last_scraped_at')
           .order('name')
           .range(from, from + pageSize - 1);
         if (!data || data.length === 0) break;
-        all = all.concat(data);
+        all = all.concat(data as BreweryItem[]);
         if (data.length < pageSize) break;
         from += pageSize;
       }
@@ -109,6 +103,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         .sort((a, b) => a.name.localeCompare(b.name))
         .slice(0, 50);
 
+  const formatLastScraped = (value: string | null) => {
+    if (!value) return 'Nog niet gescraped';
+    return `Laatst gescraped: ${new Date(value).toLocaleString('nl-BE')}`;
+  };
+
+  const markBreweryScraped = (breweryId: string) => {
+    const now = new Date().toISOString();
+    setBreweries(prev => prev.map(b => (b.id === breweryId ? { ...b, last_scraped_at: now } : b)));
+  };
+
   const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
     setScraping(true);
     setScrapedBrewery(breweryName);
@@ -126,6 +130,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         return;
       }
 
+      markBreweryScraped(breweryId);
+
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
         const srcCount = data.sources?.length || 0;
@@ -133,7 +139,6 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         return;
       }
 
-      // Convert scraped beers directly into preview format (already have brewery_id)
       const previewBeers: BeerPreview[] = data.beers.map((b: any) => ({
         name: b.name,
         style: b.style || '',
@@ -162,137 +167,6 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     } finally {
       setScraping(false);
     }
-  };
-
-  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  const getErrorMessage = (error: unknown) => {
-    if (!error) return 'Onbekende fout';
-    if (typeof error === 'string') return error;
-    if (typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') {
-      return (error as any).message;
-    }
-    return 'Onbekende fout';
-  };
-
-  const invokeWithRetry = async <T,>(
-    invoke: () => Promise<{ data: T | null; error: any }>,
-    retries = 2,
-    baseDelayMs = 1200,
-  ): Promise<{ data: T | null; error: { message: string } | null }> => {
-    let lastMessage = 'Onbekende fout';
-
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      const res = await invoke();
-
-      if (!res.error) {
-        return { data: res.data ?? null, error: null };
-      }
-
-      lastMessage = getErrorMessage(res.error);
-      const isTransient = /Failed to send a request to the Edge Function|context canceled|network/i.test(lastMessage);
-      if (!isTransient || attempt === retries) {
-        break;
-      }
-
-      await sleep(baseDelayMs * (attempt + 1));
-    }
-
-    return { data: null, error: { message: lastMessage } };
-  };
-
-  const handleBulkScrape = async () => {
-    const eligible = breweries.filter(b => hasWebsite(b)).sort((a, b) => a.name.localeCompare(b.name));
-    if (eligible.length === 0) {
-      toast({ title: 'Geen brouwerijen met website', variant: 'destructive' });
-      return;
-    }
-
-    setBulkRunning(true);
-    bulkAbortRef.current = false;
-    setBulkLog([]);
-    setBulkStats({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
-    setBulkTotal(eligible.length);
-    setBulkIndex(0);
-
-    for (let i = 0; i < eligible.length; i++) {
-      if (bulkAbortRef.current) break;
-
-      const b = eligible[i];
-      setBulkIndex(i + 1);
-      setBulkCurrent(b.name);
-
-      try {
-        if (i > 0 && i % 25 === 0) {
-          await supabase.auth.refreshSession();
-        }
-
-        const scrapeRes = await invokeWithRetry(() =>
-          supabase.functions.invoke('scrape-brewery-beers', {
-            body: { brewery_id: b.id, mode: 'bulk' },
-          })
-        );
-
-        if (scrapeRes.error || !scrapeRes.data?.beers?.length) {
-          setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: scrapeRes.error?.message || 'Geen bieren gevonden' }]);
-          setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
-          continue;
-        }
-
-        const beers = scrapeRes.data.beers;
-        const toInsert = beers
-          .filter((beer: any) => beer.name)
-          .map((beer: any) => ({
-            name: beer.name,
-            brewery_id: b.id,
-            style: beer.style || 'Onbekend',
-            abv: beer.abv || null,
-            description: beer.description || '',
-            source_url: beer.source_url || '',
-            image_url: '',
-          }));
-
-        if (toInsert.length === 0) {
-          setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted: 0, error: 'Geen geldige bieren' }]);
-          continue;
-        }
-
-        const commitRes = await invokeWithRetry(() =>
-          supabase.functions.invoke('import-beers', {
-            body: { beers: toInsert, mode: 'commit' },
-          })
-        );
-
-        if (commitRes.error) {
-          setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted: 0, error: commitRes.error.message }]);
-          setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
-          continue;
-        }
-
-        const inserted = commitRes.data?.inserted || 0;
-        const skipped = commitRes.data?.skipped || 0;
-
-        setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted }]);
-        setBulkStats(prev => ({
-          ...prev,
-          totalFound: prev.totalFound + beers.length,
-          totalInserted: prev.totalInserted + inserted,
-          totalSkipped: prev.totalSkipped + skipped,
-        }));
-      } catch (err: unknown) {
-        setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: getErrorMessage(err) }]);
-        setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
-      }
-    }
-
-    setBulkRunning(false);
-    setBulkCurrent(null);
-    onComplete?.();
-    toast({ title: 'Bulk scrape voltooid!' });
-  };
-
-  const handleStopBulk = () => {
-    bulkAbortRef.current = true;
   };
 
   const parseInput = useCallback((raw: string): any[] => {
