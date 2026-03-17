@@ -667,7 +667,7 @@ serve(async (req) => {
       }
 
       // Step 4: Scrape individual beer pages (up to 60 for completeness)
-      const toScrape = beerUrls.slice(0, 60);
+      const toScrape = beerUrls.slice(0, untappdDetailPageLimit);
       if (toScrape.length > 0) {
         // Batch in groups of 10 to avoid overwhelming
         for (let i = 0; i < toScrape.length; i += 10) {
