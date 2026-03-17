@@ -124,9 +124,14 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
           Selecteer Excel-bestand
         </Button>
         {preview && (
-          <p className="text-sm text-muted-foreground">
-            {preview.length} rijen geladen ({mainCount} brouwerijen, {sCodeCount} sub-sites worden overgeslagen)
-          </p>
+          <div className="text-sm text-muted-foreground space-y-1">
+            <p>{preview.length} rijen geladen ({mainCount} brouwerijen, {sCodeCount} sub-sites worden overgeslagen)</p>
+            {sheetInfo.length > 1 && (
+              <p className="text-xs">
+                Per tabblad: {sheetInfo.map(s => `${s.name} (${s.rows})`).join(' · ')}
+              </p>
+            )}
+          </div>
         )}
       </div>
 
