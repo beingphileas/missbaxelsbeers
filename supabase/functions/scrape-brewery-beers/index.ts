@@ -433,10 +433,11 @@ serve(async (req) => {
       const uniqueBeerPages = [...new Set(prioritizedBeerPages)];
       console.log(`  Website beer pages to scrape (${uniqueBeerPages.length}): ${uniqueBeerPages.join(", ")}`);
 
-      // Scrape beer subpages in parallel
+      // Scrape beer subpages in parallel — with screenshots for visual extraction
       const subResults = await Promise.allSettled(
         uniqueBeerPages.map(async (pageUrl) => {
-          const result = await scrapeUrl(pageUrl, firecrawlKey, ["markdown"]);
+          // Request both markdown AND screenshot so we can extract from images too
+          const result = await scrapeUrl(pageUrl, firecrawlKey, ["markdown", "screenshot"]);
           if (result.markdown && result.markdown.length > 50) {
             sources.push({ name: "Eigen website (subpagina)", url: pageUrl, markdown: result.markdown });
 
@@ -445,18 +446,19 @@ serve(async (req) => {
             if (paginationMatches) {
               const maxPage = Math.max(...paginationMatches.map(m => parseInt(m.split("=")[1])));
               if (maxPage > 1) {
-                // Scrape additional pages (up to page 10)
                 const pagesToScrape = Math.min(maxPage, 10);
                 const pagePromises = [];
                 for (let p = 2; p <= pagesToScrape; p++) {
                   const separator = pageUrl.includes("?") ? "&" : "?";
-                  // Try both spage and page parameter
                   const pageParam = result.markdown.includes("spage=") ? "spage" : "page";
                   const pagedUrl = `${pageUrl}${separator}${pageParam}=${p}`;
                   pagePromises.push(
-                    scrapeUrl(pagedUrl, firecrawlKey).then((pr) => {
+                    scrapeUrl(pagedUrl, firecrawlKey, ["markdown", "screenshot"]).then((pr) => {
                       if (pr.markdown && pr.markdown.length > 50) {
                         sources.push({ name: `Eigen website (pagina ${p})`, url: pagedUrl, markdown: pr.markdown });
+                      }
+                      if (pr.screenshot) {
+                        screenshots.push({ name: `Eigen website (pagina ${p} screenshot)`, url: pagedUrl, screenshot: pr.screenshot });
                       }
                     })
                   );
@@ -465,6 +467,10 @@ serve(async (req) => {
                 console.log(`  Scraped ${pagesToScrape - 1} extra pagination pages from ${pageUrl}`);
               }
             }
+          }
+          // Always capture screenshots of beer/shop pages for visual extraction
+          if (result.screenshot) {
+            screenshots.push({ name: "Eigen website (subpagina screenshot)", url: pageUrl, screenshot: result.screenshot });
           }
         })
       );
