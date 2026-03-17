@@ -223,6 +223,22 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
+  const handleDeleteDuplicates = async (removeIds: string[]) => {
+    if (!confirm(`Weet je zeker dat je ${removeIds.length} duplica(a)t(en) wilt verwijderen?`)) return;
+    const { error } = await supabase.from('beers').delete().in('id', removeIds);
+    if (error) {
+      toast({ title: 'Fout bij verwijderen', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: `${removeIds.length} duplicaten verwijderd` });
+      setCheckResult(prev => prev ? {
+        ...prev,
+        duplicates: prev.duplicates.filter(d => !d.remove_ids.every(id => removeIds.includes(id))),
+        beer_count: prev.beer_count - removeIds.length,
+      } : null);
+      onComplete?.();
+    }
+  };
+
   const handleBulkEnrich = async () => {
     setBulkRunning(true);
     bulkAbortRef.current = false;
