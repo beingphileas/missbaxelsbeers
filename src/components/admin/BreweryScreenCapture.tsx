@@ -1,11 +1,10 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import {
-  Camera, X, Loader2, Monitor, Plus, Scan, Square, Link, Globe,
+  X, Loader2, Monitor,
   Upload, FileText, CheckCircle2, AlertCircle, Star, Save, ArrowLeft,
   ExternalLink, Trophy, DollarSign, Shield,
 } from 'lucide-react';
