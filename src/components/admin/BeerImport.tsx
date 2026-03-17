@@ -112,6 +112,31 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const [bulkStats, setBulkStats] = useState<BulkStatsType>(emptyBulkStats);
 
+  // Bulk AI check state
+  const BULK_CHECK_STORAGE_KEY = 'bulk-check-progress';
+  const [bulkCheckRunning, setBulkCheckRunning] = useState(false);
+  const bulkCheckAbortRef = useRef(false);
+  const [bulkCheckResumeAvailable, setBulkCheckResumeAvailable] = useState(false);
+
+  type BulkCheckStatsType = {
+    processed: number;
+    totalDuplicates: number;
+    totalIssues: number;
+    totalDeleted: number;
+    remaining: number;
+    checkedIds: string[];
+    startedAt: string | null;
+    stoppedAt: string | null;
+    log: { name: string; duplicates: number; issues: number; deleted: number; error?: string }[];
+  };
+
+  const emptyBulkCheckStats: BulkCheckStatsType = {
+    processed: 0, totalDuplicates: 0, totalIssues: 0, totalDeleted: 0,
+    remaining: 0, checkedIds: [], startedAt: null, stoppedAt: null, log: [],
+  };
+
+  const [bulkCheckStats, setBulkCheckStats] = useState<BulkCheckStatsType>(emptyBulkCheckStats);
+
   // Check for saved progress on mount
   useEffect(() => {
     try {
@@ -121,6 +146,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         if (parsed.processed > 0 && parsed.remaining > 0) {
           setBulkResumeAvailable(true);
           setBulkStats(parsed);
+        }
+      }
+    } catch { /* ignore */ }
+    try {
+      const saved = localStorage.getItem(BULK_CHECK_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as BulkCheckStatsType;
+        if (parsed.processed > 0 && parsed.remaining > 0) {
+          setBulkCheckResumeAvailable(true);
+          setBulkCheckStats(parsed);
         }
       }
     } catch { /* ignore */ }
@@ -134,6 +169,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const clearBulkProgress = () => {
     try { localStorage.removeItem(BULK_STORAGE_KEY); } catch { /* ignore */ }
+  };
+
+  const saveBulkCheckProgress = (stats: BulkCheckStatsType) => {
+    try {
+      localStorage.setItem(BULK_CHECK_STORAGE_KEY, JSON.stringify(stats));
+    } catch { /* ignore */ }
+  };
+
+  const clearBulkCheckProgress = () => {
+    try { localStorage.removeItem(BULK_CHECK_STORAGE_KEY); } catch { /* ignore */ }
   };
 
   useEffect(() => {
