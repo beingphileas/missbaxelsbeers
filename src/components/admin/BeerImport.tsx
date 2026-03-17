@@ -33,6 +33,7 @@ import {
   Camera,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
+import BreweryBeerManager from './BreweryBeerManager';
 
 interface BreweryMatch {
   id: string;
@@ -733,6 +734,10 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                             setStep('preview');
                             setScrapeLog(prev => [...prev, { id: b.id, name: b.name, found: previewBeers.length }]);
                           }}
+                        />
+                        <BreweryBeerManager
+                          breweryId={b.id}
+                          breweryName={b.name}
                         />
                         <a
                           href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
