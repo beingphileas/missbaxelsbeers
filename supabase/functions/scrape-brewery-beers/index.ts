@@ -737,29 +737,41 @@ serve(async (req) => {
 
     await Promise.allSettled([...extractionPromises, ...screenshotPromises]);
 
-    // Deduplicate beers by name (case-insensitive), keep the one with most data
+    // Deduplicate beers by name (case-insensitive), and merge fields across sources
     const deduped = new Map<string, (typeof allBeers)[0]>();
     for (const beer of allBeers) {
       // Normalize: lowercase, trim, remove brewery name prefix
       let key = beer.name.toLowerCase().trim();
-      // Remove common brewery name prefixes for dedup
       const brewLower = brewery.name.toLowerCase();
       if (key.startsWith(brewLower + " ")) {
         key = key.slice(brewLower.length + 1);
       }
-      // Also remove leading "brouwerij X " patterns
       key = key.replace(/^brouwerij\s+\S+\s+/i, "");
 
       const existing = deduped.get(key);
       if (!existing) {
         deduped.set(key, beer);
-      } else {
-        const score = (b: typeof beer) =>
-          (b.style ? 1 : 0) + (b.abv ? 2 : 0) + (b.description ? 1 : 0);
-        if (score(beer) > score(existing)) {
-          deduped.set(key, beer);
-        }
+        continue;
       }
+
+      const preferNewStyle = !existing.style && !!beer.style;
+      const preferNewAbv = (existing.abv == null) && (beer.abv != null);
+      const preferNewDescription = (!existing.description && !!beer.description) || (beer.description?.length || 0) > (existing.description?.length || 0);
+
+      // If website has richer content, prioritize it for textual fields
+      const incomingFromWebsite = beer.source.startsWith("Eigen website");
+      const existingFromWebsite = existing.source.startsWith("Eigen website");
+
+      deduped.set(key, {
+        ...existing,
+        style: preferNewStyle || (incomingFromWebsite && !existingFromWebsite && !!beer.style) ? beer.style : existing.style,
+        abv: preferNewAbv ? beer.abv : existing.abv,
+        description: preferNewDescription || (incomingFromWebsite && !existingFromWebsite && !!beer.description)
+          ? beer.description
+          : existing.description,
+        source: incomingFromWebsite && !existingFromWebsite ? beer.source : existing.source,
+        source_url: incomingFromWebsite && !existingFromWebsite ? beer.source_url : existing.source_url,
+      });
     }
 
     const enriched = Array.from(deduped.values()).map((b) => ({
