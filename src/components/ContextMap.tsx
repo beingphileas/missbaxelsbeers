@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const WARM_TILES = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
 interface Marker {
   lat: number;
@@ -33,7 +33,7 @@ export default function ContextMap({ center, markers, zoom = 12, className = '' 
       attributionControl: false,
     });
 
-    L.tileLayer(DARK_TILES, { maxZoom: 18 }).addTo(map);
+    L.tileLayer(WARM_TILES, { maxZoom: 18 }).addTo(map);
 
     markers.forEach(m => {
       const color = m.color || 'hsl(25,90%,45%)';
