@@ -161,8 +161,9 @@ async function extractBeers(
 ): Promise<any[]> {
   if (!markdown || markdown.length < 30) return [];
 
-  // Use up to 15000 chars for more complete extraction
-  const truncated = markdown.substring(0, 15000);
+  // Use a larger context for brewery website pages to capture full product listings/details
+  const maxChars = sourceName.startsWith("Eigen website") ? 60000 : 20000;
+  const truncated = markdown.substring(0, maxChars);
 
   const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -378,7 +379,7 @@ serve(async (req) => {
             Authorization: `Bearer ${firecrawlKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url: baseUrl, limit: 100, includeSubdomains: false }),
+          body: JSON.stringify({ url: baseUrl, limit: 300, includeSubdomains: false }),
         });
         const mapData = await mapRes.json();
         if (mapRes.ok && mapData.success && mapData.links) {
@@ -389,21 +390,48 @@ serve(async (req) => {
         console.error(`  Website map failed:`, (e as Error).message);
       }
 
-      // Find beer-related subpages by URL pattern
+      const normalizePageUrl = (u: string) => {
+        try {
+          const parsed = new URL(u.startsWith("http") ? u : new URL(u, baseUrl).href);
+          parsed.hash = "";
+          return parsed.href.replace(/\/$/, "");
+        } catch {
+          return u;
+        }
+      };
+
+      // Find beer-related subpages by URL pattern and prioritize listing pages first
       const beerPatterns = /\/(shop|bieren|beers|assortiment|products|producten|onze-bieren|gamme|nos-bieres|our-beers|webshop|aanbod)/i;
-      const beerPages = subpageUrls.filter(u => beerPatterns.test(u) && u !== baseUrl);
+      const candidatePages = subpageUrls
+        .map(normalizePageUrl)
+        .filter((u) => beerPatterns.test(u) && u !== normalizePageUrl(baseUrl))
+        .filter((u) => !/\.(jpg|jpeg|png|gif|webp|svg|pdf)$/i.test(u));
+
+      const listingPages = candidatePages.filter((u) => {
+        const path = (() => {
+          try {
+            return new URL(u).pathname;
+          } catch {
+            return "";
+          }
+        })();
+        return /(\/shop|\/bieren|\/beers|\/assortiment|\/products|\/onze-bieren|\/webshop|\/aanbod)$/i.test(path);
+      });
+
+      const detailPages = candidatePages.filter((u) => !listingPages.includes(u));
+
+      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, 8), ...detailPages.slice(0, 20)])];
 
       // If no beer pages found via map, try common paths directly
-      if (beerPages.length === 0) {
+      if (prioritizedBeerPages.length === 0) {
         const commonPaths = ["/shop", "/bieren", "/beers", "/assortiment", "/onze-bieren", "/products", "/SHOP"];
         for (const path of commonPaths) {
-          beerPages.push(new URL(path, baseUrl).href);
+          prioritizedBeerPages.push(normalizePageUrl(new URL(path, baseUrl).href));
         }
       }
 
-      // Dedupe and limit
-      const uniqueBeerPages = [...new Set(beerPages)].slice(0, 5);
-      console.log(`  Website beer pages to scrape: ${uniqueBeerPages.join(", ")}`);
+      const uniqueBeerPages = [...new Set(prioritizedBeerPages)];
+      console.log(`  Website beer pages to scrape (${uniqueBeerPages.length}): ${uniqueBeerPages.join(", ")}`);
 
       // Scrape beer subpages in parallel
       const subResults = await Promise.allSettled(
@@ -709,29 +737,41 @@ serve(async (req) => {
 
     await Promise.allSettled([...extractionPromises, ...screenshotPromises]);
 
-    // Deduplicate beers by name (case-insensitive), keep the one with most data
+    // Deduplicate beers by name (case-insensitive), and merge fields across sources
     const deduped = new Map<string, (typeof allBeers)[0]>();
     for (const beer of allBeers) {
       // Normalize: lowercase, trim, remove brewery name prefix
       let key = beer.name.toLowerCase().trim();
-      // Remove common brewery name prefixes for dedup
       const brewLower = brewery.name.toLowerCase();
       if (key.startsWith(brewLower + " ")) {
         key = key.slice(brewLower.length + 1);
       }
-      // Also remove leading "brouwerij X " patterns
       key = key.replace(/^brouwerij\s+\S+\s+/i, "");
 
       const existing = deduped.get(key);
       if (!existing) {
         deduped.set(key, beer);
-      } else {
-        const score = (b: typeof beer) =>
-          (b.style ? 1 : 0) + (b.abv ? 2 : 0) + (b.description ? 1 : 0);
-        if (score(beer) > score(existing)) {
-          deduped.set(key, beer);
-        }
+        continue;
       }
+
+      const preferNewStyle = !existing.style && !!beer.style;
+      const preferNewAbv = (existing.abv == null) && (beer.abv != null);
+      const preferNewDescription = (!existing.description && !!beer.description) || (beer.description?.length || 0) > (existing.description?.length || 0);
+
+      // If website has richer content, prioritize it for textual fields
+      const incomingFromWebsite = beer.source.startsWith("Eigen website");
+      const existingFromWebsite = existing.source.startsWith("Eigen website");
+
+      deduped.set(key, {
+        ...existing,
+        style: preferNewStyle || (incomingFromWebsite && !existingFromWebsite && !!beer.style) ? beer.style : existing.style,
+        abv: preferNewAbv ? beer.abv : existing.abv,
+        description: preferNewDescription || (incomingFromWebsite && !existingFromWebsite && !!beer.description)
+          ? beer.description
+          : existing.description,
+        source: incomingFromWebsite && !existingFromWebsite ? beer.source : existing.source,
+        source_url: incomingFromWebsite && !existingFromWebsite ? beer.source_url : existing.source_url,
+      });
     }
 
     const enriched = Array.from(deduped.values()).map((b) => ({
