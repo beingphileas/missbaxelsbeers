@@ -190,7 +190,7 @@ export default function BreweryScreenCapture({
           Capture
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="font-serif text-lg">
             Screen Capture — {breweryName}
