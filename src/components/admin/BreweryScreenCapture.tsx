@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { Camera, X, Loader2, Monitor, Plus, Scan, Square, Link, Globe } from 'lucide-react';
+import { Camera, X, Loader2, Monitor, Plus, Scan, Square, Link, Globe, Upload, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,44 @@ interface BreweryScreenCaptureProps {
   onBeersFound: (beers: any[]) => void;
 }
 
+/** Parse a saved Untappd HTML file and extract all beer data client-side */
+function parseUntappdHtml(htmlString: string): {
+  name: string;
+  style: string;
+  abv: number | null;
+  description: string;
+}[] {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const items = doc.querySelectorAll('.beer-item');
+  const beers: { name: string; style: string; abv: number | null; description: string }[] = [];
+
+  items.forEach((item) => {
+    const nameEl = item.querySelector('.beer-details .name a');
+    const styleEl = item.querySelector('.beer-details .style');
+    const descEl = item.querySelector('.beer-details .desc');
+    const abvEl = item.querySelector('.details-item.abv');
+
+    const name = nameEl?.textContent?.trim() || '';
+    if (!name) return;
+
+    const style = styleEl?.textContent?.trim() || '';
+    const desc = (descEl?.textContent?.trim() || '')
+      .replace(/Read More/g, '')
+      .replace(/Read Less/g, '')
+      .trim()
+      .slice(0, 300);
+
+    const abvRaw = abvEl?.textContent?.trim() || '';
+    const abvMatch = abvRaw.match(/([\d.]+)%/);
+    const abv = abvMatch ? parseFloat(abvMatch[1]) : null;
+
+    beers.push({ name, style, abv, description: desc });
+  });
+
+  return beers;
+}
+
 export default function BreweryScreenCapture({
   breweryId,
   breweryName,
@@ -30,6 +68,8 @@ export default function BreweryScreenCapture({
   const [capturing, setCapturing] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [urlInput, setUrlInput] = useState('');
+  const [htmlFileName, setHtmlFileName] = useState('');
+  const htmlFileRef = useRef<HTMLInputElement>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -131,7 +171,44 @@ export default function BreweryScreenCapture({
     setCaptures((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // === URL MODE: just send a URL, backend does everything ===
+  // === HTML UPLOAD MODE: parse saved Untappd page locally ===
+  const handleHtmlUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setHtmlFileName(file.name);
+    setLoading(true);
+
+    try {
+      const text = await file.text();
+      const beers = parseUntappdHtml(text);
+
+      if (beers.length === 0) {
+        toast({
+          title: 'Geen bieren gevonden',
+          description: 'Het HTML-bestand bevat geen herkenbare Untappd biergegevens.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: `${beers.length} bieren gevonden`,
+        description: `Direct geparsed uit ${file.name}`,
+      });
+
+      onBeersFound(beers);
+      setOpen(false);
+      setHtmlFileName('');
+    } catch (err: any) {
+      toast({ title: 'Fout bij lezen', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+      if (htmlFileRef.current) htmlFileRef.current.value = '';
+    }
+  }, [onBeersFound]);
+
+  // === URL MODE ===
   const handleUrlSubmit = async () => {
     const url = urlInput.trim();
     if (!url) return;
@@ -139,11 +216,7 @@ export default function BreweryScreenCapture({
     setLoading(true);
     try {
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
-        body: {
-          brewery_id: breweryId,
-          mode: 'url',
-          scan_url: url,
-        },
+        body: { brewery_id: breweryId, mode: 'url', scan_url: url },
       });
 
       if (res.error) {
@@ -153,19 +226,11 @@ export default function BreweryScreenCapture({
 
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
-        toast({
-          title: `${breweryName}: geen bieren gevonden`,
-          description: `URL geanalyseerd maar geen bieren gevonden.`,
-          variant: 'destructive',
-        });
+        toast({ title: `${breweryName}: geen bieren gevonden`, variant: 'destructive' });
         return;
       }
 
-      toast({
-        title: `${breweryName}: ${data.beers.length} bieren gevonden`,
-        description: `Via URL scan`,
-      });
-
+      toast({ title: `${breweryName}: ${data.beers.length} bieren gevonden`, description: 'Via URL scan' });
       onBeersFound(data.beers);
       setOpen(false);
       setUrlInput('');
@@ -176,19 +241,14 @@ export default function BreweryScreenCapture({
     }
   };
 
-  // === SCREENSHOT MODE: send captured frames ===
+  // === SCREENSHOT MODE ===
   const handleScreenshotSubmit = async () => {
     if (captures.length === 0) return;
-
     stopScan();
     setLoading(true);
     try {
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
-        body: {
-          brewery_id: breweryId,
-          mode: 'screenshot',
-          images: captures.map((c) => c.base64),
-        },
+        body: { brewery_id: breweryId, mode: 'screenshot', images: captures.map((c) => c.base64) },
       });
 
       if (res.error) {
@@ -198,19 +258,11 @@ export default function BreweryScreenCapture({
 
       const data = res.data;
       if (!data.beers || data.beers.length === 0) {
-        toast({
-          title: `${breweryName}: geen bieren gevonden`,
-          description: `${captures.length} frame(s) geanalyseerd.`,
-          variant: 'destructive',
-        });
+        toast({ title: `${breweryName}: geen bieren gevonden`, variant: 'destructive' });
         return;
       }
 
-      toast({
-        title: `${breweryName}: ${data.beers.length} bieren gevonden`,
-        description: `Via ${captures.length} frame(s)`,
-      });
-
+      toast({ title: `${breweryName}: ${data.beers.length} bieren gevonden`, description: `Via ${captures.length} frame(s)` });
       onBeersFound(data.beers);
       setOpen(false);
       setCaptures([]);
@@ -236,17 +288,59 @@ export default function BreweryScreenCapture({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="url" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2 shrink-0">
-            <TabsTrigger value="url" className="gap-1.5">
+        <Tabs defaultValue="html" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-3 shrink-0">
+            <TabsTrigger value="html" className="gap-1.5 text-xs">
+              <FileText size={14} />
+              Upload HTML
+            </TabsTrigger>
+            <TabsTrigger value="url" className="gap-1.5 text-xs">
               <Globe size={14} />
               Paste URL
             </TabsTrigger>
-            <TabsTrigger value="capture" className="gap-1.5">
+            <TabsTrigger value="capture" className="gap-1.5 text-xs">
               <Monitor size={14} />
               Screen Capture
             </TabsTrigger>
           </TabsList>
+
+          {/* === HTML UPLOAD TAB === */}
+          <TabsContent value="html" className="flex-1 flex flex-col gap-3 mt-3">
+            <p className="text-xs text-muted-foreground">
+              Open de Untappd-pagina in je browser → <strong>Ctrl+S</strong> → "Webpagina, volledig" →
+              upload het <code>.html</code> bestand hier. Instant parsing, geen AI nodig.
+            </p>
+
+            <input
+              ref={htmlFileRef}
+              type="file"
+              accept=".html,.htm"
+              className="hidden"
+              onChange={handleHtmlUpload}
+            />
+
+            <Button
+              variant="outline"
+              className="gap-2 w-full border-dashed border-2 h-16 flex-col"
+              onClick={() => htmlFileRef.current?.click()}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <Upload size={20} />
+              )}
+              <span className="text-xs">
+                {loading ? 'Parsing…' : htmlFileName || 'Kies een opgeslagen HTML-bestand'}
+              </span>
+            </Button>
+
+            <div className="bg-muted/50 border border-border rounded-md p-3 text-[11px] text-muted-foreground space-y-1">
+              <p className="font-medium text-foreground">⚡ Snelste methode</p>
+              <p>Parsed direct in je browser — geen server, geen AI, geen wachttijd.</p>
+              <p>Werkt met opgeslagen Untappd pagina's (Ctrl+S in Chrome/Firefox).</p>
+            </div>
+          </TabsContent>
 
           {/* === URL TAB === */}
           <TabsContent value="url" className="flex-1 flex flex-col gap-3 mt-3">
@@ -269,7 +363,7 @@ export default function BreweryScreenCapture({
               disabled={loading || !urlInput.trim()}
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Link size={14} />}
-              {loading ? 'Pagina wordt gescraped en geanalyseerd…' : 'Scan URL'}
+              {loading ? 'Pagina wordt gescraped…' : 'Scan URL'}
             </Button>
 
             {loading && (
@@ -348,9 +442,7 @@ export default function BreweryScreenCapture({
 
               {(loading || scanning) && (
                 <p className="text-xs text-muted-foreground animate-pulse text-center">
-                  {loading
-                    ? 'AI analyseert frames…'
-                    : `Live scan — ${captures.length} frame(s) verzameld.`}
+                  {loading ? 'AI analyseert frames…' : `Live scan — ${captures.length} frame(s) verzameld.`}
                 </p>
               )}
             </div>
