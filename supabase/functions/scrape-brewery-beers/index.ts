@@ -335,14 +335,18 @@ serve(async (req) => {
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
     const sources: { name: string; url: string; markdown: string }[] = [];
+    const screenshots: { name: string; url: string; screenshot: string }[] = [];
 
-    // === SOURCE 1: Brewery's own website ===
+    // === SOURCE 1: Brewery's own website (markdown + screenshot) ===
     const websitePromise = brewery.website_url?.trim()
-      ? scrapeUrl(brewery.website_url, firecrawlKey).then((md) => {
-          if (md && md.length > 50) {
-            let url = brewery.website_url!.trim();
-            if (!url.startsWith("http")) url = "https://" + url;
-            sources.push({ name: "Eigen website", url, markdown: md });
+      ? scrapeUrl(brewery.website_url, firecrawlKey, ["markdown", "screenshot"]).then((result) => {
+          let url = brewery.website_url!.trim();
+          if (!url.startsWith("http")) url = "https://" + url;
+          if (result.markdown && result.markdown.length > 50) {
+            sources.push({ name: "Eigen website", url, markdown: result.markdown });
+          }
+          if (result.screenshot) {
+            screenshots.push({ name: "Eigen website (screenshot)", url, screenshot: result.screenshot });
           }
         })
       : Promise.resolve();
