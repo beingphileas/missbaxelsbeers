@@ -1,0 +1,2 @@
+ALTER TABLE public.breweries DROP CONSTRAINT breweries_type_check;
+ALTER TABLE public.breweries ADD CONSTRAINT breweries_type_check CHECK (type = ANY (ARRAY['Trappist'::text, 'Family-owned'::text, 'Microbrewery'::text, 'Industrial'::text, 'Contract brewer'::text, 'Sub-site'::text, 'Blender/Stekerij'::text]));
