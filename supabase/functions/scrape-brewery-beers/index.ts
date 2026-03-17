@@ -464,7 +464,7 @@ serve(async (req) => {
             if (paginationMatches) {
               const maxPage = Math.max(...paginationMatches.map(m => parseInt(m.split("=")[1])));
               if (maxPage > 1) {
-                const pagesToScrape = Math.min(maxPage, 10);
+                const pagesToScrape = Math.min(maxPage, websitePaginationLimit);
                 const pagePromises = [];
                 for (let p = 2; p <= pagesToScrape; p++) {
                   const separator = pageUrl.includes("?") ? "&" : "?";
