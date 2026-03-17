@@ -298,9 +298,9 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             {scraping && (
               <div className="space-y-2">
                 <Progress value={progress} className="h-2" />
-                <p className="text-xs text-muted-foreground animate-pulse">
-                  Scraping {scrapedBrewery}... website ophalen → AI extraheert bieren
-                </p>
+             <p className="text-xs text-muted-foreground animate-pulse">
+                   Scraping {scrapedBrewery}... website + belgenbier.be + ratebeer + untappd doorzoeken → AI extraheert bieren
+                 </p>
               </div>
             )}
           </div>
