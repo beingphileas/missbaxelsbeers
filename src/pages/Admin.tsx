@@ -360,6 +360,20 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Fact-check Tab */}
+          <TabsContent value="fact-check">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldCheck size={18} /> AI Fact-check
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FactChecker />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
