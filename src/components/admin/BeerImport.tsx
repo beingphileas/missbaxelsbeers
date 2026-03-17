@@ -164,6 +164,43 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const getErrorMessage = (error: unknown) => {
+    if (!error) return 'Onbekende fout';
+    if (typeof error === 'string') return error;
+    if (typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string') {
+      return (error as any).message;
+    }
+    return 'Onbekende fout';
+  };
+
+  const invokeWithRetry = async <T,>(
+    invoke: () => Promise<{ data: T | null; error: any }>,
+    retries = 2,
+    baseDelayMs = 1200,
+  ): Promise<{ data: T | null; error: { message: string } | null }> => {
+    let lastMessage = 'Onbekende fout';
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const res = await invoke();
+
+      if (!res.error) {
+        return { data: res.data ?? null, error: null };
+      }
+
+      lastMessage = getErrorMessage(res.error);
+      const isTransient = /Failed to send a request to the Edge Function|context canceled|network/i.test(lastMessage);
+      if (!isTransient || attempt === retries) {
+        break;
+      }
+
+      await sleep(baseDelayMs * (attempt + 1));
+    }
+
+    return { data: null, error: { message: lastMessage } };
+  };
+
   const handleBulkScrape = async () => {
     const eligible = breweries.filter(b => hasWebsite(b)).sort((a, b) => a.name.localeCompare(b.name));
     if (eligible.length === 0) {
@@ -186,9 +223,15 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       setBulkCurrent(b.name);
 
       try {
-        const scrapeRes = await supabase.functions.invoke('scrape-brewery-beers', {
-          body: { brewery_id: b.id },
-        });
+        if (i > 0 && i % 25 === 0) {
+          await supabase.auth.refreshSession();
+        }
+
+        const scrapeRes = await invokeWithRetry(() =>
+          supabase.functions.invoke('scrape-brewery-beers', {
+            body: { brewery_id: b.id, mode: 'bulk' },
+          })
+        );
 
         if (scrapeRes.error || !scrapeRes.data?.beers?.length) {
           setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: scrapeRes.error?.message || 'Geen bieren gevonden' }]);
@@ -214,9 +257,17 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
           continue;
         }
 
-        const commitRes = await supabase.functions.invoke('import-beers', {
-          body: { beers: toInsert, mode: 'commit' },
-        });
+        const commitRes = await invokeWithRetry(() =>
+          supabase.functions.invoke('import-beers', {
+            body: { beers: toInsert, mode: 'commit' },
+          })
+        );
+
+        if (commitRes.error) {
+          setBulkLog(prev => [...prev, { name: b.name, found: beers.length, inserted: 0, error: commitRes.error.message }]);
+          setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
+          continue;
+        }
 
         const inserted = commitRes.data?.inserted || 0;
         const skipped = commitRes.data?.skipped || 0;
@@ -228,8 +279,8 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
           totalInserted: prev.totalInserted + inserted,
           totalSkipped: prev.totalSkipped + skipped,
         }));
-      } catch (err: any) {
-        setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: err.message }]);
+      } catch (err: unknown) {
+        setBulkLog(prev => [...prev, { name: b.name, found: 0, inserted: 0, error: getErrorMessage(err) }]);
         setBulkStats(prev => ({ ...prev, totalErrors: prev.totalErrors + 1 }));
       }
     }

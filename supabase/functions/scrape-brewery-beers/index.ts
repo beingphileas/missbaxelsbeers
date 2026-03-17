@@ -80,6 +80,13 @@ async function extractBeersFromScreenshot(
 ): Promise<any[]> {
   if (!screenshotBase64) return [];
 
+  const screenshotInput = screenshotBase64.trim();
+  const screenshotUrl = screenshotInput.startsWith("http://") || screenshotInput.startsWith("https://")
+    ? screenshotInput
+    : screenshotInput.startsWith("data:")
+      ? screenshotInput
+      : `data:image/png;base64,${screenshotInput}`;
+
   try {
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -98,7 +105,7 @@ async function extractBeersFromScreenshot(
             role: "user",
             content: [
               { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
-              { type: "image_url", image_url: { url: screenshotBase64.startsWith("data:") ? screenshotBase64 : `data:image/png;base64,${screenshotBase64}` } },
+              { type: "image_url", image_url: { url: screenshotUrl } },
             ],
           },
         ],
@@ -296,13 +303,24 @@ serve(async (req) => {
   }
 
   try {
-    const { brewery_id } = await req.json();
+    const { brewery_id, mode = "single" } = await req.json();
     if (!brewery_id) {
       return new Response(JSON.stringify({ error: "brewery_id required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const isBulk = mode === "bulk";
+    const websiteMapLimit = isBulk ? 60 : 300;
+    const websiteListingLimit = isBulk ? 2 : 8;
+    const websiteDetailLimit = isBulk ? 6 : 20;
+    const websitePaginationLimit = isBulk ? 2 : 10;
+    const untappdMapLimit = isBulk ? 150 : 500;
+    const untappdPaginationMaxStart = isBulk ? 50 : 200;
+    const untappdDetailPageLimit = isBulk ? 12 : 60;
+    const screenshotExtractionLimit = isBulk ? 2 : 20;
+    const sourceExtractionLimit = isBulk ? 14 : 120;
 
     const { data: brewery, error: bErr } = await supabase
       .from("breweries")
@@ -379,7 +397,7 @@ serve(async (req) => {
             Authorization: `Bearer ${firecrawlKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url: baseUrl, limit: 300, includeSubdomains: false }),
+          body: JSON.stringify({ url: baseUrl, limit: websiteMapLimit, includeSubdomains: false }),
         });
         const mapData = await mapRes.json();
         if (mapRes.ok && mapData.success && mapData.links) {
@@ -420,7 +438,7 @@ serve(async (req) => {
 
       const detailPages = candidatePages.filter((u) => !listingPages.includes(u));
 
-      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, 8), ...detailPages.slice(0, 20)])];
+      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, websiteListingLimit), ...detailPages.slice(0, websiteDetailLimit)])];
 
       // If no beer pages found via map, try common paths directly
       if (prioritizedBeerPages.length === 0) {
@@ -446,7 +464,7 @@ serve(async (req) => {
             if (paginationMatches) {
               const maxPage = Math.max(...paginationMatches.map(m => parseInt(m.split("=")[1])));
               if (maxPage > 1) {
-                const pagesToScrape = Math.min(maxPage, 10);
+                const pagesToScrape = Math.min(maxPage, websitePaginationLimit);
                 const pagePromises = [];
                 for (let p = 2; p <= pagesToScrape; p++) {
                   const separator = pageUrl.includes("?") ? "&" : "?";
@@ -575,7 +593,7 @@ serve(async (req) => {
           body: JSON.stringify({
             url: cleanBreweryUrl,
             search: "beer",
-            limit: 500,
+            limit: untappdMapLimit,
             includeSubdomains: true,
           }),
         });
@@ -629,7 +647,7 @@ serve(async (req) => {
       // Step 3b: If still few beer URLs, try paginated beer list: /beer?sort=date&start=0,25,50...
       if (beerUrls.length < 30) {
         const paginatedPromises = [];
-        for (let start = 25; start <= 200; start += 25) {
+        for (let start = 25; start <= untappdPaginationMaxStart; start += 25) {
           const pageUrl = `${beerListUrl}?sort=date&start=${start}`;
           paginatedPromises.push(
             scrapeUrl(pageUrl, firecrawlKey, ["markdown"]).then((pr) => {
@@ -648,8 +666,8 @@ serve(async (req) => {
         console.log(`  Untappd after pagination: ${beerUrls.length} total beer URLs`);
       }
 
-      // Step 4: Scrape individual beer pages (up to 60 for completeness)
-      const toScrape = beerUrls.slice(0, 60);
+      // Step 4: Scrape individual beer pages (bounded per mode for stability)
+      const toScrape = beerUrls.slice(0, untappdDetailPageLimit);
       if (toScrape.length > 0) {
         // Batch in groups of 10 to avoid overwhelming
         for (let i = 0; i < toScrape.length; i += 10) {
@@ -759,7 +777,30 @@ serve(async (req) => {
       source_url: string;
     }[] = [];
 
-    const extractionPromises = sources.map((source) =>
+    const sortedSources = [...sources].sort((a, b) => {
+      const rank = (name: string) => {
+        if (name.startsWith("untappd.com (bierlijst")) return 0;
+        if (name.startsWith("untappd.com (bier)")) return 1;
+        if (name.startsWith("Eigen website")) return 2;
+        if (name.startsWith("untappd.com")) return 3;
+        return 4;
+      };
+      return rank(a.name) - rank(b.name);
+    });
+
+    const sortedScreenshots = [...screenshots].sort((a, b) => {
+      const rank = (name: string) => {
+        if (name.startsWith("untappd.com (bierlijst")) return 0;
+        if (name.startsWith("Eigen website")) return 1;
+        return 2;
+      };
+      return rank(a.name) - rank(b.name);
+    });
+
+    const sourcesToExtract = sortedSources.slice(0, sourceExtractionLimit);
+    const screenshotsToExtract = sortedScreenshots.slice(0, screenshotExtractionLimit);
+
+    const extractionPromises = sourcesToExtract.map((source) =>
       extractBeers(source.markdown, brewery.name, source.name, lovableKey).then((beers) => {
         console.log(`  ${source.name}: extracted ${beers.length} beers`);
         for (const b of beers) {
@@ -776,7 +817,7 @@ serve(async (req) => {
     );
 
     // Extract beers from screenshots via vision AI
-    const screenshotPromises = screenshots.map((ss) =>
+    const screenshotPromises = screenshotsToExtract.map((ss) =>
       extractBeersFromScreenshot(ss.screenshot, brewery.name, ss.name, lovableKey).then((beers) => {
         console.log(`  ${ss.name}: extracted ${beers.length} beers from screenshot`);
         for (const b of beers) {
