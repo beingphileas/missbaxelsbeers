@@ -316,9 +316,6 @@ serve(async (req) => {
     const websiteListingLimit = isBulk ? 2 : 8;
     const websiteDetailLimit = isBulk ? 6 : 20;
     const websitePaginationLimit = isBulk ? 2 : 10;
-    const untappdMapLimit = isBulk ? 150 : 500;
-    const untappdPaginationMaxStart = isBulk ? 50 : 200;
-    const untappdDetailPageLimit = isBulk ? 12 : 60;
     const screenshotExtractionLimit = isBulk ? 2 : 20;
     const sourceExtractionLimit = isBulk ? 14 : 120;
 
