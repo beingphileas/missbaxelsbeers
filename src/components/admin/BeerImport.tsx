@@ -33,6 +33,7 @@ import {
   Camera,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
+import BreweryBeerManager from './BreweryBeerManager';
 
 interface BreweryMatch {
   id: string;
