@@ -66,6 +66,15 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [brewerySearch, setBrewerySearch] = useState('');
   const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
 
+  // Bulk scrape state
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const bulkAbortRef = useRef(false);
+  const [bulkCurrent, setBulkCurrent] = useState<string | null>(null);
+  const [bulkIndex, setBulkIndex] = useState(0);
+  const [bulkTotal, setBulkTotal] = useState(0);
+  const [bulkLog, setBulkLog] = useState<{ name: string; found: number; inserted: number; error?: string }[]>([]);
+  const [bulkStats, setBulkStats] = useState({ totalFound: 0, totalInserted: 0, totalSkipped: 0, totalErrors: 0 });
+
   useEffect(() => {
     const loadAll = async () => {
       let all: { id: string; name: string; website_url: string | null }[] = [];
