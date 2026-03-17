@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -20,6 +21,8 @@ import {
   Beer,
   Link2,
   X,
+  Globe,
+  Search,
 } from 'lucide-react';
 
 interface BreweryMatch {
@@ -48,11 +51,79 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
+  const [scraping, setScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
   const [result, setResult] = useState<{ inserted: number; skipped: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Brewery scraping state
+  const [breweries, setBreweries] = useState<{ id: string; name: string; website_url: string | null }[]>([]);
+  const [brewerySearch, setBrewerySearch] = useState('');
+  const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('breweries')
+      .select('id, name, website_url')
+      .order('name')
+      .then(({ data }) => setBreweries(data ?? []));
+  }, []);
+
+  const filteredBreweries = brewerySearch.length >= 2
+    ? breweries.filter(b =>
+        b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && b.website_url
+      ).slice(0, 20)
+    : [];
+
+  const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
+    setScraping(true);
+    setScrapedBrewery(breweryName);
+    setProgress(15);
+
+    try {
+      const res = await supabase.functions.invoke('scrape-brewery-beers', {
+        body: { brewery_id: breweryId },
+      });
+
+      setProgress(90);
+
+      if (res.error) {
+        toast({ title: 'Scrape fout', description: res.error.message, variant: 'destructive' });
+        return;
+      }
+
+      const data = res.data;
+      if (!data.beers || data.beers.length === 0) {
+        toast({ title: 'Geen bieren gevonden', description: `Op ${data.source_url} zijn geen bieren gevonden.`, variant: 'destructive' });
+        return;
+      }
+
+      // Convert scraped beers directly into preview format (already have brewery_id)
+      const previewBeers: BeerPreview[] = data.beers.map((b: any) => ({
+        name: b.name,
+        style: b.style || '',
+        abv: b.abv || null,
+        description: b.description || '',
+        source_url: b.source_url || '',
+        image_url: '',
+        brewery_input: breweryName,
+        brewery_matches: [{ id: breweryId, name: breweryName, similarity: 100 }],
+        brewery_id: breweryId,
+        _excluded: false,
+      }));
+
+      setPreview(previewBeers);
+      setStep('preview');
+      setProgress(100);
+      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Van ${breweryName}` });
+    } catch (err: any) {
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+    } finally {
+      setScraping(false);
+    }
+  };
 
   const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
@@ -176,45 +247,97 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     <div className="space-y-6">
       {/* Step 1: Input */}
       {step === 'input' && (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Plak JSON of CSV data, of upload een bestand. Het systeem matcht brouwerijnamen automatisch via fuzzy search.
-          </p>
-
-          <div className="flex gap-2">
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".json,.csv,.tsv"
-              onChange={handleFile}
-              className="hidden"
-            />
-            <Button variant="outline" onClick={() => fileRef.current?.click()} className="gap-2">
-              <Upload size={14} /> Upload JSON/CSV
-            </Button>
+        <div className="space-y-6">
+          {/* Scrape from brewery */}
+          <div className="space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <Globe size={16} className="text-accent" /> Scrape van brouwerij website
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Zoek een brouwerij en scrape automatisch alle bieren van hun website via AI.
+            </p>
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={brewerySearch}
+                onChange={e => setBrewerySearch(e.target.value)}
+                placeholder="Zoek brouwerij op naam..."
+                className="pl-9"
+                disabled={scraping}
+              />
+            </div>
+            {filteredBreweries.length > 0 && (
+              <div className="border rounded-lg max-h-48 overflow-auto divide-y divide-border">
+                {filteredBreweries.map(b => (
+                  <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{b.name}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0 ml-3 gap-1.5"
+                      disabled={scraping}
+                      onClick={() => handleScrapeBrewery(b.id, b.name)}
+                    >
+                      {scraping && scrapedBrewery === b.name ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Globe size={12} />
+                      )}
+                      Scrape
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {scraping && (
+              <div className="space-y-2">
+                <Progress value={progress} className="h-2" />
+                <p className="text-xs text-muted-foreground animate-pulse">
+                  Scraping {scrapedBrewery}... website ophalen → AI extraheert bieren
+                </p>
+              </div>
+            )}
           </div>
 
-          <Textarea
-            value={jsonInput}
-            onChange={e => setJsonInput(e.target.value)}
-            rows={12}
-            className="font-mono text-xs"
-            placeholder={`[
-  { "name": "Westmalle Tripel", "brewery": "Brouwerij der trappisten van Westmalle", "style": "Tripel", "abv": 9.5 },
-  { "naam": "Duvel", "brouwerij": "Duvel Moortgat", "stijl": "Strong Golden Ale", "alcoholpercentage": 8.5 }
-]
+          <div className="border-t border-border pt-6">
+            <h3 className="font-serif text-base flex items-center gap-2 mb-3">
+              <Upload size={16} className="text-accent" /> Of upload data handmatig
+            </h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Plak JSON of CSV data, of upload een bestand. Brouwerijnamen worden automatisch gematcht via fuzzy search.
+            </p>
 
-Of CSV:
-name,brewery,style,abv
-Westmalle Tripel,Brouwerij Westmalle,Tripel,9.5`}
-          />
+            <div className="flex gap-2 mb-3">
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".json,.csv,.tsv"
+                onChange={handleFile}
+                className="hidden"
+              />
+              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} className="gap-2">
+                <Upload size={14} /> Upload JSON/CSV
+              </Button>
+            </div>
 
-          {loading && <Progress value={progress} className="h-2" />}
+            <Textarea
+              value={jsonInput}
+              onChange={e => setJsonInput(e.target.value)}
+              rows={8}
+              className="font-mono text-xs"
+              placeholder={`[{ "name": "Westmalle Tripel", "brewery": "Brouwerij Westmalle", "style": "Tripel", "abv": 9.5 }]`}
+            />
 
-          <Button onClick={handlePreview} disabled={loading || !jsonInput.trim()} className="gap-2">
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <Beer size={14} />}
-            Preview & Match
-          </Button>
+            {loading && <Progress value={progress} className="h-2 mt-2" />}
+
+            <Button onClick={handlePreview} disabled={loading || !jsonInput.trim()} className="gap-2 mt-3">
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Beer size={14} />}
+              Preview & Match
+            </Button>
+          </div>
         </div>
       )}
 
