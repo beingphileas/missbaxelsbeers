@@ -190,6 +190,9 @@ export default function Admin() {
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
             <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
+            <TabsTrigger value="fact-check" className="gap-1.5">
+              <ShieldCheck size={12} /> Fact-check
+            </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
