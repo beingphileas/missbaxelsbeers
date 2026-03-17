@@ -593,7 +593,7 @@ serve(async (req) => {
           body: JSON.stringify({
             url: cleanBreweryUrl,
             search: "beer",
-            limit: 500,
+            limit: untappdMapLimit,
             includeSubdomains: true,
           }),
         });
