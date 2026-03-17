@@ -190,83 +190,87 @@ export default function BreweryScreenCapture({
           Capture
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="font-serif text-lg">
             Screen Capture — {breweryName}
           </DialogTitle>
         </DialogHeader>
 
-        <p className="text-xs text-muted-foreground">
-          Start een live scan, kies je browser-tabblad en scroll door de volledige pagina.
-          We nemen automatisch meerdere frames op (ook content die eerst buiten beeld stond).
-        </p>
-
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-full rounded-md border border-border bg-muted aspect-video"
-        />
-
-        {!scanning ? (
-          <Button
-            variant="outline"
-            className="gap-2 w-full border-dashed border-2 h-14"
-            onClick={startScan}
-            disabled={capturing || loading}
-          >
-            {capturing ? <Loader2 size={16} className="animate-spin" /> : <Scan size={16} />}
-            {capturing ? 'Tabblad selecteren…' : 'Start volledige paginascan'}
-          </Button>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" className="gap-2" onClick={addManualFrame} disabled={loading}>
-              <Plus size={16} />
-              Extra frame
-            </Button>
-            <Button variant="destructive" className="gap-2" onClick={stopScan} disabled={loading}>
-              <Square size={16} />
-              Stop scan
-            </Button>
-          </div>
-        )}
-
-        {captures.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {captures.map((cap, i) => (
-              <div key={i} className="relative group">
-                <img
-                  src={cap.dataUrl}
-                  alt={`Capture ${i + 1}`}
-                  className="w-full h-24 object-cover rounded-md border border-border"
-                />
-                <button
-                  onClick={() => removeCapture(i)}
-                  className="absolute top-1 right-1 bg-background/80 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {captures.length > 0 && (
-          <Button className="gap-1.5 w-full" onClick={handleSubmit} disabled={loading || capturing}>
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
-            Analyseer {captures.length} frame{captures.length > 1 ? 's' : ''}
-          </Button>
-        )}
-
-        {(loading || scanning) && (
-          <p className="text-xs text-muted-foreground animate-pulse text-center">
-            {loading
-              ? 'AI analyseert frames… dit kan even duren.'
-              : `Live scan actief — ${captures.length} frame(s) verzameld.`}
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+          <p className="text-xs text-muted-foreground">
+            Start een live scan, kies je browser-tabblad en scroll door de volledige pagina.
+            We nemen automatisch meerdere frames op (ook content die eerst buiten beeld stond).
           </p>
-        )}
+
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full rounded-md border border-border bg-muted aspect-video"
+          />
+
+          {captures.length > 0 && (
+            <div className="grid grid-cols-4 gap-1.5">
+              {captures.map((cap, i) => (
+                <div key={i} className="relative group">
+                  <img
+                    src={cap.dataUrl}
+                    alt={`Capture ${i + 1}`}
+                    className="w-full h-16 object-cover rounded border border-border"
+                  />
+                  <button
+                    onClick={() => removeCapture(i)}
+                    className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2 pt-2 border-t border-border shrink-0">
+          {!scanning ? (
+            <Button
+              variant="outline"
+              className="gap-2 w-full border-dashed border-2 h-12"
+              onClick={startScan}
+              disabled={capturing || loading}
+            >
+              {capturing ? <Loader2 size={16} className="animate-spin" /> : <Scan size={16} />}
+              {capturing ? 'Tabblad selecteren…' : 'Start volledige paginascan'}
+            </Button>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" className="gap-2" onClick={addManualFrame} disabled={loading}>
+                <Plus size={16} />
+                Extra frame
+              </Button>
+              <Button variant="destructive" className="gap-2" onClick={stopScan} disabled={loading}>
+                <Square size={16} />
+                Stop scan
+              </Button>
+            </div>
+          )}
+
+          {captures.length > 0 && (
+            <Button className="gap-1.5 w-full" onClick={handleSubmit} disabled={loading || capturing}>
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+              Analyseer {captures.length} frame{captures.length > 1 ? 's' : ''}
+            </Button>
+          )}
+
+          {(loading || scanning) && (
+            <p className="text-xs text-muted-foreground animate-pulse text-center">
+              {loading
+                ? 'AI analyseert frames… dit kan even duren.'
+                : `Live scan actief — ${captures.length} frame(s) verzameld.`}
+            </p>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
