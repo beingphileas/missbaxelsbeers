@@ -51,11 +51,79 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
+  const [scraping, setScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
   const [result, setResult] = useState<{ inserted: number; skipped: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Brewery scraping state
+  const [breweries, setBreweries] = useState<{ id: string; name: string; website_url: string | null }[]>([]);
+  const [brewerySearch, setBrewerySearch] = useState('');
+  const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('breweries')
+      .select('id, name, website_url')
+      .order('name')
+      .then(({ data }) => setBreweries(data ?? []));
+  }, []);
+
+  const filteredBreweries = brewerySearch.length >= 2
+    ? breweries.filter(b =>
+        b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && b.website_url
+      ).slice(0, 20)
+    : [];
+
+  const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
+    setScraping(true);
+    setScrapedBrewery(breweryName);
+    setProgress(15);
+
+    try {
+      const res = await supabase.functions.invoke('scrape-brewery-beers', {
+        body: { brewery_id: breweryId },
+      });
+
+      setProgress(90);
+
+      if (res.error) {
+        toast({ title: 'Scrape fout', description: res.error.message, variant: 'destructive' });
+        return;
+      }
+
+      const data = res.data;
+      if (!data.beers || data.beers.length === 0) {
+        toast({ title: 'Geen bieren gevonden', description: `Op ${data.source_url} zijn geen bieren gevonden.`, variant: 'destructive' });
+        return;
+      }
+
+      // Convert scraped beers directly into preview format (already have brewery_id)
+      const previewBeers: BeerPreview[] = data.beers.map((b: any) => ({
+        name: b.name,
+        style: b.style || '',
+        abv: b.abv || null,
+        description: b.description || '',
+        source_url: b.source_url || '',
+        image_url: '',
+        brewery_input: breweryName,
+        brewery_matches: [{ id: breweryId, name: breweryName, similarity: 100 }],
+        brewery_id: breweryId,
+        _excluded: false,
+      }));
+
+      setPreview(previewBeers);
+      setStep('preview');
+      setProgress(100);
+      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Van ${breweryName}` });
+    } catch (err: any) {
+      toast({ title: 'Fout', description: err.message, variant: 'destructive' });
+    } finally {
+      setScraping(false);
+    }
+  };
 
   const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
