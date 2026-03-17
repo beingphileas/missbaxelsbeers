@@ -186,9 +186,15 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="posts">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex-wrap">
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
+            <TabsTrigger value="pending" className="gap-1.5">
+              <ClipboardCheck size={12} /> Moderatie
+            </TabsTrigger>
+            <TabsTrigger value="brewery-accounts" className="gap-1.5">
+              <Users size={12} /> Brouwerij-accounts
+            </TabsTrigger>
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
             <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
