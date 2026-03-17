@@ -99,12 +99,12 @@ async function extractBeersFromScreenshot(
         messages: [
           {
             role: "system",
-            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot that belong to "${breweryName}". Include every beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
+            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot. The screenshot was captured for "${breweryName}" which could be a brewery, beer bar, shop, or venue. Include EVERY beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
           },
           {
             role: "user",
             content: [
-              { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
+              { type: "text", text: `Extract ALL beers visible in this ${sourceName} screenshot captured for "${breweryName}".` },
               { type: "image_url", image_url: { url: screenshotUrl } },
             ],
           },
@@ -404,7 +404,7 @@ serve(async (req) => {
         source_url: b.source_url,
       }));
 
-      // AI validation (same as web-crawl mode)
+      // AI validation — lenient for screenshot mode (user explicitly captured this content)
       let validated = enriched;
       let rejected: { name: string; reason: string }[] = [];
 
@@ -423,11 +423,17 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: `You are a Belgian beer expert. Validate beers scraped for "${brewery.name}". Mark INVALID if: not a real beer, belongs to different brewery, duplicate phrasing, or scraped noise.`,
+                  content: `You are a Belgian beer expert. These beers were extracted from a screenshot that an admin manually captured for "${brewery.name}". This could be a brewery, beer bar, beer shop, or beer venue.
+
+BE VERY PERMISSIVE: the admin chose to capture this specific content, so trust it. Only mark INVALID if:
+- It is clearly NOT a beer (e.g. food item, merchandise, event)
+- It is exact duplicate text/noise from the OCR
+
+DO NOT reject beers just because they might be from another brewery — the entity might sell/serve beers from many breweries. Keep ALL real beer names.`,
                 },
                 {
                   role: "user",
-                  content: `Validate these ${enriched.length} beers for "${brewery.name}":\n\n${beerList}`,
+                  content: `Validate these ${enriched.length} beers from a screenshot for "${brewery.name}":\n\n${beerList}`,
                 },
               ],
               tools: [
@@ -477,11 +483,13 @@ serve(async (req) => {
                 }
               }
               validated = enriched.filter((_, i) => !invalidIndices.has(i));
-              console.log(`Screenshot AI validation: ${enriched.length} → ${validated.length} valid`);
+              console.log(`Screenshot AI validation: ${enriched.length} → ${validated.length} valid, ${rejected.length} rejected`);
             }
           }
         } catch (e) {
           console.error("Screenshot validation error:", (e as Error).message);
+          // On validation failure, keep all beers (permissive)
+          validated = enriched;
         }
       }
 
