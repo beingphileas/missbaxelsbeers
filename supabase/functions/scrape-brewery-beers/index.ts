@@ -353,19 +353,94 @@ serve(async (req) => {
     const sources: { name: string; url: string; markdown: string }[] = [];
     const screenshots: { name: string; url: string; screenshot: string }[] = [];
 
-    // === SOURCE 1: Brewery's own website (markdown + screenshot) ===
-    const websitePromise = brewery.website_url?.trim()
-      ? scrapeUrl(brewery.website_url, firecrawlKey, ["markdown", "screenshot"]).then((result) => {
-          let url = brewery.website_url!.trim();
-          if (!url.startsWith("http")) url = "https://" + url;
+    // === SOURCE 1: Brewery's own website — homepage + discover beer/shop subpages + pagination ===
+    const websitePromise = (async () => {
+      if (!brewery.website_url?.trim()) return;
+
+      let baseUrl = brewery.website_url.trim();
+      if (!baseUrl.startsWith("http")) baseUrl = "https://" + baseUrl;
+
+      // Scrape homepage
+      const homeResult = await scrapeUrl(baseUrl, firecrawlKey, ["markdown", "screenshot"]);
+      if (homeResult.markdown && homeResult.markdown.length > 50) {
+        sources.push({ name: "Eigen website", url: baseUrl, markdown: homeResult.markdown });
+      }
+      if (homeResult.screenshot) {
+        screenshots.push({ name: "Eigen website (screenshot)", url: baseUrl, screenshot: homeResult.screenshot });
+      }
+
+      // Use Firecrawl Map to discover all subpages
+      let subpageUrls: string[] = [];
+      try {
+        const mapRes = await fetch("https://api.firecrawl.dev/v1/map", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${firecrawlKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: baseUrl, limit: 100, includeSubdomains: false }),
+        });
+        const mapData = await mapRes.json();
+        if (mapRes.ok && mapData.success && mapData.links) {
+          subpageUrls = mapData.links as string[];
+          console.log(`  Website map: found ${subpageUrls.length} URLs`);
+        }
+      } catch (e) {
+        console.error(`  Website map failed:`, (e as Error).message);
+      }
+
+      // Find beer-related subpages by URL pattern
+      const beerPatterns = /\/(shop|bieren|beers|assortiment|products|producten|onze-bieren|gamme|nos-bieres|our-beers|webshop|aanbod)/i;
+      const beerPages = subpageUrls.filter(u => beerPatterns.test(u) && u !== baseUrl);
+
+      // If no beer pages found via map, try common paths directly
+      if (beerPages.length === 0) {
+        const commonPaths = ["/shop", "/bieren", "/beers", "/assortiment", "/onze-bieren", "/products", "/SHOP"];
+        for (const path of commonPaths) {
+          beerPages.push(new URL(path, baseUrl).href);
+        }
+      }
+
+      // Dedupe and limit
+      const uniqueBeerPages = [...new Set(beerPages)].slice(0, 5);
+      console.log(`  Website beer pages to scrape: ${uniqueBeerPages.join(", ")}`);
+
+      // Scrape beer subpages in parallel
+      const subResults = await Promise.allSettled(
+        uniqueBeerPages.map(async (pageUrl) => {
+          const result = await scrapeUrl(pageUrl, firecrawlKey, ["markdown"]);
           if (result.markdown && result.markdown.length > 50) {
-            sources.push({ name: "Eigen website", url, markdown: result.markdown });
-          }
-          if (result.screenshot) {
-            screenshots.push({ name: "Eigen website (screenshot)", url, screenshot: result.screenshot });
+            sources.push({ name: "Eigen website (subpagina)", url: pageUrl, markdown: result.markdown });
+
+            // Check for pagination: look for ?page=2, ?spage=2, etc.
+            const paginationMatches = result.markdown.match(/(?:spage|page)=(\d+)/g);
+            if (paginationMatches) {
+              const maxPage = Math.max(...paginationMatches.map(m => parseInt(m.split("=")[1])));
+              if (maxPage > 1) {
+                // Scrape additional pages (up to page 10)
+                const pagesToScrape = Math.min(maxPage, 10);
+                const pagePromises = [];
+                for (let p = 2; p <= pagesToScrape; p++) {
+                  const separator = pageUrl.includes("?") ? "&" : "?";
+                  // Try both spage and page parameter
+                  const pageParam = result.markdown.includes("spage=") ? "spage" : "page";
+                  const pagedUrl = `${pageUrl}${separator}${pageParam}=${p}`;
+                  pagePromises.push(
+                    scrapeUrl(pagedUrl, firecrawlKey).then((pr) => {
+                      if (pr.markdown && pr.markdown.length > 50) {
+                        sources.push({ name: `Eigen website (pagina ${p})`, url: pagedUrl, markdown: pr.markdown });
+                      }
+                    })
+                  );
+                }
+                await Promise.allSettled(pagePromises);
+                console.log(`  Scraped ${pagesToScrape - 1} extra pagination pages from ${pageUrl}`);
+              }
+            }
           }
         })
-      : Promise.resolve();
+      );
+    })();
 
     // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
     const untappdPromise = (async () => {
