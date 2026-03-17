@@ -353,22 +353,114 @@ serve(async (req) => {
     const sources: { name: string; url: string; markdown: string }[] = [];
     const screenshots: { name: string; url: string; screenshot: string }[] = [];
 
-    // === SOURCE 1: Brewery's own website (markdown + screenshot) ===
-    const websitePromise = brewery.website_url?.trim()
-      ? scrapeUrl(brewery.website_url, firecrawlKey, ["markdown", "screenshot"]).then((result) => {
-          let url = brewery.website_url!.trim();
-          if (!url.startsWith("http")) url = "https://" + url;
+    // === SOURCE 1: Brewery's own website — homepage + discover beer/shop subpages + pagination ===
+    const websitePromise = (async () => {
+      if (!brewery.website_url?.trim()) return;
+
+      let baseUrl = brewery.website_url.trim();
+      if (!baseUrl.startsWith("http")) baseUrl = "https://" + baseUrl;
+
+      // Scrape homepage
+      const homeResult = await scrapeUrl(baseUrl, firecrawlKey, ["markdown", "screenshot"]);
+      if (homeResult.markdown && homeResult.markdown.length > 50) {
+        sources.push({ name: "Eigen website", url: baseUrl, markdown: homeResult.markdown });
+      }
+      if (homeResult.screenshot) {
+        screenshots.push({ name: "Eigen website (screenshot)", url: baseUrl, screenshot: homeResult.screenshot });
+      }
+
+      // Use Firecrawl Map to discover all subpages
+      let subpageUrls: string[] = [];
+      try {
+        const mapRes = await fetch("https://api.firecrawl.dev/v1/map", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${firecrawlKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: baseUrl, limit: 100, includeSubdomains: false }),
+        });
+        const mapData = await mapRes.json();
+        if (mapRes.ok && mapData.success && mapData.links) {
+          subpageUrls = mapData.links as string[];
+          console.log(`  Website map: found ${subpageUrls.length} URLs`);
+        }
+      } catch (e) {
+        console.error(`  Website map failed:`, (e as Error).message);
+      }
+
+      // Find beer-related subpages by URL pattern
+      const beerPatterns = /\/(shop|bieren|beers|assortiment|products|producten|onze-bieren|gamme|nos-bieres|our-beers|webshop|aanbod)/i;
+      const beerPages = subpageUrls.filter(u => beerPatterns.test(u) && u !== baseUrl);
+
+      // If no beer pages found via map, try common paths directly
+      if (beerPages.length === 0) {
+        const commonPaths = ["/shop", "/bieren", "/beers", "/assortiment", "/onze-bieren", "/products", "/SHOP"];
+        for (const path of commonPaths) {
+          beerPages.push(new URL(path, baseUrl).href);
+        }
+      }
+
+      // Dedupe and limit
+      const uniqueBeerPages = [...new Set(beerPages)].slice(0, 5);
+      console.log(`  Website beer pages to scrape: ${uniqueBeerPages.join(", ")}`);
+
+      // Scrape beer subpages in parallel
+      const subResults = await Promise.allSettled(
+        uniqueBeerPages.map(async (pageUrl) => {
+          const result = await scrapeUrl(pageUrl, firecrawlKey, ["markdown"]);
           if (result.markdown && result.markdown.length > 50) {
-            sources.push({ name: "Eigen website", url, markdown: result.markdown });
-          }
-          if (result.screenshot) {
-            screenshots.push({ name: "Eigen website (screenshot)", url, screenshot: result.screenshot });
+            sources.push({ name: "Eigen website (subpagina)", url: pageUrl, markdown: result.markdown });
+
+            // Check for pagination: look for ?page=2, ?spage=2, etc.
+            const paginationMatches = result.markdown.match(/(?:spage|page)=(\d+)/g);
+            if (paginationMatches) {
+              const maxPage = Math.max(...paginationMatches.map(m => parseInt(m.split("=")[1])));
+              if (maxPage > 1) {
+                // Scrape additional pages (up to page 10)
+                const pagesToScrape = Math.min(maxPage, 10);
+                const pagePromises = [];
+                for (let p = 2; p <= pagesToScrape; p++) {
+                  const separator = pageUrl.includes("?") ? "&" : "?";
+                  // Try both spage and page parameter
+                  const pageParam = result.markdown.includes("spage=") ? "spage" : "page";
+                  const pagedUrl = `${pageUrl}${separator}${pageParam}=${p}`;
+                  pagePromises.push(
+                    scrapeUrl(pagedUrl, firecrawlKey).then((pr) => {
+                      if (pr.markdown && pr.markdown.length > 50) {
+                        sources.push({ name: `Eigen website (pagina ${p})`, url: pagedUrl, markdown: pr.markdown });
+                      }
+                    })
+                  );
+                }
+                await Promise.allSettled(pagePromises);
+                console.log(`  Scraped ${pagesToScrape - 1} extra pagination pages from ${pageUrl}`);
+              }
+            }
           }
         })
-      : Promise.resolve();
+      );
+    })();
 
     // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
     const untappdPromise = (async () => {
+      // Wait for website scraping to finish so we can extract Untappd links from it
+      await websitePromise;
+
+      // Step 0: Check if we found an Untappd link on the brewery's own website
+      let untappdLinkFromWebsite = "";
+      for (const src of sources) {
+        if (src.name.startsWith("Eigen website")) {
+          // Look for untappd.com links in the markdown
+          const untappdMatch = src.markdown.match(/https?:\/\/untappd\.com\/[^\s)"\]]+/i);
+          if (untappdMatch) {
+            untappdLinkFromWebsite = untappdMatch[0];
+            console.log(`  Found Untappd link on website: ${untappdLinkFromWebsite}`);
+            break;
+          }
+        }
+      }
+
       // Generate multiple name variants for better search coverage
       const nameVariants = new Set<string>();
       nameVariants.add(brewery.name);
@@ -381,9 +473,8 @@ serve(async (req) => {
       const splitCamel = brewery.name.replace(/([a-z])([A-Z])/g, "$1 $2");
       if (splitCamel !== brewery.name) {
         nameVariants.add(splitCamel);
-        // Also try without Brouwerie/Brouwerij suffix
-        const withoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
-        if (withoutSuffix !== splitCamel) nameVariants.add(withoutSuffix);
+        const camelWithoutSuffix = splitCamel.replace(/\s*(brouweri[ej]|brewery|brasserie)$/i, "").trim();
+        if (camelWithoutSuffix !== splitCamel) nameVariants.add(camelWithoutSuffix);
       }
 
       // Remove trailing Brouwerij/Brewery/Brasserie
@@ -401,18 +492,24 @@ serve(async (req) => {
       const searchResultSets = await Promise.all(searchPromises);
       const allSearchResults = searchResultSets.flat();
 
-      // Find the main brewery page URL (matches /w/brewery-name/ID pattern)
-      let breweryPageUrl = "";
+      // Find the main brewery page URL
+      // Accept multiple patterns: /w/name/ID, /Brewery_Name, /w/name
+      let breweryPageUrl = untappdLinkFromWebsite; // Prefer the link from their own website
       const seen = new Set<string>();
+
       for (const r of allSearchResults) {
         if (seen.has(r.url)) continue;
         seen.add(r.url);
-        if (r.url && /untappd\.com\/w\/[^/]+\/\d+/.test(r.url) && !breweryPageUrl) {
-          breweryPageUrl = r.url;
-          if (r.markdown && r.markdown.length > 50) {
-            sources.push({ name: "untappd.com (brouwerijpagina)", url: r.url, markdown: r.markdown });
+
+        // Check for brewery page patterns
+        if (!breweryPageUrl && r.url) {
+          if (/untappd\.com\/(w\/[^/]+\/\d+|w\/[^/]+$)/.test(r.url) ||
+              /untappd\.com\/[A-Z][A-Za-z_]+$/.test(r.url)) {
+            breweryPageUrl = r.url;
           }
-        } else if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
+        }
+
+        if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
           sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
         }
       }
