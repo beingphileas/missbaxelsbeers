@@ -61,7 +61,6 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
-  const [scraping, setScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
@@ -70,7 +69,11 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const [breweries, setBreweries] = useState<BreweryItem[]>([]);
   const [brewerySearch, setBrewerySearch] = useState('');
-  const [scrapedBrewery, setScrapedBrewery] = useState<string | null>(null);
+
+  // Track multiple simultaneous scrapes & checks
+  const [scrapingIds, setScrapingIds] = useState<Set<string>>(new Set());
+  const [checkingIds, setCheckingIds] = useState<Set<string>>(new Set());
+  const [scrapeLog, setScrapeLog] = useState<{ id: string; name: string; found: number; error?: string }[]>([]);
 
   // Fact-check state
   const [checking, setChecking] = useState<string | null>(null); // brewery id being checked
