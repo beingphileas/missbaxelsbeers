@@ -734,6 +734,18 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                             setScrapeLog(prev => [...prev, { id: b.id, name: b.name, found: previewBeers.length }]);
                           }}
                         />
+                        <a
+                          href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground" type="button" asChild>
+                            <span>
+                              <Beer size={12} />
+                              Untappd
+                            </span>
+                          </Button>
+                        </a>
                       </div>
                     </div>
                   );
