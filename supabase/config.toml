@@ -38,3 +38,9 @@ verify_jwt = false
 
 [functions.check-brewery-beers]
 verify_jwt = false
+
+[functions.analyze-beer]
+verify_jwt = false
+
+[functions.factcheck-beer]
+verify_jwt = false
