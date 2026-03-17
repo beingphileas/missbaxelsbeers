@@ -76,7 +76,6 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const [scrapeLog, setScrapeLog] = useState<{ id: string; name: string; found: number; error?: string }[]>([]);
 
   // Fact-check state
-  const [checking, setChecking] = useState<string | null>(null); // brewery id being checked
   const [checkResult, setCheckResult] = useState<{
     brewery_name: string;
     beer_count: number;
