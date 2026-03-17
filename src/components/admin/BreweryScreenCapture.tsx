@@ -1,9 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { Camera, X, Loader2, Monitor, Plus, Scan, Square, Link, Globe, Upload, FileText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import {
+  Camera, X, Loader2, Monitor, Plus, Scan, Square, Link, Globe,
+  Upload, FileText, CheckCircle2, AlertCircle, Star, Save, ArrowLeft,
+  ExternalLink, Trophy, DollarSign, Shield,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +17,50 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+
+// ─── Types ────────────────────────────────────────────────────
+
+interface ExtractedBeer {
+  name: string;
+  style: string;
+  abv: number | null;
+  description: string;
+  source?: string;
+  source_url?: string;
+  untappd_rating?: number | null;
+  quality_score?: number | null;
+}
+
+interface FactcheckResult {
+  confidence_score: number;
+  abv_verified: boolean;
+  style_verified: boolean;
+  style_note?: string;
+  awards: { name: string; year?: number; medal?: string }[];
+  price_range?: { min?: number; max?: number; currency?: string };
+  external_ratings?: {
+    untappd?: { score: number | null; url: string | null };
+    ratebeer?: { score: number | null; url: string | null };
+    beeradvocate?: { score: number | null; url: string | null };
+  };
+  external_links?: { label: string; url: string }[];
+  issues?: string[];
+  suggestions?: string[];
+}
+
+interface BeerWithFactcheck extends ExtractedBeer {
+  _factcheck?: FactcheckResult | null;
+  _factchecking?: boolean;
+  _saved?: boolean;
+  _saving?: boolean;
+  _db_id?: string;
+}
 
 interface BreweryScreenCaptureProps {
   breweryId: string;
@@ -19,43 +68,75 @@ interface BreweryScreenCaptureProps {
   onBeersFound: (beers: any[]) => void;
 }
 
-/** Parse a saved Untappd HTML file and extract all beer data client-side */
-function parseUntappdHtml(htmlString: string): {
-  name: string;
-  style: string;
-  abv: number | null;
-  description: string;
-}[] {
+// ─── HTML Parser ──────────────────────────────────────────────
+
+function parseUntappdHtml(htmlString: string): ExtractedBeer[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
   const items = doc.querySelectorAll('.beer-item');
-  const beers: { name: string; style: string; abv: number | null; description: string }[] = [];
+  const beers: ExtractedBeer[] = [];
 
   items.forEach((item) => {
-    const nameEl = item.querySelector('.beer-details .name a');
-    const styleEl = item.querySelector('.beer-details .style');
-    const descEl = item.querySelector('.beer-details .desc');
-    const abvEl = item.querySelector('.details-item.abv');
+    const nameEl = item.querySelector('.beer-details .name a, h5 a, .name a');
+    const styleEl = item.querySelector('.beer-details .style, .style, p.style');
+    const descEl = item.querySelector('.beer-details .desc, .desc');
+    const abvEl = item.querySelector('.details-item.abv, .abv');
+    const ratingEl = item.querySelector('.caps[data-rating], .num, .rating .num');
 
     const name = nameEl?.textContent?.trim() || '';
     if (!name) return;
 
     const style = styleEl?.textContent?.trim() || '';
     const desc = (descEl?.textContent?.trim() || '')
-      .replace(/Read More/g, '')
-      .replace(/Read Less/g, '')
-      .trim()
-      .slice(0, 300);
+      .replace(/Read More/g, '').replace(/Read Less/g, '').trim().slice(0, 300);
 
     const abvRaw = abvEl?.textContent?.trim() || '';
     const abvMatch = abvRaw.match(/([\d.]+)%/);
     const abv = abvMatch ? parseFloat(abvMatch[1]) : null;
 
-    beers.push({ name, style, abv, description: desc });
+    let untappd_rating: number | null = null;
+    const ratingAttr = item.querySelector('.caps[data-rating]')?.getAttribute('data-rating');
+    if (ratingAttr) {
+      untappd_rating = parseFloat(ratingAttr);
+    } else {
+      const numEl = item.querySelector('.num');
+      const numText = numEl?.textContent?.trim();
+      if (numText && /^\d+(\.\d+)?$/.test(numText)) {
+        untappd_rating = parseFloat(numText);
+      }
+    }
+
+    beers.push({ name, style, abv, description: desc, untappd_rating });
   });
 
   return beers;
 }
+
+// ─── Score Ring Component ─────────────────────────────────────
+
+function ScoreRing({ score }: { score: number }) {
+  const r = 18;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference - (score / 100) * circumference;
+  const color = score >= 90 ? '#22c55e' : score >= 80 ? '#eab308' : score >= 70 ? '#f97316' : '#ef4444';
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44" className="shrink-0">
+      <circle cx="22" cy="22" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+      <circle
+        cx="22" cy="22" r={r} fill="none" stroke={color} strokeWidth="3"
+        strokeDasharray={circumference} strokeDashoffset={offset}
+        strokeLinecap="round" transform="rotate(-90 22 22)"
+        className="transition-all duration-700"
+      />
+      <text x="22" y="22" textAnchor="middle" dominantBaseline="central"
+        className="fill-foreground font-bold" style={{ fontSize: '11px' }}>
+        {score}
+      </text>
+    </svg>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────
 
 export default function BreweryScreenCapture({
   breweryId,
@@ -71,49 +152,42 @@ export default function BreweryScreenCapture({
   const [htmlFileName, setHtmlFileName] = useState('');
   const htmlFileRef = useRef<HTMLInputElement>(null);
 
+  // Results state
+  const [extractedBeers, setExtractedBeers] = useState<BeerWithFactcheck[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [autoFactchecking, setAutoFactchecking] = useState(false);
+  const [savingAll, setSavingAll] = useState(false);
+  const [expandedBeer, setExpandedBeer] = useState<string | null>(null);
+
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const intervalRef = useRef<number | null>(null);
 
   const stopScan = useCallback(() => {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
+    if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
+    if (streamRef.current) { streamRef.current.getTracks().forEach((t) => t.stop()); streamRef.current = null; }
+    if (videoRef.current) { videoRef.current.srcObject = null; }
     setScanning(false);
   }, []);
 
   useEffect(() => {
-    if (!open) stopScan();
+    if (!open) { stopScan(); setShowResults(false); setExtractedBeers([]); }
     return () => stopScan();
   }, [open, stopScan]);
 
   const captureFrame = useCallback(() => {
     const video = videoRef.current;
     if (!video || !video.videoWidth || !video.videoHeight) return;
-
     const maxWidth = 1440;
     const scale = Math.min(1, maxWidth / video.videoWidth);
-    const width = Math.round(video.videoWidth * scale);
-    const height = Math.round(video.videoHeight * scale);
-
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, width, height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
     const base64 = dataUrl.split(',')[1];
-
     setCaptures((prev) => {
       const last = prev[prev.length - 1];
       if (last?.base64 === base64) return prev;
@@ -126,20 +200,13 @@ export default function BreweryScreenCapture({
     try {
       stopScan();
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { displaySurface: 'browser' } as any,
-        audio: false,
+        video: { displaySurface: 'browser' } as any, audio: false,
       } as any);
-
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-
+      if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
       setScanning(true);
       captureFrame();
       intervalRef.current = window.setInterval(captureFrame, 1500);
-
       const track = stream.getVideoTracks()[0];
       if (track) {
         track.addEventListener('ended', () => {
@@ -147,11 +214,7 @@ export default function BreweryScreenCapture({
           toast({ title: 'Scan gestopt', description: 'Delen van tabblad werd beëindigd.' });
         });
       }
-
-      toast({
-        title: 'Live scan gestart',
-        description: 'Scroll door de volledige pagina; frames worden automatisch verzameld.',
-      });
+      toast({ title: 'Live scan gestart', description: 'Scroll door de volledige pagina.' });
     } catch (err: any) {
       if (err.name !== 'NotAllowedError') {
         toast({ title: 'Screen capture mislukt', description: err.message, variant: 'destructive' });
@@ -171,69 +234,200 @@ export default function BreweryScreenCapture({
     setCaptures((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // === HTML UPLOAD MODE: parse saved Untappd page locally ===
+  // ─── Factcheck a single beer ─────────────────────────────────
+
+  const factcheckBeer = useCallback(async (beer: BeerWithFactcheck, index: number) => {
+    if (!beer._db_id) return;
+
+    setExtractedBeers(prev => prev.map((b, i) => i === index ? { ...b, _factchecking: true } : b));
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke('factcheck-beer', {
+        body: { beer_id: beer._db_id },
+      });
+
+      if (res.error) throw new Error(res.error.message);
+
+      const factcheck = res.data?.factcheck || res.data;
+      setExtractedBeers(prev => prev.map((b, i) =>
+        i === index ? { ...b, _factcheck: factcheck, _factchecking: false } : b
+      ));
+    } catch (err: any) {
+      console.error('Factcheck failed:', err);
+      setExtractedBeers(prev => prev.map((b, i) =>
+        i === index ? { ...b, _factchecking: false } : b
+      ));
+    }
+  }, []);
+
+  // ─── Save all beers + auto-factcheck ──────────────────────────
+
+  const saveAndFactcheckAll = useCallback(async (beers: BeerWithFactcheck[]) => {
+    setSavingAll(true);
+    setAutoFactchecking(true);
+
+    const savedBeers: BeerWithFactcheck[] = [...beers];
+
+    // 1. Save all beers to DB
+    for (let i = 0; i < beers.length; i++) {
+      const beer = beers[i];
+      setExtractedBeers(prev => prev.map((b, idx) => idx === i ? { ...b, _saving: true } : b));
+
+      try {
+        // Upsert: check if beer already exists for this brewery
+        const { data: existing } = await supabase
+          .from('beers')
+          .select('id')
+          .eq('brewery_id', breweryId)
+          .ilike('name', beer.name)
+          .maybeSingle();
+
+        let dbId: string;
+        if (existing) {
+          // Update existing
+          await supabase.from('beers').update({
+            style: beer.style || undefined,
+            abv: beer.abv ?? undefined,
+            description: beer.description || undefined,
+            source_url: beer.source_url || undefined,
+          }).eq('id', existing.id);
+          dbId = existing.id;
+        } else {
+          // Insert new
+          const { data: inserted, error } = await supabase.from('beers').insert({
+            brewery_id: breweryId,
+            name: beer.name,
+            style: beer.style || 'Unknown',
+            abv: beer.abv,
+            description: beer.description || null,
+            source_url: beer.source_url || null,
+          }).select('id').single();
+
+          if (error) throw error;
+          dbId = inserted.id;
+        }
+
+        savedBeers[i] = { ...savedBeers[i], _db_id: dbId, _saved: true, _saving: false };
+        setExtractedBeers([...savedBeers]);
+      } catch (err: any) {
+        console.error(`Save failed for ${beer.name}:`, err);
+        savedBeers[i] = { ...savedBeers[i], _saving: false };
+        setExtractedBeers([...savedBeers]);
+      }
+    }
+
+    setSavingAll(false);
+
+    // 2. Auto-factcheck all saved beers (with 1.5s delay between to avoid rate limits)
+    for (let i = 0; i < savedBeers.length; i++) {
+      if (!savedBeers[i]._db_id) continue;
+
+      setExtractedBeers(prev => prev.map((b, idx) => idx === i ? { ...b, _factchecking: true } : b));
+
+      try {
+        const res = await supabase.functions.invoke('factcheck-beer', {
+          body: { beer_id: savedBeers[i]._db_id },
+        });
+
+        if (res.error) throw new Error(res.error.message);
+        const factcheck = res.data?.factcheck || res.data;
+
+        savedBeers[i] = { ...savedBeers[i], _factcheck: factcheck, _factchecking: false };
+        setExtractedBeers([...savedBeers]);
+
+        // Update quality_score from factcheck confidence
+        if (factcheck.confidence_score && savedBeers[i]._db_id) {
+          await supabase.from('beers').update({
+            quality_score: factcheck.confidence_score,
+          }).eq('id', savedBeers[i]._db_id!);
+
+          savedBeers[i] = { ...savedBeers[i], quality_score: factcheck.confidence_score };
+          setExtractedBeers([...savedBeers]);
+        }
+      } catch (err: any) {
+        console.error(`Factcheck failed for ${savedBeers[i].name}:`, err);
+        savedBeers[i] = { ...savedBeers[i], _factchecking: false };
+        setExtractedBeers([...savedBeers]);
+      }
+
+      // Rate limit delay
+      if (i < savedBeers.length - 1) {
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+
+    setAutoFactchecking(false);
+    toast({
+      title: `${savedBeers.filter(b => b._saved).length} bieren opgeslagen`,
+      description: `${savedBeers.filter(b => b._factcheck).length} factchecks voltooid`,
+    });
+
+    // Also notify parent
+    onBeersFound(savedBeers.filter(b => b._saved));
+  }, [breweryId, onBeersFound]);
+
+  // ─── Process beers after extraction ───────────────────────────
+
+  const processExtractedBeers = useCallback((beers: ExtractedBeer[]) => {
+    if (beers.length === 0) {
+      toast({ title: 'Geen bieren gevonden', variant: 'destructive' });
+      return;
+    }
+
+    const withState: BeerWithFactcheck[] = beers.map(b => ({
+      ...b,
+      _factcheck: null,
+      _factchecking: false,
+      _saved: false,
+      _saving: false,
+    }));
+
+    setExtractedBeers(withState);
+    setShowResults(true);
+
+    toast({
+      title: `${beers.length} bieren geëxtraheerd`,
+      description: 'Bezig met opslaan en factchecken…',
+    });
+
+    // Auto save + factcheck
+    saveAndFactcheckAll(withState);
+  }, [saveAndFactcheckAll]);
+
+  // ─── HTML Upload ──────────────────────────────────────────────
+
   const handleHtmlUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setHtmlFileName(file.name);
     setLoading(true);
-
     try {
       const text = await file.text();
       const beers = parseUntappdHtml(text);
-
-      if (beers.length === 0) {
-        toast({
-          title: 'Geen bieren gevonden',
-          description: 'Het HTML-bestand bevat geen herkenbare Untappd biergegevens.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      toast({
-        title: `${beers.length} bieren gevonden`,
-        description: `Direct geparsed uit ${file.name}`,
-      });
-
-      onBeersFound(beers);
-      setOpen(false);
-      setHtmlFileName('');
+      processExtractedBeers(beers);
     } catch (err: any) {
       toast({ title: 'Fout bij lezen', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
       if (htmlFileRef.current) htmlFileRef.current.value = '';
     }
-  }, [onBeersFound]);
+  }, [processExtractedBeers]);
 
-  // === URL MODE ===
+  // ─── URL Mode ─────────────────────────────────────────────────
+
   const handleUrlSubmit = async () => {
     const url = urlInput.trim();
     if (!url) return;
-
     setLoading(true);
     try {
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
         body: { brewery_id: breweryId, mode: 'url', scan_url: url },
       });
-
-      if (res.error) {
-        toast({ title: 'Analyse fout', description: res.error.message, variant: 'destructive' });
-        return;
-      }
-
+      if (res.error) { toast({ title: 'Fout', description: res.error.message, variant: 'destructive' }); return; }
       const data = res.data;
-      if (!data.beers || data.beers.length === 0) {
-        toast({ title: `${breweryName}: geen bieren gevonden`, variant: 'destructive' });
-        return;
-      }
-
-      toast({ title: `${breweryName}: ${data.beers.length} bieren gevonden`, description: 'Via URL scan' });
-      onBeersFound(data.beers);
-      setOpen(false);
-      setUrlInput('');
+      if (!data.beers?.length) { toast({ title: 'Geen bieren gevonden', variant: 'destructive' }); return; }
+      processExtractedBeers(data.beers);
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
@@ -241,7 +435,8 @@ export default function BreweryScreenCapture({
     }
   };
 
-  // === SCREENSHOT MODE ===
+  // ─── Screenshot Mode ──────────────────────────────────────────
+
   const handleScreenshotSubmit = async () => {
     if (captures.length === 0) return;
     stopScan();
@@ -250,21 +445,10 @@ export default function BreweryScreenCapture({
       const res = await supabase.functions.invoke('scrape-brewery-beers', {
         body: { brewery_id: breweryId, mode: 'screenshot', images: captures.map((c) => c.base64) },
       });
-
-      if (res.error) {
-        toast({ title: 'Analyse fout', description: res.error.message, variant: 'destructive' });
-        return;
-      }
-
+      if (res.error) { toast({ title: 'Fout', description: res.error.message, variant: 'destructive' }); return; }
       const data = res.data;
-      if (!data.beers || data.beers.length === 0) {
-        toast({ title: `${breweryName}: geen bieren gevonden`, variant: 'destructive' });
-        return;
-      }
-
-      toast({ title: `${breweryName}: ${data.beers.length} bieren gevonden`, description: `Via ${captures.length} frame(s)` });
-      onBeersFound(data.beers);
-      setOpen(false);
+      if (!data.beers?.length) { toast({ title: 'Geen bieren gevonden', variant: 'destructive' }); return; }
+      processExtractedBeers(data.beers);
       setCaptures([]);
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
@@ -272,6 +456,17 @@ export default function BreweryScreenCapture({
       setLoading(false);
     }
   };
+
+  // ─── Stats ────────────────────────────────────────────────────
+
+  const stats = useMemo(() => ({
+    total: extractedBeers.length,
+    saved: extractedBeers.filter(b => b._saved).length,
+    factchecked: extractedBeers.filter(b => b._factcheck).length,
+    checking: extractedBeers.filter(b => b._factchecking).length,
+  }), [extractedBeers]);
+
+  // ─── Render ───────────────────────────────────────────────────
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -281,173 +476,325 @@ export default function BreweryScreenCapture({
           Capture
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="font-serif text-lg">
+          <DialogTitle className="font-serif text-lg flex items-center gap-2">
+            {showResults && (
+              <Button
+                size="sm" variant="ghost" className="h-6 w-6 p-0"
+                onClick={() => setShowResults(false)}
+              >
+                <ArrowLeft size={14} />
+              </Button>
+            )}
             Beer Scan — {breweryName}
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="html" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-3 shrink-0">
-            <TabsTrigger value="html" className="gap-1.5 text-xs">
-              <FileText size={14} />
-              Upload HTML
-            </TabsTrigger>
-            <TabsTrigger value="url" className="gap-1.5 text-xs">
-              <Globe size={14} />
-              Paste URL
-            </TabsTrigger>
-            <TabsTrigger value="capture" className="gap-1.5 text-xs">
-              <Monitor size={14} />
-              Screen Capture
-            </TabsTrigger>
-          </TabsList>
-
-          {/* === HTML UPLOAD TAB === */}
-          <TabsContent value="html" className="flex-1 flex flex-col gap-3 mt-3">
-            <p className="text-xs text-muted-foreground">
-              Open de Untappd-pagina in je browser → <strong>Ctrl+S</strong> → "Webpagina, volledig" →
-              upload het <code>.html</code> bestand hier. Instant parsing, geen AI nodig.
-            </p>
-
-            <input
-              ref={htmlFileRef}
-              type="file"
-              accept=".html,.htm"
-              className="hidden"
-              onChange={handleHtmlUpload}
-            />
-
-            <Button
-              variant="outline"
-              className="gap-2 w-full border-dashed border-2 h-16 flex-col"
-              onClick={() => htmlFileRef.current?.click()}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <Upload size={20} />
-              )}
-              <span className="text-xs">
-                {loading ? 'Parsing…' : htmlFileName || 'Kies een opgeslagen HTML-bestand'}
-              </span>
-            </Button>
-
-            <div className="bg-muted/50 border border-border rounded-md p-3 text-[11px] text-muted-foreground space-y-1">
-              <p className="font-medium text-foreground">⚡ Snelste methode</p>
-              <p>Parsed direct in je browser — geen server, geen AI, geen wachttijd.</p>
-              <p>Werkt met opgeslagen Untappd pagina's (Ctrl+S in Chrome/Firefox).</p>
+        {/* ─── RESULTS VIEW ──────────────────────────────── */}
+        {showResults ? (
+          <div className="flex-1 overflow-y-auto space-y-3">
+            {/* Progress bar */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Save size={10} /> {stats.saved}/{stats.total} opgeslagen
+                </span>
+                <span className="flex items-center gap-1">
+                  <Shield size={10} /> {stats.factchecked}/{stats.total} gecheckt
+                </span>
+                {stats.checking > 0 && (
+                  <span className="flex items-center gap-1 animate-pulse">
+                    <Loader2 size={10} className="animate-spin" /> {stats.checking} bezig…
+                  </span>
+                )}
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-500"
+                  style={{ width: `${stats.total ? (stats.factchecked / stats.total) * 100 : 0}%` }}
+                />
+              </div>
             </div>
-          </TabsContent>
 
-          {/* === URL TAB === */}
-          <TabsContent value="url" className="flex-1 flex flex-col gap-3 mt-3">
-            <p className="text-xs text-muted-foreground">
-              Plak een URL (bijv. Untappd, RateBeer, eigen website) en wij scrapen en analyseren
-              de volledige pagina automatisch — geen handmatig scrollen nodig.
-            </p>
+            {/* Beer results table */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              {/* Header */}
+              <div className="grid grid-cols-[44px_1fr_1fr_60px_70px_32px] gap-2 px-3 py-2 bg-muted/50 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+                <span>Score</span>
+                <span>Bier</span>
+                <span>Stijl</span>
+                <span className="text-right">ABV</span>
+                <span className="text-right">Untappd</span>
+                <span />
+              </div>
 
-            <Input
-              placeholder="https://untappd.com/w/brewery-name/12345"
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              disabled={loading}
-              onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()}
-            />
+              {/* Rows */}
+              {extractedBeers.map((beer, i) => {
+                const fc = beer._factcheck;
+                const score = beer.quality_score || fc?.confidence_score || null;
+                const untappdScore = fc?.external_ratings?.untappd?.score ?? beer.untappd_rating ?? null;
+                const isExpanded = expandedBeer === beer.name;
 
-            <Button
-              className="gap-1.5 w-full"
-              onClick={handleUrlSubmit}
-              disabled={loading || !urlInput.trim()}
-            >
-              {loading ? <Loader2 size={14} className="animate-spin" /> : <Link size={14} />}
-              {loading ? 'Pagina wordt gescraped…' : 'Scan URL'}
-            </Button>
+                return (
+                  <div key={`${beer.name}-${i}`}>
+                    <div
+                      className={`grid grid-cols-[44px_1fr_1fr_60px_70px_32px] gap-2 px-3 py-2 items-center border-b border-border/50 cursor-pointer hover:bg-muted/30 transition-colors ${isExpanded ? 'bg-muted/40' : ''}`}
+                      onClick={() => setExpandedBeer(isExpanded ? null : beer.name)}
+                    >
+                      {/* Score */}
+                      <div>
+                        {beer._factchecking ? (
+                          <Loader2 size={18} className="animate-spin text-muted-foreground" />
+                        ) : score ? (
+                          <ScoreRing score={score} />
+                        ) : beer._saving ? (
+                          <Loader2 size={18} className="animate-spin text-muted-foreground" />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
 
-            {loading && (
-              <p className="text-xs text-muted-foreground animate-pulse text-center">
-                Firecrawl scraped de pagina en AI analyseert de content… dit kan 20-60 sec duren.
-              </p>
-            )}
-          </TabsContent>
+                      {/* Beer name */}
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{beer.name}</p>
+                        {beer.description && (
+                          <p className="text-[10px] text-muted-foreground truncate">{beer.description}</p>
+                        )}
+                      </div>
 
-          {/* === SCREEN CAPTURE TAB === */}
-          <TabsContent value="capture" className="flex-1 flex flex-col overflow-hidden mt-3">
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              <p className="text-xs text-muted-foreground">
-                Fallback: deel je browser-tabblad en scroll handmatig door de pagina.
-              </p>
+                      {/* Style */}
+                      <div className="min-w-0">
+                        <Badge variant="outline" className="text-[10px] truncate max-w-full">
+                          {beer.style || '—'}
+                        </Badge>
+                        {fc?.style_verified === false && fc.style_note && (
+                          <p className="text-[9px] text-amber-500 mt-0.5 truncate">⚠ {fc.style_note}</p>
+                        )}
+                      </div>
 
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full rounded-md border border-border bg-muted aspect-video"
-              />
+                      {/* ABV */}
+                      <p className="text-sm text-right font-mono">
+                        {beer.abv ? `${beer.abv}%` : '—'}
+                        {fc?.abv_verified === false && <span className="text-amber-500 ml-0.5">⚠</span>}
+                      </p>
 
-              {captures.length > 0 && (
-                <div className="grid grid-cols-4 gap-1.5">
-                  {captures.map((cap, i) => (
-                    <div key={i} className="relative group">
-                      <img
-                        src={cap.dataUrl}
-                        alt={`Capture ${i + 1}`}
-                        className="w-full h-16 object-cover rounded border border-border"
-                      />
-                      <button
-                        onClick={() => removeCapture(i)}
-                        className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X size={10} />
-                      </button>
+                      {/* Untappd */}
+                      <div className="text-right">
+                        {untappdScore ? (
+                          <span className="inline-flex items-center gap-0.5 text-sm">
+                            <Star size={10} className="fill-amber-400 text-amber-400" />
+                            {untappdScore.toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
+
+                      {/* Status icon */}
+                      <div className="flex justify-center">
+                        {beer._factchecking ? (
+                          <Loader2 size={12} className="animate-spin text-blue-500" />
+                        ) : fc ? (
+                          <CheckCircle2 size={14} className="text-green-500" />
+                        ) : beer._saved ? (
+                          <CheckCircle2 size={14} className="text-muted-foreground" />
+                        ) : beer._saving ? (
+                          <Loader2 size={12} className="animate-spin text-muted-foreground" />
+                        ) : (
+                          <AlertCircle size={14} className="text-muted-foreground/50" />
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {/* Expanded factcheck details */}
+                    {isExpanded && fc && (
+                      <div className="px-4 py-3 bg-muted/20 border-b border-border space-y-3 text-xs">
+                        {/* Awards */}
+                        {fc.awards && fc.awards.length > 0 && (
+                          <div>
+                            <p className="font-semibold flex items-center gap-1 mb-1">
+                              <Trophy size={12} className="text-amber-500" /> Awards
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {fc.awards.map((a, j) => (
+                                <Badge key={j} variant="secondary" className="text-[10px]">
+                                  {a.medal && `${a.medal === 'gold' ? '🥇' : a.medal === 'silver' ? '🥈' : '🥉'} `}
+                                  {a.name} {a.year ? `(${a.year})` : ''}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Price range */}
+                        {fc.price_range && (fc.price_range.min || fc.price_range.max) && (
+                          <div className="flex items-center gap-1">
+                            <DollarSign size={12} className="text-green-500" />
+                            <span>
+                              €{fc.price_range.min || '?'} – €{fc.price_range.max || '?'}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* External ratings */}
+                        {fc.external_ratings && (
+                          <div className="flex gap-3">
+                            {fc.external_ratings.untappd?.score && (
+                              <a href={fc.external_ratings.untappd.url || '#'} target="_blank" rel="noopener"
+                                className="flex items-center gap-1 text-blue-500 hover:underline">
+                                <ExternalLink size={10} /> Untappd: {fc.external_ratings.untappd.score}
+                              </a>
+                            )}
+                            {fc.external_ratings.ratebeer?.score && (
+                              <a href={fc.external_ratings.ratebeer.url || '#'} target="_blank" rel="noopener"
+                                className="flex items-center gap-1 text-blue-500 hover:underline">
+                                <ExternalLink size={10} /> RateBeer: {fc.external_ratings.ratebeer.score}
+                              </a>
+                            )}
+                            {fc.external_ratings.beeradvocate?.score && (
+                              <a href={fc.external_ratings.beeradvocate.url || '#'} target="_blank" rel="noopener"
+                                className="flex items-center gap-1 text-blue-500 hover:underline">
+                                <ExternalLink size={10} /> BA: {fc.external_ratings.beeradvocate.score}
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Issues */}
+                        {fc.issues && fc.issues.length > 0 && (
+                          <div className="space-y-0.5">
+                            <p className="font-semibold text-amber-600">⚠ Issues</p>
+                            {fc.issues.map((issue, j) => (
+                              <p key={j} className="text-muted-foreground pl-3">• {issue}</p>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Suggestions */}
+                        {fc.suggestions && fc.suggestions.length > 0 && (
+                          <div className="space-y-0.5">
+                            <p className="font-semibold text-blue-600">💡 Suggesties</p>
+                            {fc.suggestions.map((s, j) => (
+                              <p key={j} className="text-muted-foreground pl-3">• {s}</p>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* External links */}
+                        {fc.external_links && fc.external_links.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {fc.external_links.map((link, j) => (
+                              <a key={j} href={link.url} target="_blank" rel="noopener"
+                                className="text-[10px] text-blue-500 hover:underline flex items-center gap-0.5">
+                                <ExternalLink size={8} /> {link.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-border shrink-0">
-              {!scanning ? (
-                <Button
-                  variant="outline"
-                  className="gap-2 w-full border-dashed border-2 h-12"
-                  onClick={startScan}
-                  disabled={capturing || loading}
-                >
-                  {capturing ? <Loader2 size={16} className="animate-spin" /> : <Scan size={16} />}
-                  {capturing ? 'Tabblad selecteren…' : 'Start screen capture'}
-                </Button>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="gap-2" onClick={addManualFrame} disabled={loading}>
-                    <Plus size={16} />
-                    Extra frame
-                  </Button>
-                  <Button variant="destructive" className="gap-2" onClick={stopScan} disabled={loading}>
-                    <Square size={16} />
-                    Stop
-                  </Button>
-                </div>
-              )}
-
-              {captures.length > 0 && (
-                <Button className="gap-1.5 w-full" onClick={handleScreenshotSubmit} disabled={loading || capturing}>
-                  {loading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
-                  Analyseer {captures.length} frame{captures.length > 1 ? 's' : ''}
-                </Button>
-              )}
-
-              {(loading || scanning) && (
-                <p className="text-xs text-muted-foreground animate-pulse text-center">
-                  {loading ? 'AI analyseert frames…' : `Live scan — ${captures.length} frame(s) verzameld.`}
+            {/* Summary */}
+            {!autoFactchecking && !savingAll && stats.factchecked === stats.total && stats.total > 0 && (
+              <div className="text-center py-2">
+                <p className="text-xs text-green-600 font-medium">
+                  ✅ Alle {stats.total} bieren opgeslagen en gecheckt
                 </p>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+                <Button size="sm" variant="outline" className="mt-2" onClick={() => setOpen(false)}>
+                  Sluiten
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* ─── CAPTURE TABS ──────────────────────────────── */
+          <Tabs defaultValue="html" className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-3 shrink-0">
+              <TabsTrigger value="html" className="gap-1.5 text-xs"><FileText size={14} />Upload HTML</TabsTrigger>
+              <TabsTrigger value="url" className="gap-1.5 text-xs"><Globe size={14} />Paste URL</TabsTrigger>
+              <TabsTrigger value="capture" className="gap-1.5 text-xs"><Monitor size={14} />Screen Capture</TabsTrigger>
+            </TabsList>
+
+            {/* HTML Tab */}
+            <TabsContent value="html" className="flex-1 flex flex-col gap-3 mt-3">
+              <p className="text-xs text-muted-foreground">
+                Open de Untappd-pagina → <strong>Ctrl+S</strong> → "Webpagina, volledig" → upload het <code>.html</code> bestand.
+              </p>
+              <input ref={htmlFileRef} type="file" accept=".html,.htm" className="hidden" onChange={handleHtmlUpload} />
+              <Button variant="outline" className="gap-2 w-full border-dashed border-2 h-16 flex-col"
+                onClick={() => htmlFileRef.current?.click()} disabled={loading}>
+                {loading ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
+                <span className="text-xs">{loading ? 'Parsing…' : htmlFileName || 'Kies een opgeslagen HTML-bestand'}</span>
+              </Button>
+              <div className="bg-muted/50 border border-border rounded-md p-3 text-[11px] text-muted-foreground space-y-1">
+                <p className="font-medium text-foreground">⚡ Snelste methode</p>
+                <p>Parsed direct → slaat op → factcheckt automatisch elk bier.</p>
+              </div>
+            </TabsContent>
+
+            {/* URL Tab */}
+            <TabsContent value="url" className="flex-1 flex flex-col gap-3 mt-3">
+              <p className="text-xs text-muted-foreground">Plak een URL en wij scrapen automatisch.</p>
+              <Input placeholder="https://untappd.com/w/brewery-name/12345"
+                value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
+                disabled={loading} onKeyDown={(e) => e.key === 'Enter' && handleUrlSubmit()} />
+              <Button className="gap-1.5 w-full" onClick={handleUrlSubmit} disabled={loading || !urlInput.trim()}>
+                {loading ? <Loader2 size={14} className="animate-spin" /> : <Link size={14} />}
+                {loading ? 'Scraping…' : 'Scan URL'}
+              </Button>
+            </TabsContent>
+
+            {/* Screenshot Tab */}
+            <TabsContent value="capture" className="flex-1 flex flex-col overflow-hidden mt-3">
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                <p className="text-xs text-muted-foreground">Deel je tabblad en scroll door de pagina.</p>
+                <video ref={videoRef} autoPlay playsInline muted className="w-full rounded-md border bg-muted aspect-video" />
+                {captures.length > 0 && (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {captures.map((cap, i) => (
+                      <div key={i} className="relative group">
+                        <img src={cap.dataUrl} alt={`Capture ${i + 1}`} className="w-full h-16 object-cover rounded border" />
+                        <button onClick={() => removeCapture(i)}
+                          className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2 pt-2 border-t shrink-0">
+                {!scanning ? (
+                  <Button variant="outline" className="gap-2 w-full border-dashed border-2 h-12"
+                    onClick={startScan} disabled={capturing || loading}>
+                    {capturing ? <Loader2 size={16} className="animate-spin" /> : <Scan size={16} />}
+                    {capturing ? 'Tabblad selecteren…' : 'Start screen capture'}
+                  </Button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="gap-2" onClick={addManualFrame} disabled={loading}>
+                      <Plus size={16} />Extra frame
+                    </Button>
+                    <Button variant="destructive" className="gap-2" onClick={stopScan} disabled={loading}>
+                      <Square size={16} />Stop
+                    </Button>
+                  </div>
+                )}
+                {captures.length > 0 && (
+                  <Button className="gap-1.5 w-full" onClick={handleScreenshotSubmit} disabled={loading || capturing}>
+                    {loading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+                    Analyseer {captures.length} frame{captures.length > 1 ? 's' : ''}
+                  </Button>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );
