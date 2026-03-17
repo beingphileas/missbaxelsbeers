@@ -88,16 +88,53 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   } | null>(null);
 
   // Bulk enrichment state
+  const BULK_STORAGE_KEY = 'bulk-enrich-progress';
   const [bulkRunning, setBulkRunning] = useState(false);
   const bulkAbortRef = useRef(false);
-  const [bulkStats, setBulkStats] = useState<{
+  const [bulkResumeAvailable, setBulkResumeAvailable] = useState(false);
+
+  type BulkStatsType = {
     processed: number;
     totalImported: number;
     totalSkipped: number;
     totalRejected: number;
     remaining: number;
+    lastBreweryId: string | null;
+    startedAt: string | null;
+    stoppedAt: string | null;
     log: { name: string; imported: number; scraped: number; skipped: number; error?: string }[];
-  }>({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
+  };
+
+  const emptyBulkStats: BulkStatsType = {
+    processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0,
+    remaining: 0, lastBreweryId: null, startedAt: null, stoppedAt: null, log: [],
+  };
+
+  const [bulkStats, setBulkStats] = useState<BulkStatsType>(emptyBulkStats);
+
+  // Check for saved progress on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(BULK_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as BulkStatsType;
+        if (parsed.processed > 0 && parsed.remaining > 0) {
+          setBulkResumeAvailable(true);
+          setBulkStats(parsed);
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const saveBulkProgress = (stats: BulkStatsType) => {
+    try {
+      localStorage.setItem(BULK_STORAGE_KEY, JSON.stringify(stats));
+    } catch { /* ignore */ }
+  };
+
+  const clearBulkProgress = () => {
+    try { localStorage.removeItem(BULK_STORAGE_KEY); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const loadAll = async () => {
