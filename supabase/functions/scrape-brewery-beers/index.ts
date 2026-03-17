@@ -555,8 +555,13 @@ serve(async (req) => {
 
       console.log(`  Untappd brewery page: ${breweryPageUrl}`);
 
-      // Step 2: Scrape the brewery page directly (with screenshot for visual beer lists)
-      const breweryPageScrape = scrapeUrl(breweryPageUrl, firecrawlKey, ["markdown", "screenshot"]);
+      // Normalize brewery page URL — strip trailing slash
+      const cleanBreweryUrl = breweryPageUrl.replace(/\/+$/, "");
+
+      // Step 2: Scrape the brewery page AND the /beer sub-page (full beer list) in parallel
+      const beerListUrl = cleanBreweryUrl + "/beer";
+      const breweryPageScrape = scrapeUrl(cleanBreweryUrl, firecrawlKey, ["markdown", "screenshot"]);
+      const beerListScrape = scrapeUrl(beerListUrl, firecrawlKey, ["markdown", "screenshot"]);
 
       // Step 3: Use Firecrawl Map to discover all beer URLs on the brewery page
       let beerUrls: string[] = [];
@@ -568,15 +573,14 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            url: breweryPageUrl,
+            url: cleanBreweryUrl,
             search: "beer",
-            limit: 200,
-            includeSubdomains: false,
+            limit: 500,
+            includeSubdomains: true,
           }),
         });
         const mapData = await mapRes.json();
         if (mapRes.ok && mapData.success && mapData.links) {
-          // Filter for beer detail pages: /b/beer-name/ID pattern
           beerUrls = (mapData.links as string[]).filter(
             (u: string) => /untappd\.com\/b\/[^/]+\/\d+/.test(u)
           );
@@ -586,32 +590,79 @@ serve(async (req) => {
         console.error(`  Untappd map failed:`, (e as Error).message);
       }
 
-      // Wait for brewery page scrape
-      const bpResult = await breweryPageScrape;
+      // Wait for brewery page + beer list page scrapes
+      const [bpResult, blResult] = await Promise.all([breweryPageScrape, beerListScrape]);
+
       if (bpResult.markdown && bpResult.markdown.length > 50) {
-        // Replace or add the full brewery page content
-        const existing = sources.findIndex(s => s.url === breweryPageUrl);
+        const existing = sources.findIndex(s => s.url === cleanBreweryUrl);
         if (existing >= 0) {
           sources[existing].markdown = bpResult.markdown;
         } else {
-          sources.push({ name: "untappd.com (brouwerijpagina)", url: breweryPageUrl, markdown: bpResult.markdown });
+          sources.push({ name: "untappd.com (brouwerijpagina)", url: cleanBreweryUrl, markdown: bpResult.markdown });
+        }
+        // Extract beer URLs from markdown links: /b/beer-name/12345
+        const mdBeerLinks = bpResult.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
+        for (const link of mdBeerLinks) {
+          const full = link.startsWith("http") ? link : "https://" + link;
+          if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
         }
       }
       if (bpResult.screenshot) {
-        screenshots.push({ name: "untappd.com (brouwerijpagina screenshot)", url: breweryPageUrl, screenshot: bpResult.screenshot });
+        screenshots.push({ name: "untappd.com (brouwerijpagina screenshot)", url: cleanBreweryUrl, screenshot: bpResult.screenshot });
       }
 
-      // Step 4: Scrape individual beer pages (batch of up to 20 for completeness)
-      const toScrape = beerUrls.slice(0, 20);
+      // Process beer list page (/beer)
+      if (blResult.markdown && blResult.markdown.length > 50) {
+        sources.push({ name: "untappd.com (bierlijst)", url: beerListUrl, markdown: blResult.markdown });
+        // Extract beer URLs from beer list markdown
+        const mdBeerLinks2 = blResult.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
+        for (const link of mdBeerLinks2) {
+          const full = link.startsWith("http") ? link : "https://" + link;
+          if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
+        }
+        console.log(`  Untappd beer list page: extracted ${mdBeerLinks2.length} beer links, total unique: ${beerUrls.length}`);
+      }
+      if (blResult.screenshot) {
+        screenshots.push({ name: "untappd.com (bierlijst screenshot)", url: beerListUrl, screenshot: blResult.screenshot });
+      }
+
+      // Step 3b: If still few beer URLs, try paginated beer list: /beer?sort=date&start=0,25,50...
+      if (beerUrls.length < 30) {
+        const paginatedPromises = [];
+        for (let start = 25; start <= 200; start += 25) {
+          const pageUrl = `${beerListUrl}?sort=date&start=${start}`;
+          paginatedPromises.push(
+            scrapeUrl(pageUrl, firecrawlKey, ["markdown"]).then((pr) => {
+              if (pr.markdown && pr.markdown.length > 50) {
+                sources.push({ name: `untappd.com (bierlijst p${Math.floor(start/25)+1})`, url: pageUrl, markdown: pr.markdown });
+                const links = pr.markdown.match(/untappd\.com\/b\/[^\s)"\]\>]+/g) || [];
+                for (const link of links) {
+                  const full = link.startsWith("http") ? link : "https://" + link;
+                  if (/\/b\/[^/]+\/\d+/.test(full) && !beerUrls.includes(full)) beerUrls.push(full);
+                }
+              }
+            })
+          );
+        }
+        await Promise.allSettled(paginatedPromises);
+        console.log(`  Untappd after pagination: ${beerUrls.length} total beer URLs`);
+      }
+
+      // Step 4: Scrape individual beer pages (up to 60 for completeness)
+      const toScrape = beerUrls.slice(0, 60);
       if (toScrape.length > 0) {
-        const beerScrapes = await Promise.allSettled(
-          toScrape.map(async (beerUrl) => {
-            const result = await scrapeUrl(beerUrl, firecrawlKey);
-            if (result.markdown && result.markdown.length > 30) {
-              sources.push({ name: "untappd.com (bier)", url: beerUrl, markdown: result.markdown });
-            }
-          })
-        );
+        // Batch in groups of 10 to avoid overwhelming
+        for (let i = 0; i < toScrape.length; i += 10) {
+          const batch = toScrape.slice(i, i + 10);
+          await Promise.allSettled(
+            batch.map(async (beerUrl) => {
+              const result = await scrapeUrl(beerUrl, firecrawlKey);
+              if (result.markdown && result.markdown.length > 30) {
+                sources.push({ name: "untappd.com (bier)", url: beerUrl, markdown: result.markdown });
+              }
+            })
+          );
+        }
         console.log(`  Untappd: scraped ${toScrape.length} individual beer pages`);
       }
     })();
