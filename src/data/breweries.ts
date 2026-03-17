@@ -15,6 +15,24 @@ export interface Beer {
   breweryId: string;
   breweryName?: string;
   hasPost?: boolean;
+  qualityScore?: number | null;
+  analysisJson?: any;
+  factcheckJson?: any;
+  summary?: string | null;
+  tasteNotes?: string | null;
+  radarBody?: number | null;
+  radarHops?: number | null;
+  radarMalt?: number | null;
+  radarFruit?: number | null;
+  radarSpice?: number | null;
+  primaryFlavors?: string[] | null;
+  secondaryFlavors?: string[] | null;
+  aromaProfile?: string[] | null;
+  pairingFood?: string[] | null;
+  pairingClassic?: string[] | null;
+  pairingCheese?: string[] | null;
+  serveStyle?: string | null;
+  productionMethod?: string | null;
 }
 
 export interface Brewery {
