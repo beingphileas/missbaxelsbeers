@@ -777,7 +777,30 @@ serve(async (req) => {
       source_url: string;
     }[] = [];
 
-    const extractionPromises = sources.map((source) =>
+    const sortedSources = [...sources].sort((a, b) => {
+      const rank = (name: string) => {
+        if (name.startsWith("untappd.com (bierlijst")) return 0;
+        if (name.startsWith("untappd.com (bier)")) return 1;
+        if (name.startsWith("Eigen website")) return 2;
+        if (name.startsWith("untappd.com")) return 3;
+        return 4;
+      };
+      return rank(a.name) - rank(b.name);
+    });
+
+    const sortedScreenshots = [...screenshots].sort((a, b) => {
+      const rank = (name: string) => {
+        if (name.startsWith("untappd.com (bierlijst")) return 0;
+        if (name.startsWith("Eigen website")) return 1;
+        return 2;
+      };
+      return rank(a.name) - rank(b.name);
+    });
+
+    const sourcesToExtract = sortedSources.slice(0, sourceExtractionLimit);
+    const screenshotsToExtract = sortedScreenshots.slice(0, screenshotExtractionLimit);
+
+    const extractionPromises = sourcesToExtract.map((source) =>
       extractBeers(source.markdown, brewery.name, source.name, lovableKey).then((beers) => {
         console.log(`  ${source.name}: extracted ${beers.length} beers`);
         for (const b of beers) {
@@ -794,7 +817,7 @@ serve(async (req) => {
     );
 
     // Extract beers from screenshots via vision AI
-    const screenshotPromises = screenshots.map((ss) =>
+    const screenshotPromises = screenshotsToExtract.map((ss) =>
       extractBeersFromScreenshot(ss.screenshot, brewery.name, ss.name, lovableKey).then((beers) => {
         console.log(`  ${ss.name}: extracted ${beers.length} beers from screenshot`);
         for (const b of beers) {
