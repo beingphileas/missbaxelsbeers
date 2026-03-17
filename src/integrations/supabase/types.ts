@@ -17,40 +17,52 @@ export type Database = {
       beers: {
         Row: {
           abv: number | null
+          added_at: string
           brewery_id: string
           created_at: string
+          description: string | null
           featured: boolean
           flavor_profile: string[] | null
           food_pairing: string | null
           id: string
+          image_url: string | null
           is_hidden_gem: boolean | null
           name: string
+          source_url: string | null
           style: string
           updated_at: string
         }
         Insert: {
           abv?: number | null
+          added_at?: string
           brewery_id: string
           created_at?: string
+          description?: string | null
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
           id?: string
+          image_url?: string | null
           is_hidden_gem?: boolean | null
           name: string
+          source_url?: string | null
           style: string
           updated_at?: string
         }
         Update: {
           abv?: number | null
+          added_at?: string
           brewery_id?: string
           created_at?: string
+          description?: string | null
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
           id?: string
+          image_url?: string | null
           is_hidden_gem?: boolean | null
           name?: string
+          source_url?: string | null
           style?: string
           updated_at?: string
         }
@@ -403,6 +415,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fuzzy_match_brewery: {
+        Args: { search_name: string }
+        Returns: {
+          id: string
+          name: string
+          similarity: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -410,6 +430,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "user"
