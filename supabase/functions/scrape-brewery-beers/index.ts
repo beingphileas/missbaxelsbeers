@@ -389,7 +389,6 @@ serve(async (req) => {
     await Promise.allSettled([
       websitePromise,
       untappdPromise,
-      generalPromise,
     ]);
 
     console.log(
