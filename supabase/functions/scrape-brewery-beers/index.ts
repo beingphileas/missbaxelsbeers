@@ -756,10 +756,67 @@ serve(async (req) => {
       }
     })();
 
+    // === SOURCE 4: Perplexity AI Search — grounded web search for beers ===
+    const perplexityPromise = (async () => {
+      const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
+      if (!perplexityKey) {
+        console.log("  Perplexity: not configured, skipping");
+        return;
+      }
+
+      try {
+        const query = `List ALL beers brewed by Belgian brewery "${brewery.name}". Include beer name, style (e.g. Tripel, Blond, IPA, Dubbel, Stout, Saison, Lambic, Kriek), and ABV percentage for each beer. Only include beers actually brewed by or for this brewery.`;
+
+        const res = await fetch("https://api.perplexity.ai/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${perplexityKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "sonar",
+            messages: [
+              {
+                role: "system",
+                content: `You are a Belgian beer expert. Return a comprehensive list of all beers for the requested brewery. Format each beer on its own line as: "- BeerName | Style: xxx | ABV: x.x%". Only include real beers, no merchandise or events.`,
+              },
+              { role: "user", content: query },
+            ],
+          }),
+        });
+
+        if (!res.ok) {
+          console.error(`  Perplexity: HTTP ${res.status}`);
+          return;
+        }
+
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        const citations = data.citations || [];
+
+        if (content && content.length > 30) {
+          const citationLines = citations.length > 0
+            ? `\n\nSources: ${citations.join(", ")}`
+            : "";
+          sources.push({
+            name: "Perplexity (web search)",
+            url: citations[0] || `https://perplexity.ai/search?q=${encodeURIComponent(brewery.name + " beers")}`,
+            markdown: `# Perplexity search results for "${brewery.name}"\n\n${content}${citationLines}`,
+          });
+          console.log(`  Perplexity: got ${content.length} chars of beer data`);
+        } else {
+          console.log(`  Perplexity: no useful results for "${brewery.name}"`);
+        }
+      } catch (e) {
+        console.error(`  Perplexity error:`, (e as Error).message);
+      }
+    })();
+
     await Promise.allSettled([
       websitePromise,
       untappdPromise,
       openFoodPromise,
+      perplexityPromise,
     ]);
 
     console.log(
