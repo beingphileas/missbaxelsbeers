@@ -367,46 +367,109 @@ serve(async (req) => {
         })
       : Promise.resolve();
 
-    // === SOURCE 2: Untappd — multiple search queries + direct brewery page + screenshots ===
+    // === SOURCE 2: Untappd — find brewery page, map all beer URLs, scrape everything ===
     const untappdPromise = (async () => {
-      // Search 1: General brewery beer search
-      const search1 = searchWeb(`site:untappd.com "${brewery.name}" beer`, firecrawlKey, 10);
-      // Search 2: Brewery page directly
-      const search2 = searchWeb(`site:untappd.com/w/ "${brewery.name}"`, firecrawlKey, 5);
-      // Search 3: Alternative name patterns
+      // Step 1: Find the brewery's Untappd page via search
+      const searchResults = await searchWeb(
+        `site:untappd.com/w/ "${brewery.name}"`,
+        firecrawlKey,
+        5,
+      );
+
+      // Also try simplified name
       const simpleName = brewery.name.replace(/^(brouwerij|brasserie|brewery)\s+/i, "").trim();
-      const search3 = simpleName !== brewery.name
-        ? searchWeb(`site:untappd.com "${simpleName}" beer`, firecrawlKey, 5)
-        : Promise.resolve([]);
+      let extraResults: { url: string; markdown: string }[] = [];
+      if (simpleName !== brewery.name) {
+        extraResults = await searchWeb(`site:untappd.com/w/ "${simpleName}"`, firecrawlKey, 3);
+      }
 
-      const [results1, results2, results3] = await Promise.all([search1, search2, search3]);
-      const allResults = [...results1, ...results2, ...results3];
+      const allSearchResults = [...searchResults, ...extraResults];
 
-      // Dedupe by URL
-      const seen = new Set<string>();
-      const screenshotUrls: string[] = [];
-
-      for (const r of allResults) {
-        if (seen.has(r.url)) continue;
-        seen.add(r.url);
-        if (r.markdown && r.markdown.length > 50) {
-          sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
-        }
-        // Screenshot the first 3 unique Untappd pages
-        if (screenshotUrls.length < 3) {
-          screenshotUrls.push(r.url);
+      // Find the main brewery page URL (matches /w/brewery-name/ID pattern)
+      let breweryPageUrl = "";
+      for (const r of allSearchResults) {
+        if (r.url && /untappd\.com\/w\/[^/]+\/\d+/.test(r.url)) {
+          breweryPageUrl = r.url;
+          // Add the search result markdown as a source
+          if (r.markdown && r.markdown.length > 50) {
+            sources.push({ name: "untappd.com (brouwerijpagina)", url: r.url, markdown: r.markdown });
+          }
+          break;
         }
       }
 
-      // Scrape screenshots in parallel
-      await Promise.allSettled(
-        screenshotUrls.map(async (url) => {
-          const ssResult = await scrapeUrl(url, firecrawlKey, ["screenshot"]);
-          if (ssResult.screenshot) {
-            screenshots.push({ name: "untappd.com (screenshot)", url, screenshot: ssResult.screenshot });
+      if (!breweryPageUrl) {
+        // Fallback: use any untappd result we found
+        for (const r of allSearchResults) {
+          if (r.url?.includes("untappd.com") && r.markdown && r.markdown.length > 50) {
+            sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
           }
-        })
-      );
+        }
+        console.log(`  Untappd: no brewery page found, used ${allSearchResults.length} search results`);
+        return;
+      }
+
+      console.log(`  Untappd brewery page: ${breweryPageUrl}`);
+
+      // Step 2: Scrape the brewery page directly (with screenshot for visual beer lists)
+      const breweryPageScrape = scrapeUrl(breweryPageUrl, firecrawlKey, ["markdown", "screenshot"]);
+
+      // Step 3: Use Firecrawl Map to discover all beer URLs on the brewery page
+      let beerUrls: string[] = [];
+      try {
+        const mapRes = await fetch("https://api.firecrawl.dev/v1/map", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${firecrawlKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: breweryPageUrl,
+            search: "beer",
+            limit: 200,
+            includeSubdomains: false,
+          }),
+        });
+        const mapData = await mapRes.json();
+        if (mapRes.ok && mapData.success && mapData.links) {
+          // Filter for beer detail pages: /b/beer-name/ID pattern
+          beerUrls = (mapData.links as string[]).filter(
+            (u: string) => /untappd\.com\/b\/[^/]+\/\d+/.test(u)
+          );
+          console.log(`  Untappd map: found ${beerUrls.length} beer URLs`);
+        }
+      } catch (e) {
+        console.error(`  Untappd map failed:`, (e as Error).message);
+      }
+
+      // Wait for brewery page scrape
+      const bpResult = await breweryPageScrape;
+      if (bpResult.markdown && bpResult.markdown.length > 50) {
+        // Replace or add the full brewery page content
+        const existing = sources.findIndex(s => s.url === breweryPageUrl);
+        if (existing >= 0) {
+          sources[existing].markdown = bpResult.markdown;
+        } else {
+          sources.push({ name: "untappd.com (brouwerijpagina)", url: breweryPageUrl, markdown: bpResult.markdown });
+        }
+      }
+      if (bpResult.screenshot) {
+        screenshots.push({ name: "untappd.com (brouwerijpagina screenshot)", url: breweryPageUrl, screenshot: bpResult.screenshot });
+      }
+
+      // Step 4: Scrape individual beer pages (batch of up to 20 for completeness)
+      const toScrape = beerUrls.slice(0, 20);
+      if (toScrape.length > 0) {
+        const beerScrapes = await Promise.allSettled(
+          toScrape.map(async (beerUrl) => {
+            const result = await scrapeUrl(beerUrl, firecrawlKey);
+            if (result.markdown && result.markdown.length > 30) {
+              sources.push({ name: "untappd.com (bier)", url: beerUrl, markdown: result.markdown });
+            }
+          })
+        );
+        console.log(`  Untappd: scraped ${toScrape.length} individual beer pages`);
+      }
     })();
 
     await Promise.allSettled([
