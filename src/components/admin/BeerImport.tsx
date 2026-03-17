@@ -71,11 +71,15 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       .then(({ data }) => setBreweries(data ?? []));
   }, []);
 
-  const filteredBreweries = brewerySearch.length >= 2
-    ? breweries.filter(b =>
-        b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && b.website_url
-      ).slice(0, 20)
-    : [];
+  const filteredBreweries = brewerySearch.length >= 1
+    ? breweries
+        .filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()) && b.website_url)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, 30)
+    : breweries
+        .filter(b => b.website_url)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, 30);
 
   const handleScrapeBrewery = async (breweryId: string, breweryName: string) => {
     setScraping(true);
