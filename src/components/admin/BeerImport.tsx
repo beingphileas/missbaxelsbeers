@@ -87,6 +87,18 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     summary: string;
   } | null>(null);
 
+  // Bulk enrichment state
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const bulkAbortRef = useRef(false);
+  const [bulkStats, setBulkStats] = useState<{
+    processed: number;
+    totalImported: number;
+    totalSkipped: number;
+    totalRejected: number;
+    remaining: number;
+    log: { name: string; imported: number; scraped: number; skipped: number; error?: string }[];
+  }>({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
+
   useEffect(() => {
     const loadAll = async () => {
       let all: BreweryItem[] = [];
