@@ -15,6 +15,7 @@ import VenueEditor from '@/components/admin/VenueEditor';
 import CoordFixer from '@/components/admin/CoordFixer';
 import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
+import BeerImport from '@/components/admin/BeerImport';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -186,6 +187,7 @@ export default function Admin() {
             <TabsTrigger value="posts">Blog Posts</TabsTrigger>
             <TabsTrigger value="venues">Venues</TabsTrigger>
             <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
+            <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
             <TabsTrigger value="featured">Featured</TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
@@ -338,6 +340,18 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Beers Import Tab */}
+          <TabsContent value="beers-import">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Bieren Import / Fuzzy Match</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BeerImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['beers'] })} />
               </CardContent>
             </Card>
           </TabsContent>
