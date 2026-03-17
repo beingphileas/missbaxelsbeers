@@ -430,7 +430,7 @@ serve(async (req) => {
       5,
     ).then(async (results) => {
       for (const r of results) {
-        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url)) {
+        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url) && !isBlocked(r.url)) {
           sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
         }
       }
