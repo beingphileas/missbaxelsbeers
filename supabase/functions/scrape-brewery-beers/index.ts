@@ -303,13 +303,24 @@ serve(async (req) => {
   }
 
   try {
-    const { brewery_id } = await req.json();
+    const { brewery_id, mode = "single" } = await req.json();
     if (!brewery_id) {
       return new Response(JSON.stringify({ error: "brewery_id required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const isBulk = mode === "bulk";
+    const websiteMapLimit = isBulk ? 120 : 300;
+    const websiteListingLimit = isBulk ? 4 : 8;
+    const websiteDetailLimit = isBulk ? 10 : 20;
+    const websitePaginationLimit = isBulk ? 4 : 10;
+    const untappdMapLimit = isBulk ? 250 : 500;
+    const untappdPaginationMaxStart = isBulk ? 100 : 200;
+    const untappdDetailPageLimit = isBulk ? 30 : 60;
+    const screenshotExtractionLimit = isBulk ? 6 : 20;
+    const sourceExtractionLimit = isBulk ? 36 : 120;
 
     const { data: brewery, error: bErr } = await supabase
       .from("breweries")
