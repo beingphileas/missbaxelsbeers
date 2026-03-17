@@ -900,6 +900,103 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             )}
           </div>
 
+          {/* Bulk AI Check */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <ShieldCheck size={16} className="text-accent" /> Bulk AI Check — Alle Brouwerijen
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Doorloop <strong>alle brouwerijen</strong> en check met AI op duplicaten, vertaal-varianten, data-issues en niet-bier items. Optioneel automatisch duplicaten verwijderen.
+            </p>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              {!bulkCheckRunning ? (
+                bulkCheckResumeAvailable ? (
+                  <>
+                    <Button onClick={() => handleBulkCheck(true, false)} className="gap-2" variant="outline">
+                      <Play size={14} /> Hervatten ({bulkCheckStats.processed} verwerkt, {bulkCheckStats.remaining} resterend)
+                    </Button>
+                    <Button onClick={() => handleBulkCheck(true, true)} className="gap-2" variant="destructive">
+                      <Play size={14} /> Hervatten + auto-delete
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => { clearBulkCheckProgress(); setBulkCheckResumeAvailable(false); setBulkCheckStats(emptyBulkCheckStats); }}>
+                      <X size={14} /> Wis voortgang
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={() => handleBulkCheck(false, false)} className="gap-2" variant="outline">
+                      <ShieldCheck size={14} /> Start Bulk Check
+                    </Button>
+                    <Button onClick={() => handleBulkCheck(false, true)} className="gap-2" variant="destructive">
+                      <Trash2 size={14} /> Check + Auto-delete duplicaten
+                    </Button>
+                  </>
+                )
+              ) : (
+                <Button variant="destructive" onClick={handleStopBulkCheck} className="gap-2">
+                  <Square size={14} /> Stop
+                </Button>
+              )}
+              {bulkCheckRunning && (
+                <span className="text-xs text-muted-foreground animate-pulse flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin" /> Check loopt...
+                </span>
+              )}
+            </div>
+
+            {bulkCheckResumeAvailable && !bulkCheckRunning && bulkCheckStats.stoppedAt && (
+              <p className="text-xs text-muted-foreground">
+                Gestopt op {new Date(bulkCheckStats.stoppedAt).toLocaleString('nl-BE')} — {bulkCheckStats.processed} brouwerijen gecheckt, {bulkCheckStats.remaining} resterend.
+              </p>
+            )}
+
+            {(bulkCheckStats.processed > 0 || bulkCheckRunning) && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkCheckStats.processed}</p>
+                    <p className="text-[10px] text-muted-foreground">Gecheckt</p>
+                  </div>
+                  <div className="bg-warning/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-warning">{bulkCheckStats.totalDuplicates}</p>
+                    <p className="text-[10px] text-muted-foreground">Duplicaat-groepen</p>
+                  </div>
+                  <div className="bg-destructive/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-destructive">{bulkCheckStats.totalDeleted}</p>
+                    <p className="text-[10px] text-muted-foreground">Verwijderd</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkCheckStats.totalIssues}</p>
+                    <p className="text-[10px] text-muted-foreground">Issues</p>
+                  </div>
+                </div>
+
+                {bulkCheckStats.log.length > 0 && (
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {[...bulkCheckStats.log].reverse().map((entry, i) => (
+                      <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                        <span className="font-medium truncate">{entry.name}</span>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {entry.error ? (
+                            <span className="text-destructive text-[10px] truncate">{entry.error.substring(0, 30)}</span>
+                          ) : (
+                            <>
+                              {entry.duplicates > 0 && <Badge variant="secondary" className="text-[9px]">{entry.duplicates} dup</Badge>}
+                              {entry.deleted > 0 && <Badge variant="destructive" className="text-[9px]">-{entry.deleted}</Badge>}
+                              {entry.issues > 0 && <Badge variant="outline" className="text-[9px]">{entry.issues} issues</Badge>}
+                              {entry.duplicates === 0 && entry.issues === 0 && <Badge variant="outline" className="text-[9px] text-success">✓ OK</Badge>}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="border-t border-border pt-6">
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
               <Upload size={16} className="text-accent" /> Of upload data handmatig
