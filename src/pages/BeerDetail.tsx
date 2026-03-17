@@ -2,6 +2,9 @@ import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBreweries, Beer } from '@/data/breweries';
 import { useVenues, useBlogPosts } from '@/data/blog';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, ExternalLink, MapPin, BookOpen, FlaskConical, Map, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import ContextMap from '@/components/ContextMap';
 import SEOHead from '@/components/SEOHead';
+import BeerAnalysisView from '@/components/BeerAnalysisView';
 
 export default function BeerDetail() {
   const { id } = useParams<{ id: string }>();
