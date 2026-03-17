@@ -161,7 +161,7 @@ export default function BreweryImport({ onComplete }: BreweryImportProps) {
               </thead>
               <tbody className="divide-y divide-border">
                 {preview.slice(0, 50).map((b, i) => (
-                  <tr key={i} className={b.code.startsWith('S') ? 'opacity-40' : ''}>
+                  <tr key={i}>
                     <td className="px-3 py-1.5 font-mono">{b.code}</td>
                     <td className="px-3 py-1.5">{b.name}</td>
                     <td className="px-3 py-1.5">{b.province}</td>

@@ -140,9 +140,8 @@ serve(async (req) => {
     for (const b of incoming) {
       const name = (b.name || "").trim();
       const code = (b.code || "").trim();
-      if (!name) continue;
-      // Skip sub-sites (S-codes) — they share the parent brewery entry
-      if (code.startsWith("S")) continue;
+      // Skip U-codes (secondary usage sites, not separate entities)
+      if (code.startsWith("U")) continue;
 
       const key = normalizeForMatch(name);
       // If duplicate name in spreadsheet, keep the first
