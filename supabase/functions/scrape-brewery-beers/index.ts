@@ -592,22 +592,17 @@ serve(async (req) => {
 
     const sortedSources = [...sources].sort((a, b) => {
       const rank = (name: string) => {
-        if (name.startsWith("untappd.com (bierlijst")) return 0;
-        if (name.startsWith("untappd.com (bier)")) return 1;
-        if (name.startsWith("Eigen website")) return 2;
-        if (name.startsWith("untappd.com")) return 3;
-        if (name.startsWith("OpenFoodFacts")) return 4;
-        if (name.startsWith("Perplexity")) return 5;
-        return 6;
+        if (name.startsWith("Eigen website")) return 0;
+        if (name.startsWith("Perplexity")) return 1;
+        return 2;
       };
       return rank(a.name) - rank(b.name);
     });
 
     const sortedScreenshots = [...screenshots].sort((a, b) => {
       const rank = (name: string) => {
-        if (name.startsWith("untappd.com (bierlijst")) return 0;
-        if (name.startsWith("Eigen website")) return 1;
-        return 2;
+        if (name.startsWith("Eigen website")) return 0;
+        return 1;
       };
       return rank(a.name) - rank(b.name);
     });
