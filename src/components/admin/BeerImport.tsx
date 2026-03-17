@@ -667,11 +667,25 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               Doorloop <strong>alle brouwerijen</strong> automatisch: scrape website + Untappd + RateBeer + BeerAdvocate + BelgianBeer.com + OpenFoodFacts + Perplexity → AI-validatie → auto-import nieuwe bieren. Bestaande bieren worden overgeslagen.
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {!bulkRunning ? (
-                <Button onClick={handleBulkEnrich} className="gap-2">
-                  <Play size={14} /> Start Bulk Verrijking
-                </Button>
+                bulkResumeAvailable ? (
+                  <>
+                    <Button onClick={() => handleBulkEnrich(true)} className="gap-2">
+                      <Play size={14} /> Hervatten ({bulkStats.processed} verwerkt, {bulkStats.remaining} resterend)
+                    </Button>
+                    <Button variant="outline" onClick={() => { clearBulkProgress(); setBulkResumeAvailable(false); setBulkStats(emptyBulkStats); handleBulkEnrich(false); }} className="gap-2">
+                      <Zap size={14} /> Volledig herbeginnen
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => { clearBulkProgress(); setBulkResumeAvailable(false); setBulkStats(emptyBulkStats); }}>
+                      <X size={14} /> Wis voortgang
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => handleBulkEnrich(false)} className="gap-2">
+                    <Play size={14} /> Start Bulk Verrijking
+                  </Button>
+                )
               ) : (
                 <Button variant="destructive" onClick={handleStopBulk} className="gap-2">
                   <Square size={14} /> Stop
@@ -683,6 +697,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                 </span>
               )}
             </div>
+
+            {bulkResumeAvailable && !bulkRunning && bulkStats.stoppedAt && (
+              <p className="text-xs text-muted-foreground">
+                Gestopt op {new Date(bulkStats.stoppedAt).toLocaleString('nl-BE')} — {bulkStats.processed} brouwerijen verwerkt, {bulkStats.remaining} resterend.
+              </p>
+            )}
 
             {(bulkStats.processed > 0 || bulkRunning) && (
               <div className="space-y-3">
