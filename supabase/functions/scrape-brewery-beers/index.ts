@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Scrape a single URL via Firecrawl
-async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
+async function scrapeUrl(url: string, firecrawlKey: string, formats: string[] = ["markdown"]): Promise<{ markdown: string; screenshot: string }> {
   let formatted = url.trim();
   if (!formatted.startsWith("http")) formatted = "https://" + formatted;
 
@@ -21,18 +21,21 @@ async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
       },
       body: JSON.stringify({
         url: formatted,
-        formats: ["markdown"],
+        formats,
         onlyMainContent: true,
         waitFor: 5000,
       }),
     });
 
     const data = await res.json();
-    if (!res.ok || !data.success) return "";
-    return data.data?.markdown || data.markdown || "";
+    if (!res.ok || !data.success) return { markdown: "", screenshot: "" };
+    return {
+      markdown: data.data?.markdown || data.markdown || "",
+      screenshot: data.data?.screenshot || data.screenshot || "",
+    };
   } catch (e) {
     console.error(`Scrape failed for ${formatted}:`, (e as Error).message);
-    return "";
+    return { markdown: "", screenshot: "" };
   }
 }
 
