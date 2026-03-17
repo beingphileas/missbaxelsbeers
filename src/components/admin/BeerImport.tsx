@@ -758,14 +758,54 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
               {checkResult.duplicates.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold flex items-center gap-1.5 text-warning">
-                    <Copy size={14} /> {checkResult.duplicates.length} duplicaat-groep(en)
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold flex items-center gap-1.5 text-warning">
+                      <Copy size={14} /> {checkResult.duplicates.length} duplicaat-groep(en)
+                    </h4>
+                    {selectedDeleteIds.size > 0 && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="gap-1.5"
+                        onClick={() => handleDeleteDuplicates([...selectedDeleteIds])}
+                      >
+                        <Trash2 size={12} /> Verwijder {selectedDeleteIds.size} geselecteerd
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Checkbox
+                      checked={checkResult.duplicates.every(d => d.remove_ids.every(id => selectedDeleteIds.has(id)))}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          const allIds = new Set(selectedDeleteIds);
+                          checkResult.duplicates.forEach(d => d.remove_ids.forEach(id => allIds.add(id)));
+                          setSelectedDeleteIds(allIds);
+                        } else {
+                          setSelectedDeleteIds(new Set());
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">Alles selecteren</span>
+                  </div>
                   <div className="space-y-2">
                     {checkResult.duplicates.map((dup, i) => (
                       <div key={i} className="bg-warning/5 border border-warning/20 rounded-lg p-3 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-xs space-y-1">
+                        <div className="flex items-start gap-2">
+                          <Checkbox
+                            className="mt-1"
+                            checked={dup.remove_ids.every(id => selectedDeleteIds.has(id))}
+                            onCheckedChange={(checked) => {
+                              const next = new Set(selectedDeleteIds);
+                              if (checked) {
+                                dup.remove_ids.forEach(id => next.add(id));
+                              } else {
+                                dup.remove_ids.forEach(id => next.delete(id));
+                              }
+                              setSelectedDeleteIds(next);
+                            }}
+                          />
+                          <div className="flex-1 text-xs space-y-1">
                             <p><span className="font-medium text-success">Behouden:</span> {dup.keep_name}</p>
                             <p><span className="font-medium text-destructive">Verwijderen:</span> {dup.remove_names.join(', ')}</p>
                             <p className="text-muted-foreground italic">{dup.reason}</p>
