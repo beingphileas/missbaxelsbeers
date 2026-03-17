@@ -487,6 +487,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             </div>
           )}
 
+          <div className="border-t border-border pt-6">
             <h3 className="font-serif text-base flex items-center gap-2 mb-3">
               <Upload size={16} className="text-accent" /> Of upload data handmatig
             </h3>
