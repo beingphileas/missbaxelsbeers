@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Scrape a single URL via Firecrawl
-async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
+async function scrapeUrl(url: string, firecrawlKey: string, formats: string[] = ["markdown"]): Promise<{ markdown: string; screenshot: string }> {
   let formatted = url.trim();
   if (!formatted.startsWith("http")) formatted = "https://" + formatted;
 
@@ -21,18 +21,21 @@ async function scrapeUrl(url: string, firecrawlKey: string): Promise<string> {
       },
       body: JSON.stringify({
         url: formatted,
-        formats: ["markdown"],
+        formats,
         onlyMainContent: true,
         waitFor: 5000,
       }),
     });
 
     const data = await res.json();
-    if (!res.ok || !data.success) return "";
-    return data.data?.markdown || data.markdown || "";
+    if (!res.ok || !data.success) return { markdown: "", screenshot: "" };
+    return {
+      markdown: data.data?.markdown || data.markdown || "",
+      screenshot: data.data?.screenshot || data.screenshot || "",
+    };
   } catch (e) {
     console.error(`Scrape failed for ${formatted}:`, (e as Error).message);
-    return "";
+    return { markdown: "", screenshot: "" };
   }
 }
 
@@ -64,6 +67,87 @@ async function searchWeb(
     }));
   } catch (e) {
     console.error(`Search failed for "${query}":`, (e as Error).message);
+    return [];
+  }
+}
+
+// Extract beers from a screenshot via vision AI
+async function extractBeersFromScreenshot(
+  screenshotBase64: string,
+  breweryName: string,
+  sourceName: string,
+  lovableKey: string,
+): Promise<any[]> {
+  if (!screenshotBase64) return [];
+
+  try {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: `You are a beer data extraction expert. Extract ALL beers visible in this screenshot that belong to "${breweryName}". Include every beer even if only a name is visible. Return JSON with a "beers" array, each with: name (required), style, abv (number), description.`,
+          },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: `Extract ALL beers for "${breweryName}" visible in this ${sourceName} screenshot.` },
+              { type: "image_url", image_url: { url: screenshotBase64.startsWith("data:") ? screenshotBase64 : `data:image/png;base64,${screenshotBase64}` } },
+            ],
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_beers",
+              description: "Return all beers found in the screenshot",
+              parameters: {
+                type: "object",
+                properties: {
+                  beers: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        style: { type: "string" },
+                        abv: { type: "number" },
+                        description: { type: "string" },
+                      },
+                      required: ["name"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["beers"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "extract_beers" } },
+      }),
+    });
+
+    if (!aiRes.ok) {
+      console.error(`Vision AI error for ${sourceName}:`, aiRes.status);
+      return [];
+    }
+
+    const aiData = await aiRes.json();
+    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall?.function?.arguments) return [];
+    const parsed = JSON.parse(toolCall.function.arguments);
+    return parsed.beers || [];
+  } catch (e) {
+    console.error(`Vision extraction failed:`, (e as Error).message);
     return [];
   }
 }
@@ -251,31 +335,35 @@ serve(async (req) => {
     console.log(`Multi-source scrape for: ${brewery.name}`);
 
     const sources: { name: string; url: string; markdown: string }[] = [];
+    const screenshots: { name: string; url: string; screenshot: string }[] = [];
 
-    // === SOURCE 1: Brewery's own website ===
+    // === SOURCE 1: Brewery's own website (markdown + screenshot) ===
     const websitePromise = brewery.website_url?.trim()
-      ? scrapeUrl(brewery.website_url, firecrawlKey).then((md) => {
-          if (md && md.length > 50) {
-            let url = brewery.website_url!.trim();
-            if (!url.startsWith("http")) url = "https://" + url;
-            sources.push({ name: "Eigen website", url, markdown: md });
+      ? scrapeUrl(brewery.website_url, firecrawlKey, ["markdown", "screenshot"]).then((result) => {
+          let url = brewery.website_url!.trim();
+          if (!url.startsWith("http")) url = "https://" + url;
+          if (result.markdown && result.markdown.length > 50) {
+            sources.push({ name: "Eigen website", url, markdown: result.markdown });
+          }
+          if (result.screenshot) {
+            screenshots.push({ name: "Eigen website (screenshot)", url, screenshot: result.screenshot });
           }
         })
       : Promise.resolve();
 
-    // === SOURCE 2: Direct belgenbier.be scrape ===
-    // belgenbier.be has a consistent URL pattern for brewery beer lists
+    // === SOURCE 2: Direct belgenbier.be scrape (markdown + screenshot) ===
     const encodedName = encodeURIComponent(brewery.name);
     const belgenbierPromise = scrapeUrl(
       `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
       firecrawlKey,
-    ).then((md) => {
-      if (md && md.length > 100) {
-        sources.push({
-          name: "belgenbier.be",
-          url: `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
-          markdown: md,
-        });
+      ["markdown", "screenshot"],
+    ).then((result) => {
+      const url = `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`;
+      if (result.markdown && result.markdown.length > 100) {
+        sources.push({ name: "belgenbier.be", url, markdown: result.markdown });
+      }
+      if (result.screenshot) {
+        screenshots.push({ name: "belgenbier.be (screenshot)", url, screenshot: result.screenshot });
       }
     });
 
@@ -327,10 +415,10 @@ serve(async (req) => {
     ]);
 
     console.log(
-      `Found ${sources.length} sources for ${brewery.name}: ${sources.map((s) => `${s.name}(${s.markdown.length}ch)`).join(", ")}`,
+      `Found ${sources.length} text sources + ${screenshots.length} screenshots for ${brewery.name}`,
     );
 
-    if (sources.length === 0) {
+    if (sources.length === 0 && screenshots.length === 0) {
       return new Response(
         JSON.stringify({
           brewery_name: brewery.name,
@@ -368,7 +456,24 @@ serve(async (req) => {
       }),
     );
 
-    await Promise.allSettled(extractionPromises);
+    // Extract beers from screenshots via vision AI
+    const screenshotPromises = screenshots.map((ss) =>
+      extractBeersFromScreenshot(ss.screenshot, brewery.name, ss.name, lovableKey).then((beers) => {
+        console.log(`  ${ss.name}: extracted ${beers.length} beers from screenshot`);
+        for (const b of beers) {
+          allBeers.push({
+            name: b.name || "",
+            style: b.style || "",
+            abv: b.abv || null,
+            description: b.description || "",
+            source: ss.name,
+            source_url: ss.url,
+          });
+        }
+      }),
+    );
+
+    await Promise.allSettled([...extractionPromises, ...screenshotPromises]);
 
     // Deduplicate beers by name (case-insensitive), keep the one with most data
     const deduped = new Map<string, (typeof allBeers)[0]>();
