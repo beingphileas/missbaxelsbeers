@@ -276,15 +276,22 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
-  const handleBulkEnrich = async () => {
+  const handleBulkEnrich = async (resume = false) => {
     setBulkRunning(true);
+    setBulkResumeAvailable(false);
     bulkAbortRef.current = false;
-    setBulkStats({ processed: 0, totalImported: 0, totalSkipped: 0, totalRejected: 0, remaining: 0, log: [] });
 
-    let processed = 0;
-    let totalImported = 0;
-    let totalSkipped = 0;
-    let totalRejected = 0;
+    let stats: BulkStatsType;
+    if (resume && bulkStats.processed > 0) {
+      // Keep existing stats, just continue from where we left off
+      stats = { ...bulkStats, stoppedAt: null };
+    } else {
+      stats = { ...emptyBulkStats, startedAt: new Date().toISOString() };
+      setBulkStats(stats);
+      clearBulkProgress();
+    }
+
+    let { processed, totalImported, totalSkipped, totalRejected } = stats;
 
     while (!bulkAbortRef.current) {
       try {
@@ -300,18 +307,26 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         const data = res.data;
 
         if (data.done) {
+          clearBulkProgress();
           toast({ title: '🎉 Bulk verrijking voltooid!', description: `Alle brouwerijen zijn verwerkt.` });
           break;
         }
 
         if (data.error) {
-          setBulkStats(prev => ({
-            ...prev,
-            processed: prev.processed + 1,
-            remaining: data.remaining || 0,
-            log: [...prev.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
-          }));
           processed++;
+          const updated: BulkStatsType = {
+            ...stats,
+            processed,
+            totalImported,
+            totalSkipped,
+            totalRejected,
+            remaining: data.remaining || 0,
+            lastBreweryId: data.brewery_id || null,
+            log: [...stats.log, { name: data.brewery_name, imported: 0, scraped: 0, skipped: 0, error: data.error }],
+          };
+          stats = updated;
+          setBulkStats(updated);
+          saveBulkProgress(updated);
           continue;
         }
 
@@ -320,20 +335,24 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         totalSkipped += data.skipped_existing || 0;
         totalRejected += data.rejected || 0;
 
-        setBulkStats(prev => ({
-          ...prev,
+        const updated: BulkStatsType = {
+          ...stats,
           processed,
           totalImported,
           totalSkipped,
           totalRejected,
           remaining: data.remaining || 0,
-          log: [...prev.log, {
+          lastBreweryId: data.brewery_id || null,
+          log: [...stats.log, {
             name: data.brewery_name,
             imported: data.new_imported || 0,
             scraped: data.scraped || 0,
             skipped: data.skipped_existing || 0,
           }],
-        }));
+        };
+        stats = updated;
+        setBulkStats(updated);
+        saveBulkProgress(updated);
 
       } catch (err: any) {
         toast({ title: 'Fout', description: err.message, variant: 'destructive' });
@@ -341,7 +360,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       }
     }
 
+    // Save final state with stoppedAt timestamp
+    const finalStats: BulkStatsType = { ...stats, stoppedAt: new Date().toISOString() };
+    setBulkStats(finalStats);
+    saveBulkProgress(finalStats);
     setBulkRunning(false);
+    if (finalStats.remaining > 0) setBulkResumeAvailable(true);
     onComplete?.();
   };
 
