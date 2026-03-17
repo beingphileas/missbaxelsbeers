@@ -367,23 +367,7 @@ serve(async (req) => {
         })
       : Promise.resolve();
 
-    // === SOURCE 2: Direct belgenbier.be scrape (markdown + screenshot) ===
-    const encodedName = encodeURIComponent(brewery.name);
-    const belgenbierPromise = scrapeUrl(
-      `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`,
-      firecrawlKey,
-      ["markdown", "screenshot"],
-    ).then((result) => {
-      const url = `https://www.belgenbier.be/nl/zoeken?search=${encodedName}`;
-      if (result.markdown && result.markdown.length > 100) {
-        sources.push({ name: "belgenbier.be", url, markdown: result.markdown });
-      }
-      if (result.screenshot) {
-        screenshots.push({ name: "belgenbier.be (screenshot)", url, screenshot: result.screenshot });
-      }
-    });
-
-    // === SOURCE 3: Direct untappd search + screenshot scrape of top result ===
+    // === SOURCE 2: Untappd search + screenshot ===
     const untappdPromise = searchWeb(
       `site:untappd.com "${brewery.name}" beer`,
       firecrawlKey,
@@ -394,7 +378,6 @@ serve(async (req) => {
           sources.push({ name: "untappd.com", url: r.url, markdown: r.markdown });
         }
       }
-      // Screenshot-scrape the top Untappd result for visual beer lists
       if (results.length > 0 && results[0].url) {
         const ssResult = await scrapeUrl(results[0].url, firecrawlKey, ["screenshot"]);
         if (ssResult.screenshot) {
@@ -403,52 +386,9 @@ serve(async (req) => {
       }
     });
 
-    // === SOURCE 4: BeerAdvocate + RateBeer search + screenshot ===
-    const beerDbPromise = searchWeb(
-      `"${brewery.name}" beers site:beeradvocate.com OR site:ratebeer.com`,
-      firecrawlKey,
-      5,
-    ).then(async (results) => {
-      for (const r of results) {
-        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url) && !isBlocked(r.url)) {
-          sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
-        }
-      }
-      // Screenshot the top result
-      if (results.length > 0 && results[0].url) {
-        const ssResult = await scrapeUrl(results[0].url, firecrawlKey, ["screenshot"]);
-        if (ssResult.screenshot) {
-          screenshots.push({ name: `${new URL(results[0].url).hostname} (screenshot)`, url: results[0].url, screenshot: ssResult.screenshot });
-        }
-      }
-    });
-
-    // === SOURCE 5: General web search + screenshot ===
-    const generalPromise = searchWeb(
-      `"${brewery.name}" bieren lijst complete beer list`,
-      firecrawlKey,
-      5,
-    ).then(async (results) => {
-      for (const r of results) {
-        if (r.markdown && r.markdown.length > 50 && !sources.find((s) => s.url === r.url) && !isBlocked(r.url)) {
-          sources.push({ name: new URL(r.url).hostname, url: r.url, markdown: r.markdown });
-        }
-      }
-      // Screenshot the top result if not already captured
-      if (results.length > 0 && results[0].url && !screenshots.find(s => s.url === results[0].url)) {
-        const ssResult = await scrapeUrl(results[0].url, firecrawlKey, ["screenshot"]);
-        if (ssResult.screenshot) {
-          screenshots.push({ name: `${new URL(results[0].url).hostname} (screenshot)`, url: results[0].url, screenshot: ssResult.screenshot });
-        }
-      }
-    });
-
     await Promise.allSettled([
       websitePromise,
-      belgenbierPromise,
       untappdPromise,
-      beerDbPromise,
-      generalPromise,
     ]);
 
     console.log(
