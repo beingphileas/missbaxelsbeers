@@ -397,7 +397,7 @@ serve(async (req) => {
             Authorization: `Bearer ${firecrawlKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url: baseUrl, limit: 300, includeSubdomains: false }),
+          body: JSON.stringify({ url: baseUrl, limit: websiteMapLimit, includeSubdomains: false }),
         });
         const mapData = await mapRes.json();
         if (mapRes.ok && mapData.success && mapData.links) {
@@ -438,7 +438,7 @@ serve(async (req) => {
 
       const detailPages = candidatePages.filter((u) => !listingPages.includes(u));
 
-      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, 8), ...detailPages.slice(0, 20)])];
+      const prioritizedBeerPages = [...new Set([...listingPages.slice(0, websiteListingLimit), ...detailPages.slice(0, websiteDetailLimit)])];
 
       // If no beer pages found via map, try common paths directly
       if (prioritizedBeerPages.length === 0) {
