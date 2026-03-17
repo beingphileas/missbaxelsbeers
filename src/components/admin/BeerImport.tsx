@@ -414,8 +414,108 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     onComplete?.();
   };
 
-  const handleStopBulk = () => {
-    bulkAbortRef.current = true;
+  const handleStopBulkCheck = () => {
+    bulkCheckAbortRef.current = true;
+  };
+
+  const handleBulkCheck = async (resume = false, autoDelete = false) => {
+    setBulkCheckRunning(true);
+    setBulkCheckResumeAvailable(false);
+    bulkCheckAbortRef.current = false;
+
+    let stats: BulkCheckStatsType;
+    if (resume && bulkCheckStats.processed > 0) {
+      stats = { ...bulkCheckStats, stoppedAt: null };
+    } else {
+      stats = { ...emptyBulkCheckStats, startedAt: new Date().toISOString() };
+      setBulkCheckStats(stats);
+      clearBulkCheckProgress();
+    }
+
+    // Get all breweries with beers
+    const { data: allBreweries } = await supabase
+      .from('breweries')
+      .select('id, name')
+      .order('name');
+
+    if (!allBreweries || allBreweries.length === 0) {
+      setBulkCheckRunning(false);
+      return;
+    }
+
+    const checkedSet = new Set(stats.checkedIds);
+    const toCheck = allBreweries.filter(b => !checkedSet.has(b.id));
+    stats.remaining = toCheck.length;
+    setBulkCheckStats({ ...stats });
+
+    for (const brewery of toCheck) {
+      if (bulkCheckAbortRef.current) break;
+
+      try {
+        const res = await supabase.functions.invoke('check-brewery-beers', {
+          body: { brewery_id: brewery.id },
+        });
+
+        if (res.error) {
+          stats = {
+            ...stats,
+            processed: stats.processed + 1,
+            remaining: stats.remaining - 1,
+            checkedIds: [...stats.checkedIds, brewery.id],
+            log: [...stats.log, { name: brewery.name, duplicates: 0, issues: 0, deleted: 0, error: res.error.message }],
+          };
+          setBulkCheckStats(stats);
+          saveBulkCheckProgress(stats);
+          continue;
+        }
+
+        const data = res.data;
+        const dupCount = data.duplicates?.length || 0;
+        const issueCount = data.issues?.length || 0;
+        let deletedCount = 0;
+
+        // Auto-delete duplicates if enabled
+        if (autoDelete && dupCount > 0) {
+          const allRemoveIds = data.duplicates.flatMap((d: any) => d.remove_ids);
+          if (allRemoveIds.length > 0) {
+            const { error: delErr } = await supabase.from('beers').delete().in('id', allRemoveIds);
+            if (!delErr) deletedCount = allRemoveIds.length;
+          }
+        }
+
+        stats = {
+          ...stats,
+          processed: stats.processed + 1,
+          totalDuplicates: stats.totalDuplicates + dupCount,
+          totalIssues: stats.totalIssues + issueCount,
+          totalDeleted: stats.totalDeleted + deletedCount,
+          remaining: stats.remaining - 1,
+          checkedIds: [...stats.checkedIds, brewery.id],
+          log: [...stats.log, { name: brewery.name, duplicates: dupCount, issues: issueCount, deleted: deletedCount }],
+        };
+        setBulkCheckStats(stats);
+        saveBulkCheckProgress(stats);
+
+      } catch (err: any) {
+        stats = {
+          ...stats,
+          processed: stats.processed + 1,
+          remaining: stats.remaining - 1,
+          checkedIds: [...stats.checkedIds, brewery.id],
+          log: [...stats.log, { name: brewery.name, duplicates: 0, issues: 0, deleted: 0, error: err.message }],
+        };
+        setBulkCheckStats(stats);
+        saveBulkCheckProgress(stats);
+      }
+    }
+
+    const finalStats: BulkCheckStatsType = { ...stats, stoppedAt: new Date().toISOString() };
+    setBulkCheckStats(finalStats);
+    saveBulkCheckProgress(finalStats);
+    setBulkCheckRunning(false);
+    if (finalStats.remaining > 0) setBulkCheckResumeAvailable(true);
+    else clearBulkCheckProgress();
+    onComplete?.();
   };
 
   const parseInput = useCallback((raw: string): any[] => {
