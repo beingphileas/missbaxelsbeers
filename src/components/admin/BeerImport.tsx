@@ -112,6 +112,31 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const [bulkStats, setBulkStats] = useState<BulkStatsType>(emptyBulkStats);
 
+  // Bulk AI check state
+  const BULK_CHECK_STORAGE_KEY = 'bulk-check-progress';
+  const [bulkCheckRunning, setBulkCheckRunning] = useState(false);
+  const bulkCheckAbortRef = useRef(false);
+  const [bulkCheckResumeAvailable, setBulkCheckResumeAvailable] = useState(false);
+
+  type BulkCheckStatsType = {
+    processed: number;
+    totalDuplicates: number;
+    totalIssues: number;
+    totalDeleted: number;
+    remaining: number;
+    checkedIds: string[];
+    startedAt: string | null;
+    stoppedAt: string | null;
+    log: { name: string; duplicates: number; issues: number; deleted: number; error?: string }[];
+  };
+
+  const emptyBulkCheckStats: BulkCheckStatsType = {
+    processed: 0, totalDuplicates: 0, totalIssues: 0, totalDeleted: 0,
+    remaining: 0, checkedIds: [], startedAt: null, stoppedAt: null, log: [],
+  };
+
+  const [bulkCheckStats, setBulkCheckStats] = useState<BulkCheckStatsType>(emptyBulkCheckStats);
+
   // Check for saved progress on mount
   useEffect(() => {
     try {
@@ -121,6 +146,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
         if (parsed.processed > 0 && parsed.remaining > 0) {
           setBulkResumeAvailable(true);
           setBulkStats(parsed);
+        }
+      }
+    } catch { /* ignore */ }
+    try {
+      const saved = localStorage.getItem(BULK_CHECK_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as BulkCheckStatsType;
+        if (parsed.processed > 0 && parsed.remaining > 0) {
+          setBulkCheckResumeAvailable(true);
+          setBulkCheckStats(parsed);
         }
       }
     } catch { /* ignore */ }
@@ -134,6 +169,16 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const clearBulkProgress = () => {
     try { localStorage.removeItem(BULK_STORAGE_KEY); } catch { /* ignore */ }
+  };
+
+  const saveBulkCheckProgress = (stats: BulkCheckStatsType) => {
+    try {
+      localStorage.setItem(BULK_CHECK_STORAGE_KEY, JSON.stringify(stats));
+    } catch { /* ignore */ }
+  };
+
+  const clearBulkCheckProgress = () => {
+    try { localStorage.removeItem(BULK_CHECK_STORAGE_KEY); } catch { /* ignore */ }
   };
 
   useEffect(() => {
@@ -371,6 +416,110 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
   const handleStopBulk = () => {
     bulkAbortRef.current = true;
+  };
+
+  const handleStopBulkCheck = () => {
+    bulkCheckAbortRef.current = true;
+  };
+
+  const handleBulkCheck = async (resume = false, autoDelete = false) => {
+    setBulkCheckRunning(true);
+    setBulkCheckResumeAvailable(false);
+    bulkCheckAbortRef.current = false;
+
+    let stats: BulkCheckStatsType;
+    if (resume && bulkCheckStats.processed > 0) {
+      stats = { ...bulkCheckStats, stoppedAt: null };
+    } else {
+      stats = { ...emptyBulkCheckStats, startedAt: new Date().toISOString() };
+      setBulkCheckStats(stats);
+      clearBulkCheckProgress();
+    }
+
+    // Get all breweries with beers
+    const { data: allBreweries } = await supabase
+      .from('breweries')
+      .select('id, name')
+      .order('name');
+
+    if (!allBreweries || allBreweries.length === 0) {
+      setBulkCheckRunning(false);
+      return;
+    }
+
+    const checkedSet = new Set(stats.checkedIds);
+    const toCheck = allBreweries.filter(b => !checkedSet.has(b.id));
+    stats.remaining = toCheck.length;
+    setBulkCheckStats({ ...stats });
+
+    for (const brewery of toCheck) {
+      if (bulkCheckAbortRef.current) break;
+
+      try {
+        const res = await supabase.functions.invoke('check-brewery-beers', {
+          body: { brewery_id: brewery.id },
+        });
+
+        if (res.error) {
+          stats = {
+            ...stats,
+            processed: stats.processed + 1,
+            remaining: stats.remaining - 1,
+            checkedIds: [...stats.checkedIds, brewery.id],
+            log: [...stats.log, { name: brewery.name, duplicates: 0, issues: 0, deleted: 0, error: res.error.message }],
+          };
+          setBulkCheckStats(stats);
+          saveBulkCheckProgress(stats);
+          continue;
+        }
+
+        const data = res.data;
+        const dupCount = data.duplicates?.length || 0;
+        const issueCount = data.issues?.length || 0;
+        let deletedCount = 0;
+
+        // Auto-delete duplicates if enabled
+        if (autoDelete && dupCount > 0) {
+          const allRemoveIds = data.duplicates.flatMap((d: any) => d.remove_ids);
+          if (allRemoveIds.length > 0) {
+            const { error: delErr } = await supabase.from('beers').delete().in('id', allRemoveIds);
+            if (!delErr) deletedCount = allRemoveIds.length;
+          }
+        }
+
+        stats = {
+          ...stats,
+          processed: stats.processed + 1,
+          totalDuplicates: stats.totalDuplicates + dupCount,
+          totalIssues: stats.totalIssues + issueCount,
+          totalDeleted: stats.totalDeleted + deletedCount,
+          remaining: stats.remaining - 1,
+          checkedIds: [...stats.checkedIds, brewery.id],
+          log: [...stats.log, { name: brewery.name, duplicates: dupCount, issues: issueCount, deleted: deletedCount }],
+        };
+        setBulkCheckStats(stats);
+        saveBulkCheckProgress(stats);
+
+      } catch (err: any) {
+        stats = {
+          ...stats,
+          processed: stats.processed + 1,
+          remaining: stats.remaining - 1,
+          checkedIds: [...stats.checkedIds, brewery.id],
+          log: [...stats.log, { name: brewery.name, duplicates: 0, issues: 0, deleted: 0, error: err.message }],
+        };
+        setBulkCheckStats(stats);
+        saveBulkCheckProgress(stats);
+      }
+    }
+
+    const finalStats: BulkCheckStatsType = { ...stats, stoppedAt: new Date().toISOString() };
+    setBulkCheckStats(finalStats);
+    saveBulkCheckProgress(finalStats);
+    setBulkCheckRunning(false);
+    if (finalStats.remaining > 0) setBulkCheckResumeAvailable(true);
+    else clearBulkCheckProgress();
+    onComplete?.();
   };
 
   const parseInput = useCallback((raw: string): any[] => {
@@ -740,6 +889,103 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                               {entry.skipped > 0 && (
                                 <Badge variant="secondary" className="text-[9px]">{entry.skipped} bestaand</Badge>
                               )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Bulk AI Check */}
+          <div className="border-t border-border pt-6 space-y-3">
+            <h3 className="font-serif text-base flex items-center gap-2">
+              <ShieldCheck size={16} className="text-accent" /> Bulk AI Check — Alle Brouwerijen
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Doorloop <strong>alle brouwerijen</strong> en check met AI op duplicaten, vertaal-varianten, data-issues en niet-bier items. Optioneel automatisch duplicaten verwijderen.
+            </p>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              {!bulkCheckRunning ? (
+                bulkCheckResumeAvailable ? (
+                  <>
+                    <Button onClick={() => handleBulkCheck(true, false)} className="gap-2" variant="outline">
+                      <Play size={14} /> Hervatten ({bulkCheckStats.processed} verwerkt, {bulkCheckStats.remaining} resterend)
+                    </Button>
+                    <Button onClick={() => handleBulkCheck(true, true)} className="gap-2" variant="destructive">
+                      <Play size={14} /> Hervatten + auto-delete
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => { clearBulkCheckProgress(); setBulkCheckResumeAvailable(false); setBulkCheckStats(emptyBulkCheckStats); }}>
+                      <X size={14} /> Wis voortgang
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={() => handleBulkCheck(false, false)} className="gap-2" variant="outline">
+                      <ShieldCheck size={14} /> Start Bulk Check
+                    </Button>
+                    <Button onClick={() => handleBulkCheck(false, true)} className="gap-2" variant="destructive">
+                      <Trash2 size={14} /> Check + Auto-delete duplicaten
+                    </Button>
+                  </>
+                )
+              ) : (
+                <Button variant="destructive" onClick={handleStopBulkCheck} className="gap-2">
+                  <Square size={14} /> Stop
+                </Button>
+              )}
+              {bulkCheckRunning && (
+                <span className="text-xs text-muted-foreground animate-pulse flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin" /> Check loopt...
+                </span>
+              )}
+            </div>
+
+            {bulkCheckResumeAvailable && !bulkCheckRunning && bulkCheckStats.stoppedAt && (
+              <p className="text-xs text-muted-foreground">
+                Gestopt op {new Date(bulkCheckStats.stoppedAt).toLocaleString('nl-BE')} — {bulkCheckStats.processed} brouwerijen gecheckt, {bulkCheckStats.remaining} resterend.
+              </p>
+            )}
+
+            {(bulkCheckStats.processed > 0 || bulkCheckRunning) && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkCheckStats.processed}</p>
+                    <p className="text-[10px] text-muted-foreground">Gecheckt</p>
+                  </div>
+                  <div className="bg-warning/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-warning">{bulkCheckStats.totalDuplicates}</p>
+                    <p className="text-[10px] text-muted-foreground">Duplicaat-groepen</p>
+                  </div>
+                  <div className="bg-destructive/10 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl text-destructive">{bulkCheckStats.totalDeleted}</p>
+                    <p className="text-[10px] text-muted-foreground">Verwijderd</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="font-display text-xl">{bulkCheckStats.totalIssues}</p>
+                    <p className="text-[10px] text-muted-foreground">Issues</p>
+                  </div>
+                </div>
+
+                {bulkCheckStats.log.length > 0 && (
+                  <div className="max-h-48 overflow-auto border rounded-lg divide-y divide-border text-xs">
+                    {[...bulkCheckStats.log].reverse().map((entry, i) => (
+                      <div key={i} className={`px-3 py-1.5 flex items-center justify-between ${entry.error ? 'bg-destructive/5' : ''}`}>
+                        <span className="font-medium truncate">{entry.name}</span>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {entry.error ? (
+                            <span className="text-destructive text-[10px] truncate">{entry.error.substring(0, 30)}</span>
+                          ) : (
+                            <>
+                              {entry.duplicates > 0 && <Badge variant="secondary" className="text-[9px]">{entry.duplicates} dup</Badge>}
+                              {entry.deleted > 0 && <Badge variant="destructive" className="text-[9px]">-{entry.deleted}</Badge>}
+                              {entry.issues > 0 && <Badge variant="outline" className="text-[9px]">{entry.issues} issues</Badge>}
+                              {entry.duplicates === 0 && entry.issues === 0 && <Badge variant="outline" className="text-[9px] text-success">✓ OK</Badge>}
                             </>
                           )}
                         </div>
