@@ -149,10 +149,14 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       }));
 
       const srcNames = (data.sources || []).map((s: any) => s.name).join(', ');
+      const rejectedCount = data.rejected?.length || 0;
       setPreview(previewBeers);
       setStep('preview');
       setProgress(100);
-      toast({ title: `${previewBeers.length} bieren gevonden`, description: `Bronnen: ${srcNames || breweryName}` });
+      toast({
+        title: `${previewBeers.length} bieren gevonden${data.ai_checked ? ' (AI-gecheckt)' : ''}`,
+        description: `Bronnen: ${srcNames || breweryName}${rejectedCount > 0 ? ` · ${rejectedCount} afgekeurd door AI` : ''}`,
+      });
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
