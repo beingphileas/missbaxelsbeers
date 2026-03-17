@@ -23,6 +23,9 @@ import {
   X,
   Globe,
   Search,
+  ShieldCheck,
+  Trash2,
+  Copy,
 } from 'lucide-react';
 
 interface BreweryMatch {
