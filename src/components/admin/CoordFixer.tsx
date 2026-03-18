@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { MapPin, AlertTriangle, RefreshCw, Save, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { MapPin, AlertTriangle, RefreshCw, Save, Loader2, Globe } from 'lucide-react';
 
 interface BreweryCoord {
   id: string;
