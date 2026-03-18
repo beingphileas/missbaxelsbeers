@@ -174,15 +174,25 @@ Return this exact JSON:
     const awardCount = Array.isArray(factcheck.awards) ? factcheck.awards.length : 0;
     const awardsBonus = Math.min(awardCount * 3, 10);
 
-    // Weighted composite: AI 50%, External 40%, Awards 10%
+    // Brewery size bonus: Microbrewery +5, Family-owned +4, Blender/Stekerij +3, Contract +2, Trappist +1, Industrial 0
+    const breweryType = (brewery?.type ?? "").toLowerCase();
+    const sizeBonus =
+      breweryType.includes("micro") ? 5 :
+      breweryType.includes("family") ? 4 :
+      breweryType.includes("blender") || breweryType.includes("stekerij") ? 3 :
+      breweryType.includes("contract") ? 2 :
+      breweryType.includes("trappist") ? 1 :
+      0; // Industrial / Sub-site
+
+    // Weighted composite: AI 50%, External 40%, Awards + Size bonus
     let compositeScore: number;
     if (avgExternal !== null) {
       compositeScore = Math.round(
-        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus * 1.0
+        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus + sizeBonus
       );
     } else {
-      // No external data: AI 90% + awards
-      compositeScore = Math.round(aiScore * 0.90 + awardsBonus * 1.0);
+      // No external data: AI 90% + bonuses
+      compositeScore = Math.round(aiScore * 0.90 + awardsBonus + sizeBonus);
     }
     compositeScore = Math.max(1, Math.min(100, compositeScore));
 
