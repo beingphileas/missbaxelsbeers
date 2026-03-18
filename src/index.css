@@ -6,64 +6,64 @@
 
 @layer base {
   :root {
-    /* Belgian Vintage Palette */
-    --background: 36 27% 95%;         /* #F5F2ED warm paper */
-    --foreground: 25 73% 16%;         /* #462A09 deep saddle brown */
+    /* Wine Cellar Dark Palette */
+    --background: 220 20% 8%;
+    --foreground: 30 20% 90%;
 
-    --card: 38 33% 97%;              /* warm cream card */
-    --card-foreground: 25 73% 16%;
+    --card: 220 18% 12%;
+    --card-foreground: 30 20% 90%;
 
-    --popover: 38 33% 97%;
-    --popover-foreground: 25 73% 16%;
+    --popover: 220 18% 12%;
+    --popover-foreground: 30 20% 90%;
 
-    --primary: 25 73% 33%;           /* #8B4513 Saddle Brown */
-    --primary-foreground: 38 40% 96%;
+    --primary: 348 60% 42%;
+    --primary-foreground: 30 20% 95%;
 
-    --secondary: 36 22% 90%;         /* warm tan */
-    --secondary-foreground: 25 73% 16%;
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 30 15% 80%;
 
-    --muted: 34 16% 85%;
-    --muted-foreground: 25 25% 45%;
+    --muted: 220 15% 16%;
+    --muted-foreground: 220 10% 50%;
 
-    --accent: 43 74% 49%;            /* #DAA520 Goldenrod */
-    --accent-foreground: 25 73% 12%;
+    --accent: 38 70% 55%;
+    --accent-foreground: 220 20% 8%;
 
     --success: 90 42% 24%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 65% 48%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 30 20% 95%;
 
-    --border: 34 18% 82%;
-    --input: 34 18% 82%;
-    --ring: 43 74% 49%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 348 60% 42%;
 
-    --radius: 6px;
+    --radius: 0.75rem;
 
-    --sidebar-background: 36 27% 95%;
-    --sidebar-foreground: 25 73% 16%;
-    --sidebar-primary: 25 73% 33%;
-    --sidebar-primary-foreground: 38 40% 96%;
-    --sidebar-accent: 36 22% 90%;
-    --sidebar-accent-foreground: 25 73% 16%;
-    --sidebar-border: 34 18% 82%;
-    --sidebar-ring: 43 74% 49%;
+    --sidebar-background: 220 20% 6%;
+    --sidebar-foreground: 30 20% 90%;
+    --sidebar-primary: 348 60% 42%;
+    --sidebar-primary-foreground: 30 20% 95%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 30 15% 80%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 348 60% 42%;
 
-    /* Extended vintage palette */
-    --charcoal: 25 40% 12%;
-    --rust: 20 72% 38%;
-    --slate: 25 30% 25%;
-    --parchment: 36 27% 95%;
-    --vintage-gold: 43 74% 49%;
-    --vintage-cream: 40 40% 97%;
-    --vintage-sepia: 30 35% 70%;
+    /* Extended wine cellar palette */
+    --charcoal: 220 20% 6%;
+    --rust: 348 60% 42%;
+    --slate: 220 15% 25%;
+    --parchment: 220 18% 12%;
+    --vintage-gold: 38 70% 55%;
+    --vintage-cream: 220 18% 14%;
+    --vintage-sepia: 220 10% 40%;
 
-    /* Shadows – warm & soft */
-    --shadow-hard: 3px 3px 0px hsl(25 73% 16%);
-    --shadow-card: 0 2px 8px -2px hsl(25 40% 20% / 0.12), 0 1px 3px hsl(25 40% 20% / 0.06);
-    --shadow-scrapbook: 0 4px 16px -4px hsl(25 30% 20% / 0.15), 0 1px 4px hsl(25 30% 20% / 0.08);
-    --shadow-scrapbook-hover: 0 8px 28px -4px hsl(25 30% 20% / 0.22), 0 2px 8px hsl(25 30% 20% / 0.1);
-    --shadow-vintage: 0 1px 3px hsl(25 40% 30% / 0.08);
+    /* Shadows – dark & deep */
+    --shadow-hard: 3px 3px 0px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.4), 0 1px 3px hsl(0 0% 0% / 0.2);
+    --shadow-scrapbook: 0 4px 16px -4px hsl(0 0% 0% / 0.5), 0 1px 4px hsl(0 0% 0% / 0.3);
+    --shadow-scrapbook-hover: 0 8px 28px -4px hsl(0 0% 0% / 0.6), 0 2px 8px hsl(0 0% 0% / 0.35);
+    --shadow-vintage: 0 1px 3px hsl(0 0% 0% / 0.3);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
