@@ -130,7 +130,7 @@ const Index = () => {
                 </div>
                 {filtered.length === 0 && (
                   <div className="text-center py-16">
-                    <p className="text-muted-foreground text-sm">Geen brouwerijen gevonden.</p>
+                    <p className="text-muted-foreground text-sm">{t('Geen brouwerijen gevonden.')}</p>
                   </div>
                 )}
               </div>
