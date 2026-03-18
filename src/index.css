@@ -225,9 +225,9 @@
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: hsl(36 27% 95%);
-}
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: hsl(220 20% 8%);
+  }
 
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius);
