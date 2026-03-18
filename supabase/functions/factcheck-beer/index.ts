@@ -221,16 +221,19 @@ Return this exact JSON:
       }
     }
 
-    // Weighted composite: AI 50%, External 40%, Awards + Size + Style bonus
+    // Score verdeling: External 50pts, Style 10pts, Size 5pts, AI 35pts = 100
     let compositeScore: number;
     if (avgExternal !== null) {
       compositeScore = Math.round(
-        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus + sizeBonus + styleBonus
+        (avgExternal / 100) * 50 + styleBonus + sizeBonus + (aiScore / 100) * 35
       );
     } else {
-      // No external data: AI 90% + bonuses
-      compositeScore = Math.round(aiScore * 0.90 + awardsBonus + sizeBonus + styleBonus);
+      // No external data: AI gets 85pts max + bonuses
+      compositeScore = Math.round(
+        (aiScore / 100) * 85 + styleBonus + sizeBonus
+      );
     }
+    compositeScore = compositeScore + awardsBonus;
     compositeScore = Math.max(1, Math.min(100, compositeScore));
 
     // Save factcheck + updated score to DB
