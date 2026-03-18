@@ -7,27 +7,35 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-async function searchPerplexity(apiKey: string, query: string): Promise<{ content: string; citations: string[] }> {
-  const res = await fetch("https://api.perplexity.ai/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "sonar",
-      messages: [
-        { role: "system", content: "You are a beer data researcher. Provide factual, verifiable data only. Include exact numbers, URLs, and dates when available." },
-        { role: "user", content: query },
-      ],
-    }),
-  });
-  if (!res.ok) return { content: "", citations: [] };
-  const data = await res.json();
-  return {
-    content: data.choices?.[0]?.message?.content ?? "",
-    citations: data.citations ?? [],
-  };
+async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string): Promise<{ content: string; citations: string[] }> {
+  try {
+    const res = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "sonar-pro",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("Perplexity error:", res.status, await res.text());
+      return { content: "", citations: [] };
+    }
+    const data = await res.json();
+    return {
+      content: data.choices?.[0]?.message?.content ?? "",
+      citations: data.citations ?? [],
+    };
+  } catch (e) {
+    console.error("Perplexity fetch failed:", e);
+    return { content: "", citations: [] };
+  }
 }
 
 // ── 1. Untappd Beer Score (max 35 pts) ──
@@ -40,10 +48,9 @@ function calcUntappdBeerScore(factcheck: any): number {
 // ── 2. Brewery Type (max 5 pts) ──
 function calcBreweryTypeScore(brewery: any): number {
   const t = (brewery?.type ?? "").toLowerCase();
-  if (t.includes("micro") || t.includes("craft") || t.includes("blender") || t.includes("stekerij")) return 5;
-  if (t.includes("family") || t.includes("trappist") || t.includes("abbey")) return 3;
+  if (t.includes("micro") || t.includes("craft") || t.includes("blender") || t.includes("stekerij") || t.includes("lambic") || t.includes("trappist")) return 5;
+  if (t.includes("family") || t.includes("abbey") || t.includes("traditional")) return 3;
   if (t.includes("regional") || t.includes("contract")) return 1;
-  // Industrial / macro / unknown
   return 0;
 }
 
@@ -74,7 +81,6 @@ function calcExternalReviewScore(factcheck: any, brewery: any): number {
 }
 
 // ── 5. Marijke's Taste Profile (max 20 pts) ──
-// 5a. Style preference (max 12 pts)
 const MARIJKE_STYLE_PREFS: Record<string, number> = {
   // Factor 3 – favourites
   "imperial stout": 3, "pastry stout": 3, "stout": 3, "porter": 3,
@@ -84,7 +90,7 @@ const MARIJKE_STYLE_PREFS: Record<string, number> = {
   "oude gueuze": 3, "oude geuze": 3, "gueuze": 3, "geuze": 3,
   "oude kriek": 3, "kriek": 3, "oud bruin": 3, "flanders red": 3, "flemish red": 3,
   "wild ale": 3, "gose": 3, "berliner weisse": 3, "lambic": 3, "lambiek": 3,
-  "sour": 3, "fruited sour": 3,
+  "sour": 3, "fruited sour": 3, "fruit lambic": 3, "grape lambic": 3, "druif": 3,
   // Factor 2 – likes
   "tripel": 2, "triple": 2, "belgian strong ale": 2, "belgian strong dark ale": 2,
   "strong ale": 2, "amber": 2, "belgian amber": 2, "winter ale": 2,
@@ -102,11 +108,10 @@ function calcMarijkeStyleScore(style: string): number {
   for (const [key, factor] of Object.entries(MARIJKE_STYLE_PREFS)) {
     if (s.includes(key) && factor > bestFactor) bestFactor = factor;
   }
-  if (bestFactor < 0) bestFactor = 1; // unknown style → neutral
+  if (bestFactor < 0) bestFactor = 1;
   return (bestFactor / 3) * 12;
 }
 
-// 5b. Flavour axes (max 8 pts, 2 per axis)
 function calcMarijkeFlavorScore(beer: any, factcheck: any): number {
   const style = (beer.style ?? "").toLowerCase();
   const flavors = [
@@ -128,11 +133,11 @@ function calcMarijkeFlavorScore(beer: any, factcheck: any): number {
   else if (/\b(caramel|toffee|brown|malt)\b/.test(all)) score += 1;
 
   // Axis 3: Zuur / funky (0-2)
-  if (/\b(sour|tart|acetic|lactic|funky|brett|lambic|gueuze|wild|oud bruin|vinous)\b/.test(all)) score += 2;
-  else if (/\b(tangy|acidic|dry)\b/.test(all)) score += 1;
+  if (/\b(sour|tart|acetic|lactic|funky|brett|lambic|gueuze|wild|oud bruin|vinous|acidic|zuur)\b/.test(all)) score += 2;
+  else if (/\b(tangy|dry)\b/.test(all)) score += 1;
 
   // Axis 4: Experimenteel / barrel aged / gerookt / gekruid (0-2)
-  if (/\b(barrel.?aged|bourbon|whisky|whiskey|smoked|rauch|experimental|vanilla|chili|pepper|cinnamon|spice)\b/.test(all)) score += 2;
+  if (/\b(barrel.?aged|bourbon|whisky|whiskey|smoked|rauch|experimental|vanilla|chili|pepper|cinnamon|spice|grape|druif|macerat|collab)\b/.test(all)) score += 2;
   else if (/\b(oak|wood|herbal|spiced)\b/.test(all)) score += 1;
 
   return Math.min(8, score);
@@ -143,20 +148,16 @@ function calcMarijkeScore(beer: any, factcheck: any): number {
 }
 
 // ── Composite: sum of 5 pillars ──
-function computeCompositeScore(
-  beer: any,
-  brewery: any,
-  factcheck: any,
-  _aiScore: number,
-): number | null {
-  const p1 = calcUntappdBeerScore(factcheck);        // max 35
-  const p2 = calcBreweryTypeScore(brewery);           // max 5
-  const p3 = calcBreweryUntappdScore(brewery);        // max 10
-  const p4 = calcExternalReviewScore(factcheck, brewery); // max 30
-  const p5 = calcMarijkeScore(beer, factcheck);       // max 20
+function computeCompositeScore(beer: any, brewery: any, factcheck: any): number | null {
+  const p1 = calcUntappdBeerScore(factcheck);
+  const p2 = calcBreweryTypeScore(brewery);
+  const p3 = calcBreweryUntappdScore(brewery);
+  const p4 = calcExternalReviewScore(factcheck, brewery);
+  const p5 = calcMarijkeScore(beer, factcheck);
+
+  console.log(`Score breakdown: Untappd=${p1.toFixed(1)}/35, BrewType=${p2}/5, BrewUntappd=${p3.toFixed(1)}/10, External=${p4.toFixed(1)}/30, Marijke=${p5.toFixed(1)}/20`);
 
   const total = p1 + p2 + p3 + p4 + p5;
-  // If total < 70, return null → displayed as N/A in the UI
   if (total < 70) return null;
   return Math.min(100, Math.round(total * 10) / 10);
 }
@@ -205,24 +206,49 @@ serve(async (req) => {
     const beerName = beer.name;
     const breweryName = brewery?.name ?? "Unknown";
 
-    // Perplexity grounded searches
+    // Perplexity grounded searches — three parallel queries for maximum data
     let webSources = "";
     let allCitations: string[] = [];
     const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
 
     if (perplexityKey) {
       try {
-        // Two focused searches in parallel
-        const [ratingsResult, awardsResult] = await Promise.all([
-          searchPerplexity(perplexityKey, `What are the ratings and reviews for "${beerName}" by "${breweryName}" on Untappd, RateBeer, and BeerAdvocate? Provide exact scores and URLs if available.`),
-          searchPerplexity(perplexityKey, `Has the Belgian beer "${beerName}" by "${breweryName}" won any awards or prizes? What is the typical price in Belgium? Provide exact details with years and sources.`),
+        const [ratingsResult, awardsResult, productionResult] = await Promise.all([
+          searchPerplexity(
+            perplexityKey,
+            "You are a beer data researcher. Provide exact numerical ratings, review counts, and URLs. Be precise.",
+            `Find ALL ratings and reviews for the Belgian beer "${beerName}" by brewery "${breweryName}" (${beer.style}, ${beer.abv}% ABV).
+Look on: Untappd, RateBeer, BeerAdvocate, Google Reviews, Vivino (if grape beer).
+For each platform provide: exact score, number of reviews/check-ins, and direct URL to the beer page.
+Also check if the brewery "${breweryName}" has an overall Untappd brewery rating.`,
+          ),
+          searchPerplexity(
+            perplexityKey,
+            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources.",
+            `Has the Belgian beer "${beerName}" by "${breweryName}" won any awards, prizes, or medals? What competitions?
+What is the retail price in Belgium or Europe? Check beer shops, brewery webshop, and retailers.
+Also check if this beer or this brewery's beers have appeared in notable rankings or best-of lists.`,
+          ),
+          searchPerplexity(
+            perplexityKey,
+            "You are a beer production expert. Provide exact technical details about brewing, ingredients, and style classification.",
+            `Tell me everything about the production and ingredients of the Belgian beer "${beerName}" by "${breweryName}".
+I need: exact ingredients (malt types, hops, fruits, grapes with varieties and percentages, spices, yeasts), 
+fermentation method (spontaneous, top, bottom, mixed), aging details (barrels, duration, maceration time),
+blending details (number of blends, age of components), bottle conditioning, 
+and whether the current style label "${beer.style}" is accurate or should be more specific.
+Also verify: is the ABV of ${beer.abv}% correct according to sources?`,
+          ),
         ]);
 
         const parts: string[] = [];
         if (ratingsResult.content) parts.push(`RATINGS & REVIEWS:\n${ratingsResult.content}`);
         if (awardsResult.content) parts.push(`AWARDS & PRICING:\n${awardsResult.content}`);
+        if (productionResult.content) parts.push(`PRODUCTION & VERIFICATION:\n${productionResult.content}`);
         webSources = parts.join("\n\n---\n\n");
-        allCitations = [...ratingsResult.citations, ...awardsResult.citations];
+        allCitations = [...new Set([...ratingsResult.citations, ...awardsResult.citations, ...productionResult.citations])];
+
+        console.log(`Perplexity factcheck: ${webSources.length} chars, ${allCitations.length} citations for ${beerName}`);
       } catch (e) {
         console.error("Perplexity factcheck search failed:", e);
       }
@@ -276,6 +302,7 @@ CRITICAL RULES:
 - If no web sources were found, return mostly null/empty values with confidence_score: 0.
 - A score on Untappd is typically 0-5, RateBeer 0-100, BeerAdvocate 0-5.
 - Only include a URL if it appears in the sources.
+- IMPORTANT: If sources contain rich data, confidence_score should be high (70-100). Only use low scores when genuinely no data was found.
 
 Beer: "${beerName}"
 Brewery: "${breweryName}"
@@ -288,19 +315,21 @@ ${citationBlock}
 
 Return this exact JSON (use null when data is NOT in sources):
 {
-  "confidence_score": <0-100, 0 if no sources found, higher only if sources confirm data>,
+  "confidence_score": <0-100, based on how much verifiable data was found>,
   "abv_verified": <true ONLY if a source explicitly states this ABV, otherwise false>,
-  "abv_sources": [<ONLY URLs from sources that mention ABV, empty array if none>],
+  "abv_sources": [<ONLY URLs from sources that mention ABV>],
   "style_verified": <true ONLY if a source confirms the style, otherwise false>,
-  "style_note": "<only if a source suggests a different style, otherwise null>",
-  "awards": [<ONLY awards explicitly mentioned in sources with year, otherwise empty array>],
-  "price_range": <ONLY if a source mentions a price, otherwise null>,
+  "style_note": "<if sources suggest a different/more specific style, note it here>",
+  "awards": [<ONLY awards explicitly mentioned in sources with year>],
+  "price_range": "<ONLY if a source mentions a price, otherwise null>",
   "external_ratings": {
-    "untappd": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>},
-    "ratebeer": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>},
-    "beeradvocate": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>}
+    "untappd": {"score": <ONLY if found in sources>, "url": <ONLY if found>, "review_count": <if found>},
+    "ratebeer": {"score": <ONLY if found>, "url": <ONLY if found>},
+    "beeradvocate": {"score": <ONLY if found>, "url": <ONLY if found>}
   },
   "external_links": [<ONLY URLs actually found in sources>],
+  "production_verified": "<summary of production details confirmed by sources, or null>",
+  "ingredients_verified": "<summary of ingredients confirmed by sources, or null>",
   "issues": [<data inconsistencies ONLY if sources contradict our data>],
   "suggestions": [<improvements ONLY based on source evidence>]
 }`;
@@ -314,7 +343,7 @@ Return this exact JSON (use null when data is NOT in sources):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a beer data verification expert. Return valid JSON only." },
+          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score." },
           { role: "user", content: prompt },
         ],
       }),
@@ -332,8 +361,9 @@ Return this exact JSON (use null when data is NOT in sources):
     const jsonStr = rawContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
     let factcheck = JSON.parse(jsonStr);
 
-    // Strip hallucinated details if confidence is very low
-    if ((factcheck.confidence_score ?? 0) <= 10) {
+    // Strip hallucinated details ONLY if confidence is very low AND no web data
+    if ((factcheck.confidence_score ?? 0) <= 10 && webSources.length < 100) {
+      console.log(`Stripping factcheck for ${beerName}: very low confidence AND no web sources`);
       factcheck = {
         confidence_score: factcheck.confidence_score ?? 0,
         abv_verified: false,
@@ -348,6 +378,8 @@ Return this exact JSON (use null when data is NOT in sources):
           beeradvocate: { score: null, url: null },
         },
         external_links: [],
+        production_verified: null,
+        ingredients_verified: null,
         issues: [],
         suggestions: ["Geen betrouwbare bronnen gevonden — handmatige verificatie aanbevolen."],
       };
@@ -356,11 +388,18 @@ Return this exact JSON (use null when data is NOT in sources):
     // Add citations to factcheck
     factcheck.citations = allCitations;
 
-    // Compute composite score (new 5-pillar system)
-    const aiScore = beer.quality_score ?? 50;
-    const compositeScore = computeCompositeScore(beer, brewery, factcheck, aiScore);
+    // Compute composite score (5-pillar system)
+    const compositeScore = computeCompositeScore(beer, brewery, factcheck);
 
-    // Save
+    // Save — also include score breakdown for transparency
+    const scoreBreakdown = {
+      untappd_beer: calcUntappdBeerScore(factcheck),
+      brewery_type: calcBreweryTypeScore(brewery),
+      brewery_untappd: calcBreweryUntappdScore(brewery),
+      external_reviews: calcExternalReviewScore(factcheck, brewery),
+      marijke_taste: calcMarijkeScore(beer, factcheck),
+    };
+    factcheck.score_breakdown = scoreBreakdown;
 
     const { error: updateErr } = await supabase.from("beers").update({
       factcheck_json: factcheck,
@@ -369,7 +408,7 @@ Return this exact JSON (use null when data is NOT in sources):
 
     if (updateErr) throw updateErr;
 
-    return new Response(JSON.stringify({ success: true, factcheck }), {
+    return new Response(JSON.stringify({ success: true, factcheck, score_breakdown: scoreBreakdown }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
