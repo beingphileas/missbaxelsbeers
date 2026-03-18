@@ -5,8 +5,10 @@ import MultiLayerMap from '@/components/MultiLayerMap';
 import BreweryCard from '@/components/BreweryCard';
 import BrewerySheet from '@/components/BrewerySheet';
 import GlassSearchOverlay from '@/components/GlassSearchOverlay';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const Index = () => {
+  const { t } = useLanguage();
   const { data: breweries = [], isLoading } = useBreweries();
   const { data: venues = [] } = useVenues();
   const { data: posts = [] } = useBlogPosts();
@@ -92,7 +94,7 @@ const Index = () => {
                 </div>
                 {filtered.length === 0 && (
                   <div className="text-center py-16">
-                    <p className="text-muted-foreground text-sm">Geen brouwerijen gevonden.</p>
+                    <p className="text-muted-foreground text-sm">{t('Geen brouwerijen gevonden.')}</p>
                   </div>
                 )}
               </div>
@@ -128,7 +130,7 @@ const Index = () => {
                 </div>
                 {filtered.length === 0 && (
                   <div className="text-center py-16">
-                    <p className="text-muted-foreground text-sm">Geen brouwerijen gevonden.</p>
+                    <p className="text-muted-foreground text-sm">{t('Geen brouwerijen gevonden.')}</p>
                   </div>
                 )}
               </div>
@@ -139,7 +141,7 @@ const Index = () => {
 
       {isLoading && (
         <div className="flex items-center justify-center h-[60vh]">
-          <p className="text-muted-foreground text-sm">Laden…</p>
+          <p className="text-muted-foreground text-sm">{t('Laden…')}</p>
         </div>
       )}
 

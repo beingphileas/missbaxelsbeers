@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, X, SlidersHorizontal, Map, List, LayoutGrid } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { breweryTypes } from '@/data/breweries';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface GlassSearchOverlayProps {
   search: string;
@@ -28,6 +29,7 @@ export default function GlassSearchOverlay({
   resultCount, isLoading,
   view, onViewChange,
 }: GlassSearchOverlayProps) {
+  const { t } = useLanguage();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const hasFilters = !!(province || type || style);
   const activeCount = [province, type, style].filter(Boolean).length;
@@ -44,8 +46,8 @@ export default function GlassSearchOverlay({
 
   const viewItems = [
     { key: 'split' as const, icon: <LayoutGrid size={13} />, label: 'Split' },
-    { key: 'map' as const, icon: <Map size={13} />, label: 'Kaart' },
-    { key: 'list' as const, icon: <List size={13} />, label: 'Lijst' },
+    { key: 'map' as const, icon: <Map size={13} />, label: t('Kaart') },
+    { key: 'list' as const, icon: <List size={13} />, label: t('Lijst') },
   ];
 
   return (
@@ -64,7 +66,7 @@ export default function GlassSearchOverlay({
             type="text"
             value={search}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder="Zoek brouwerijen, bieren…"
+            placeholder={t('Zoek brouwerijen, bieren…')}
             className="w-full h-11 md:h-12 pl-10 pr-16 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
@@ -104,15 +106,15 @@ export default function GlassSearchOverlay({
             >
               <div className="px-3.5 pb-3 pt-1 space-y-2 border-t border-white/10">
                 <select value={province} onChange={e => onProvinceChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Provincies</option>
+                  <option value="">{t('Alle Provincies')}</option>
                   {provinces.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <select value={type} onChange={e => onTypeChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Types</option>
-                  {breweryTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  <option value="">{t('Alle Types')}</option>
+                  {breweryTypes.map(bt => <option key={bt} value={bt}>{bt}</option>)}
                 </select>
                 <select value={style} onChange={e => onStyleChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Stijlen</option>
+                  <option value="">{t('Alle Stijlen')}</option>
                   {beerStyles.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
@@ -123,7 +125,7 @@ export default function GlassSearchOverlay({
         {/* Footer: count + view toggles (visible on all screens) */}
         <div className="flex items-center justify-between px-3.5 py-2 border-t border-white/10 bg-foreground/[0.03]">
           <p className="text-[10px] md:text-[11px] text-muted-foreground tabular-nums">
-            {isLoading ? 'Laden…' : `${resultCount} brouwerijen`}
+            {isLoading ? t('Laden…') : `${resultCount} ${t('brouwerijen')}`}
           </p>
           <div className="flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
             {viewItems.map(item => (
