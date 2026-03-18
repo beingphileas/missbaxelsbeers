@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_beers_brewery_name_unique ON beers (brewery_id, lower(name))
