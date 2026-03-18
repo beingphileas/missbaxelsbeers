@@ -308,7 +308,7 @@ export default function BlogPost() {
                   ),
                 }}
               >
-                {post.content}
+                {translatedContent || post.content}
               </ReactMarkdown>
             </div>
           </article>
