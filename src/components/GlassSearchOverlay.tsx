@@ -29,6 +29,7 @@ export default function GlassSearchOverlay({
   resultCount, isLoading,
   view, onViewChange,
 }: GlassSearchOverlayProps) {
+  const { t } = useLanguage();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const hasFilters = !!(province || type || style);
   const activeCount = [province, type, style].filter(Boolean).length;
