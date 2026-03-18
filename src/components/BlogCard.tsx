@@ -94,10 +94,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
                   className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors bg-accent/10 px-2 py-0.5 rounded-sm border border-accent/20"
-                  title="Toon op kaart"
+                  title={t('Toon op kaart')}
                 >
                   <MapPin size={12} />
-                  <span className="text-[10px] font-semibold uppercase tracking-wider">Kaart</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider">{t('Kaart')}</span>
                 </button>
               )}
             </div>
