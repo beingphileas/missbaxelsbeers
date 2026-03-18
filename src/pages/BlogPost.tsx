@@ -156,7 +156,7 @@ export default function BlogPost() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Laden…</p>
+        <p className="text-muted-foreground text-sm">{t('Laden…')}</p>
       </div>
     );
   }
@@ -165,9 +165,9 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-serif text-2xl mb-2">Post niet gevonden</h1>
+          <h1 className="font-serif text-2xl mb-2">{t('Post niet gevonden')}</h1>
           <Link to="/" className="text-accent hover:underline text-sm">
-            Terug naar home
+            {t('Terug naar home')}
           </Link>
         </div>
       </div>
