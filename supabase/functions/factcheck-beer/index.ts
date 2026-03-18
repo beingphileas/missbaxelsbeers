@@ -30,90 +30,133 @@ async function searchPerplexity(apiKey: string, query: string): Promise<{ conten
   };
 }
 
+// ── 1. Untappd Beer Score (max 35 pts) ──
+function calcUntappdBeerScore(factcheck: any): number {
+  const score = factcheck.external_ratings?.untappd?.score;
+  if (typeof score === "number" && score > 0) return (score / 5) * 35;
+  return 0;
+}
+
+// ── 2. Brewery Type (max 5 pts) ──
+function calcBreweryTypeScore(brewery: any): number {
+  const t = (brewery?.type ?? "").toLowerCase();
+  if (t.includes("micro") || t.includes("craft") || t.includes("blender") || t.includes("stekerij")) return 5;
+  if (t.includes("family") || t.includes("trappist") || t.includes("abbey")) return 3;
+  if (t.includes("regional") || t.includes("contract")) return 1;
+  // Industrial / macro / unknown
+  return 0;
+}
+
+// ── 3. Untappd Brewery Score (max 10 pts) ──
+function calcBreweryUntappdScore(brewery: any): number {
+  const r = brewery?.untappd_rating;
+  if (typeof r === "number" && r > 0) return (r / 5) * 10;
+  return 0;
+}
+
+// ── 4. Other Review Sites (max 30 pts) ──
+function calcExternalReviewScore(factcheck: any, brewery: any): number {
+  const scores: number[] = []; // normalised to 0-10
+
+  const rb = factcheck.external_ratings?.ratebeer?.score;
+  if (typeof rb === "number" && rb > 0) scores.push(rb / 10); // RateBeer is 0-100
+
+  const ba = factcheck.external_ratings?.beeradvocate?.score;
+  if (typeof ba === "number" && ba > 0) scores.push((ba / 5) * 10); // BA is 0-5
+
+  // Google brewery rating as supplemental signal
+  const goog = brewery?.google_rating;
+  if (typeof goog === "number" && goog > 0) scores.push((goog / 5) * 10);
+
+  if (scores.length === 0) return 0;
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  return (avg / 10) * 30;
+}
+
+// ── 5. Marijke's Taste Profile (max 20 pts) ──
+// 5a. Style preference (max 12 pts)
+const MARIJKE_STYLE_PREFS: Record<string, number> = {
+  // Factor 3 – favourites
+  "imperial stout": 3, "pastry stout": 3, "stout": 3, "porter": 3,
+  "barley wine": 3, "barleywine": 3,
+  "ipa": 3, "west coast ipa": 3, "dipa": 3, "double ipa": 3, "triple ipa": 3,
+  "black ipa": 3, "cold ipa": 3, "neipa": 3, "new england ipa": 3, "brut ipa": 3,
+  "oude gueuze": 3, "oude geuze": 3, "gueuze": 3, "geuze": 3,
+  "oude kriek": 3, "kriek": 3, "oud bruin": 3, "flanders red": 3, "flemish red": 3,
+  "wild ale": 3, "gose": 3, "berliner weisse": 3, "lambic": 3, "lambiek": 3,
+  "sour": 3, "fruited sour": 3,
+  // Factor 2 – likes
+  "tripel": 2, "triple": 2, "belgian strong ale": 2, "belgian strong dark ale": 2,
+  "strong ale": 2, "amber": 2, "belgian amber": 2, "winter ale": 2,
+  "scotch ale": 2, "bière de garde": 2,
+  // Factor 1 – okay
+  "saison": 1, "farmhouse": 1, "session ipa": 1, "dubbel": 1, "double": 1,
+  "blond": 1, "blonde": 1, "belgian blonde": 1, "belgian ipa": 1,
+  // Factor 0 – not her thing
+  "pils": 0, "pilsner": 0, "lager": 0, "radler": 0, "witbier": 0, "wit": 0,
+};
+
+function calcMarijkeStyleScore(style: string): number {
+  const s = style.toLowerCase();
+  let bestFactor = -1;
+  for (const [key, factor] of Object.entries(MARIJKE_STYLE_PREFS)) {
+    if (s.includes(key) && factor > bestFactor) bestFactor = factor;
+  }
+  if (bestFactor < 0) bestFactor = 1; // unknown style → neutral
+  return (bestFactor / 3) * 12;
+}
+
+// 5b. Flavour axes (max 8 pts, 2 per axis)
+function calcMarijkeFlavorScore(beer: any, factcheck: any): number {
+  const style = (beer.style ?? "").toLowerCase();
+  const flavors = [
+    ...(beer.primary_flavors ?? []),
+    ...(beer.secondary_flavors ?? []),
+    ...(beer.aroma_profile ?? []),
+  ].map((f: string) => f.toLowerCase());
+  const notes = ((beer.taste_notes ?? "") + " " + (beer.summary ?? "")).toLowerCase();
+  const all = style + " " + flavors.join(" ") + " " + notes;
+
+  let score = 0;
+
+  // Axis 1: Bitterheid / hoppig (0-2)
+  if (/\b(bitter|hop|hops|hoppy|ipa|resin|piney|citrus hop|dank)\b/.test(all)) score += 2;
+  else if (/\b(light.?bitter|mild.?hop)\b/.test(all)) score += 1;
+
+  // Axis 2: Donker & geroosterd (0-2)
+  if (/\b(roast|chocolate|coffee|espresso|dark|stout|porter|char|burnt|cacao|cocoa)\b/.test(all)) score += 2;
+  else if (/\b(caramel|toffee|brown|malt)\b/.test(all)) score += 1;
+
+  // Axis 3: Zuur / funky (0-2)
+  if (/\b(sour|tart|acetic|lactic|funky|brett|lambic|gueuze|wild|oud bruin|vinous)\b/.test(all)) score += 2;
+  else if (/\b(tangy|acidic|dry)\b/.test(all)) score += 1;
+
+  // Axis 4: Experimenteel / barrel aged / gerookt / gekruid (0-2)
+  if (/\b(barrel.?aged|bourbon|whisky|whiskey|smoked|rauch|experimental|vanilla|chili|pepper|cinnamon|spice)\b/.test(all)) score += 2;
+  else if (/\b(oak|wood|herbal|spiced)\b/.test(all)) score += 1;
+
+  return Math.min(8, score);
+}
+
+function calcMarijkeScore(beer: any, factcheck: any): number {
+  return calcMarijkeStyleScore(beer.style ?? "") + calcMarijkeFlavorScore(beer, factcheck);
+}
+
+// ── Composite: sum of 5 pillars ──
 function computeCompositeScore(
   beer: any,
   brewery: any,
   factcheck: any,
-  aiScore: number,
+  _aiScore: number,
 ): number {
-  // Brewery rating weight
-  const breweryUntappd = brewery?.untappd_rating;
-  const breweryGoogle = brewery?.google_rating;
-  let breweryRatingWeight: number;
-  if (typeof breweryUntappd === "number" && breweryUntappd > 0 && typeof breweryGoogle === "number" && breweryGoogle > 0) {
-    breweryRatingWeight = ((breweryUntappd + breweryGoogle) / 2) / 5;
-  } else if (typeof breweryUntappd === "number" && breweryUntappd > 0) {
-    breweryRatingWeight = breweryUntappd / 5;
-  } else if (typeof breweryGoogle === "number" && breweryGoogle > 0) {
-    breweryRatingWeight = breweryGoogle / 5;
-  } else {
-    breweryRatingWeight = 0.7;
-  }
+  const p1 = calcUntappdBeerScore(factcheck);        // max 35
+  const p2 = calcBreweryTypeScore(brewery);           // max 5
+  const p3 = calcBreweryUntappdScore(brewery);        // max 10
+  const p4 = calcExternalReviewScore(factcheck, brewery); // max 30
+  const p5 = calcMarijkeScore(beer, factcheck);       // max 20
 
-  // Normalize external beer ratings to 0-100
-  const externalScores: number[] = [];
-  const untappd = factcheck.external_ratings?.untappd?.score;
-  if (typeof untappd === "number" && untappd > 0) externalScores.push((untappd / 5) * 100);
-  const ratebeer = factcheck.external_ratings?.ratebeer?.score;
-  if (typeof ratebeer === "number" && ratebeer > 0) externalScores.push(ratebeer);
-  const ba = factcheck.external_ratings?.beeradvocate?.score;
-  if (typeof ba === "number" && ba > 0) externalScores.push((ba / 5) * 100);
-
-  // Fallback: use brewery Untappd
-  if (externalScores.length === 0 && typeof breweryUntappd === "number" && breweryUntappd > 0) {
-    externalScores.push((breweryUntappd / 5) * 100);
-  }
-
-  const avgExternal = externalScores.length > 0
-    ? externalScores.reduce((a, b) => a + b, 0) / externalScores.length
-    : null;
-
-  // Awards bonus
-  const awardCount = Array.isArray(factcheck.awards) ? factcheck.awards.length : 0;
-  const awardsBonus = Math.min(awardCount * 3, 10);
-
-  // Brewery size bonus
-  const breweryType = (brewery?.type ?? "").toLowerCase();
-  const sizeBonus =
-    breweryType.includes("micro") ? 5 :
-    breweryType.includes("family") ? 4 :
-    breweryType.includes("blender") || breweryType.includes("stekerij") ? 3 :
-    breweryType.includes("contract") ? 2 :
-    breweryType.includes("trappist") ? 1 : 0;
-
-  // Style rarity bonus
-  const styleLower = (beer.style ?? "").toLowerCase();
-  const commonStyles: Record<string, number> = {
-    "tripel": 1, "triple": 1, "blond": 2, "blonde": 2, "belgian blonde": 2,
-    "witbier": 2, "wit": 2, "white": 2, "pils": 1, "pilsner": 1, "lager": 1,
-    "dubbel": 3, "double": 3, "quadrupel": 4, "quad": 4,
-    "strong ale": 3, "belgian strong ale": 3, "belgian strong dark ale": 4,
-    "saison": 5, "farmhouse": 5, "amber": 3, "belgian amber": 3,
-    "ipa": 3, "belgian ipa": 4, "stout": 5, "imperial stout": 6, "porter": 5,
-    "kriek": 6, "framboise": 6, "fruit beer": 5,
-    "lambic": 8, "gueuze": 8, "geuze": 8, "oude geuze": 9, "oude kriek": 9,
-    "faro": 9, "brut": 7, "brut ipa": 7, "scotch ale": 7,
-    "barley wine": 8, "barleywine": 8, "oud bruin": 7,
-    "flanders red": 8, "flemish red": 8, "table beer": 4, "tafelbier": 4,
-    "bière de garde": 7, "gose": 8, "berliner weisse": 8,
-    "sour": 7, "wild ale": 9, "smoked": 8, "rauchbier": 9,
-    "spelt": 9, "buckwheat": 9, "ancient grain": 10,
-  };
-  let styleBonus = 10;
-  for (const [key, score] of Object.entries(commonStyles)) {
-    if (styleLower.includes(key)) { styleBonus = Math.min(styleBonus, score); break; }
-  }
-
-  let baseScore: number;
-  if (avgExternal !== null) {
-    baseScore = (avgExternal / 100) * 50 + styleBonus + sizeBonus + (aiScore / 100) * 35;
-  } else {
-    baseScore = (aiScore / 100) * 85 + styleBonus + sizeBonus;
-  }
-  baseScore += awardsBonus;
-
-  const breweryBonus = baseScore >= 95 ? 0 : baseScore >= 90 ? 5 * breweryRatingWeight : 10 * breweryRatingWeight;
-  return Math.max(1, Math.min(100, Math.round(baseScore + breweryBonus)));
+  const total = p1 + p2 + p3 + p4 + p5;
+  return Math.max(1, Math.min(100, Math.round(total * 10) / 10));
 }
 
 serve(async (req) => {
