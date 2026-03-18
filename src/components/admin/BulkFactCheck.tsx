@@ -19,6 +19,7 @@ interface BeerRow {
   style: string;
   quality_score: number | null;
   factcheck_json: any;
+  analysis_json: any;
   brewery_name: string;
 }
 
