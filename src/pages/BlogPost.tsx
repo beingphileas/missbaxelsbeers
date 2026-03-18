@@ -270,8 +270,21 @@ export default function BlogPost() {
               )}
             </div>
 
+            {/* Translation indicator */}
+            {isTranslatingPost && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2 px-4 py-2.5 mb-6 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm"
+              >
+                <Languages size={16} className="animate-pulse" />
+                <span>{t('Vertaling laden…')}</span>
+              </motion.div>
+            )}
+
             {/* Editorial Content with Drop Caps */}
-            <div className="prose-editorial">
+            <div className={`prose-editorial transition-opacity ${isTranslatingPost ? 'opacity-40' : ''}`}>
               <ReactMarkdown
                 components={{
                   p: ({ children, ...props }) => {
