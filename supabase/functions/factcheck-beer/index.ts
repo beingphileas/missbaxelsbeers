@@ -151,7 +151,28 @@ Return this exact JSON (use null when data is NOT in sources):
     const aiData = await aiRes.json();
     const rawContent = aiData.choices?.[0]?.message?.content ?? "";
     const jsonStr = rawContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
-    const factcheck = JSON.parse(jsonStr);
+    let factcheck = JSON.parse(jsonStr);
+
+    // If confidence is very low, strip potentially hallucinated details
+    if ((factcheck.confidence_score ?? 0) <= 10) {
+      factcheck = {
+        confidence_score: factcheck.confidence_score ?? 0,
+        abv_verified: false,
+        abv_sources: [],
+        style_verified: false,
+        style_note: null,
+        awards: [],
+        price_range: null,
+        external_ratings: {
+          untappd: { score: null, url: null },
+          ratebeer: { score: null, url: null },
+          beeradvocate: { score: null, url: null },
+        },
+        external_links: [],
+        issues: [],
+        suggestions: ["Geen betrouwbare bronnen gevonden — handmatige verificatie aanbevolen."],
+      };
+    }
 
     // Calculate composite quality_score from AI + external data
     const aiScore = beer.quality_score ?? 50;
