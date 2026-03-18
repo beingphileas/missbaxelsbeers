@@ -262,12 +262,35 @@ export default function BeerAnalysisView(props: BeerAnalysisProps) {
             <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
               <div className="flex items-start gap-4">
                 <div className="relative flex items-center justify-center shrink-0" style={{ width: 80, height: 80 }}>
-                  <ScoreRing score={qualityScore!} />
+                  {isAdmin && editingScore ? (
+                    <form onSubmit={(e) => { e.preventDefault(); handleScoreSave(); }} className="flex flex-col items-center gap-1">
+                      <input
+                        type="number" min={0} max={100}
+                        value={scoreInput}
+                        onChange={e => setScoreInput(e.target.value)}
+                        className="w-16 h-8 text-center text-sm font-bold bg-muted border border-border rounded"
+                        autoFocus
+                      />
+                      <div className="flex gap-1">
+                        <Button type="submit" size="sm" variant="ghost" className="h-5 px-1 text-[10px]">✓</Button>
+                        <Button type="button" size="sm" variant="ghost" className="h-5 px-1 text-[10px]" onClick={() => setEditingScore(false)}>✗</Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div
+                      className={isAdmin ? 'cursor-pointer' : ''}
+                      onClick={() => { if (isAdmin) { setScoreInput(String(qualityScore ?? '')); setEditingScore(true); } }}
+                      title={isAdmin ? 'Klik om score aan te passen' : undefined}
+                    >
+                      <ScoreRing score={qualityScore} />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <Sparkles size={14} className="text-accent" />
                     <h3 className="font-display text-base">Quality Score</h3>
+                    {isAdmin && !editingScore && <span className="text-[9px] text-muted-foreground">(klik om te wijzigen)</span>}
                   </div>
                   {summary && <p className="text-sm text-muted-foreground leading-relaxed">{summary}</p>}
                 </div>
