@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import BlogSidebar from '@/components/BlogSidebar';
 import SEOHead from '@/components/SEOHead';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
