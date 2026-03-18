@@ -61,7 +61,7 @@ export default function BulkFactCheck() {
   useEffect(() => { fetchBeers(); }, []);
 
   const getTargets = () => {
-    if (filterMode === 'missing') return beers.filter(b => !b.factcheck_json);
+    if (filterMode === 'missing') return beers.filter(b => !b.factcheck_json || !b.analysis_json);
     return beers; // 'all' and 'rescore' both process everything
   };
 
