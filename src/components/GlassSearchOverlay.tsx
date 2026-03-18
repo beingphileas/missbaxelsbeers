@@ -106,15 +106,15 @@ export default function GlassSearchOverlay({
             >
               <div className="px-3.5 pb-3 pt-1 space-y-2 border-t border-white/10">
                 <select value={province} onChange={e => onProvinceChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Provincies</option>
+                  <option value="">{t('Alle Provincies')}</option>
                   {provinces.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <select value={type} onChange={e => onTypeChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Types</option>
-                  {breweryTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  <option value="">{t('Alle Types')}</option>
+                  {breweryTypes.map(bt => <option key={bt} value={bt}>{bt}</option>)}
                 </select>
                 <select value={style} onChange={e => onStyleChange(e.target.value)} className={selectClass + ' w-full'}>
-                  <option value="">Alle Stijlen</option>
+                  <option value="">{t('Alle Stijlen')}</option>
                   {beerStyles.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
