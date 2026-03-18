@@ -90,37 +90,42 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Factcheck this Belgian beer based on web sources. Return JSON only.
+    const prompt = `Factcheck this Belgian beer STRICTLY based on the web sources provided below.
+
+CRITICAL RULES:
+- ONLY report data that is EXPLICITLY mentioned in the web sources below.
+- If a rating, award, price, or fact is NOT found in the sources, use null or empty arrays.
+- NEVER invent, estimate, or guess ratings, awards, or prices.
+- If no web sources were found, return mostly null/empty values with confidence_score: 0.
+- A score on Untappd is typically 0-5, RateBeer 0-100, BeerAdvocate 0-5.
+- Only include a URL if it appears in the sources.
 
 Beer: "${beerName}"
 Brewery: "${breweryName}"
 Style: "${beer.style}"
 ABV: ${beer.abv ?? 0}%
-Our data - flavor profile: ${JSON.stringify(beer.flavor_profile ?? [])}
-Our data - food pairing: ${beer.food_pairing ?? "none"}
 
 Web sources found:
-${webSources || "No web sources found."}
+${webSources || "NO WEB SOURCES FOUND — return null/empty for all fields."}
 
-Return this exact JSON:
+Return this exact JSON (use null when data is NOT in sources):
 {
-  "confidence_score": <0-100 how confident the factcheck is>,
-  "abv_verified": <true/false>,
-  "abv_sources": ["<URLs confirming ABV>"],
-  "style_verified": <true/false>,
-  "style_note": "<any correction or note about style>",
-  "awards": [{"name": "<award name>", "year": <year>, "medal": "<gold/silver/bronze>"}],
-  "price_range": {"min": <EUR>, "max": <EUR>, "currency": "EUR"},
+  "confidence_score": <0-100, 0 if no sources found, higher only if sources confirm data>,
+  "abv_verified": <true ONLY if a source explicitly states this ABV, otherwise false>,
+  "abv_sources": [<ONLY URLs from sources that mention ABV, empty array if none>],
+  "style_verified": <true ONLY if a source confirms the style, otherwise false>,
+  "style_note": "<only if a source suggests a different style, otherwise null>",
+  "awards": [<ONLY awards explicitly mentioned in sources with year, otherwise empty array>],
+  "price_range": <ONLY if a source mentions a price, otherwise null>,
   "external_ratings": {
-    "untappd": {"score": <number or null>, "url": "<URL or null>"},
-    "ratebeer": {"score": <number or null>, "url": "<URL or null>"},
-    "beeradvocate": {"score": <number or null>, "url": "<URL or null>"}
+    "untappd": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>},
+    "ratebeer": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>},
+    "beeradvocate": {"score": <ONLY if found in sources, otherwise null>, "url": <ONLY if found in sources, otherwise null>}
   },
-  "external_links": [{"label": "<site name>", "url": "<URL>"}],
-  "issues": ["<any data inconsistencies found>"],
-  "suggestions": ["<improvements to our data>"]
+  "external_links": [<ONLY URLs actually found in sources>],
+  "issues": [<data inconsistencies ONLY if sources contradict our data>],
+  "suggestions": [<improvements ONLY based on source evidence>]
 }`;
-
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
