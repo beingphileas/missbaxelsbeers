@@ -157,6 +157,19 @@ export default function Admin() {
     );
   }
 
+  if (showBreweryEditor || editingBreweryId !== null) {
+    return (
+      <BreweryEditor
+        breweryId={editingBreweryId}
+        onClose={() => {
+          setShowBreweryEditor(false);
+          setEditingBreweryId(null);
+          refreshBreweries();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
       <div className="max-w-5xl mx-auto px-4 py-8">
