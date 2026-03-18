@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const ABV_RANGE: [number, number] = [0, 15];
 
 export default function Beers() {
   const { data: breweries = [], isLoading } = useBreweries();
+  const { t } = useLanguage();
 
   const allBeers = useMemo(
     () => breweries.flatMap(b => b.beers),
@@ -68,18 +70,16 @@ export default function Beers() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border/40 bg-parchment">
         <div className="max-w-6xl mx-auto px-5 py-10 md:py-14">
-          <p className="text-accent text-[10px] font-bold uppercase tracking-[0.3em] mb-2">Database</p>
-          <h1 className="font-display text-3xl md:text-5xl mb-3">Beer Database</h1>
+          <p className="text-accent text-[10px] font-bold uppercase tracking-[0.3em] mb-2">{t('Database')}</p>
+          <h1 className="font-display text-3xl md:text-5xl mb-3">{t('Bier Database')}</h1>
           <p className="text-muted-foreground text-sm md:text-base max-w-lg">
-            Ontdek {allBeers.length} Belgische bieren — zoek op naam, stijl of smaakprofiel.
+            {t('Ontdek')} {allBeers.length} {t('Belgische bieren — zoek op naam, stijl of smaakprofiel.')}
           </p>
         </div>
       </div>
 
-      {/* Search & Filters bar */}
       <div className="sticky top-14 z-30 border-b border-border/40 bg-background/95 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-5 py-3">
           <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export default function Beers() {
               <Input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Zoek bier, stijl, brouwerij of smaak..."
+                placeholder={t('Zoek bier, stijl, brouwerij of smaak...')}
                 className="pl-9 h-9 text-sm border-border/60"
               />
             </div>
@@ -99,24 +99,21 @@ export default function Beers() {
               className={`gap-1.5 text-xs ${showFilters ? 'bg-foreground text-primary-foreground' : ''}`}
             >
               <SlidersHorizontal size={12} />
-              Filters
-              {hasActiveFilters && (
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              )}
+              {t('Filters')}
+              {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-accent" />}
             </Button>
             <Select value={sort} onValueChange={(v: any) => setSort(v)}>
               <SelectTrigger className="w-[130px] h-9 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name">Naam A-Z</SelectItem>
+                <SelectItem value="name">{t('Naam A-Z')}</SelectItem>
                 <SelectItem value="abv-asc">ABV ↑</SelectItem>
                 <SelectItem value="abv-desc">ABV ↓</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Expanded filters */}
           {showFilters && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
@@ -126,13 +123,13 @@ export default function Beers() {
               className="pt-3 pb-1 flex flex-wrap items-end gap-4"
             >
               <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Stijl</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{t('Stijl')}</label>
                 <Select value={style || 'all'} onValueChange={v => setStyle(v === 'all' ? '' : v)}>
                   <SelectTrigger className="w-[180px] h-8 text-xs">
-                    <SelectValue placeholder="Alle stijlen" />
+                    <SelectValue placeholder={t('Alle stijlen')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Alle stijlen</SelectItem>
+                    <SelectItem value="all">{t('Alle stijlen')}</SelectItem>
                     {styles.map(s => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
@@ -156,23 +153,22 @@ export default function Beers() {
 
               {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1 text-muted-foreground">
-                  <X size={12} /> Wissen
+                  <X size={12} /> {t('Wissen')}
                 </Button>
               )}
             </motion.div>
           )}
 
           <p className="text-[11px] text-muted-foreground mt-2 tabular-nums">
-            {isLoading ? 'Laden…' : `${filtered.length} bieren`}
+            {isLoading ? t('Laden…') : `${filtered.length} ${t('bieren')}`}
           </p>
         </div>
       </div>
 
-      {/* Beer grid */}
       <div className="max-w-6xl mx-auto px-5 py-6">
         {!isLoading && filtered.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground text-sm">Geen bieren gevonden.</p>
+            <p className="text-muted-foreground text-sm">{t('Geen bieren gevonden.')}</p>
           </div>
         ) : (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -187,6 +183,7 @@ export default function Beers() {
 }
 
 function BeerCard({ beer, index }: { beer: Beer; index: number }) {
+  const { t } = useLanguage();
   return (
     <Link to={`/beers/${beer.id}`}>
     <motion.div
@@ -195,66 +192,40 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.3 }}
       className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 relative"
     >
-      {/* Corner fold */}
       <div className="absolute top-0 right-0 w-0 h-0 border-t-[18px] border-t-secondary border-l-[18px] border-l-transparent" />
-
-      {/* Style + ABV header */}
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
-        <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">
-          {beer.style}
-        </span>
-        <span className="text-[11px] font-sans font-bold tabular-nums shrink-0">
-          {beer.abv}%
-        </span>
+        <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">{beer.style}</span>
+        <span className="text-[11px] font-sans font-bold tabular-nums shrink-0">{beer.abv}%</span>
       </div>
-
       <div className="p-3.5">
-        {/* Name */}
-        <h3 className="font-display text-sm md:text-base leading-tight mb-0.5 group-hover:text-accent transition-colors">
-          {beer.name}
-        </h3>
-        {beer.breweryName && (
-          <p className="text-[10px] text-muted-foreground italic mb-3">
-            {beer.breweryName}
-          </p>
-        )}
-
-        {/* Flavor tags */}
+        <h3 className="font-display text-sm md:text-base leading-tight mb-0.5 group-hover:text-accent transition-colors">{beer.name}</h3>
+        {beer.breweryName && <p className="text-[10px] text-muted-foreground italic mb-3">{beer.breweryName}</p>}
         {beer.flavorProfile.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {beer.flavorProfile.slice(0, 4).map(tag => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 bg-secondary/80 border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground"
-              >
-                {tag}
-              </span>
+              <span key={tag} className="px-2 py-0.5 bg-secondary/80 border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
             ))}
           </div>
         )}
-
-        {/* Food pairing */}
         {beer.foodPairing && (
           <p className="text-[10px] text-muted-foreground leading-relaxed line-clamp-1 border-t border-dashed border-border/40 pt-2">
             🍽 {beer.foodPairing}
           </p>
         )}
-
-        {/* Badges */}
         <div className="flex gap-1.5 mt-2">
           {beer.isHiddenGem && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success/10 text-success border border-success/20 text-[9px] font-bold uppercase tracking-wide">
-              <Star size={9} /> Hidden gem
+              <Star size={9} /> {t('Verborgen parel')}
             </span>
           )}
           {beer.hasPost && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent/15 text-accent border border-accent/25 text-[9px] font-bold uppercase tracking-wide">
-              <Sparkles size={9} /> Verified
+              <Sparkles size={9} /> {t('Geverifieerd')}
             </span>
           )}
           {beer.featured && (
             <span className="px-2 py-0.5 bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold uppercase tracking-wide">
-              Featured
+              {t('Uitgelicht')}
             </span>
           )}
         </div>
