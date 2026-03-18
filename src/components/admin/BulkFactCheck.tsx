@@ -139,8 +139,8 @@ export default function BulkFactCheck() {
     });
   };
 
-  const missingCount = beers.filter(b => !b.factcheck_json).length;
-  const checkedCount = beers.filter(b => b.factcheck_json).length;
+  const missingCount = beers.filter(b => !b.factcheck_json || !b.analysis_json).length;
+  const checkedCount = beers.filter(b => b.factcheck_json && b.analysis_json).length;
 
   return (
     <div className="space-y-6">
