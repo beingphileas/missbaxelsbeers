@@ -29,7 +29,7 @@ const FilterBar = ({
       </select>
       <select value={selectedType} onChange={e => onTypeChange(e.target.value)} className={selectClass}>
         <option value="">{t('Alle Types')}</option>
-        {breweryTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        {breweryTypes.map(bt => <option key={bt} value={bt}>{bt}</option>)}
       </select>
       <select value={selectedStyle} onChange={e => onStyleChange(e.target.value)} className={selectClass}>
         <option value="">{t('Alle Stijlen')}</option>
