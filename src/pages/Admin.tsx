@@ -18,6 +18,7 @@ import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
 import BeerImport from '@/components/admin/BeerImport';
 import FactChecker from '@/components/admin/FactChecker';
+import BulkFactCheck from '@/components/admin/BulkFactCheck';
 import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
@@ -243,6 +244,9 @@ export default function Admin() {
             <TabsTrigger value="featured">Featured</TabsTrigger>
             <TabsTrigger value="fact-check" className="gap-1.5">
               <ShieldCheck size={12} /> Fact-check
+            </TabsTrigger>
+            <TabsTrigger value="bulk-factcheck" className="gap-1.5">
+              <ShieldCheck size={12} /> Bulk Factcheck
             </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
@@ -488,6 +492,20 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <FactChecker />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Bulk Factcheck Tab */}
+          <TabsContent value="bulk-factcheck">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldCheck size={18} /> Bulk AI Factcheck
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BulkFactCheck />
               </CardContent>
             </Card>
           </TabsContent>
