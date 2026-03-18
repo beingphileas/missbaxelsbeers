@@ -62,6 +62,7 @@ function calcBreweryUntappdScore(brewery: any): number {
 }
 
 // ── 4. Other Review Sites (max 30 pts) ──
+// If no other review scores exist, Untappd beer score fills this pillar too
 function calcExternalReviewScore(factcheck: any, brewery: any): number {
   const scores: number[] = []; // normalised to 0-10
 
@@ -75,7 +76,15 @@ function calcExternalReviewScore(factcheck: any, brewery: any): number {
   const goog = brewery?.google_rating;
   if (typeof goog === "number" && goog > 0) scores.push((goog / 5) * 10);
 
-  if (scores.length === 0) return 0;
+  // Fallback: if no other review sites found, use Untappd beer score for this pillar
+  if (scores.length === 0) {
+    const untappd = factcheck.external_ratings?.untappd?.score;
+    if (typeof untappd === "number" && untappd > 0) {
+      return (untappd / 5) * 30;
+    }
+    return 0;
+  }
+
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
   return (avg / 10) * 30;
 }
