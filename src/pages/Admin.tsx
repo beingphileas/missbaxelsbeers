@@ -42,6 +42,11 @@ export default function Admin() {
   const [allVenues, setAllVenues] = useState<any[]>([]);
   const [loadingVenues, setLoadingVenues] = useState(true);
 
+  // Breweries
+  const [allBreweries, setAllBreweries] = useState<any[]>([]);
+  const [loadingBreweries, setLoadingBreweries] = useState(true);
+  const [brewerySearch, setBrewerySearch] = useState('');
+
   useState(() => {
     supabase
       .from('blog_posts')
