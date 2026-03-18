@@ -354,25 +354,11 @@ Return this exact JSON (use null when data is NOT in sources):
     // Add citations to factcheck
     factcheck.citations = allCitations;
 
-    // Compute composite score
+    // Compute composite score (new 5-pillar system)
     const aiScore = beer.quality_score ?? 50;
-    const breweryUntappd = brewery?.untappd_rating;
-    const breweryGoogle = brewery?.google_rating;
-    let breweryRatingWeight: number;
-    if (typeof breweryUntappd === "number" && breweryUntappd > 0 && typeof breweryGoogle === "number" && breweryGoogle > 0) {
-      breweryRatingWeight = ((breweryUntappd + breweryGoogle) / 2) / 5;
-    } else if (typeof breweryUntappd === "number" && breweryUntappd > 0) {
-      breweryRatingWeight = breweryUntappd / 5;
-    } else if (typeof breweryGoogle === "number" && breweryGoogle > 0) {
-      breweryRatingWeight = breweryGoogle / 5;
-    } else {
-      breweryRatingWeight = 0.7;
-    }
-
     const compositeScore = computeCompositeScore(beer, brewery, factcheck, aiScore);
 
     // Save
-    await supabase.from("breweries").update({ rating_weight: breweryRatingWeight }).eq("id", brewery?.id);
 
     const { error: updateErr } = await supabase.from("beers").update({
       factcheck_json: factcheck,
