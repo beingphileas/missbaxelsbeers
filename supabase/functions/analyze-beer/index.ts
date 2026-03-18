@@ -7,6 +7,37 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string): Promise<{ content: string; citations: string[] }> {
+  try {
+    const res = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "sonar-pro",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      console.error("Perplexity error:", res.status, await res.text());
+      return { content: "", citations: [] };
+    }
+    const data = await res.json();
+    return {
+      content: data.choices?.[0]?.message?.content ?? "",
+      citations: data.citations ?? [],
+    };
+  } catch (e) {
+    console.error("Perplexity fetch failed:", e);
+    return { content: "", citations: [] };
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -55,40 +86,46 @@ serve(async (req) => {
     const style = beer.style;
     const abv = beer.abv ?? 0;
 
-    // Use Perplexity for grounded web search
+    // Use Perplexity sonar-pro for comprehensive grounded search
     let webContext = "";
     let citations: string[] = [];
     const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
+
     if (perplexityKey) {
-      try {
-        const searchRes = await fetch("https://api.perplexity.ai/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${perplexityKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "sonar",
-            messages: [
-              {
-                role: "system",
-                content: "You are a Belgian beer research assistant. Provide detailed, factual information about the beer. Include: exact ingredients, brewing method, tasting notes from reviewers, style classification, and any unique characteristics. Be specific — never generalize.",
-              },
-              {
-                role: "user",
-                content: `Tell me everything you can find about the Belgian beer "${beerName}" from brewery "${breweryName}". Include: ingredients, tasting notes, style details, brewing method, food pairings, and any reviewer descriptions. Be as specific and detailed as possible.`,
-              },
-            ],
-          }),
-        });
-        if (searchRes.ok) {
-          const searchData = await searchRes.json();
-          webContext = searchData.choices?.[0]?.message?.content ?? "";
-          citations = searchData.citations ?? [];
-        }
-      } catch (e) {
-        console.error("Perplexity search failed:", e);
-      }
+      // Two parallel searches: one for production/ingredients, one for tasting/reviews
+      const [prodResult, tasteResult] = await Promise.all([
+        searchPerplexity(
+          perplexityKey,
+          "You are a Belgian beer expert researcher. Provide extremely detailed, factual information. Always include exact data: ingredients, percentages, dates, brewing processes, grape varieties, hop varieties, malt types, fermentation details. Be as specific as possible.",
+          `Give me ALL available production details about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
+1. Complete ingredient list (exact malt types, hop varieties, spices, fruits, grape varieties with percentages if available)
+2. Brewing/production method (fermentation type, aging, barrel details, maceration, blending, bottle conditioning)
+3. Any collaboration details (other breweries, winemakers, farmers)
+4. Bottling dates, blend numbers, seasonal details
+5. Origin of ingredients (region, terroir)
+Be extremely specific and detailed. Include every fact you can find.`,
+        ),
+        searchPerplexity(
+          perplexityKey,
+          "You are a Belgian beer tasting expert. Provide detailed, source-based tasting notes. Include specific flavor descriptors, food pairings from experts, serving recommendations. Never generalize.",
+          `Give me ALL available tasting information about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
+1. Professional tasting notes and reviewer descriptions (aroma, taste, mouthfeel, finish)
+2. Specific flavor descriptors (not generic style descriptions)
+3. Food pairing recommendations from experts or the brewery
+4. Cheese pairings
+5. Serving temperature, glass type, storage recommendations
+6. How this beer compares to similar beers or other versions
+Include every specific detail you can find. Do NOT use generic style-based descriptions.`,
+        ),
+      ]);
+
+      const parts: string[] = [];
+      if (prodResult.content) parts.push(`PRODUCTION & INGREDIENTS:\n${prodResult.content}`);
+      if (tasteResult.content) parts.push(`TASTING & PAIRINGS:\n${tasteResult.content}`);
+      webContext = parts.join("\n\n---\n\n");
+      citations = [...new Set([...prodResult.citations, ...tasteResult.citations])];
+
+      console.log(`Perplexity returned ${webContext.length} chars, ${citations.length} citations for ${beerName}`);
     }
 
     // Fallback to Firecrawl if Perplexity unavailable
@@ -103,7 +140,7 @@ serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              query: `"${beerName}" "${breweryName}" beer Belgium tasting notes flavor`,
+              query: `"${beerName}" "${breweryName}" beer Belgium tasting notes flavor ingredients`,
               limit: 5,
               scrapeOptions: { formats: ["markdown"] },
             }),
@@ -134,11 +171,13 @@ serve(async (req) => {
 
 CRITICAL RULES:
 - Use ONLY information from the web research. Do NOT invent or generalize.
-- If the research mentions specific ingredients (e.g. cardamom, juniper, paradise seed), those MUST appear in primary_flavors and taste_notes.
+- If the research mentions specific ingredients (e.g. grapes like Pinot d'Aunis, Chenin Blanc, or spices like cardamom, juniper, paradise seed), those MUST appear in primary_flavors, aroma_profile, and taste_notes.
 - If the research mentions specific tasting notes from reviewers, use THOSE notes — not generic style descriptions.
+- If the research mentions production details (maceration, barrel aging, blending), include them in production_method.
 - If no specific info is found for a field, use null or empty array — NEVER fill with generic style-based guesses.
 - The radar values should reflect what sources describe, not what is "typical for the style".
-- For style: if sources suggest a more specific classification (e.g. "tripel-achtig" instead of just "blond"), use the more accurate one.
+- For style: if sources suggest a more specific classification, use the more accurate one.
+- IMPORTANT: If sources provide rich data, source_confidence MUST be "high" or "medium". Only use "low" when there is genuinely no source data.
 
 Beer: "${beerName}"
 Brewery: "${breweryName}"
@@ -147,7 +186,7 @@ ABV: ${abv}%
 Existing flavor profile: ${JSON.stringify(beer.flavor_profile ?? [])}
 Existing food pairing: ${beer.food_pairing ?? "none"}
 
-Web research (Perplexity grounded search):
+Web research:
 ${webContext || "No web data available — return null/empty for taste-related fields."}
 ${citationBlock}
 
@@ -155,7 +194,7 @@ Return this exact JSON structure (no markdown, no code blocks):
 {
   "quality_score": <number 1-100, or null if insufficient data>,
   "summary": "<2-3 sentence summary based on sources, or null if no data>",
-  "taste_notes": "<detailed tasting notes from sources, or null if no source-based notes available>",
+  "taste_notes": "<detailed tasting notes from sources, include specific flavors/ingredients mentioned. Or null if no source-based notes available>",
   "radar": {
     "body": <1-5 based on source descriptions, or null>,
     "hops": <1-5 based on source descriptions, or null>,
@@ -163,16 +202,16 @@ Return this exact JSON structure (no markdown, no code blocks):
     "fruit": <1-5 based on source descriptions, or null>,
     "spice": <1-5 based on source descriptions, or null>
   },
-  "primary_flavors": ["<ONLY flavors explicitly mentioned in sources>"],
+  "primary_flavors": ["<ONLY flavors explicitly mentioned in sources — include specific grape varieties, spices, ingredients>"],
   "secondary_flavors": ["<ONLY subtle flavors mentioned in sources>"],
   "aroma_profile": ["<ONLY aromas mentioned in sources>"],
   "pairing_food": ["<food pairings from sources, or empty>"],
-  "pairing_classic": ["<classic pairings from sources, or empty>"],
+  "pairing_classic": ["<classic Belgian pairings from sources, or empty>"],
   "pairing_cheese": ["<cheese pairings from sources, or empty>"],
-  "serve_style": "<from sources, or null>",
-  "production_method": "<from sources, or null>",
+  "serve_style": "<from sources (temperature, glass type, storage), or null>",
+  "production_method": "<DETAILED production method from sources: fermentation, maceration, barrel aging, blending, grape varieties with percentages, ingredient origins. Or null if not available>",
   "style_suggestion": "<if sources suggest a more accurate style than '${style}', put it here, otherwise null>",
-  "source_confidence": "<high/medium/low based on how much source data was available>"
+  "source_confidence": "<high if rich source data available, medium if partial, low ONLY if genuinely no data>"
 }`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -184,7 +223,7 @@ Return this exact JSON structure (no markdown, no code blocks):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize." },
+          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that." },
           { role: "user", content: prompt },
         ],
       }),
@@ -200,11 +239,14 @@ Return this exact JSON structure (no markdown, no code blocks):
     const aiData = await aiRes.json();
     const rawContent = aiData.choices?.[0]?.message?.content ?? "";
     
+    console.log(`AI response length: ${rawContent.length}, confidence will be checked`);
+
     const jsonStr = rawContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
     const analysis = JSON.parse(jsonStr);
 
-    // If source_confidence is "low", strip taste-related fields to avoid hallucination
-    if (analysis.source_confidence === "low") {
+    // Only strip if GENUINELY no data (low confidence AND no web context)
+    if (analysis.source_confidence === "low" && webContext.length < 100) {
+      console.log(`Stripping analysis for ${beerName}: low confidence AND minimal web context`);
       analysis.taste_notes = null;
       analysis.radar = { body: null, hops: null, malt: null, fruit: null, spice: null };
       analysis.primary_flavors = [];
