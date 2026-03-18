@@ -18,6 +18,7 @@ import FeaturedManager from '@/components/admin/FeaturedManager';
 import BreweryImport from '@/components/admin/BreweryImport';
 import BeerImport from '@/components/admin/BeerImport';
 import FactChecker from '@/components/admin/FactChecker';
+import BulkFactCheck from '@/components/admin/BulkFactCheck';
 import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
