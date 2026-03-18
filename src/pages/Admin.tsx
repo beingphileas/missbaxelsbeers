@@ -496,6 +496,20 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Bulk Factcheck Tab */}
+          <TabsContent value="bulk-factcheck">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldCheck size={18} /> Bulk AI Factcheck
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BulkFactCheck />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Pending Changes / Moderation Tab */}
           <TabsContent value="pending">
             <Card className="shadow-card">
