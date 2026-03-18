@@ -326,24 +326,46 @@ export default function CoordFixer() {
       {/* Venue regeocode */}
       <Card className="border border-border">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
+           <div>
             <CardTitle className="font-serif text-xl flex items-center gap-2">
               <MapPin size={18} className="text-accent" />
               Venue-locaties hergeocoden
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Alle venues opnieuw geocoden op basis van hun adres via Nominatim
+              Venues opnieuw geocoden op basis van hun adres via Nominatim
             </p>
           </div>
-          <Button
-            size="sm"
-            onClick={handleRegeocodeVenues}
-            disabled={venueRegeocodeRunning || regeocodeAllRunning}
-            className="gap-1.5"
-          >
-            {venueRegeocodeRunning ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
-            Venues hergeocoden
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              size="sm"
+              onClick={() => handleRegeocodeVenues('duplicates')}
+              disabled={venueRegeocodeRunning || regeocodeAllRunning}
+              className="gap-1.5"
+            >
+              {venueRegeocodeRunning && venueMode === 'duplicates' ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
+              Duplicaten fixen
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleRegeocodeVenues('suspect')}
+              disabled={venueRegeocodeRunning || regeocodeAllRunning}
+              className="gap-1.5"
+            >
+              {venueRegeocodeRunning && venueMode === 'suspect' ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
+              Verdachte fixen
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleRegeocodeVenues('all')}
+              disabled={venueRegeocodeRunning || regeocodeAllRunning}
+              className="gap-1.5"
+            >
+              {venueRegeocodeRunning && venueMode === 'all' ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+              Alles hergeocoden
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {venueRegeocodeRunning && venueProgress.total > 0 && (
