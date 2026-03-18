@@ -261,7 +261,7 @@ export default function BlogPost() {
               {linkedBeers.length > 0 && (
                 <span className="flex items-center gap-1.5">
                   <Beer size={13} />
-                  {linkedBeers.length} {linkedBeers.length === 1 ? 'bier' : 'bieren'}
+                  {linkedBeers.length} {linkedBeers.length === 1 ? t('bier') : t('bieren')}
                 </span>
               )}
             </div>
