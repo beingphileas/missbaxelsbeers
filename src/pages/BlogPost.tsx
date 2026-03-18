@@ -216,7 +216,7 @@ export default function BlogPost() {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft size={14} />
-          Terug
+          {t('Terug')}
         </Link>
 
         <div className={`flex flex-col ${hasSidebar ? 'lg:flex-row lg:gap-10' : ''}`}>
