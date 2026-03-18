@@ -11,8 +11,30 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, featured = false, onMapPin }: BlogCardProps) {
+  const { t, translateDynamic, lang } = useLanguage();
+  const [tTitle, setTTitle] = useState(post.title);
+  const [tExcerpt, setTExcerpt] = useState(post.excerpt);
+
+  useEffect(() => {
+    if (lang === 'nl') {
+      setTTitle(post.title);
+      setTExcerpt(post.excerpt);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [title, excerpt] = await Promise.all([
+        translateDynamic(post.title),
+        post.excerpt ? translateDynamic(post.excerpt) : Promise.resolve(''),
+      ]);
+      if (!cancelled) { setTTitle(title); setTExcerpt(excerpt); }
+    })();
+    return () => { cancelled = true; };
+  }, [post.title, post.excerpt, lang, translateDynamic]);
+
+  const dateLocale = lang === 'fr' ? 'fr-BE' : lang === 'en' ? 'en-GB' : 'nl-BE';
   const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString('nl-BE', {
+    ? new Date(post.publishedAt).toLocaleDateString(dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
