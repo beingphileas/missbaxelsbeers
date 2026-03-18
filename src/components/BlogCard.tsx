@@ -156,7 +156,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
                 className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors"
-                title="Toon op kaart"
+                title={t('Toon op kaart')}
               >
                 <MapPin size={12} />
               </button>
