@@ -154,20 +154,25 @@ export default function CoordFixer() {
 
   // ---- Venue regeocode state ----
   const [venueRegeocodeRunning, setVenueRegeocodeRunning] = useState(false);
+  const [venueMode, setVenueMode] = useState('');
   const [venueProgress, setVenueProgress] = useState({ done: 0, total: 0, fixed: 0, failed: 0 });
 
-  const handleRegeocodeVenues = async () => {
+  const handleRegeocodeVenues = async (mode: 'all' | 'duplicates' | 'suspect') => {
     setVenueRegeocodeRunning(true);
+    setVenueMode(mode);
+    setVenueProgress({ done: 0, total: 0, fixed: 0, failed: 0 });
     let offset = 0;
     const batchSize = 40;
     let totalFixed = 0;
     let totalFailed = 0;
     let totalEligible = 0;
 
+    const labels: Record<string, string> = { all: 'Alle venues', duplicates: 'Venue-duplicaten', suspect: 'Verdachte venues' };
+
     try {
       while (true) {
         const { data, error } = await supabase.functions.invoke('regeocode-venues', {
-          body: { mode: 'all', batch_size: batchSize, offset },
+          body: { mode, batch_size: batchSize, offset },
         });
         if (error) throw error;
 
@@ -182,7 +187,7 @@ export default function CoordFixer() {
       }
 
       toast({
-        title: 'Alle venues hergeocode!',
+        title: `${labels[mode]} hergeocode!`,
         description: `${totalFixed} gefixt, ${totalFailed} gefaald van ${totalEligible} totaal`,
       });
     } catch (err: any) {
