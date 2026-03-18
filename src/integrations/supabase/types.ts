@@ -321,6 +321,9 @@ export type Database = {
           email: string | null
           established_year: number | null
           featured: boolean
+          google_rating: number | null
+          google_review_count: number | null
+          google_url: string | null
           id: string
           last_scraped_at: string | null
           lat: number
@@ -330,6 +333,9 @@ export type Database = {
           province: string
           story: string | null
           type: string
+          untappd_rating: number | null
+          untappd_review_count: number | null
+          untappd_url: string | null
           updated_at: string
           website_url: string | null
         }
@@ -339,6 +345,9 @@ export type Database = {
           email?: string | null
           established_year?: number | null
           featured?: boolean
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_url?: string | null
           id?: string
           last_scraped_at?: string | null
           lat: number
@@ -348,6 +357,9 @@ export type Database = {
           province: string
           story?: string | null
           type: string
+          untappd_rating?: number | null
+          untappd_review_count?: number | null
+          untappd_url?: string | null
           updated_at?: string
           website_url?: string | null
         }
@@ -357,6 +369,9 @@ export type Database = {
           email?: string | null
           established_year?: number | null
           featured?: boolean
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_url?: string | null
           id?: string
           last_scraped_at?: string | null
           lat?: number
@@ -366,6 +381,9 @@ export type Database = {
           province?: string
           story?: string | null
           type?: string
+          untappd_rating?: number | null
+          untappd_review_count?: number | null
+          untappd_url?: string | null
           updated_at?: string
           website_url?: string | null
         }
