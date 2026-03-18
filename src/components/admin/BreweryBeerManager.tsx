@@ -254,7 +254,9 @@ export default function BreweryBeerManager({ breweryId, breweryName }: BreweryBe
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     {beer.quality_score && (
-                      <span className="text-[10px] font-bold tabular-nums text-accent">{beer.quality_score}</span>
+                      <span className="text-[10px] font-bold tabular-nums text-accent">
+                        {beer.quality_score < 70 ? 'N/A' : beer.quality_score}
+                      </span>
                     )}
                     {beer.analysis_json ? (
                       <CheckCircle2 size={12} className="text-success" />

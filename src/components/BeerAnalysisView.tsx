@@ -34,11 +34,13 @@ interface BeerAnalysisProps {
 }
 
 // ── Score Ring ──
-function ScoreRing({ score, size = 80, label }: { score: number; size?: number; label?: string }) {
+function ScoreRing({ score, size = 80, label }: { score: number | null; size?: number; label?: string }) {
+  const isNA = score == null || score < 70;
+  const displayScore = isNA ? null : score;
   const radius = (size - 8) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-  const color = score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(var(--accent))' : 'hsl(var(--destructive))';
+  const offset = isNA ? circumference : circumference - (score! / 100) * circumference;
+  const color = isNA ? 'hsl(var(--muted-foreground))' : score! >= 80 ? 'hsl(var(--success))' : 'hsl(var(--accent))';
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -51,7 +53,9 @@ function ScoreRing({ score, size = 80, label }: { score: number; size?: number; 
           className="transition-all duration-1000"
         />
       </svg>
-      <span className="absolute font-display text-lg font-bold" style={{ color }}>{score}</span>
+      <span className="absolute font-display text-lg font-bold" style={{ color }}>
+        {displayScore != null ? displayScore : 'N/A'}
+      </span>
       {label && <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{label}</span>}
     </div>
   );

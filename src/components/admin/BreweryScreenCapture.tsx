@@ -106,10 +106,11 @@ function parseUntappdHtml(htmlString: string): ExtractedBeer[] {
 // ─── Score Ring Component ─────────────────────────────────────
 
 function ScoreRing({ score }: { score: number }) {
+  const isNA = score < 70;
   const r = 18;
   const circumference = 2 * Math.PI * r;
-  const offset = circumference - (score / 100) * circumference;
-  const color = score >= 90 ? 'hsl(var(--success))' : score >= 80 ? 'hsl(var(--warning))' : score >= 70 ? 'hsl(var(--accent))' : 'hsl(var(--destructive))';
+  const offset = isNA ? circumference : circumference - (score / 100) * circumference;
+  const color = isNA ? 'hsl(var(--muted-foreground))' : score >= 90 ? 'hsl(var(--success))' : score >= 80 ? 'hsl(var(--accent))' : 'hsl(var(--accent))';
   return (
     <svg width="44" height="44" viewBox="0 0 44 44" className="shrink-0">
       <circle cx="22" cy="22" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
@@ -120,8 +121,8 @@ function ScoreRing({ score }: { score: number }) {
         className="transition-all duration-700"
       />
       <text x="22" y="22" textAnchor="middle" dominantBaseline="central"
-        className="fill-foreground font-bold" style={{ fontSize: '11px' }}>
-        {score}
+        className="fill-foreground font-bold" style={{ fontSize: isNA ? '9px' : '11px' }}>
+        {isNA ? 'N/A' : score}
       </text>
     </svg>
   );
