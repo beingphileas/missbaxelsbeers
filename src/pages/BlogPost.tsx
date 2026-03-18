@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useBreweries } from '@/data/breweries';
 import { useVenues } from '@/data/blog';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, MapPin, Calendar, Beer, Sparkles } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Beer, Sparkles, Languages } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import BlogSidebar from '@/components/BlogSidebar';
