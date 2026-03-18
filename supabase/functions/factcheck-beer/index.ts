@@ -148,7 +148,7 @@ function computeCompositeScore(
   brewery: any,
   factcheck: any,
   _aiScore: number,
-): number {
+): number | null {
   const p1 = calcUntappdBeerScore(factcheck);        // max 35
   const p2 = calcBreweryTypeScore(brewery);           // max 5
   const p3 = calcBreweryUntappdScore(brewery);        // max 10
