@@ -148,7 +148,7 @@ function computeCompositeScore(
   brewery: any,
   factcheck: any,
   _aiScore: number,
-): number {
+): number | null {
   const p1 = calcUntappdBeerScore(factcheck);        // max 35
   const p2 = calcBreweryTypeScore(brewery);           // max 5
   const p3 = calcBreweryUntappdScore(brewery);        // max 10
@@ -156,7 +156,9 @@ function computeCompositeScore(
   const p5 = calcMarijkeScore(beer, factcheck);       // max 20
 
   const total = p1 + p2 + p3 + p4 + p5;
-  return Math.max(1, Math.min(100, Math.round(total * 10) / 10));
+  // If total < 70, return null → displayed as N/A in the UI
+  if (total < 70) return null;
+  return Math.min(100, Math.round(total * 10) / 10);
 }
 
 serve(async (req) => {
