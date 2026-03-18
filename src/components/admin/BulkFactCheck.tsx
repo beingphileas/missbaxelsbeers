@@ -90,15 +90,17 @@ export default function BulkFactCheck() {
       setCurrentBeer(`${beer.name} (${beer.brewery_name})`);
 
       try {
-        // Step 1: AI Analysis
-        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — analyse...`);
-        const { error: analyzeErr } = await supabase.functions.invoke('analyze-beer', {
-          body: { beer_id: beer.id },
-        });
-        if (analyzeErr) throw analyzeErr;
+        if (filterMode !== 'rescore') {
+          // Step 1: AI Analysis (skip for rescore mode)
+          setCurrentBeer(`${beer.name} (${beer.brewery_name}) — analyse...`);
+          const { error: analyzeErr } = await supabase.functions.invoke('analyze-beer', {
+            body: { beer_id: beer.id },
+          });
+          if (analyzeErr) throw analyzeErr;
+        }
 
-        // Step 2: Factcheck
-        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — factcheck...`);
+        // Step 2: Factcheck (always runs — recalculates score)
+        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — ${filterMode === 'rescore' ? 'score herberekenen' : 'factcheck'}...`);
         const { error: factErr } = await supabase.functions.invoke('factcheck-beer', {
           body: { beer_id: beer.id },
         });
