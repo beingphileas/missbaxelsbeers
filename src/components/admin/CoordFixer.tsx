@@ -190,6 +190,17 @@ export default function CoordFixer() {
         </div>
       </CardHeader>
       <CardContent>
+        {regeocodeAllRunning && regeocodeProgress.total > 0 && (
+          <div className="mb-4 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 size={12} className="animate-spin text-primary" />
+              <span>{regeocodeProgress.done}/{regeocodeProgress.total} verwerkt</span>
+              <span>· {regeocodeProgress.fixed} gefixt</span>
+              {regeocodeProgress.failed > 0 && <span className="text-destructive">· {regeocodeProgress.failed} gefaald</span>}
+            </div>
+            <Progress value={regeocodeProgress.total ? (regeocodeProgress.done / regeocodeProgress.total) * 100 : 0} className="h-1.5" />
+          </div>
+        )}
         {loading ? (
           <p className="text-muted-foreground py-8 text-center">Laden...</p>
         ) : issues.length === 0 ? (
