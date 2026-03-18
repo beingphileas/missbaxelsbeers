@@ -250,8 +250,10 @@ Return this exact JSON:
     }
     baseScore = baseScore + awardsBonus;
 
-    // FINAL: multiply by brewery rating weight
-    const compositeScore = Math.max(1, Math.min(100, Math.round(baseScore * breweryRatingWeight)));
+    // FINAL: add brewery weight bonus (additive, not multiplicative)
+    // baseScore >= 95 → no bonus; >= 90 → +5×weight; < 90 → +10×weight
+    const breweryBonus = baseScore >= 95 ? 0 : baseScore >= 90 ? 5 * breweryRatingWeight : 10 * breweryRatingWeight;
+    const compositeScore = Math.max(1, Math.min(100, Math.round(baseScore + breweryBonus)));
 
     // Save factcheck + updated score + brewery rating weight to DB
     await supabase.from("breweries").update({ rating_weight: breweryRatingWeight }).eq("id", brewery?.id);
