@@ -53,15 +53,82 @@ export interface Brewery {
   beers: Beer[];
 }
 
-async function fetchBreweries(): Promise<Brewery[]> {
-  const [{ data: breweryRows, error: bErr }, { data: beerRows, error: beErr }, { data: postRows, error: pErr }] = await Promise.all([
-    supabase.from('breweries').select('*').order('name'),
-    supabase.from('beers').select('*'),
-    supabase.from('blog_posts').select('brewery_id, beer_id, blog_post_beers(beer_id)').eq('status', 'published'),
-  ]);
+async function fetchAllBreweriesRows() {
+  const pageSize = 1000;
+  let from = 0;
+  const all: any[] = [];
 
-  if (bErr) throw bErr;
-  if (beErr) throw beErr;
+  while (true) {
+    const { data, error } = await supabase
+      .from('breweries')
+      .select('*')
+      .order('name')
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    all.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return all;
+}
+
+async function fetchAllBeerRows() {
+  const pageSize = 1000;
+  let from = 0;
+  const all: any[] = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('beers')
+      .select('*')
+      .order('id')
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    all.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return all;
+}
+
+async function fetchAllPublishedPostRows() {
+  const pageSize = 1000;
+  let from = 0;
+  const all: any[] = [];
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('brewery_id, beer_id, blog_post_beers(beer_id)')
+      .eq('status', 'published')
+      .order('id')
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    all.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return all;
+}
+
+async function fetchBreweries(): Promise<Brewery[]> {
+  const [breweryRows, beerRows, postRows] = await Promise.all([
+    fetchAllBreweriesRows(),
+    fetchAllBeerRows(),
+    fetchAllPublishedPostRows(),
+  ]);
 
   // Build sets of IDs that have blog posts
   const breweryIdsWithPost = new Set<string>();
