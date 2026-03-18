@@ -94,6 +94,15 @@ export default function Admin() {
     queryClient.invalidateQueries({ queryKey: ['venues'] });
   };
 
+  const refreshBreweries = async () => {
+    const { data } = await supabase
+      .from('breweries')
+      .select('*')
+      .order('name');
+    setAllBreweries(data ?? []);
+    queryClient.invalidateQueries({ queryKey: ['breweries'] });
+  };
+
   const handleDeletePost = async (id: string, title: string) => {
     if (!confirm(`Weet je zeker dat je "${title}" wilt verwijderen?`)) return;
     const { error } = await supabase.from('blog_posts').delete().eq('id', id);
