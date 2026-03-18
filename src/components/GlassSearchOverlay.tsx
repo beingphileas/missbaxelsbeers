@@ -125,7 +125,7 @@ export default function GlassSearchOverlay({
         {/* Footer: count + view toggles (visible on all screens) */}
         <div className="flex items-center justify-between px-3.5 py-2 border-t border-white/10 bg-foreground/[0.03]">
           <p className="text-[10px] md:text-[11px] text-muted-foreground tabular-nums">
-            {isLoading ? 'Laden…' : `${resultCount} brouwerijen`}
+            {isLoading ? t('Laden…') : `${resultCount} ${t('brouwerijen')}`}
           </p>
           <div className="flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
             {viewItems.map(item => (
