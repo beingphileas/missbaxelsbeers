@@ -53,9 +53,11 @@ export default function BlogPost() {
       setTranslatedTitle(post.title);
       setTranslatedExcerpt(post.excerpt || '');
       setTranslatedContent(post.content);
+      setIsTranslatingPost(false);
       return;
     }
     let cancelled = false;
+    setIsTranslatingPost(true);
     (async () => {
       const [tTitle, tExcerpt, tContent] = await Promise.all([
         translateDynamic(post.title),
@@ -66,6 +68,7 @@ export default function BlogPost() {
         setTranslatedTitle(tTitle);
         setTranslatedExcerpt(tExcerpt);
         setTranslatedContent(tContent);
+        setIsTranslatingPost(false);
       }
     })();
     return () => { cancelled = true; };
