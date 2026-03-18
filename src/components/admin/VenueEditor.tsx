@@ -88,18 +88,56 @@ export default function VenueEditor({ venueId, onClose }: VenueEditorProps) {
     }
   }, [venueId]);
 
+  const geocodeAddress = async (addr: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1&countrycodes=be`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'MissBaxelsBeers/1.0' } });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.length === 0) return null;
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch { return null; }
+  };
+
   const handleSave = async () => {
-    if (!name.trim() || !province || !lat || !lng) {
-      toast({ title: 'Vul naam, provincie en coördinaten in', variant: 'destructive' });
+    if (!name.trim() || !province) {
+      toast({ title: 'Vul naam en provincie in', variant: 'destructive' });
       return;
     }
 
     setSaving(true);
+
+    // Auto-geocode from address if lat/lng are empty or unchanged defaults
+    let finalLat = lat ? parseFloat(lat) : NaN;
+    let finalLng = lng ? parseFloat(lng) : NaN;
+
+    if (address.trim() && (isNaN(finalLat) || isNaN(finalLng) || (!venueId && finalLat === 0 && finalLng === 0))) {
+      toast({ title: 'Geocoding adres...' });
+      const coords = await geocodeAddress(address.trim());
+      if (coords) {
+        finalLat = coords.lat;
+        finalLng = coords.lng;
+        setLat(String(coords.lat));
+        setLng(String(coords.lng));
+        toast({ title: 'Adres gegeocode ✓' });
+      } else {
+        toast({ title: 'Geocoding mislukt — vul coördinaten handmatig in', variant: 'destructive' });
+        setSaving(false);
+        return;
+      }
+    }
+
+    if (isNaN(finalLat) || isNaN(finalLng)) {
+      toast({ title: 'Vul coördinaten of een geldig adres in', variant: 'destructive' });
+      setSaving(false);
+      return;
+    }
+
     const venueData = {
       name: name.trim(),
       address: address.trim() || null,
-      lat: parseFloat(lat),
-      lng: parseFloat(lng),
+      lat: finalLat,
+      lng: finalLng,
       province,
       venue_type: venueType,
       description: description.trim() || null,

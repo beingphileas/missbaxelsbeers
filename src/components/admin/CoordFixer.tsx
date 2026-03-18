@@ -152,129 +152,216 @@ export default function CoordFixer() {
     setRegeocodeAllRunning(false);
   };
 
-  return (
-    <Card className="border border-border">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="font-serif text-xl flex items-center gap-2">
-            <AlertTriangle size={18} className="text-accent" />
-            Locatieproblemen
-          </CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">
-            {issues.length} brouwerijen met dubbele coördinaten of ontbrekend adres
-          </p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={loadIssues} disabled={loading}>
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleRegeocode}
-            disabled={regeocoding || regeocodeAllRunning}
-            className="gap-1.5"
-          >
-            {regeocoding ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
-            Duplicaten fixen
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleRegeocodeAll}
-            disabled={regeocoding || regeocodeAllRunning}
-            className="gap-1.5"
-          >
-            {regeocodeAllRunning ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
-            Alles hergeocoden
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {regeocodeAllRunning && regeocodeProgress.total > 0 && (
-          <div className="mb-4 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 size={12} className="animate-spin text-primary" />
-              <span>{regeocodeProgress.done}/{regeocodeProgress.total} verwerkt</span>
-              <span>· {regeocodeProgress.fixed} gefixt</span>
-              {regeocodeProgress.failed > 0 && <span className="text-destructive">· {regeocodeProgress.failed} gefaald</span>}
-            </div>
-            <Progress value={regeocodeProgress.total ? (regeocodeProgress.done / regeocodeProgress.total) * 100 : 0} className="h-1.5" />
-          </div>
-        )}
-        {loading ? (
-          <p className="text-muted-foreground py-8 text-center">Laden...</p>
-        ) : issues.length === 0 ? (
-          <p className="text-muted-foreground py-8 text-center">Geen problemen gevonden! 🎉</p>
-        ) : (
-          <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
-            {issues.map(b => (
-              <div key={b.id} className="py-3 flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-medium text-sm truncate">{b.name}</span>
-                    {b.duplicateCount && b.duplicateCount > 1 && (
-                      <Badge variant="secondary" className="text-[10px] shrink-0">
-                        {b.duplicateCount}× gestapeld
-                      </Badge>
-                    )}
-                    {(!b.address || b.address.trim() === '') && (
-                      <Badge variant="destructive" className="text-[10px] shrink-0">
-                        Geen adres
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {b.address || 'Geen adres'} · {b.province}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
-                    {b.lat.toFixed(5)}, {b.lng.toFixed(5)}
-                  </p>
-                </div>
+  // ---- Venue regeocode state ----
+  const [venueRegeocodeRunning, setVenueRegeocodeRunning] = useState(false);
+  const [venueProgress, setVenueProgress] = useState({ done: 0, total: 0, fixed: 0, failed: 0 });
 
-                {editingId === b.id ? (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <Input
-                      value={editLat}
-                      onChange={e => setEditLat(e.target.value)}
-                      className="w-24 h-7 text-xs"
-                      placeholder="lat"
-                      type="number"
-                      step="any"
-                    />
-                    <Input
-                      value={editLng}
-                      onChange={e => setEditLng(e.target.value)}
-                      className="w-24 h-7 text-xs"
-                      placeholder="lng"
-                      type="number"
-                      step="any"
-                    />
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleSave(b.id)}>
-                      <Save size={12} />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingId(null)}>
-                      ✕
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="shrink-0 text-xs"
-                    onClick={() => {
-                      setEditingId(b.id);
-                      setEditLat(String(b.lat));
-                      setEditLng(String(b.lng));
-                    }}
-                  >
-                    Bewerk
-                  </Button>
-                )}
-              </div>
-            ))}
+  const handleRegeocodeVenues = async () => {
+    setVenueRegeocodeRunning(true);
+    let offset = 0;
+    const batchSize = 40;
+    let totalFixed = 0;
+    let totalFailed = 0;
+    let totalEligible = 0;
+
+    try {
+      while (true) {
+        const { data, error } = await supabase.functions.invoke('regeocode-venues', {
+          body: { mode: 'all', batch_size: batchSize, offset },
+        });
+        if (error) throw error;
+
+        totalEligible = data.total_eligible;
+        totalFixed += data.fixed;
+        totalFailed += data.failed;
+        const processed = offset + data.batch_processed;
+        setVenueProgress({ done: processed, total: totalEligible, fixed: totalFixed, failed: totalFailed });
+
+        if (!data.has_more) break;
+        offset = data.next_offset;
+      }
+
+      toast({
+        title: 'Alle venues hergeocode!',
+        description: `${totalFixed} gefixt, ${totalFailed} gefaald van ${totalEligible} totaal`,
+      });
+    } catch (err: any) {
+      toast({ title: 'Fout bij venue regeocode', description: err.message, variant: 'destructive' });
+    }
+    setVenueRegeocodeRunning(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Brewery coord fixer */}
+      <Card className="border border-border">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="font-serif text-xl flex items-center gap-2">
+              <AlertTriangle size={18} className="text-accent" />
+              Brouwerij-locatieproblemen
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              {issues.length} brouwerijen met dubbele coördinaten of ontbrekend adres
+            </p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={loadIssues} disabled={loading}>
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleRegeocode}
+              disabled={regeocoding || regeocodeAllRunning}
+              className="gap-1.5"
+            >
+              {regeocoding ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
+              Duplicaten fixen
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRegeocodeAll}
+              disabled={regeocoding || regeocodeAllRunning}
+              className="gap-1.5"
+            >
+              {regeocodeAllRunning ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+              Alles hergeocoden
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {regeocodeAllRunning && regeocodeProgress.total > 0 && (
+            <div className="mb-4 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 size={12} className="animate-spin text-primary" />
+                <span>{regeocodeProgress.done}/{regeocodeProgress.total} verwerkt</span>
+                <span>· {regeocodeProgress.fixed} gefixt</span>
+                {regeocodeProgress.failed > 0 && <span className="text-destructive">· {regeocodeProgress.failed} gefaald</span>}
+              </div>
+              <Progress value={regeocodeProgress.total ? (regeocodeProgress.done / regeocodeProgress.total) * 100 : 0} className="h-1.5" />
+            </div>
+          )}
+          {loading ? (
+            <p className="text-muted-foreground py-8 text-center">Laden...</p>
+          ) : issues.length === 0 ? (
+            <p className="text-muted-foreground py-8 text-center">Geen problemen gevonden! 🎉</p>
+          ) : (
+            <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
+              {issues.map(b => (
+                <div key={b.id} className="py-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-medium text-sm truncate">{b.name}</span>
+                      {b.duplicateCount && b.duplicateCount > 1 && (
+                        <Badge variant="secondary" className="text-[10px] shrink-0">
+                          {b.duplicateCount}× gestapeld
+                        </Badge>
+                      )}
+                      {(!b.address || b.address.trim() === '') && (
+                        <Badge variant="destructive" className="text-[10px] shrink-0">
+                          Geen adres
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {b.address || 'Geen adres'} · {b.province}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                      {b.lat.toFixed(5)}, {b.lng.toFixed(5)}
+                    </p>
+                  </div>
+
+                  {editingId === b.id ? (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Input
+                        value={editLat}
+                        onChange={e => setEditLat(e.target.value)}
+                        className="w-24 h-7 text-xs"
+                        placeholder="lat"
+                        type="number"
+                        step="any"
+                      />
+                      <Input
+                        value={editLng}
+                        onChange={e => setEditLng(e.target.value)}
+                        className="w-24 h-7 text-xs"
+                        placeholder="lng"
+                        type="number"
+                        step="any"
+                      />
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleSave(b.id)}>
+                        <Save size={12} />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingId(null)}>
+                        ✕
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="shrink-0 text-xs"
+                      onClick={() => {
+                        setEditingId(b.id);
+                        setEditLat(String(b.lat));
+                        setEditLng(String(b.lng));
+                      }}
+                    >
+                      Bewerk
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Venue regeocode */}
+      <Card className="border border-border">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="font-serif text-xl flex items-center gap-2">
+              <MapPin size={18} className="text-accent" />
+              Venue-locaties hergeocoden
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Alle venues opnieuw geocoden op basis van hun adres via Nominatim
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={handleRegeocodeVenues}
+            disabled={venueRegeocodeRunning || regeocodeAllRunning}
+            className="gap-1.5"
+          >
+            {venueRegeocodeRunning ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+            Venues hergeocoden
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {venueRegeocodeRunning && venueProgress.total > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 size={12} className="animate-spin text-primary" />
+                <span>{venueProgress.done}/{venueProgress.total} verwerkt</span>
+                <span>· {venueProgress.fixed} gefixt</span>
+                {venueProgress.failed > 0 && <span className="text-destructive">· {venueProgress.failed} gefaald</span>}
+              </div>
+              <Progress value={venueProgress.total ? (venueProgress.done / venueProgress.total) * 100 : 0} className="h-1.5" />
+            </div>
+          )}
+          {!venueRegeocodeRunning && venueProgress.total > 0 && (
+            <p className="text-sm text-muted-foreground">
+              Laatste run: {venueProgress.fixed} gefixt, {venueProgress.failed} gefaald van {venueProgress.total} venues ✓
+            </p>
+          )}
+          {!venueRegeocodeRunning && venueProgress.total === 0 && (
+            <p className="text-muted-foreground text-sm py-4 text-center">Klik op "Venues hergeocoden" om alle venue-coördinaten te vernieuwen.</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
