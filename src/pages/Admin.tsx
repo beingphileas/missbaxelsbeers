@@ -19,6 +19,7 @@ import BeerImport from '@/components/admin/BeerImport';
 import FactChecker from '@/components/admin/FactChecker';
 import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
+import BreweryEditor from '@/components/admin/BreweryEditor';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
