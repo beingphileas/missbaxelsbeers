@@ -49,6 +49,7 @@ interface BreweryItem {
   id: string;
   name: string;
   website_url: string | null;
+  last_scraped_at: string | null;
 }
 
 interface BeerImportProps {
