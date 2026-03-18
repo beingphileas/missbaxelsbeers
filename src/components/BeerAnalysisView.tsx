@@ -125,6 +125,21 @@ export default function BeerAnalysisView(props: BeerAnalysisProps) {
 
   const [analyzing, setAnalyzing] = useState(false);
   const [factchecking, setFactchecking] = useState(false);
+  const [editingScore, setEditingScore] = useState(false);
+  const [scoreInput, setScoreInput] = useState('');
+
+  const handleScoreSave = async () => {
+    const val = scoreInput.trim() === '' ? null : parseInt(scoreInput, 10);
+    if (val !== null && (isNaN(val) || val < 0 || val > 100)) {
+      toast.error('Score moet tussen 0 en 100 liggen');
+      return;
+    }
+    const { error } = await supabase.from('beers').update({ quality_score: val }).eq('id', beerId);
+    if (error) { toast.error('Fout bij opslaan'); return; }
+    toast.success('Score bijgewerkt');
+    setEditingScore(false);
+    onRefresh?.();
+  };
 
   const hasAnalysis = qualityScore != null;
   const hasFactcheck = factcheckJson != null;
