@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useBreweries } from '@/data/breweries';
 import { useVenues } from '@/data/blog';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, MapPin, Calendar, Beer, Sparkles } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Beer, Sparkles, Languages } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import BlogSidebar from '@/components/BlogSidebar';
@@ -23,6 +23,7 @@ export default function BlogPost() {
   const [translatedTitle, setTranslatedTitle] = useState('');
   const [translatedExcerpt, setTranslatedExcerpt] = useState('');
   const [translatedContent, setTranslatedContent] = useState('');
+  const [isTranslatingPost, setIsTranslatingPost] = useState(false);
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
@@ -52,9 +53,11 @@ export default function BlogPost() {
       setTranslatedTitle(post.title);
       setTranslatedExcerpt(post.excerpt || '');
       setTranslatedContent(post.content);
+      setIsTranslatingPost(false);
       return;
     }
     let cancelled = false;
+    setIsTranslatingPost(true);
     (async () => {
       const [tTitle, tExcerpt, tContent] = await Promise.all([
         translateDynamic(post.title),
@@ -65,6 +68,7 @@ export default function BlogPost() {
         setTranslatedTitle(tTitle);
         setTranslatedExcerpt(tExcerpt);
         setTranslatedContent(tContent);
+        setIsTranslatingPost(false);
       }
     })();
     return () => { cancelled = true; };
@@ -266,8 +270,21 @@ export default function BlogPost() {
               )}
             </div>
 
+            {/* Translation indicator */}
+            {isTranslatingPost && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2 px-4 py-2.5 mb-6 rounded-lg bg-accent/10 border border-accent/20 text-accent text-sm"
+              >
+                <Languages size={16} className="animate-pulse" />
+                <span>{t('Vertaling laden…')}</span>
+              </motion.div>
+            )}
+
             {/* Editorial Content with Drop Caps */}
-            <div className="prose-editorial">
+            <div className={`prose-editorial transition-opacity ${isTranslatingPost ? 'opacity-40' : ''}`}>
               <ReactMarkdown
                 components={{
                   p: ({ children, ...props }) => {
