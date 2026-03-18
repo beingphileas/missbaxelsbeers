@@ -245,6 +245,9 @@ export default function Admin() {
             <TabsTrigger value="fact-check" className="gap-1.5">
               <ShieldCheck size={12} /> Fact-check
             </TabsTrigger>
+            <TabsTrigger value="bulk-factcheck" className="gap-1.5">
+              <ShieldCheck size={12} /> Bulk Factcheck
+            </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
