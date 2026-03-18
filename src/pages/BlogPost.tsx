@@ -45,7 +45,31 @@ export default function BlogPost() {
     enabled: !!slug,
   });
 
-  // Collect all beers mentioned in the post
+  // Translate dynamic content when language or post changes
+  useEffect(() => {
+    if (!post) return;
+    if (lang === 'nl') {
+      setTranslatedTitle(post.title);
+      setTranslatedExcerpt(post.excerpt || '');
+      setTranslatedContent(post.content);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [tTitle, tExcerpt, tContent] = await Promise.all([
+        translateDynamic(post.title),
+        post.excerpt ? translateDynamic(post.excerpt) : Promise.resolve(''),
+        translateDynamic(post.content),
+      ]);
+      if (!cancelled) {
+        setTranslatedTitle(tTitle);
+        setTranslatedExcerpt(tExcerpt);
+        setTranslatedContent(tContent);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [post, lang, translateDynamic]);
+
   const linkedBeers = useMemo(() => {
     if (!post) return [];
     const beers: any[] = [];
