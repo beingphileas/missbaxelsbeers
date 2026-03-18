@@ -148,9 +148,48 @@ Return this exact JSON:
     const jsonStr = rawContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
     const factcheck = JSON.parse(jsonStr);
 
-    // Save factcheck to DB
+    // Calculate composite quality_score from AI + external data
+    const aiScore = beer.quality_score ?? 50;
+
+    // Normalize external ratings to 0-100
+    const externalScores: number[] = [];
+    const untappd = factcheck.external_ratings?.untappd?.score;
+    if (typeof untappd === "number" && untappd > 0) {
+      externalScores.push((untappd / 5) * 100); // Untappd is 0-5
+    }
+    const ratebeer = factcheck.external_ratings?.ratebeer?.score;
+    if (typeof ratebeer === "number" && ratebeer > 0) {
+      externalScores.push(ratebeer); // RateBeer is already 0-100
+    }
+    const ba = factcheck.external_ratings?.beeradvocate?.score;
+    if (typeof ba === "number" && ba > 0) {
+      externalScores.push((ba / 5) * 100); // BA is 0-5
+    }
+
+    const avgExternal = externalScores.length > 0
+      ? externalScores.reduce((a, b) => a + b, 0) / externalScores.length
+      : null;
+
+    // Awards bonus: up to +10 points
+    const awardCount = Array.isArray(factcheck.awards) ? factcheck.awards.length : 0;
+    const awardsBonus = Math.min(awardCount * 3, 10);
+
+    // Weighted composite: AI 50%, External 40%, Awards 10%
+    let compositeScore: number;
+    if (avgExternal !== null) {
+      compositeScore = Math.round(
+        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus * 1.0
+      );
+    } else {
+      // No external data: AI 90% + awards
+      compositeScore = Math.round(aiScore * 0.90 + awardsBonus * 1.0);
+    }
+    compositeScore = Math.max(1, Math.min(100, compositeScore));
+
+    // Save factcheck + updated score to DB
     const { error: updateErr } = await supabase.from("beers").update({
       factcheck_json: factcheck,
+      quality_score: compositeScore,
     }).eq("id", beer_id);
 
     if (updateErr) throw updateErr;
