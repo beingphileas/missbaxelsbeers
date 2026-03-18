@@ -247,6 +247,10 @@ export default function BreweryScreenCapture({
     }
 
     setAutoFactchecking(false);
+
+    // Update last_scraped_at on the brewery
+    await supabase.from('breweries').update({ last_scraped_at: new Date().toISOString() }).eq('id', breweryId);
+
     toast({
       title: `${savedBeers.filter(b => b._saved).length} bieren opgeslagen`,
       description: `${savedBeers.filter(b => b._factcheck).length} factchecks voltooid`,

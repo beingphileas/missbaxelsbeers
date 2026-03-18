@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
@@ -49,6 +50,7 @@ interface BreweryItem {
   id: string;
   name: string;
   website_url: string | null;
+  last_scraped_at: string | null;
 }
 
 interface BeerImportProps {
@@ -75,7 +77,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       while (true) {
         const { data } = await supabase
           .from('breweries')
-          .select('id, name, website_url')
+          .select('id, name, website_url, last_scraped_at')
           .order('name')
           .range(from, from + pageSize - 1);
         if (!data || data.length === 0) break;
@@ -222,9 +224,19 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               <div className="border rounded-lg max-h-64 overflow-auto divide-y divide-border">
                 {filteredBreweries.map(b => (
                   <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{b.name}</p>
-                      {b.website_url && <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {b.last_scraped_at ? (
+                        <div className="flex items-center gap-1 shrink-0" title={`Geïmporteerd op ${format(new Date(b.last_scraped_at), 'dd/MM/yyyy HH:mm')}`}>
+                          <CheckCircle size={14} className="text-success" />
+                          <span className="text-[10px] text-muted-foreground tabular-nums">{format(new Date(b.last_scraped_at), 'dd/MM')}</span>
+                        </div>
+                      ) : (
+                        <div className="w-[14px] shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{b.name}</p>
+                        {b.website_url && <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>}
+                      </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-3">
                       <BreweryScreenCapture
