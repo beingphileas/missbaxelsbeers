@@ -89,25 +89,67 @@ export default function CoordFixer() {
     }
   };
 
+  // Regeocode duplicates only
   const handleRegeocode = async () => {
     setRegeocoding(true);
     toast({ title: 'Hergeocoding gestart...', description: 'Dit kan enkele minuten duren (1 per seconde).' });
 
     try {
       const { data, error } = await supabase.functions.invoke('regeocode-breweries', {
-        body: { mode: 'duplicates' },
+        body: { mode: 'duplicates', batch_size: 40 },
       });
 
       if (error) throw error;
       toast({
         title: `Hergeocoding klaar`,
-        description: `${data.fixed} gefixt, ${data.failed} gefaald van ${data.total_processed} verwerkt`,
+        description: `${data.fixed} gefixt, ${data.failed} gefaald van ${data.batch_processed} verwerkt`,
       });
       loadIssues();
     } catch (err: any) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     }
     setRegeocoding(false);
+  };
+
+  // Regeocode ALL breweries in batches
+  const [regeocodeAllRunning, setRegeocodeAllRunning] = useState(false);
+  const [regeocodeProgress, setRegeocodeProgress] = useState({ done: 0, total: 0, fixed: 0, failed: 0 });
+
+  const handleRegeocodeAll = async () => {
+    setRegeocodeAllRunning(true);
+    let offset = 0;
+    const batchSize = 40;
+    let totalFixed = 0;
+    let totalFailed = 0;
+    let totalEligible = 0;
+
+    try {
+      while (true) {
+        const { data, error } = await supabase.functions.invoke('regeocode-breweries', {
+          body: { mode: 'all', batch_size: batchSize, offset },
+        });
+
+        if (error) throw error;
+
+        totalEligible = data.total_eligible;
+        totalFixed += data.fixed;
+        totalFailed += data.failed;
+        const processed = offset + data.batch_processed;
+        setRegeocodeProgress({ done: processed, total: totalEligible, fixed: totalFixed, failed: totalFailed });
+
+        if (!data.has_more) break;
+        offset = data.next_offset;
+      }
+
+      toast({
+        title: 'Alle brouwerijen hergeocode!',
+        description: `${totalFixed} gefixt, ${totalFailed} gefaald van ${totalEligible} totaal`,
+      });
+      loadIssues();
+    } catch (err: any) {
+      toast({ title: 'Fout bij regeocode', description: err.message, variant: 'destructive' });
+    }
+    setRegeocodeAllRunning(false);
   };
 
   return (
