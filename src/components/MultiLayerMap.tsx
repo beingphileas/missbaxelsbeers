@@ -194,11 +194,11 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* Layer toggles */}
-      <div className="absolute bottom-10 right-3 md:top-3 md:bottom-auto md:right-3 z-[1000] glass-card rounded-lg p-2.5 flex flex-col gap-1.5 text-sm">
+      <div className="absolute bottom-10 right-3 md:top-3 md:bottom-auto md:right-3 z-[1000] rounded-lg border border-border/80 bg-card/95 backdrop-blur-md shadow-card p-2.5 flex flex-col gap-1.5 text-sm text-foreground">
         {(Object.keys(LAYER_META) as LayerKey[]).map(key => (
-          <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-white/5 transition-colors rounded">
+          <label key={key} className="flex items-center gap-2 cursor-pointer select-none px-1 py-0.5 hover:bg-muted/50 transition-colors rounded">
             <span
-              className="w-3 h-3 rounded-full shrink-0 border border-white/20"
+              className="w-3 h-3 rounded-full shrink-0 border border-border/70"
               style={{ background: visible[key] ? LAYER_META[key].color : 'transparent' }}
             />
             <input
@@ -207,7 +207,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
               onChange={() => toggle(key)}
               className="sr-only"
             />
-            <span className={`text-xs ${visible[key] ? 'text-white' : 'text-white/40'}`}>
+            <span className={`text-xs ${visible[key] ? 'text-foreground' : 'text-muted-foreground'}`}>
               {LAYER_META[key].label}
             </span>
           </label>
