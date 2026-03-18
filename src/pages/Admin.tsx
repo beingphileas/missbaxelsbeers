@@ -65,6 +65,15 @@ export default function Admin() {
         setAllVenues(data ?? []);
         setLoadingVenues(false);
       });
+
+    supabase
+      .from('breweries')
+      .select('*')
+      .order('name')
+      .then(({ data }) => {
+        setAllBreweries(data ?? []);
+        setLoadingBreweries(false);
+      });
   });
 
   const refreshPosts = async () => {
