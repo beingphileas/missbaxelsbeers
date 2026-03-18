@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,12 +10,19 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import BlogSidebar from '@/components/BlogSidebar';
 import SEOHead from '@/components/SEOHead';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { data: breweries = [] } = useBreweries();
   const { data: venues = [] } = useVenues();
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const { t, translateDynamic, lang } = useLanguage();
+
+  // Translated dynamic content
+  const [translatedTitle, setTranslatedTitle] = useState('');
+  const [translatedExcerpt, setTranslatedExcerpt] = useState('');
+  const [translatedContent, setTranslatedContent] = useState('');
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
@@ -38,7 +45,31 @@ export default function BlogPost() {
     enabled: !!slug,
   });
 
-  // Collect all beers mentioned in the post
+  // Translate dynamic content when language or post changes
+  useEffect(() => {
+    if (!post) return;
+    if (lang === 'nl') {
+      setTranslatedTitle(post.title);
+      setTranslatedExcerpt(post.excerpt || '');
+      setTranslatedContent(post.content);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [tTitle, tExcerpt, tContent] = await Promise.all([
+        translateDynamic(post.title),
+        post.excerpt ? translateDynamic(post.excerpt) : Promise.resolve(''),
+        translateDynamic(post.content),
+      ]);
+      if (!cancelled) {
+        setTranslatedTitle(tTitle);
+        setTranslatedExcerpt(tExcerpt);
+        setTranslatedContent(tContent);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [post, lang, translateDynamic]);
+
   const linkedBeers = useMemo(() => {
     if (!post) return [];
     const beers: any[] = [];
@@ -125,7 +156,7 @@ export default function BlogPost() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Laden…</p>
+        <p className="text-muted-foreground text-sm">{t('Laden…')}</p>
       </div>
     );
   }
@@ -134,9 +165,9 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-serif text-2xl mb-2">Post niet gevonden</h1>
+          <h1 className="font-serif text-2xl mb-2">{t('Post niet gevonden')}</h1>
           <Link to="/" className="text-accent hover:underline text-sm">
-            Terug naar home
+            {t('Terug naar home')}
           </Link>
         </div>
       </div>
@@ -144,8 +175,9 @@ export default function BlogPost() {
   }
 
   const brewery = post.breweries as any;
+  const dateLocale = lang === 'fr' ? 'fr-BE' : lang === 'en' ? 'en-GB' : 'nl-BE';
   const date = post.published_at
-    ? new Date(post.published_at).toLocaleDateString('nl-BE', {
+    ? new Date(post.published_at).toLocaleDateString(dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -184,7 +216,7 @@ export default function BlogPost() {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft size={14} />
-          Terug
+          {t('Terug')}
         </Link>
 
         <div className={`flex flex-col ${hasSidebar ? 'lg:flex-row lg:gap-10' : ''}`}>
@@ -207,7 +239,7 @@ export default function BlogPost() {
               animate={{ opacity: 1, y: 0 }}
               className="font-display text-3xl md:text-4xl lg:text-5xl leading-[1.08] mb-5"
             >
-              {post.title}
+              {translatedTitle || post.title}
             </motion.h1>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-8 pb-8 border-b border-border/60">
@@ -229,7 +261,7 @@ export default function BlogPost() {
               {linkedBeers.length > 0 && (
                 <span className="flex items-center gap-1.5">
                   <Beer size={13} />
-                  {linkedBeers.length} {linkedBeers.length === 1 ? 'bier' : 'bieren'}
+                  {linkedBeers.length} {linkedBeers.length === 1 ? t('bier') : t('bieren')}
                 </span>
               )}
             </div>
@@ -276,7 +308,7 @@ export default function BlogPost() {
                   ),
                 }}
               >
-                {post.content}
+                {translatedContent || post.content}
               </ReactMarkdown>
             </div>
           </article>

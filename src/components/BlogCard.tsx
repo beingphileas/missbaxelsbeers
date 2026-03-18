@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blog';
 import { Calendar, MapPin } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useState, useEffect } from 'react';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -9,8 +11,30 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, featured = false, onMapPin }: BlogCardProps) {
+  const { t, translateDynamic, lang } = useLanguage();
+  const [tTitle, setTTitle] = useState(post.title);
+  const [tExcerpt, setTExcerpt] = useState(post.excerpt);
+
+  useEffect(() => {
+    if (lang === 'nl') {
+      setTTitle(post.title);
+      setTExcerpt(post.excerpt);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [title, excerpt] = await Promise.all([
+        translateDynamic(post.title),
+        post.excerpt ? translateDynamic(post.excerpt) : Promise.resolve(''),
+      ]);
+      if (!cancelled) { setTTitle(title); setTExcerpt(excerpt); }
+    })();
+    return () => { cancelled = true; };
+  }, [post.title, post.excerpt, lang, translateDynamic]);
+
+  const dateLocale = lang === 'fr' ? 'fr-BE' : lang === 'en' ? 'en-GB' : 'nl-BE';
   const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString('nl-BE', {
+    ? new Date(post.publishedAt).toLocaleDateString(dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -48,10 +72,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
               ))}
             </div>
             <h2 className="font-display text-lg md:text-xl leading-tight mb-3 group-hover:text-accent transition-colors">
-              {post.title}
+              {tTitle}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4 italic">
-              {post.excerpt}
+              {tExcerpt}
             </p>
             <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-muted-foreground">
               {date && (
@@ -70,10 +94,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
                   className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors bg-accent/10 px-2 py-0.5 rounded-sm border border-accent/20"
-                  title="Toon op kaart"
+                  title={t('Toon op kaart')}
                 >
                   <MapPin size={12} />
-                  <span className="text-[10px] font-semibold uppercase tracking-wider">Kaart</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider">{t('Kaart')}</span>
                 </button>
               )}
             </div>
@@ -118,10 +142,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
             )}
           </div>
           <h3 className="font-display text-base leading-tight mb-2 group-hover:text-accent transition-colors line-clamp-2">
-            {post.title}
+            {tTitle}
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1 leading-relaxed">
-            {post.excerpt}
+            {tExcerpt}
           </p>
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
             <time className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 font-sans">
@@ -132,7 +156,7 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMapPin(post.breweryId!); }}
                 className="ml-auto flex items-center gap-1 text-accent hover:text-accent/80 transition-colors"
-                title="Toon op kaart"
+                title={t('Toon op kaart')}
               >
                 <MapPin size={12} />
               </button>

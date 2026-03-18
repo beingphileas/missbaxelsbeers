@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Beer as BeerIcon, FlaskConical, MapPin, Star, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContextMap from '@/components/ContextMap';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface BeerSpec {
   id: string;
@@ -30,6 +31,7 @@ interface BlogSidebarProps {
 }
 
 export default function BlogSidebar({ beers, locations, focusLocation }: BlogSidebarProps) {
+  const { t } = useLanguage();
   const center = useMemo(() => {
     if (focusLocation) return focusLocation;
     if (locations.length === 0) return { lat: 50.85, lng: 4.35 };
@@ -50,7 +52,7 @@ export default function BlogSidebar({ beers, locations, focusLocation }: BlogSid
         >
           <div className="px-3 py-2.5 border-b-2 border-border bg-secondary/50 flex items-center gap-2">
             <MapPin size={12} className="text-accent" />
-            <span className="text-[10px] uppercase tracking-wider font-bold text-foreground">Locaties</span>
+            <span className="text-[10px] uppercase tracking-wider font-bold text-foreground">{t('Locaties')}</span>
           </div>
           <AnimatePresence mode="wait">
             <motion.div
@@ -77,7 +79,7 @@ export default function BlogSidebar({ beers, locations, focusLocation }: BlogSid
           <div className="px-3 py-2.5 border-b-2 border-border bg-secondary/50 flex items-center gap-2">
             <FlaskConical size={12} className="text-accent" />
             <span className="text-[10px] uppercase tracking-wider font-bold text-foreground">
-              Bieren in dit artikel ({beers.length})
+              {t('Bieren in dit artikel')} ({beers.length})
             </span>
           </div>
           <div className="divide-y divide-border/40">
