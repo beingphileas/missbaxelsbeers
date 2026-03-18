@@ -23,6 +23,7 @@ import {
   Link2,
   X,
   Search,
+  Ban,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
 import BreweryBeerManager from './BreweryBeerManager';
@@ -255,6 +256,18 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                         }}
                       />
                       <BreweryBeerManager breweryId={b.id} breweryName={b.name} />
+                      <Button
+                        size="sm" variant="ghost"
+                        className="gap-1.5 text-muted-foreground"
+                        title="Markeer als geen info beschikbaar"
+                        onClick={async () => {
+                          await supabase.from('breweries').update({ last_scraped_at: new Date().toISOString() }).eq('id', b.id);
+                          setBreweries(prev => prev.map(br => br.id === b.id ? { ...br, last_scraped_at: new Date().toISOString() } : br));
+                          toast({ title: `${b.name} gemarkeerd`, description: 'Geen Untappd-info beschikbaar' });
+                        }}
+                      >
+                        <Ban size={12} /> Geen info
+                      </Button>
                       <a
                         href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
                         target="_blank" rel="noopener noreferrer"
