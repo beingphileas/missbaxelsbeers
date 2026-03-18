@@ -72,10 +72,10 @@ export default function BlogCard({ post, featured = false, onMapPin }: BlogCardP
               ))}
             </div>
             <h2 className="font-display text-lg md:text-xl leading-tight mb-3 group-hover:text-accent transition-colors">
-              {post.title}
+              {tTitle}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4 italic">
-              {post.excerpt}
+              {tExcerpt}
             </p>
             <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-muted-foreground">
               {date && (
