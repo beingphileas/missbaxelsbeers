@@ -19,6 +19,7 @@ interface BeerRow {
   style: string;
   quality_score: number | null;
   factcheck_json: any;
+  analysis_json: any;
   brewery_name: string;
 }
 
@@ -40,7 +41,7 @@ export default function BulkFactCheck() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id, name, style, quality_score, factcheck_json, breweries:brewery_id(name)')
+      .select('id, name, style, quality_score, factcheck_json, analysis_json, breweries:brewery_id(name)')
       .order('name');
 
     if (!error && data) {
@@ -50,6 +51,7 @@ export default function BulkFactCheck() {
         style: b.style,
         quality_score: b.quality_score,
         factcheck_json: b.factcheck_json,
+        analysis_json: b.analysis_json,
         brewery_name: b.breweries?.name ?? 'Onbekend',
       })));
     }
@@ -59,7 +61,7 @@ export default function BulkFactCheck() {
   useEffect(() => { fetchBeers(); }, []);
 
   const getTargets = () => {
-    if (filterMode === 'missing') return beers.filter(b => !b.factcheck_json);
+    if (filterMode === 'missing') return beers.filter(b => !b.factcheck_json || !b.analysis_json);
     return beers; // 'all' and 'rescore' both process everything
   };
 
@@ -88,10 +90,19 @@ export default function BulkFactCheck() {
       setCurrentBeer(`${beer.name} (${beer.brewery_name})`);
 
       try {
-        const { error } = await supabase.functions.invoke('factcheck-beer', {
+        // Step 1: AI Analysis
+        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — analyse...`);
+        const { error: analyzeErr } = await supabase.functions.invoke('analyze-beer', {
           body: { beer_id: beer.id },
         });
-        if (error) throw error;
+        if (analyzeErr) throw analyzeErr;
+
+        // Step 2: Factcheck
+        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — factcheck...`);
+        const { error: factErr } = await supabase.functions.invoke('factcheck-beer', {
+          body: { beer_id: beer.id },
+        });
+        if (factErr) throw factErr;
 
         // Fetch updated score
         const { data: updated } = await supabase
@@ -128,8 +139,8 @@ export default function BulkFactCheck() {
     });
   };
 
-  const missingCount = beers.filter(b => !b.factcheck_json).length;
-  const checkedCount = beers.filter(b => b.factcheck_json).length;
+  const missingCount = beers.filter(b => !b.factcheck_json || !b.analysis_json).length;
+  const checkedCount = beers.filter(b => b.factcheck_json && b.analysis_json).length;
 
   return (
     <div className="space-y-6">
