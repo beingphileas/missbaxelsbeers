@@ -88,10 +88,19 @@ export default function BulkFactCheck() {
       setCurrentBeer(`${beer.name} (${beer.brewery_name})`);
 
       try {
-        const { error } = await supabase.functions.invoke('factcheck-beer', {
+        // Step 1: AI Analysis
+        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — analyse...`);
+        const { error: analyzeErr } = await supabase.functions.invoke('analyze-beer', {
           body: { beer_id: beer.id },
         });
-        if (error) throw error;
+        if (analyzeErr) throw analyzeErr;
+
+        // Step 2: Factcheck
+        setCurrentBeer(`${beer.name} (${beer.brewery_name}) — factcheck...`);
+        const { error: factErr } = await supabase.functions.invoke('factcheck-beer', {
+          body: { beer_id: beer.id },
+        });
+        if (factErr) throw factErr;
 
         // Fetch updated score
         const { data: updated } = await supabase
