@@ -44,21 +44,21 @@ export default function HeroSection() {
               BELGIAN BEER WHISPERER
             </p>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.95] mb-6">
-              ELK BIER HEEFT EEN VERHAAL
+              {t('ELK BIER HEEFT EEN VERHAAL')}
             </h1>
             <p className="text-white/60 text-base md:text-lg leading-relaxed mb-10 max-w-md">
-              Persoonlijke proefnotities, verborgen brouwerijen, en de beste cafés van België.
+              {t('Persoonlijke proefnotities, verborgen brouwerijen, en de beste cafés van België.')}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link to="/breweries">
                 <Button size="lg" className="gap-2 font-bold px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                  ONTDEK BROUWERIJEN
+                  {t('ONTDEK BROUWERIJEN')}
                   <ArrowRight size={16} />
                 </Button>
               </Link>
               <Link to="/map">
                 <Button variant="outline" size="lg" className="gap-2 font-bold px-8 border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-foreground shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                  BEKIJK DE KAART
+                  {t('BEKIJK DE KAART')}
                 </Button>
               </Link>
             </div>
