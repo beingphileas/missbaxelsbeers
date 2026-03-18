@@ -31,6 +31,7 @@ interface BlogSidebarProps {
 }
 
 export default function BlogSidebar({ beers, locations, focusLocation }: BlogSidebarProps) {
+  const { t } = useLanguage();
   const center = useMemo(() => {
     if (focusLocation) return focusLocation;
     if (locations.length === 0) return { lat: 50.85, lng: 4.35 };
