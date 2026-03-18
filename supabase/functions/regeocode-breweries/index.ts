@@ -46,14 +46,14 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const mode = body.mode || "duplicates"; // "duplicates" | "all" | "ids"
     const ids: string[] = body.ids || [];
+    const batchSize = body.batch_size || 40; // Process max N per call (safe under edge function timeout)
+    const offset = body.offset || 0;
 
     // Find breweries to re-geocode
-    let query = supabase.from("breweries").select("id, name, address, lat, lng");
+    let query = supabase.from("breweries").select("id, name, address, lat, lng").order("name");
 
     if (mode === "ids" && ids.length > 0) {
       query = query.in("id", ids);
-    } else if (mode === "duplicates") {
-      // Get all breweries, then filter for duplicate coords client-side
     }
 
     const { data: breweries, error } = await query;
@@ -62,7 +62,6 @@ Deno.serve(async (req) => {
     let toProcess = breweries || [];
 
     if (mode === "duplicates") {
-      // Find coords that appear more than once
       const coordCount = new Map<string, number>();
       for (const b of toProcess) {
         const key = `${b.lat.toFixed(6)},${b.lng.toFixed(6)}`;
@@ -76,45 +75,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Filter to only those with addresses
+    // Only those with addresses
     toProcess = toProcess.filter(b => b.address && b.address.trim().length > 5);
+
+    const totalEligible = toProcess.length;
+
+    // Apply offset + batch_size for pagination
+    toProcess = toProcess.slice(offset, offset + batchSize);
 
     const results: { name: string; old: string; new_coords: string; status: string }[] = [];
     let fixed = 0;
     let failed = 0;
 
     for (const b of toProcess) {
-      // Respect Nominatim 1 req/sec
-      await sleep(1100);
+      await sleep(1100); // Nominatim rate limit
 
-      const coords = await geocode(b.address);
+      let coords = await geocode(b.address);
+
       if (!coords) {
-        // Try with just city name from address
+        // Try city-level fallback
         const cityMatch = b.address.match(/\d{4}\s+(.+?)$/);
         if (cityMatch) {
           await sleep(1100);
-          const coords2 = await geocode(cityMatch[1] + ", Belgium");
-          if (coords2) {
-            // Add small offset to prevent stacking
-            coords2.lat += (Math.random() - 0.5) * 0.003;
-            coords2.lng += (Math.random() - 0.5) * 0.003;
-            
-            const { error: uErr } = await supabase
-              .from("breweries")
-              .update({ lat: coords2.lat, lng: coords2.lng })
-              .eq("id", b.id);
-
-            results.push({
-              name: b.name,
-              old: `${b.lat.toFixed(5)},${b.lng.toFixed(5)}`,
-              new_coords: `${coords2.lat.toFixed(5)},${coords2.lng.toFixed(5)}`,
-              status: uErr ? `error: ${uErr.message}` : "fixed (city-level)",
-            });
-            if (!uErr) fixed++;
-            continue;
-          }
+          coords = await geocode(cityMatch[1] + ", Belgium");
         }
+      }
 
+      if (!coords) {
         results.push({
           name: b.name,
           old: `${b.lat.toFixed(5)},${b.lng.toFixed(5)}`,
@@ -139,9 +126,16 @@ Deno.serve(async (req) => {
       if (!uErr) fixed++;
     }
 
+    const nextOffset = offset + batchSize;
+    const hasMore = nextOffset < totalEligible;
+
     return new Response(
       JSON.stringify({
-        total_processed: toProcess.length,
+        total_eligible: totalEligible,
+        batch_processed: toProcess.length,
+        offset,
+        next_offset: hasMore ? nextOffset : null,
+        has_more: hasMore,
         fixed,
         failed,
         results,
