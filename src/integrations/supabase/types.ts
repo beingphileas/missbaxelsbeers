@@ -331,6 +331,7 @@ export type Database = {
           name: string
           phone: string | null
           province: string
+          rating_weight: number | null
           story: string | null
           type: string
           untappd_rating: number | null
@@ -355,6 +356,7 @@ export type Database = {
           name: string
           phone?: string | null
           province: string
+          rating_weight?: number | null
           story?: string | null
           type: string
           untappd_rating?: number | null
@@ -379,6 +381,7 @@ export type Database = {
           name?: string
           phone?: string | null
           province?: string
+          rating_weight?: number | null
           story?: string | null
           type?: string
           untappd_rating?: number | null

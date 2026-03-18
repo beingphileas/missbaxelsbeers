@@ -151,7 +151,23 @@ Return this exact JSON:
     // Calculate composite quality_score from AI + external data
     const aiScore = beer.quality_score ?? 50;
 
-    // Normalize external ratings to 0-100
+    // --- Brewery rating weight ---
+    // Average of brewery ratings / 5. Default 0.7 if no ratings.
+    const breweryUntappd = brewery?.untappd_rating;
+    const breweryGoogle = brewery?.google_rating;
+    let breweryRatingWeight: number;
+    if (typeof breweryUntappd === "number" && breweryUntappd > 0 && typeof breweryGoogle === "number" && breweryGoogle > 0) {
+      breweryRatingWeight = ((breweryUntappd + breweryGoogle) / 2) / 5;
+    } else if (typeof breweryUntappd === "number" && breweryUntappd > 0) {
+      breweryRatingWeight = breweryUntappd / 5;
+    } else if (typeof breweryGoogle === "number" && breweryGoogle > 0) {
+      breweryRatingWeight = breweryGoogle / 5;
+    } else {
+      breweryRatingWeight = 0.7;
+    }
+
+    // Normalize external beer ratings to 0-100
+    // If no beer-level ratings found, fall back to brewery Untappd rating
     const externalScores: number[] = [];
     const untappd = factcheck.external_ratings?.untappd?.score;
     if (typeof untappd === "number" && untappd > 0) {
@@ -166,6 +182,11 @@ Return this exact JSON:
       externalScores.push((ba / 5) * 100); // BA is 0-5
     }
 
+    // Fallback: no beer ratings found → use brewery Untappd rating
+    if (externalScores.length === 0 && typeof breweryUntappd === "number" && breweryUntappd > 0) {
+      externalScores.push((breweryUntappd / 5) * 100);
+    }
+
     const avgExternal = externalScores.length > 0
       ? externalScores.reduce((a, b) => a + b, 0) / externalScores.length
       : null;
@@ -174,7 +195,7 @@ Return this exact JSON:
     const awardCount = Array.isArray(factcheck.awards) ? factcheck.awards.length : 0;
     const awardsBonus = Math.min(awardCount * 3, 10);
 
-    // Brewery size bonus: Microbrewery +5, Family-owned +4, Blender/Stekerij +3, Contract +2, Trappist +1, Industrial 0
+    // Brewery size bonus
     const breweryType = (brewery?.type ?? "").toLowerCase();
     const sizeBonus =
       breweryType.includes("micro") ? 5 :
@@ -182,9 +203,9 @@ Return this exact JSON:
       breweryType.includes("blender") || breweryType.includes("stekerij") ? 3 :
       breweryType.includes("contract") ? 2 :
       breweryType.includes("trappist") ? 1 :
-      0; // Industrial / Sub-site
+      0;
 
-    // Style rarity bonus: rare/foreign styles +10, common Belgian styles +1
+    // Style rarity bonus
     const styleLower = (beer.style ?? "").toLowerCase();
     const commonStyles: Record<string, number> = {
       "tripel": 1, "triple": 1,
@@ -212,31 +233,29 @@ Return this exact JSON:
       "smoked": 8, "rauchbier": 9,
       "spelt": 9, "buckwheat": 9, "ancient grain": 10,
     };
-    // Find best match
-    let styleBonus = 10; // default: unknown/rare style gets max
+    let styleBonus = 10;
     for (const [key, score] of Object.entries(commonStyles)) {
       if (styleLower.includes(key)) {
-        styleBonus = Math.min(styleBonus, score); // take lowest (most common) match
+        styleBonus = Math.min(styleBonus, score);
         break;
       }
     }
 
-    // Score verdeling: External 50pts, Style 10pts, Size 5pts, AI 35pts = 100
-    let compositeScore: number;
+    // Base score: External 50pts, Style 10pts, Size 5pts, AI 35pts = 100
+    let baseScore: number;
     if (avgExternal !== null) {
-      compositeScore = Math.round(
-        (avgExternal / 100) * 50 + styleBonus + sizeBonus + (aiScore / 100) * 35
-      );
+      baseScore = (avgExternal / 100) * 50 + styleBonus + sizeBonus + (aiScore / 100) * 35;
     } else {
-      // No external data: AI gets 85pts max + bonuses
-      compositeScore = Math.round(
-        (aiScore / 100) * 85 + styleBonus + sizeBonus
-      );
+      baseScore = (aiScore / 100) * 85 + styleBonus + sizeBonus;
     }
-    compositeScore = compositeScore + awardsBonus;
-    compositeScore = Math.max(1, Math.min(100, compositeScore));
+    baseScore = baseScore + awardsBonus;
 
-    // Save factcheck + updated score to DB
+    // FINAL: multiply by brewery rating weight
+    const compositeScore = Math.max(1, Math.min(100, Math.round(baseScore * breweryRatingWeight)));
+
+    // Save factcheck + updated score + brewery rating weight to DB
+    await supabase.from("breweries").update({ rating_weight: breweryRatingWeight }).eq("id", brewery?.id);
+
     const { error: updateErr } = await supabase.from("beers").update({
       factcheck_json: factcheck,
       quality_score: compositeScore,
