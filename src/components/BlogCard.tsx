@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blog';
 import { Calendar, MapPin } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useState, useEffect } from 'react';
 
 interface BlogCardProps {
   post: BlogPost;

@@ -17,6 +17,12 @@ export default function BlogPost() {
   const { data: breweries = [] } = useBreweries();
   const { data: venues = [] } = useVenues();
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const { t, translateDynamic, lang } = useLanguage();
+
+  // Translated dynamic content
+  const [translatedTitle, setTranslatedTitle] = useState('');
+  const [translatedExcerpt, setTranslatedExcerpt] = useState('');
+  const [translatedContent, setTranslatedContent] = useState('');
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],

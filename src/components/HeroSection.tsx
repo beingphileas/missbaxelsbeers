@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BlogPost, useBlogPosts } from '@/data/blog';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function HeroSection() {
   const { data: posts = [] } = useBlogPosts();

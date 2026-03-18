@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Beer as BeerIcon, FlaskConical, MapPin, Star, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContextMap from '@/components/ContextMap';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface BeerSpec {
   id: string;
