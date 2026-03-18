@@ -5,6 +5,7 @@ import MultiLayerMap from '@/components/MultiLayerMap';
 import BreweryCard from '@/components/BreweryCard';
 import BrewerySheet from '@/components/BrewerySheet';
 import GlassSearchOverlay from '@/components/GlassSearchOverlay';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const Index = () => {
   const { data: breweries = [], isLoading } = useBreweries();
