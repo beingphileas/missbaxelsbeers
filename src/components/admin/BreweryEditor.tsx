@@ -140,7 +140,7 @@ export default function BreweryEditor({ breweryId, onClose }: BreweryEditorProps
     if (breweryId) {
       ({ error } = await supabase.from('breweries').update(breweryData).eq('id', breweryId));
     } else {
-      ({ error } = await supabase.from('breweries').insert(breweryData));
+      ({ error } = await supabase.from('breweries').insert(breweryData as any));
     }
 
     if (error) {
