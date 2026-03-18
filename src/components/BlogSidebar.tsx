@@ -79,7 +79,7 @@ export default function BlogSidebar({ beers, locations, focusLocation }: BlogSid
           <div className="px-3 py-2.5 border-b-2 border-border bg-secondary/50 flex items-center gap-2">
             <FlaskConical size={12} className="text-accent" />
             <span className="text-[10px] uppercase tracking-wider font-bold text-foreground">
-              Bieren in dit artikel ({beers.length})
+              {t('Bieren in dit artikel')} ({beers.length})
             </span>
           </div>
           <div className="divide-y divide-border/40">

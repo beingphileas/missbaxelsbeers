@@ -126,7 +126,7 @@ export default function HeroSection() {
                     size="lg"
                     className="gap-2 font-bold px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-hard hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                   >
-                    LEES HET VERHAAL
+                    {t('LEES HET VERHAAL')}
                     <ArrowRight size={16} />
                   </Button>
                 </Link>
