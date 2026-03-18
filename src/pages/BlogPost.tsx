@@ -23,6 +23,7 @@ export default function BlogPost() {
   const [translatedTitle, setTranslatedTitle] = useState('');
   const [translatedExcerpt, setTranslatedExcerpt] = useState('');
   const [translatedContent, setTranslatedContent] = useState('');
+  const [isTranslatingPost, setIsTranslatingPost] = useState(false);
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
