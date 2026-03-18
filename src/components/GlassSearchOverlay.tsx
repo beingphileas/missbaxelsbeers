@@ -66,7 +66,7 @@ export default function GlassSearchOverlay({
             type="text"
             value={search}
             onChange={e => onSearchChange(e.target.value)}
-            placeholder="Zoek brouwerijen, bieren…"
+            placeholder={t('Zoek brouwerijen, bieren…')}
             className="w-full h-11 md:h-12 pl-10 pr-16 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
