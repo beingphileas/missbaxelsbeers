@@ -164,18 +164,28 @@ export default function CoordFixer() {
             {issues.length} brouwerijen met dubbele coördinaten of ontbrekend adres
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={loadIssues} disabled={loading}>
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </Button>
           <Button
             size="sm"
             onClick={handleRegeocode}
-            disabled={regeocoding}
+            disabled={regeocoding || regeocodeAllRunning}
             className="gap-1.5"
           >
             {regeocoding ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
-            Auto-hergeocoden
+            Duplicaten fixen
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRegeocodeAll}
+            disabled={regeocoding || regeocodeAllRunning}
+            className="gap-1.5"
+          >
+            {regeocodeAllRunning ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+            Alles hergeocoden
           </Button>
         </div>
       </CardHeader>
