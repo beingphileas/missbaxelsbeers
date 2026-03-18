@@ -184,15 +184,52 @@ Return this exact JSON:
       breweryType.includes("trappist") ? 1 :
       0; // Industrial / Sub-site
 
-    // Weighted composite: AI 50%, External 40%, Awards + Size bonus
+    // Style rarity bonus: rare/foreign styles +10, common Belgian styles +1
+    const styleLower = (beer.style ?? "").toLowerCase();
+    const commonStyles: Record<string, number> = {
+      "tripel": 1, "triple": 1,
+      "blond": 2, "blonde": 2, "belgian blonde": 2,
+      "witbier": 2, "wit": 2, "white": 2,
+      "pils": 1, "pilsner": 1, "lager": 1,
+      "dubbel": 3, "double": 3,
+      "quadrupel": 4, "quad": 4,
+      "strong ale": 3, "belgian strong ale": 3, "belgian strong dark ale": 4,
+      "saison": 5, "farmhouse": 5,
+      "amber": 3, "belgian amber": 3,
+      "ipa": 3, "belgian ipa": 4,
+      "stout": 5, "imperial stout": 6,
+      "porter": 5,
+      "kriek": 6, "framboise": 6, "fruit beer": 5,
+      "lambic": 8, "gueuze": 8, "geuze": 8, "oude geuze": 9, "oude kriek": 9,
+      "faro": 9,
+      "brut": 7, "brut ipa": 7,
+      "scotch ale": 7, "barley wine": 8, "barleywine": 8,
+      "oud bruin": 7, "flanders red": 8, "flemish red": 8,
+      "table beer": 4, "tafelbier": 4,
+      "bière de garde": 7,
+      "gose": 8, "berliner weisse": 8,
+      "sour": 7, "wild ale": 9,
+      "smoked": 8, "rauchbier": 9,
+      "spelt": 9, "buckwheat": 9, "ancient grain": 10,
+    };
+    // Find best match
+    let styleBonus = 10; // default: unknown/rare style gets max
+    for (const [key, score] of Object.entries(commonStyles)) {
+      if (styleLower.includes(key)) {
+        styleBonus = Math.min(styleBonus, score); // take lowest (most common) match
+        break;
+      }
+    }
+
+    // Weighted composite: AI 50%, External 40%, Awards + Size + Style bonus
     let compositeScore: number;
     if (avgExternal !== null) {
       compositeScore = Math.round(
-        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus + sizeBonus
+        aiScore * 0.50 + avgExternal * 0.40 + awardsBonus + sizeBonus + styleBonus
       );
     } else {
       // No external data: AI 90% + bonuses
-      compositeScore = Math.round(aiScore * 0.90 + awardsBonus + sizeBonus);
+      compositeScore = Math.round(aiScore * 0.90 + awardsBonus + sizeBonus + styleBonus);
     }
     compositeScore = Math.max(1, Math.min(100, compositeScore));
 
