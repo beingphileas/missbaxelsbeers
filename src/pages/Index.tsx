@@ -8,6 +8,7 @@ import GlassSearchOverlay from '@/components/GlassSearchOverlay';
 import { useLanguage } from '@/hooks/useLanguage';
 
 const Index = () => {
+  const { t } = useLanguage();
   const { data: breweries = [], isLoading } = useBreweries();
   const { data: venues = [] } = useVenues();
   const { data: posts = [] } = useBlogPosts();
