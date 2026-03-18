@@ -46,8 +46,8 @@ export default function GlassSearchOverlay({
 
   const viewItems = [
     { key: 'split' as const, icon: <LayoutGrid size={13} />, label: 'Split' },
-    { key: 'map' as const, icon: <Map size={13} />, label: 'Kaart' },
-    { key: 'list' as const, icon: <List size={13} />, label: 'Lijst' },
+    { key: 'map' as const, icon: <Map size={13} />, label: t('Kaart') },
+    { key: 'list' as const, icon: <List size={13} />, label: t('Lijst') },
   ];
 
   return (
