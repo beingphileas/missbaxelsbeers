@@ -141,7 +141,7 @@ const Index = () => {
 
       {isLoading && (
         <div className="flex items-center justify-center h-[60vh]">
-          <p className="text-muted-foreground text-sm">Laden…</p>
+          <p className="text-muted-foreground text-sm">{t('Laden…')}</p>
         </div>
       )}
 
