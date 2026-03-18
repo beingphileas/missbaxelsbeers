@@ -23,6 +23,7 @@ import {
   Link2,
   X,
   Search,
+  Ban,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
 import BreweryBeerManager from './BreweryBeerManager';
