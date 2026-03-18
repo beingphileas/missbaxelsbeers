@@ -29,6 +29,8 @@ export default function Admin() {
   const [showBlogEditor, setShowBlogEditor] = useState(false);
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
   const [showVenueEditor, setShowVenueEditor] = useState(false);
+  const [editingBreweryId, setEditingBreweryId] = useState<string | null>(null);
+  const [showBreweryEditor, setShowBreweryEditor] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
