@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, X, SlidersHorizontal, Map, List, LayoutGrid } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { breweryTypes } from '@/data/breweries';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface GlassSearchOverlayProps {
   search: string;
