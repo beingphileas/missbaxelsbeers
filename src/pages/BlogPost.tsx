@@ -239,7 +239,7 @@ export default function BlogPost() {
               animate={{ opacity: 1, y: 0 }}
               className="font-display text-3xl md:text-4xl lg:text-5xl leading-[1.08] mb-5"
             >
-              {post.title}
+              {translatedTitle || post.title}
             </motion.h1>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-8 pb-8 border-b border-border/60">
