@@ -51,6 +51,7 @@ export default function BulkFactCheck() {
         style: b.style,
         quality_score: b.quality_score,
         factcheck_json: b.factcheck_json,
+        analysis_json: b.analysis_json,
         brewery_name: b.breweries?.name ?? 'Onbekend',
       })));
     }
