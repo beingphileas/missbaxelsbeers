@@ -76,7 +76,7 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       while (true) {
         const { data } = await supabase
           .from('breweries')
-          .select('id, name, website_url')
+          .select('id, name, website_url, last_scraped_at')
           .order('name')
           .range(from, from + pageSize - 1);
         if (!data || data.length === 0) break;
