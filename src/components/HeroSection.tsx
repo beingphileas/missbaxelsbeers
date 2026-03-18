@@ -8,6 +8,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 export default function HeroSection() {
   const { data: posts = [] } = useBlogPosts();
+  const { t } = useLanguage();
   const slides = posts.slice(0, 5);
   const [current, setCurrent] = useState(0);
 
