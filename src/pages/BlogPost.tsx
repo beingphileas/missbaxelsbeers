@@ -175,8 +175,9 @@ export default function BlogPost() {
   }
 
   const brewery = post.breweries as any;
+  const dateLocale = lang === 'fr' ? 'fr-BE' : lang === 'en' ? 'en-GB' : 'nl-BE';
   const date = post.published_at
-    ? new Date(post.published_at).toLocaleDateString('nl-BE', {
+    ? new Date(post.published_at).toLocaleDateString(dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
