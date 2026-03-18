@@ -41,7 +41,7 @@ export default function BulkFactCheck() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id, name, style, quality_score, factcheck_json, breweries:brewery_id(name)')
+      .select('id, name, style, quality_score, factcheck_json, analysis_json, breweries:brewery_id(name)')
       .order('name');
 
     if (!error && data) {
