@@ -17,6 +17,7 @@ const LanguageContext = createContext<LanguageContextType>({
   setLang: () => {},
   t: (text) => text,
   translateDynamic: async (text) => text,
+  translations: {},
   isTranslating: false,
 });
 
