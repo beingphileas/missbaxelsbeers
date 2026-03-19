@@ -616,6 +616,11 @@ export default function Admin() {
             <CoordFixer />
           </TabsContent>
 
+          {/* Verification Dashboard Tab */}
+          <TabsContent value="verification">
+            <VerificationDashboard />
+          </TabsContent>
+
           {/* Bulk Stories Tab */}
           <TabsContent value="bulk-stories">
             <BulkStoryGenerator />
