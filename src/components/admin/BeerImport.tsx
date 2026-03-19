@@ -198,6 +198,41 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
     }
   };
 
+  const handleValidate = async () => {
+    const toValidate = preview.filter(b => !b._excluded).map(b => ({
+      name: b.name,
+      brewery_name: b.brewery_matches[0]?.name || b.brewery_input,
+    }));
+    if (toValidate.length === 0) return;
+    setValidating(true);
+    try {
+      const res = await supabase.functions.invoke('import-beers', {
+        body: { beers: toValidate, mode: 'validate' },
+      });
+      if (res.error) throw res.error;
+      const validations = res.data?.validations ?? [];
+      setPreview(prev => prev.map(beer => {
+        const match = validations.find((v: any) =>
+          v.name?.toLowerCase().trim() === beer.name.toLowerCase().trim()
+        );
+        if (match && !match.exists) {
+          return { ...beer, _validation: match, _excluded: true };
+        }
+        return { ...beer, _validation: match ?? null };
+      }));
+      const suspects = validations.filter((v: any) => !v.exists);
+      if (suspects.length > 0) {
+        toast({ title: `${suspects.length} verdachte bieren gevonden`, description: 'Deze zijn automatisch uitgesloten.', variant: 'destructive' });
+      } else {
+        toast({ title: 'Alle bieren gevalideerd ✓' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Validatie mislukt', description: err.message, variant: 'destructive' });
+    } finally {
+      setValidating(false);
+    }
+  };
+
   const linkedCount = preview.filter(b => !b._excluded && b.brewery_id).length;
   const unlinkedCount = preview.filter(b => !b._excluded && !b.brewery_id).length;
   const excludedCount = preview.filter(b => b._excluded).length;
