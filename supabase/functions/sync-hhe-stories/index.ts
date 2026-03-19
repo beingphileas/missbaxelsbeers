@@ -143,9 +143,12 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       dry_run: dryRun,
       hhe_stories_available: hheBreweries.length,
-      local_breweries: localBreweries.length,
-      matched_and_updated: updated,
-      skipped_has_story: skipped,
+      total_eligible: toProcess.length,
+      batch_offset: offset,
+      batch_size: batchSize,
+      updated_in_batch: updated,
+      has_more: offset + batchSize < toProcess.length,
+      next_offset: offset + batchSize,
       matches,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
