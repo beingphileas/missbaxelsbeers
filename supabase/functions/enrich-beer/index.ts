@@ -78,13 +78,17 @@ function calcBreweryUntappdScore(brewery: any): number {
 }
 
 function calcExternalReviewScore(factcheck: any, brewery: any): number {
-  const scores: number[] = [];
+  const scores: number[] = []; // normalized to 0-10
   const rb = factcheck?.external_ratings?.ratebeer?.score;
-  if (typeof rb === "number" && rb > 0) scores.push(rb / 10);
+  if (typeof rb === "number" && rb > 0) scores.push(rb / 10); // RateBeer: 0-100 → 0-10
   const ba = factcheck?.external_ratings?.beeradvocate?.score;
-  if (typeof ba === "number" && ba > 0) scores.push((ba / 5) * 10);
+  if (typeof ba === "number" && ba > 0) {
+    // BeerAdvocate can be 0-5 or 0-100 scale
+    const baNorm = ba > 5 ? ba / 10 : ba * 2; // normalize to 0-10
+    scores.push(baNorm);
+  }
   const goog = brewery?.google_rating;
-  if (typeof goog === "number" && goog > 0) scores.push((goog / 5) * 10);
+  if (typeof goog === "number" && goog > 0) scores.push((goog / 5) * 10); // Google: 0-5 → 0-10
   if (scores.length === 0) {
     const untappd = factcheck?.external_ratings?.untappd?.score;
     if (typeof untappd === "number" && untappd > 0) return (untappd / 5) * 30;
