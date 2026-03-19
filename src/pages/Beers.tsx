@@ -37,9 +37,18 @@ export default function Beers() {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState<'random' | 'name' | 'abv-asc' | 'abv-desc'>('random');
 
+  const shuffledBeers = useMemo(() => {
+    const arr = [...allBeers];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [allBeers]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    let list = allBeers.filter(beer => {
+    let list = (sort === 'random' ? shuffledBeers : allBeers).filter(beer => {
       if (style && beer.style !== style) return false;
       if (beer.abv < abvRange[0] || beer.abv > abvRange[1]) return false;
       if (q) {
@@ -55,10 +64,10 @@ export default function Beers() {
 
     if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
     else if (sort === 'abv-asc') list.sort((a, b) => a.abv - b.abv);
-    else list.sort((a, b) => b.abv - a.abv);
+    else if (sort === 'abv-desc') list.sort((a, b) => b.abv - a.abv);
 
     return list;
-  }, [allBeers, search, style, abvRange, sort]);
+  }, [allBeers, shuffledBeers, search, style, abvRange, sort]);
 
   const hasActiveFilters = style || abvRange[0] !== ABV_RANGE[0] || abvRange[1] !== ABV_RANGE[1];
 
