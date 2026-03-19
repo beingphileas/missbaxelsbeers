@@ -156,8 +156,8 @@ export default function BreweryScreenCapture({
     if (!beer._db_id) return;
     setExtractedBeers(prev => prev.map((b, i) => i === index ? { ...b, _factchecking: true } : b));
     try {
-      const res = await supabase.functions.invoke('factcheck-beer', {
-        body: { beer_id: beer._db_id },
+      const res = await supabase.functions.invoke('enrich-beer', {
+        body: { beer_id: beer._db_id, mode: 'full' },
       });
       if (res.error) throw new Error(res.error.message);
       const factcheck = res.data?.factcheck || res.data;
