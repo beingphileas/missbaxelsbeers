@@ -98,14 +98,13 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const hasWebsite = (b: { website_url: string | null }) =>
     b.website_url && b.website_url.trim().length > 0;
 
-  const filteredBreweries = brewerySearch.length >= 1
-    ? breweries
-        .filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 50)
-    : breweries
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 50);
+  const filteredBreweries = useMemo(() => {
+    const sorted = [...breweries].sort((a, b) => a.name.localeCompare(b.name));
+    if (brewerySearch.length >= 1) {
+      return sorted.filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()));
+    }
+    return sorted;
+  }, [breweries, brewerySearch]);
 
   const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
