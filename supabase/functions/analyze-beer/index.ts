@@ -7,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string): Promise<{ content: string; citations: string[] }> {
+async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string, model = "sonar"): Promise<{ content: string; citations: string[] }> {
   try {
     const res = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
@@ -16,7 +16,7 @@ async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "sonar-pro",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
