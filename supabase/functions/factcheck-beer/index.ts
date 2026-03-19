@@ -327,6 +327,13 @@ CRITICAL RULES:
 - Only include a URL if it appears in the sources.
 - IMPORTANT: If sources contain rich data, confidence_score should be high (70-100). Only use low scores when genuinely no data was found.
 
+VARIANT AWARENESS (CRITICAL):
+- This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers with different ABV, ingredients, and ratings.
+- Only report data that applies to "${beerName}" specifically. Do NOT merge or average data from different variants.
+- If a source mentions data for a different variant, do NOT include it unless you clearly flag it as "data is for [variant name], not for ${beerName}".
+- If ABV values in sources differ by vintage/blend, note this in abv_sources and list each value with its vintage.
+- Individual reviewer opinions should not be presented as verified facts.
+
 Beer: "${beerName}"
 Brewery: "${breweryName}"
 Style: "${beer.style}"
@@ -339,21 +346,23 @@ ${citationBlock}
 Return this exact JSON (use null when data is NOT in sources):
 {
   "confidence_score": <0-100, based on how much verifiable data was found>,
-  "abv_verified": <true ONLY if a source explicitly states this ABV, otherwise false>,
+  "variant_note": "<if sources reveal this is part of a family of variants, describe the relationship and which specific variant this data is about, otherwise null>",
+  "abv_verified": <true ONLY if a source explicitly states this ABV for this exact product, otherwise false>,
   "abv_sources": [<ONLY URLs from sources that mention ABV>],
+  "abv_range": "<if ABV varies by vintage/blend, state the range e.g. '5.8%-6.6%', otherwise null>",
   "style_verified": <true ONLY if a source confirms the style, otherwise false>,
   "style_note": "<if sources suggest a different/more specific style, note it here>",
-  "awards": [<ONLY awards explicitly mentioned in sources with year>],
+  "awards": [<ONLY awards explicitly mentioned in sources with year — must be for THIS exact product>],
   "price_range": "<ONLY if a source mentions a price, otherwise null>",
   "external_ratings": {
-    "untappd": {"score": <ONLY if found in sources>, "url": <ONLY if found>, "review_count": <if found>},
+    "untappd": {"score": <ONLY if found in sources for THIS product>, "url": <ONLY if found>, "review_count": <if found>},
     "ratebeer": {"score": <ONLY if found>, "url": <ONLY if found>},
     "beeradvocate": {"score": <ONLY if found>, "url": <ONLY if found>}
   },
   "external_links": [<ONLY URLs actually found in sources>],
-  "production_verified": "<summary of production details confirmed by sources, or null>",
-  "ingredients_verified": "<summary of ingredients confirmed by sources, or null>",
-  "issues": [<data inconsistencies ONLY if sources contradict our data>],
+  "production_verified": "<summary of production details confirmed by sources for THIS specific product, or null>",
+  "ingredients_verified": "<summary of ingredients confirmed by sources for THIS specific product, or null>",
+  "issues": [<data inconsistencies ONLY if sources contradict our data, including variant confusion>],
   "suggestions": [<improvements ONLY based on source evidence>]
 }`;
 
