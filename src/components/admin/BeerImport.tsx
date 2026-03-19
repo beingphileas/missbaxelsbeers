@@ -317,69 +317,11 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             </p>
           </div>
 
-          <div className="max-h-[500px] overflow-auto border rounded-lg">
-            <table className="w-full text-xs">
-              <thead className="bg-muted sticky top-0 z-10">
-                <tr>
-                  <th className="px-3 py-2 text-left w-8"></th>
-                  <th className="px-3 py-2 text-left">Bier</th>
-                  <th className="px-3 py-2 text-left">Stijl</th>
-                  <th className="px-3 py-2 text-left w-16">ABV</th>
-                  <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {preview.map((beer, i) => (
-                  <tr key={i} className={beer._excluded ? 'opacity-30 bg-muted/30' : ''}>
-                    <td className="px-3 py-2">
-                      <button onClick={() => toggleExclude(i)} className="text-muted-foreground hover:text-destructive"
-                        title={beer._excluded ? 'Opnieuw includeren' : 'Uitsluiten'}>
-                        <X size={14} />
-                      </button>
-                    </td>
-                    <td className="px-3 py-2 font-medium">
-                      <div className="flex items-center gap-1.5">
-                        {beer.name}
-                        {beer._validation?.exists === false && (
-                          <Badge variant="destructive" className="text-[9px] px-1">⚠ suspect</Badge>
-                        )}
-                        {beer._validation?.exists === true && (
-                          <CheckCircle size={10} className="text-success" />
-                        )}
-                      </div>
-                      {beer._validation?.reason && !beer._validation.exists && (
-                        <p className="text-[10px] text-destructive mt-0.5">{beer._validation.reason}</p>
-                      )}
-                    </td>
-                    <td className="px-3 py-2">{beer.style || '—'}</td>
-                    <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
-                    <td className="px-3 py-2">
-                      {beer.brewery_matches.length > 0 ? (
-                        <div className="flex items-center gap-2">
-                          <Select value={beer.brewery_id || ''} onValueChange={(v) => setBreweryId(i, v)}>
-                            <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Selecteer..." /></SelectTrigger>
-                            <SelectContent>
-                              {beer.brewery_matches.map(m => (
-                                <SelectItem key={m.id} value={m.id} className="text-xs">
-                                  <span className="flex items-center gap-2">
-                                    {m.name}
-                                    <Badge variant="outline" className="text-[9px] px-1">{m.similarity}%</Badge>
-                                  </span>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {beer.brewery_id && <Link2 size={12} className="text-success shrink-0" />}
-                        </div>
-                      ) : (
-                        <span className="text-destructive flex items-center gap-1"><AlertTriangle size={12} /> Geen match</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PreviewVirtualTable
+            preview={preview}
+            toggleExclude={toggleExclude}
+            setBreweryId={setBreweryId}
+          />
 
           {loading && <Progress value={progress} className="h-2" />}
           <div className="flex gap-3">
