@@ -233,41 +233,29 @@ ${vBlock}`,
     }
 
     // Firecrawl fallback
-    if (Object.keys(webSources).length === 0) {
+    if (!webContext) {
       const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
       if (firecrawlKey) {
         try {
-          const queries = [
-            `"${beerName}" "${breweryName}" Untappd OR RateBeer OR BeerAdvocate rating tasting`,
-            `"${beerName}" "${breweryName}" ingredients production brewing`,
-          ];
-          if (needsFactcheck) queries.push(`"${beerName}" "${breweryName}" award prize price EUR`);
-          const allResults: any[] = [];
-          for (const q of queries) {
-            const res = await fetch("https://api.firecrawl.dev/v1/search", {
-              method: "POST",
-              headers: { Authorization: `Bearer ${firecrawlKey}`, "Content-Type": "application/json" },
-              body: JSON.stringify({ query: q, limit: 3 }),
-            });
-            if (res.ok) {
-              const d = await res.json();
-              allResults.push(...(d.data ?? d.results ?? []));
-            }
+          const q = `"${beerName}" "${breweryName}" Untappd OR RateBeer OR BeerAdvocate rating tasting ingredients`;
+          const res = await fetch("https://api.firecrawl.dev/v1/search", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${firecrawlKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ query: q, limit: 5 }),
+          });
+          if (res.ok) {
+            const d = await res.json();
+            const results = d.data ?? d.results ?? [];
+            webContext = results
+              .map((r: any) => `URL: ${r.url}\nTitle: ${r.title}\nSnippet: ${(r.description ?? "").slice(0, 400)}`)
+              .join("\n---\n").slice(0, 5000);
           }
-          const fallback = allResults
-            .map((r: any) => `URL: ${r.url}\nTitle: ${r.title}\nSnippet: ${(r.description ?? "").slice(0, 400)}`)
-            .join("\n---\n").slice(0, 5000);
-          if (fallback) webSources["fallback"] = fallback;
         } catch (e) {
           console.error("Firecrawl search failed:", e);
         }
       }
     }
 
-    // ── Build combined web context string ──
-    const webContext = Object.entries(webSources)
-      .map(([key, content]) => `=== ${key.toUpperCase()} ===\n${content}`)
-      .join("\n\n---\n\n");
     const citationBlock = allCitations.length > 0
       ? `\nSource URLs found:\n${allCitations.map((c, i) => `[${i + 1}] ${c}`).join("\n")}`
       : "";
