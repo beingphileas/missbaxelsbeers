@@ -260,64 +260,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               />
             </div>
             {filteredBreweries.length > 0 && (
-              <div className="border rounded-lg max-h-64 overflow-auto divide-y divide-border">
-                {filteredBreweries.map(b => (
-                  <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {b.last_scraped_at ? (
-                        <div className="flex items-center gap-1 shrink-0" title={`Geïmporteerd op ${format(new Date(b.last_scraped_at), 'dd/MM/yyyy HH:mm')}`}>
-                          <CheckCircle size={14} className="text-success" />
-                          <span className="text-[10px] text-muted-foreground tabular-nums">{format(new Date(b.last_scraped_at), 'dd/MM')}</span>
-                        </div>
-                      ) : (
-                        <div className="w-[14px] shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{b.name}</p>
-                        {b.website_url && <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
-                      <BreweryScreenCapture
-                        breweryId={b.id}
-                        breweryName={b.name}
-                        onBeersFound={(beers) => {
-                          const previewBeers = beers.map((beer: any) => ({
-                            name: beer.name, style: beer.style || '', abv: beer.abv || null,
-                            description: beer.description || '', source_url: '', image_url: '',
-                            brewery_input: b.name,
-                            brewery_matches: [{ id: b.id, name: b.name, similarity: 100 }],
-                            brewery_id: b.id, _excluded: false,
-                          }));
-                          setPreview(prev => [...prev, ...previewBeers]);
-                          setStep('preview');
-                        }}
-                      />
-                      <BreweryBeerManager breweryId={b.id} breweryName={b.name} />
-                      <Button
-                        size="sm" variant="ghost"
-                        className="gap-1.5 text-muted-foreground"
-                        title="Markeer als geen info beschikbaar"
-                        onClick={async () => {
-                          await supabase.from('breweries').update({ last_scraped_at: new Date().toISOString() }).eq('id', b.id);
-                          setBreweries(prev => prev.map(br => br.id === b.id ? { ...br, last_scraped_at: new Date().toISOString() } : br));
-                          toast({ title: `${b.name} gemarkeerd`, description: 'Geen Untappd-info beschikbaar' });
-                        }}
-                      >
-                        <Ban size={12} /> Geen info
-                      </Button>
-                      <a
-                        href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
-                        target="_blank" rel="noopener noreferrer"
-                      >
-                        <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground" type="button" asChild>
-                          <span><Beer size={12} /> Untappd</span>
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BreweryVirtualList
+                breweries={filteredBreweries}
+                setBreweries={setBreweries}
+                setPreview={setPreview}
+                setStep={setStep}
+              />
             )}
           </div>
 
