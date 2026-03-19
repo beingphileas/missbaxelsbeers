@@ -45,6 +45,7 @@ interface BeerPreview {
   brewery_matches: BreweryMatch[];
   brewery_id: string | null;
   _excluded?: boolean;
+  _validation?: { exists: boolean; reason: string } | null;
 }
 
 interface BreweryItem {
