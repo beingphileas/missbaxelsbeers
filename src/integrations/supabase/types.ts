@@ -23,6 +23,7 @@ export type Database = {
           beer_status: string | null
           brewery_id: string
           created_at: string
+          cross_ref_notes: string | null
           description: string | null
           factcheck_json: Json | null
           featured: boolean
@@ -45,11 +46,16 @@ export type Database = {
           radar_spice: number | null
           secondary_flavors: string[] | null
           serve_style: string | null
+          source_count: number | null
+          source_records: Json | null
           source_url: string | null
           style: string
           summary: string | null
           taste_notes: string | null
           updated_at: string
+          verification_score: number | null
+          verification_status: string | null
+          verified_at: string | null
         }
         Insert: {
           abv?: number | null
@@ -59,6 +65,7 @@ export type Database = {
           beer_status?: string | null
           brewery_id: string
           created_at?: string
+          cross_ref_notes?: string | null
           description?: string | null
           factcheck_json?: Json | null
           featured?: boolean
@@ -81,11 +88,16 @@ export type Database = {
           radar_spice?: number | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
+          source_count?: number | null
+          source_records?: Json | null
           source_url?: string | null
           style: string
           summary?: string | null
           taste_notes?: string | null
           updated_at?: string
+          verification_score?: number | null
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Update: {
           abv?: number | null
@@ -95,6 +107,7 @@ export type Database = {
           beer_status?: string | null
           brewery_id?: string
           created_at?: string
+          cross_ref_notes?: string | null
           description?: string | null
           factcheck_json?: Json | null
           featured?: boolean
@@ -117,11 +130,16 @@ export type Database = {
           radar_spice?: number | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
+          source_count?: number | null
+          source_records?: Json | null
           source_url?: string | null
           style?: string
           summary?: string | null
           taste_notes?: string | null
           updated_at?: string
+          verification_score?: number | null
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Relationships: [
           {
