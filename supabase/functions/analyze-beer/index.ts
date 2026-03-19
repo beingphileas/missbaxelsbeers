@@ -190,6 +190,14 @@ CRITICAL RULES:
 - For style: if sources suggest a more specific classification, use the more accurate one.
 - IMPORTANT: If sources provide rich data, source_confidence MUST be "high" or "medium". Only use "low" when there is genuinely no source data.
 
+VARIANT AWARENESS (CRITICAL):
+- This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers.
+- Base your analysis ONLY on data that applies to "${beerName}" specifically. Do NOT merge characteristics from other variants.
+- If the web research contains data about multiple variants, use ONLY what applies to "${beerName}".
+- Example: if "${beerName}" is "Aardbei" (strawberry only), do NOT include cherry/kriek flavors from "Aardbei/Kriek".
+- If production details or ABV vary by vintage, note the range and specify which vintage in production_method.
+- Individual reviewer opinions (e.g. off-flavors like "acetone" or "solvent") must NOT be presented as general characteristics. Only include them if multiple independent sources mention them consistently.
+
 Beer: "${beerName}"
 Brewery: "${breweryName}"
 Style (current label): "${style}"
