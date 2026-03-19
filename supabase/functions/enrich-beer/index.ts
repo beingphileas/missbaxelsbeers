@@ -212,15 +212,18 @@ serve(async (req) => {
       queries.push(
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer production and ingredients expert. Provide exact, detailed technical data. IMPORTANT: distinguish between product variants with similar names.",
-          `Tell me everything about the production, ingredients, AND external data for the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
+          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer, aussiehomebrewer, lawrencebrewers). These are reverse-engineered guesses, NOT real production data. If the brewery does not publicly share mash temperatures, fermentation schedules, or exact hop varieties, say so — do NOT fill in data from clone recipes.",
+          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-I need:
-- Complete ingredient list (malt types, hop varieties, fruits/grapes with varieties and percentages, spices, yeasts)
-- Fermentation method (spontaneous, top, bottom, mixed), aging details (barrels, duration, maceration time)
-- Blending details, bottle conditioning, collaboration info
-- Verify: is ABV of ${abv}% correct? Is style "${style}" accurate or should it be more specific?
+I need ONLY data confirmed by the brewery or reputable beer journalists:
+- Ingredients the brewery officially lists (e.g. "water, barley malt, hops, yeast, sugar" — do NOT add specifics unless the brewery names them)
+- Fermentation type (top/bottom/spontaneous/mixed) and bottle conditioning — ONLY if confirmed
+- General aging method (e.g. "barrel aged", "bottle conditioned") — ONLY if confirmed
+- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
+- Verify: is ABV of ${abv}% correct? Is style "${style}" accurate?
 - Brewery Untappd rating and review count (for "${breweryName}" overall)
+
+IMPORTANT: If detailed production data is not publicly available (which is the case for most traditional Belgian breweries like Trappists), simply state what IS known and note that the brewery does not disclose further details.
 
 ${vBlock}`,
         ).then(r => ({ key: "production", result: r })),
@@ -321,7 +324,7 @@ ${vBlock}`,
     const analysisBlock = needsAnalysis ? `
   "analysis": {
     "summary": "<2-3 sentence summary based on sources, or null if no data>",
-    "taste_notes": "<detailed tasting notes from sources ONLY, or null>",
+    "taste_notes": "<Concise tasting notes synthesized from MULTIPLE agreeing sources. Max 3-4 sentences covering aroma, taste, mouthfeel, finish. Do NOT list every descriptor from every review — only include flavors that at least 2+ independent sources mention consistently. Individual reviewer opinions (e.g. off-flavors) must NOT appear unless multiple sources agree. Or null if no source data.>",
     "radar": {
       "body": <1-5 or null — NEVER 0>,
       "hops": <1-5 or null — NEVER 0>,
@@ -329,16 +332,16 @@ ${vBlock}`,
       "fruit": <1-5 or null — NEVER 0>,
       "spice": <1-5 or null — NEVER 0>
     },
-    "primary_flavors": ["<ONLY flavors from sources>"],
-    "secondary_flavors": ["<ONLY subtle flavors from sources>"],
-    "aroma_profile": ["<ONLY aromas from sources>"],
+    "primary_flavors": ["<Max 5-6 CORE flavors that multiple sources consistently mention. Not every descriptor from every review.>"],
+    "secondary_flavors": ["<Max 3-4 secondary flavors from sources. Only include if mentioned by 2+ sources.>"],
+    "aroma_profile": ["<Max 5-6 aromas consistently mentioned across sources. Not a concatenation of all reviews.>"],
     "pairing_food": ["<from sources or empty>"],
     "pairing_classic": ["<from sources or empty>"],
     "pairing_cheese": ["<from sources or empty>"],
     "serve_style": "<from sources or null>",
-    "production_method": "<ONLY confirmed facts — never invent details>",
+    "production_method": "<ONLY facts officially confirmed by the brewery or reputable beer journalists. NEVER include data from homebrew clone recipes or homebrewing forums. If the brewery does not publish detailed production data, state only what is known (e.g. 'Top-fermenting ale with bottle conditioning. Ingredients: water, barley malt, hops, yeast, candi sugar. Further production details not publicly disclosed by the brewery.'). Do NOT include exact mash temperatures, fermentation schedules, or hop addition timings unless the brewery itself publishes them.>",
     "style_suggestion": "<if sources suggest a more accurate style, otherwise null>",
-    "source_confidence": "<high|medium|low>"
+    "source_confidence": "<high|medium|low — high ONLY if multiple detailed professional sources with specific verifiable data; medium if basic facts plus some tasting notes; low if only generic info>"
   },` : "";
 
     const factcheckBlock = needsFactcheck ? `
@@ -373,6 +376,19 @@ CRITICAL RULES:
 - Radar: use null (not 0) for axes without source data. A gueuze has body — 0 would be misleading.
 - Confidence: 80-100 = multiple detailed sources; 50-79 = basic + partial; 20-49 = only basic ID; 0-19 = nothing.
 
+PRODUCTION METHOD — CRITICAL:
+- NEVER use data from homebrew clone recipes, homebrewing forums, or amateur recipe sites.
+- Homebrew sites (BeginBrewing, HomeBrewTalk, BIABrewer, etc.) reverse-engineer recipes — their mash temps, fermentation schedules, and hop schedules are GUESSES, not real brewery data.
+- Most traditional Belgian breweries (especially Trappists) do NOT publish detailed production data. If no official info exists, say "Details not publicly disclosed" — do NOT fill in homebrew clone data.
+- Only include: fermentation type (if confirmed), bottle conditioning (if confirmed), general ingredients listed by the brewery, and any officially published production details.
+
+TASTING NOTES — QUALITY OVER QUANTITY:
+- Synthesize a CONCISE profile from multiple agreeing sources. Do NOT concatenate every descriptor from every review into one giant list.
+- Primary flavors: max 5-6 items that MULTIPLE sources consistently mention.
+- Aroma profile: max 5-6 items. Not every review's full aroma list merged together.
+- Do NOT include flavors that imply production methods not used (e.g. "bourbon burn" for a non-barrel-aged beer, "smoky" for a non-rauchbier).
+- Individual reviewer opinions or off-notes should NOT appear as general characteristics.
+
 VARIANT AWARENESS:
 ${vBlock}
 
@@ -397,7 +413,7 @@ Return this exact JSON (no markdown):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only. Never invent details not in sources. Radar null not 0. Distinguish variants." },
+          { role: "system", content: "You are a Belgian beer expert and fact-checker. Return valid JSON only. CRITICAL: Never use homebrew clone recipe data as production facts. Never concatenate all reviews into one giant flavor list — synthesize only consistently mentioned descriptors. Radar null not 0. Distinguish variants. Production method must only contain brewery-confirmed facts." },
           { role: "user", content: prompt },
         ],
       }),

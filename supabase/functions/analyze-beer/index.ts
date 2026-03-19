@@ -96,37 +96,32 @@ serve(async (req) => {
       const [prodResult, tasteResult] = await Promise.all([
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer expert researcher. Provide extremely detailed, factual information. Always include exact data: ingredients, percentages, dates, brewing processes, grape varieties, hop varieties, malt types, fermentation details. Be as specific as possible. IMPORTANT: Many Belgian breweries (especially lambic producers like 3 Fonteinen, Cantillon, Tilquin) produce MULTIPLE VARIANTS of a beer (e.g. 'Aardbei' vs 'Aardbei/Kriek', different Oogst/harvest years, BIO versions). You MUST clearly distinguish between these variants and NOT mix data from different products. If you find info about multiple variants, clearly label which variant each fact belongs to.",
-          `Give me ALL available production details about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
-1. Complete ingredient list (exact malt types, hop varieties, spices, fruits, grape varieties with percentages if available)
-2. Brewing/production method (fermentation type, aging, barrel details, maceration, blending, bottle conditioning)
-3. Any collaboration details (other breweries, winemakers, farmers)
-4. Bottling dates, blend numbers, seasonal details
-5. Origin of ingredients (region, terroir)
+          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer). These are reverse-engineered guesses, NOT real production data.",
+          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-CRITICAL — VARIANT AWARENESS:
-- This brewery may produce MULTIPLE variants with similar names (e.g. "Aardbei", "Aardbei/Kriek", "Aardbei Oogst 2021", "Aardbei BIO Oogst 2022"). These are DIFFERENT products with different ingredients, ABV, and production methods.
-- Focus ONLY on the specific product "${beerName}". Do NOT merge data from other variants.
-- If you cannot find data specific to "${beerName}" but only for a similar variant, clearly state which variant the data is about.
-- If ABV or ingredients vary by vintage/blend, list the range and specify which vintage each value comes from.
-Be extremely specific and detailed. Include every fact you can find.`,
+I need ONLY data confirmed by the brewery or reputable beer journalists:
+- Ingredients the brewery officially lists (do NOT add specifics unless the brewery names them)
+- Fermentation type and bottle conditioning — ONLY if confirmed
+- General aging method — ONLY if confirmed
+- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
+- If the brewery does not publish detailed production data, simply state what IS known
+
+${variantBlock}`,
         ),
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer tasting expert. Provide detailed, source-based tasting notes. Include specific flavor descriptors, food pairings from experts, serving recommendations. Never generalize. IMPORTANT: Many Belgian breweries produce multiple variants of a beer with similar names. You MUST only provide tasting notes for the EXACT product requested, not aggregate notes from different variants.",
-          `Give me ALL available tasting information about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
-1. Professional tasting notes and reviewer descriptions (aroma, taste, mouthfeel, finish)
-2. Specific flavor descriptors (not generic style descriptions)
-3. Food pairing recommendations from experts or the brewery
-4. Cheese pairings
-5. Serving temperature, glass type, storage recommendations
-6. How this beer compares to similar beers or other versions
+          "You are a Belgian beer tasting expert. Provide concise, source-based tasting notes. Only include flavor descriptors that multiple independent sources mention consistently. Do NOT concatenate every review into one giant list. Individual reviewer off-notes should not appear as general characteristics.",
+          `Find tasting information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-CRITICAL — VARIANT AWARENESS:
-- Focus ONLY on "${beerName}" specifically. Do NOT mix in tasting notes from other variants (e.g. if this is "Aardbei", do not include cherry/kriek notes from "Aardbei/Kriek").
-- If tasting notes are from a specific vintage/blend (e.g. "Aardbei Oogst 2021"), clearly state which one.
-- Individual reviewer opinions (e.g. "acetone", "glue-like") should be labeled as such, not presented as objective characteristics.
-Include every specific detail you can find. Do NOT use generic style-based descriptions.`,
+I need:
+1. Professional tasting notes (aroma, taste, mouthfeel, finish) — synthesized from agreeing sources, not every review merged
+2. Max 5-6 core flavor descriptors that multiple sources consistently mention
+3. Food and cheese pairing recommendations from experts or the brewery
+4. Serving temperature, glass type, storage recommendations
+
+IMPORTANT: Do NOT include flavors that imply production methods not used (e.g. "bourbon burn" for a non-barrel-aged beer).
+
+${variantBlock}`,
         ),
       ]);
 
@@ -182,34 +177,30 @@ Include every specific detail you can find. Do NOT use generic style-based descr
 
 CRITICAL RULES:
 - Use ONLY information from the web research. Do NOT invent or generalize.
-- If the research mentions specific ingredients (e.g. grapes like Pinot d'Aunis, Chenin Blanc, or spices like cardamom, juniper, paradise seed), those MUST appear in primary_flavors, aroma_profile, and taste_notes.
-- If the research mentions specific tasting notes from reviewers, use THOSE notes — not generic style descriptions.
-- If the research mentions production details (maceration, barrel aging, blending), include them in production_method.
 - If no specific info is found for a field, use null or empty array — NEVER fill with generic style-based guesses.
-- The radar values should reflect what sources describe, not what is "typical for the style".
-- For style: if sources suggest a more specific classification, use the more accurate one.
+- Radar values should reflect what sources describe, not what is "typical for the style". Use null when no source data exists.
 
-ANTI-HALLUCINATION RULES (CRITICAL):
-- NEVER invent specific details like distillery names, barrel brands, hop varieties, grape names, or ingredient percentages unless they are EXPLICITLY stated in the web research.
-- Example: if sources say "aged in ex-Scotch whisky casks" but do NOT name the distillery, you MUST NOT add a distillery name (e.g. do NOT say "Highland Park" or "Glengoyne" unless a source explicitly names it).
-- If sources only provide vague descriptions (e.g. "whisky notes"), do NOT expand these into detailed tasting notes. Report only what is actually stated.
-- Radar values: use null for ANY axis where sources provide no specific description. Do NOT use 0 — use null. A gueuze always has body and malt character; if you have no source data, use null rather than 0 which implies absence.
-- Do NOT paraphrase production method details as tasting notes. Tasting notes must describe actual flavor/aroma/mouthfeel experiences from sources.
+PRODUCTION METHOD — CRITICAL:
+- NEVER use data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (BeginBrewing, HomeBrewTalk, BIABrewer, aussiehomebrewer, lawrencebrewers, etc.).
+- These sites reverse-engineer recipes — their mash temps, fermentation schedules, and hop schedules are GUESSES, not real brewery data.
+- Most traditional Belgian breweries (especially Trappists) do NOT publish detailed production data.
+- Only include: fermentation type (if confirmed), bottle conditioning (if confirmed), general ingredients listed by the brewery.
+- If no official production data exists, write: "Details not publicly disclosed by the brewery."
+
+TASTING NOTES — QUALITY OVER QUANTITY:
+- Synthesize a CONCISE profile from multiple agreeing sources. Do NOT concatenate every descriptor from every review.
+- Primary flavors: max 5-6 items that MULTIPLE sources consistently mention.
+- Aroma profile: max 5-6 items, not every review merged.
+- Do NOT include flavors implying production methods not used (e.g. "bourbon burn" for non-barrel-aged beer).
+- Individual reviewer opinions or off-notes should NOT appear as general characteristics.
 
 CONFIDENCE SCORING:
-- source_confidence should reflect ACTUAL data coverage:
-  * "high" = multiple sources with detailed, specific, verifiable data (ingredients, production method, professional tasting notes)
-  * "medium" = basic facts confirmed (ABV, style, brewery) plus some partial details
-  * "low" = only basic identification data or nothing specific found
-  * Having just name/style/ABV confirmed does NOT justify "high" confidence.
+- "high" = multiple sources with detailed, specific, verifiable data
+- "medium" = basic facts confirmed plus some partial details  
+- "low" = only basic identification data or nothing specific found
 
 VARIANT AWARENESS (CRITICAL):
-- This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers.
-- Base your analysis ONLY on data that applies to "${beerName}" specifically. Do NOT merge characteristics from other variants.
-- If the web research contains data about multiple variants, use ONLY what applies to "${beerName}".
-- Example: if "${beerName}" is "Aardbei" (strawberry only), do NOT include cherry/kriek flavors from "Aardbei/Kriek".
-- If production details or ABV vary by vintage, note the range and specify which vintage in production_method.
-- Individual reviewer opinions (e.g. off-flavors like "acetone" or "solvent") must NOT be presented as general characteristics. Only include them if multiple independent sources mention them consistently.
+- Base analysis ONLY on data for "${beerName}" specifically. Do NOT merge from other variants.
 
 Beer: "${beerName}"
 Brewery: "${breweryName}"
@@ -226,24 +217,24 @@ Return this exact JSON structure (no markdown, no code blocks):
 {
   "quality_score": <number 1-100, or null if insufficient data>,
   "summary": "<2-3 sentence summary based on sources, or null if no data>",
-  "taste_notes": "<detailed tasting notes from sources ONLY. Do NOT paraphrase production method as tasting notes. Or null if no source-based notes available>",
+  "taste_notes": "<concise tasting notes synthesized from multiple agreeing sources. Max 3-4 sentences. Or null>",
   "radar": {
-    "body": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
-    "hops": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
-    "malt": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
-    "fruit": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
-    "spice": <1-5 based on source descriptions, or null if no data — NEVER use 0>
+    "body": <1-5 based on source descriptions, or null — NEVER 0>,
+    "hops": <1-5 based on source descriptions, or null — NEVER 0>,
+    "malt": <1-5 based on source descriptions, or null — NEVER 0>,
+    "fruit": <1-5 based on source descriptions, or null — NEVER 0>,
+    "spice": <1-5 based on source descriptions, or null — NEVER 0>
   },
-  "primary_flavors": ["<ONLY flavors explicitly mentioned in sources — NEVER invent flavors>"],
-  "secondary_flavors": ["<ONLY subtle flavors mentioned in sources>"],
-  "aroma_profile": ["<ONLY aromas mentioned in sources>"],
+  "primary_flavors": ["<Max 5-6 CORE flavors consistently mentioned by multiple sources>"],
+  "secondary_flavors": ["<Max 3-4 secondary flavors from multiple sources>"],
+  "aroma_profile": ["<Max 5-6 aromas consistently mentioned across sources>"],
   "pairing_food": ["<food pairings from sources, or empty>"],
   "pairing_classic": ["<classic Belgian pairings from sources, or empty>"],
   "pairing_cheese": ["<cheese pairings from sources, or empty>"],
   "serve_style": "<from sources (temperature, glass type, storage), or null>",
-  "production_method": "<ONLY production details EXPLICITLY confirmed by sources. Do NOT invent distillery names, barrel brands, or percentages not in sources. Or null>",
+  "production_method": "<ONLY brewery-confirmed production facts. Never homebrew clone data. If not publicly disclosed, say so.>",
   "style_suggestion": "<if sources suggest a more accurate style than '${style}', put it here, otherwise null>",
-  "source_confidence": "<high ONLY if rich detailed source data, medium if basic facts plus some details, low if only name/style/ABV or nothing>"
+  "source_confidence": "<high|medium|low>"
 }`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -255,7 +246,7 @@ Return this exact JSON structure (no markdown, no code blocks):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. CRITICAL: Never invent specific details (distillery names, barrel brands, ingredient percentages) not found in sources. Radar values must be null (not 0) when no source data exists. source_confidence must accurately reflect actual data coverage. Many Belgian breweries produce multiple variants/blends with similar names — only analyze the EXACT product requested." },
+          { role: "system", content: "You are a Belgian beer expert and fact-checker. Return valid JSON only. CRITICAL: Never use homebrew clone recipe data as production facts. Never concatenate all reviews into one giant flavor list — synthesize only consistently mentioned descriptors. Radar null not 0. Production method must only contain brewery-confirmed facts." },
           { role: "user", content: prompt },
         ],
       }),
