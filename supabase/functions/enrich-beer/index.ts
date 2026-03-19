@@ -380,7 +380,7 @@ Return this exact JSON (no markdown):
     if (needsAnalysis && result.analysis) {
       const a = result.analysis;
       // Strip if low confidence and no web data
-      if (a.source_confidence === "low" && Object.keys(webSources).length === 0) {
+      if (a.source_confidence === "low" && !webContext) {
         a.taste_notes = null;
         a.radar = { body: null, hops: null, malt: null, fruit: null, spice: null };
         a.primary_flavors = [];
