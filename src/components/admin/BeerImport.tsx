@@ -422,6 +422,10 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
           {loading && <Progress value={progress} className="h-2" />}
           <div className="flex gap-3">
+            <Button onClick={handleValidate} disabled={validating || loading} variant="outline" className="gap-2">
+              {validating ? <Loader2 size={14} className="animate-spin" /> : <ShieldAlert size={14} />}
+              Valideer bieren (AI)
+            </Button>
             <Button onClick={handleCommit} disabled={loading || linkedCount === 0} className="gap-2">
               {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
               {linkedCount} bieren importeren
