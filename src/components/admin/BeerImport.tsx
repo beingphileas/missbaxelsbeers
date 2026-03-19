@@ -24,6 +24,7 @@ import {
   X,
   Search,
   Ban,
+  ShieldAlert,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
 import BreweryBeerManager from './BreweryBeerManager';
