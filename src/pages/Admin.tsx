@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer, BookOpen, FileText, Store, Star, Map, Database, Upload, ShieldAlert } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer, BookOpen, FileText, Store, Star, Map, Database, Upload, ShieldAlert, FlaskConical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import QuickTasting from '@/components/admin/QuickTasting';
@@ -23,6 +23,7 @@ import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
 import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
 import SuspectBeers from '@/components/admin/SuspectBeers';
+import VerificationDashboard from '@/components/admin/VerificationDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -290,6 +291,9 @@ export default function Admin() {
                 </TabsTrigger>
                 <TabsTrigger value="bulk-factcheck" className="gap-1.5">
                   <ShieldCheck size={12} /> Bulk Factcheck
+                </TabsTrigger>
+                <TabsTrigger value="verification" className="gap-1.5">
+                  <FlaskConical size={12} /> Verificatie
                 </TabsTrigger>
                 <TabsTrigger value="suspect-beers" className="gap-1.5">
                   <ShieldAlert size={12} /> Verdacht
@@ -610,6 +614,11 @@ export default function Admin() {
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
+          </TabsContent>
+
+          {/* Verification Dashboard Tab */}
+          <TabsContent value="verification">
+            <VerificationDashboard />
           </TabsContent>
 
           {/* Bulk Stories Tab */}
