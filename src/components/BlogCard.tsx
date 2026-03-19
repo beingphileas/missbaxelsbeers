@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { BlogPost } from '@/data/blog';
 import { Calendar, MapPin } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useState, useEffect } from 'react';
+import { useTranslatedText } from '@/hooks/useTranslatedText';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -11,26 +11,9 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, featured = false, onMapPin }: BlogCardProps) {
-  const { t, translateDynamic, lang } = useLanguage();
-  const [tTitle, setTTitle] = useState(post.title);
-  const [tExcerpt, setTExcerpt] = useState(post.excerpt);
-
-  useEffect(() => {
-    if (lang === 'nl') {
-      setTTitle(post.title);
-      setTExcerpt(post.excerpt);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      const [title, excerpt] = await Promise.all([
-        translateDynamic(post.title),
-        post.excerpt ? translateDynamic(post.excerpt) : Promise.resolve(''),
-      ]);
-      if (!cancelled) { setTTitle(title); setTExcerpt(excerpt); }
-    })();
-    return () => { cancelled = true; };
-  }, [post.title, post.excerpt, lang, translateDynamic]);
+  const { t, lang } = useLanguage();
+  const tTitle = useTranslatedText(post.title);
+  const tExcerpt = useTranslatedText(post.excerpt || '');
 
   const dateLocale = lang === 'fr' ? 'fr-BE' : lang === 'en' ? 'en-GB' : 'nl-BE';
   const date = post.publishedAt

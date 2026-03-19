@@ -8,6 +8,7 @@ interface LanguageContextType {
   setLang: (lang: Lang) => void;
   t: (text: string) => string;
   translateDynamic: (text: string) => Promise<string>;
+  translations: Record<string, string>;
   isTranslating: boolean;
 }
 
@@ -16,6 +17,7 @@ const LanguageContext = createContext<LanguageContextType>({
   setLang: () => {},
   t: (text) => text,
   translateDynamic: async (text) => text,
+  translations: {},
   isTranslating: false,
 });
 
@@ -152,7 +154,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [lang, translations]);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, translateDynamic, isTranslating }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, translateDynamic, translations, isTranslating }}>
       {children}
     </LanguageContext.Provider>
   );
