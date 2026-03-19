@@ -279,6 +279,9 @@ export default function Admin() {
                 <TabsTrigger value="bulk-factcheck" className="gap-1.5">
                   <ShieldCheck size={12} /> Bulk Factcheck
                 </TabsTrigger>
+                <TabsTrigger value="suspect-beers" className="gap-1.5">
+                  <ShieldAlert size={12} /> Verdacht
+                </TabsTrigger>
                 <TabsTrigger value="pending" className="gap-1.5">
                   <ClipboardCheck size={12} /> Moderatie
                 </TabsTrigger>
