@@ -416,7 +416,7 @@ Return this exact JSON (no markdown):
     if (needsFactcheck && result.factcheck) {
       let fc = result.factcheck;
       // Strip if very low confidence and no web data
-      if ((fc.confidence_score ?? 0) <= 10 && Object.keys(webSources).length === 0) {
+      if ((fc.confidence_score ?? 0) <= 10 && !webContext) {
         fc = {
           confidence_score: fc.confidence_score ?? 0,
           abv_verified: false, abv_sources: [], style_verified: false, style_note: null,
