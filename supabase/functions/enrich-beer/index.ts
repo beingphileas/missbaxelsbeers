@@ -324,7 +324,7 @@ ${vBlock}`,
     const analysisBlock = needsAnalysis ? `
   "analysis": {
     "summary": "<2-3 sentence summary based on sources, or null if no data>",
-    "taste_notes": "<detailed tasting notes from sources ONLY, or null>",
+    "taste_notes": "<Concise tasting notes synthesized from MULTIPLE agreeing sources. Max 3-4 sentences covering aroma, taste, mouthfeel, finish. Do NOT list every descriptor from every review — only include flavors that at least 2+ independent sources mention consistently. Individual reviewer opinions (e.g. off-flavors) must NOT appear unless multiple sources agree. Or null if no source data.>",
     "radar": {
       "body": <1-5 or null — NEVER 0>,
       "hops": <1-5 or null — NEVER 0>,
@@ -332,16 +332,16 @@ ${vBlock}`,
       "fruit": <1-5 or null — NEVER 0>,
       "spice": <1-5 or null — NEVER 0>
     },
-    "primary_flavors": ["<ONLY flavors from sources>"],
-    "secondary_flavors": ["<ONLY subtle flavors from sources>"],
-    "aroma_profile": ["<ONLY aromas from sources>"],
+    "primary_flavors": ["<Max 5-6 CORE flavors that multiple sources consistently mention. Not every descriptor from every review.>"],
+    "secondary_flavors": ["<Max 3-4 secondary flavors from sources. Only include if mentioned by 2+ sources.>"],
+    "aroma_profile": ["<Max 5-6 aromas consistently mentioned across sources. Not a concatenation of all reviews.>"],
     "pairing_food": ["<from sources or empty>"],
     "pairing_classic": ["<from sources or empty>"],
     "pairing_cheese": ["<from sources or empty>"],
     "serve_style": "<from sources or null>",
-    "production_method": "<ONLY confirmed facts — never invent details>",
+    "production_method": "<ONLY facts officially confirmed by the brewery or reputable beer journalists. NEVER include data from homebrew clone recipes or homebrewing forums. If the brewery does not publish detailed production data, state only what is known (e.g. 'Top-fermenting ale with bottle conditioning. Ingredients: water, barley malt, hops, yeast, candi sugar. Further production details not publicly disclosed by the brewery.'). Do NOT include exact mash temperatures, fermentation schedules, or hop addition timings unless the brewery itself publishes them.>",
     "style_suggestion": "<if sources suggest a more accurate style, otherwise null>",
-    "source_confidence": "<high|medium|low>"
+    "source_confidence": "<high|medium|low — high ONLY if multiple detailed professional sources with specific verifiable data; medium if basic facts plus some tasting notes; low if only generic info>"
   },` : "";
 
     const factcheckBlock = needsFactcheck ? `
