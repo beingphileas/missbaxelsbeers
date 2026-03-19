@@ -298,3 +298,153 @@ export default function BreweryBeerManager({ breweryId, breweryName }: BreweryBe
     </Dialog>
   );
 }
+
+/* ── Virtualized Beer List ── */
+function VirtualBeerList({
+  beers,
+  selected,
+  toggleSelect,
+  editingId,
+  editForm,
+  setEditForm,
+  startEdit,
+  cancelEdit,
+  saveEdit,
+  saving,
+}: {
+  beers: Beer[];
+  selected: Set<string>;
+  toggleSelect: (id: string) => void;
+  editingId: string | null;
+  editForm: { name: string; style: string; abv: string; quality_score: string };
+  setEditForm: React.Dispatch<React.SetStateAction<{ name: string; style: string; abv: string; quality_score: string }>>;
+  startEdit: (beer: Beer) => void;
+  cancelEdit: () => void;
+  saveEdit: () => Promise<void>;
+  saving: boolean;
+}) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: beers.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: (i) => beers[i].id === editingId ? 160 : 44,
+    overscan: 10,
+  });
+
+  // Re-measure when editing changes
+  useEffect(() => {
+    virtualizer.measure();
+  }, [editingId, virtualizer]);
+
+  return (
+    <div ref={parentRef} className="flex-1 overflow-y-auto">
+      <div style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
+        {virtualizer.getVirtualItems().map(virtualRow => {
+          const beer = beers[virtualRow.index];
+          return (
+            <div
+              key={beer.id}
+              data-index={virtualRow.index}
+              ref={virtualizer.measureElement}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+              className="border-b border-border"
+            >
+              {editingId === beer.id ? (
+                <div className="px-3 py-3 space-y-2 bg-muted/30">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Naam</label>
+                      <Input
+                        value={editForm.name}
+                        onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Stijl</label>
+                      <Input
+                        value={editForm.style}
+                        onChange={e => setEditForm(f => ({ ...f, style: e.target.value }))}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider">ABV %</label>
+                      <Input
+                        type="number" step="0.1" min="0" max="100"
+                        value={editForm.abv}
+                        onChange={e => setEditForm(f => ({ ...f, abv: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="—"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Score (0-100)</label>
+                      <Input
+                        type="number" min="0" max="100"
+                        value={editForm.quality_score}
+                        onChange={e => setEditForm(f => ({ ...f, quality_score: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="N/A"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button size="sm" className="gap-1.5 text-xs" onClick={saveEdit} disabled={saving}>
+                      {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
+                      Opslaan
+                    </Button>
+                    <Button size="sm" variant="ghost" className="gap-1.5 text-xs" onClick={cancelEdit}>
+                      <X size={11} /> Annuleer
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 px-2 py-2 hover:bg-muted/50">
+                  <Checkbox
+                    checked={selected.has(beer.id)}
+                    onCheckedChange={() => toggleSelect(beer.id)}
+                  />
+                  <div className="min-w-0 flex-1 cursor-pointer" onClick={() => startEdit(beer)}>
+                    <p className="text-sm font-medium truncate">{beer.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {beer.style}{beer.abv != null ? ` · ${beer.abv}%` : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button onClick={() => startEdit(beer)} className="text-muted-foreground hover:text-foreground transition-colors" title="Bewerken">
+                      <Pencil size={12} />
+                    </button>
+                    {beer.quality_score != null && (
+                      <span className="text-[10px] font-bold tabular-nums text-accent">
+                        {beer.quality_score < 70 ? 'N/A' : beer.quality_score}
+                      </span>
+                    )}
+                    {beer.analysis_json ? (
+                      <CheckCircle2 size={12} className="text-success" />
+                    ) : (
+                      <AlertCircle size={12} className="text-muted-foreground/40" />
+                    )}
+                    {beer.factcheck_json ? (
+                      <ShieldCheck size={12} className="text-success" />
+                    ) : (
+                      <ShieldCheck size={12} className="text-muted-foreground/40" />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
