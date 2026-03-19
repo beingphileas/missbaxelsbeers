@@ -518,7 +518,9 @@ export default function Admin() {
                 <CardTitle className="font-serif text-xl">Brouwerijen Import / Sync</CardTitle>
               </CardHeader>
               <CardContent>
-                <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+                <Suspense fallback={<TabFallback />}>
+                  <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+                </Suspense>
               </CardContent>
             </Card>
           </TabsContent>
