@@ -242,7 +242,7 @@ Return this exact JSON structure (no markdown, no code blocks):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that." },
+          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only analyze the EXACT product requested and never conflate data from different variants." },
           { role: "user", content: prompt },
         ],
       }),
