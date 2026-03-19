@@ -196,8 +196,8 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
         <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">{beer.style}</span>
         <div className="flex items-center gap-2 shrink-0">
-          {beer.qualityScore != null && beer.qualityScore >= 70 && (
-            <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 bg-success/15 text-success border border-success/25 rounded-sm">{beer.qualityScore}</span>
+          {beer.qualityScore != null && Number(beer.qualityScore) >= 70 && (
+            <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 bg-success/15 text-success border border-success/25 rounded-sm">{Math.round(Number(beer.qualityScore))}</span>
           )}
           <span className="text-[11px] font-sans font-bold tabular-nums">{beer.abv}%</span>
         </div>
