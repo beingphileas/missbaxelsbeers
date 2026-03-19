@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBlogPosts } from '@/data/blog';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,11 +12,9 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import QuickTasting from '@/components/admin/QuickTasting';
 import { Link, useNavigate } from 'react-router-dom';
-import BlogEditor from '@/components/admin/BlogEditor';
 import VenueEditor from '@/components/admin/VenueEditor';
 import CoordFixer from '@/components/admin/CoordFixer';
 import FeaturedManager from '@/components/admin/FeaturedManager';
-import BreweryImport from '@/components/admin/BreweryImport';
 import BeerImport from '@/components/admin/BeerImport';
 import FactChecker from '@/components/admin/FactChecker';
 import BulkFactCheck from '@/components/admin/BulkFactCheck';
@@ -25,7 +23,19 @@ import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
 import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
 import SuspectBeers from '@/components/admin/SuspectBeers';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useQueryClient } from '@tanstack/react-query';
+
+const BlogEditor = lazy(() => import('@/components/admin/BlogEditor'));
+const BreweryImport = lazy(() => import('@/components/admin/BreweryImport'));
+
+const TabFallback = () => (
+  <div className="space-y-3 p-4">
+    <Skeleton className="h-6 w-1/4" />
+    <Skeleton className="h-4 w-1/2" />
+    <Skeleton className="h-48 w-full" />
+  </div>
+);
 
 export default function Admin() {
   const { user, signOut } = useAuth();
@@ -138,14 +148,16 @@ export default function Admin() {
   // Show editors full-screen
   if (showBlogEditor || editingPostId) {
     return (
-      <BlogEditor
-        postId={editingPostId}
-        onClose={() => {
-          setShowBlogEditor(false);
-          setEditingPostId(null);
-          refreshPosts();
-        }}
-      />
+      <Suspense fallback={<TabFallback />}>
+        <BlogEditor
+          postId={editingPostId}
+          onClose={() => {
+            setShowBlogEditor(false);
+            setEditingPostId(null);
+            refreshPosts();
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -506,7 +518,9 @@ export default function Admin() {
                 <CardTitle className="font-serif text-xl">Brouwerijen Import / Sync</CardTitle>
               </CardHeader>
               <CardContent>
-                <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+                <Suspense fallback={<TabFallback />}>
+                  <BreweryImport onComplete={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })} />
+                </Suspense>
               </CardContent>
             </Card>
           </TabsContent>
