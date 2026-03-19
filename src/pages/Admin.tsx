@@ -546,6 +546,11 @@ export default function Admin() {
           <TabsContent value="coords">
             <CoordFixer />
           </TabsContent>
+
+          {/* Bulk Stories Tab */}
+          <TabsContent value="bulk-stories">
+            <BulkStoryGenerator />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
