@@ -60,6 +60,8 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const dryRun = body.dry_run !== false;
+    const batchSize = body.batch_size ?? 100;
+    const offset = body.offset ?? 0;
 
     // Fetch stories from HHE
     const hhe = createClient(HHE_URL, HHE_ANON_KEY);
