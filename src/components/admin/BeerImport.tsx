@@ -63,6 +63,7 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
