@@ -184,6 +184,9 @@ export default function Beers() {
 
 function BeerCard({ beer, index }: { beer: Beer; index: number }) {
   const { t } = useLanguage();
+  const numericQuality = beer.qualityScore != null ? Number(beer.qualityScore) : NaN;
+  const hasVisibleScore = Number.isFinite(numericQuality) && numericQuality >= 70;
+
   return (
     <Link to={`/beers/${beer.id}`}>
     <motion.div
@@ -196,9 +199,9 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
         <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">{beer.style}</span>
         <div className="flex items-center gap-2 shrink-0">
-          {beer.qualityScore != null && Number(beer.qualityScore) >= 70 && (
-            <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 bg-success/15 text-success border border-success/25 rounded-sm">{Math.round(Number(beer.qualityScore))}</span>
-          )}
+          <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 border rounded-sm ${hasVisibleScore ? 'bg-accent/15 text-accent border-accent/25' : 'bg-muted text-muted-foreground border-border/60'}`}>
+            {hasVisibleScore ? Math.round(numericQuality) : 'N/A'}
+          </span>
           <span className="text-[11px] font-sans font-bold tabular-nums">{beer.abv}%</span>
         </div>
       </div>
