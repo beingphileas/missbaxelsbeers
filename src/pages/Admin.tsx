@@ -229,32 +229,64 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="posts">
-          <TabsList className="mb-4 flex-wrap">
-            <TabsTrigger value="posts">Blog Posts</TabsTrigger>
-            <TabsTrigger value="venues">Venues</TabsTrigger>
-            <TabsTrigger value="breweries-list" className="gap-1.5">
-              <Beer size={12} /> Brouwerijen
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="gap-1.5">
-              <ClipboardCheck size={12} /> Moderatie
-            </TabsTrigger>
-            <TabsTrigger value="brewery-accounts" className="gap-1.5">
-              <Users size={12} /> Brouwerij-accounts
-            </TabsTrigger>
-            <TabsTrigger value="breweries-import">Brouwerijen Import</TabsTrigger>
-            <TabsTrigger value="beers-import">Bieren Import</TabsTrigger>
-            <TabsTrigger value="featured">Featured</TabsTrigger>
-            <TabsTrigger value="fact-check" className="gap-1.5">
-              <ShieldCheck size={12} /> Fact-check
-            </TabsTrigger>
-            <TabsTrigger value="bulk-factcheck" className="gap-1.5">
-              <ShieldCheck size={12} /> Bulk Factcheck
-            </TabsTrigger>
-            <TabsTrigger value="bulk-stories" className="gap-1.5">
-              <BookOpen size={12} /> Bulk Verhalen
-            </TabsTrigger>
-            <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
-          </TabsList>
+          <div className="mb-6 space-y-3">
+            {/* Content */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold mb-1.5 px-1">Content</p>
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="posts" className="gap-1.5">
+                  <FileText size={12} /> Blog Posts
+                </TabsTrigger>
+                <TabsTrigger value="venues" className="gap-1.5">
+                  <Store size={12} /> Venues
+                </TabsTrigger>
+                <TabsTrigger value="breweries-list" className="gap-1.5">
+                  <Beer size={12} /> Brouwerijen
+                </TabsTrigger>
+                <TabsTrigger value="featured" className="gap-1.5">
+                  <Star size={12} /> Featured
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Data & Import */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold mb-1.5 px-1">Data & Import</p>
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="breweries-import" className="gap-1.5">
+                  <Upload size={12} /> Brouwerijen
+                </TabsTrigger>
+                <TabsTrigger value="beers-import" className="gap-1.5">
+                  <Upload size={12} /> Bieren
+                </TabsTrigger>
+                <TabsTrigger value="bulk-stories" className="gap-1.5">
+                  <Database size={12} /> DB Sync
+                </TabsTrigger>
+                <TabsTrigger value="coords" className="gap-1.5">
+                  <Map size={12} /> Kaart-fixes
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Kwaliteit & Beheer */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold mb-1.5 px-1">Kwaliteit & Beheer</p>
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="fact-check" className="gap-1.5">
+                  <ShieldCheck size={12} /> Fact-check
+                </TabsTrigger>
+                <TabsTrigger value="bulk-factcheck" className="gap-1.5">
+                  <ShieldCheck size={12} /> Bulk Factcheck
+                </TabsTrigger>
+                <TabsTrigger value="pending" className="gap-1.5">
+                  <ClipboardCheck size={12} /> Moderatie
+                </TabsTrigger>
+                <TabsTrigger value="brewery-accounts" className="gap-1.5">
+                  <Users size={12} /> Accounts
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
 
           {/* Posts Tab */}
           <TabsContent value="posts">
