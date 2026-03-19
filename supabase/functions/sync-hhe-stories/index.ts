@@ -14,8 +14,8 @@ const SYNC_FIELDS = [
   "name", "type", "province", "lat", "lng", "address", "phone", "email",
   "website_url", "established_year", "story", "featured", "google_rating",
   "google_review_count", "google_url", "untappd_rating", "untappd_review_count",
-  "untappd_url", "rating_weight", "last_scraped_at",
-  // Extra HHE fields
+  "untappd_url", "rating_weight",
+  // Extra HHE fields (last_scraped_at is excluded — it tracks local beer import status)
   "brewery_category", "code", "company_number", "facebook_url", "is_brewsite",
   "municipality", "official_name", "phone2", "story_ai_generated",
 ];
