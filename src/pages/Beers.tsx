@@ -207,7 +207,13 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       </div>
       <div className="p-3.5">
         <h3 className="font-display text-sm md:text-base leading-tight mb-0.5 group-hover:text-accent transition-colors">{beer.name}</h3>
-        {beer.breweryName && <p className="text-[10px] text-muted-foreground italic mb-3">{beer.breweryName}</p>}
+        {beer.breweryName && <p className="text-[10px] text-muted-foreground italic mb-1.5">{beer.breweryName}</p>}
+        <p className="text-[10px] font-semibold mb-2.5">
+          <span className="text-muted-foreground">{t('Score')}:</span>{' '}
+          <span className={hasVisibleScore ? 'text-accent' : 'text-muted-foreground'}>
+            {hasVisibleScore ? `${Math.round(numericQuality)}/100` : 'N/A'}
+          </span>
+        </p>
         {beer.flavorProfile.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {beer.flavorProfile.slice(0, 4).map(tag => (
