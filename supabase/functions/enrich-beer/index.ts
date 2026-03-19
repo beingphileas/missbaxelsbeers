@@ -196,6 +196,9 @@ serve(async (req) => {
       });
     }
 
+    const needsAnalysis = mode === "full" || mode === "analyze";
+    const needsFactcheck = mode === "full" || mode === "factcheck";
+
     // ── Single Perplexity sonar query (cheap) — AI gateway does the heavy analysis ──
     let webContext = "";
     let allCitations: string[] = [];
