@@ -212,15 +212,18 @@ serve(async (req) => {
       queries.push(
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer production and ingredients expert. Provide exact, detailed technical data. IMPORTANT: distinguish between product variants with similar names.",
-          `Tell me everything about the production, ingredients, AND external data for the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
+          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer, aussiehomebrewer, lawrencebrewers). These are reverse-engineered guesses, NOT real production data. If the brewery does not publicly share mash temperatures, fermentation schedules, or exact hop varieties, say so — do NOT fill in data from clone recipes.",
+          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-I need:
-- Complete ingredient list (malt types, hop varieties, fruits/grapes with varieties and percentages, spices, yeasts)
-- Fermentation method (spontaneous, top, bottom, mixed), aging details (barrels, duration, maceration time)
-- Blending details, bottle conditioning, collaboration info
-- Verify: is ABV of ${abv}% correct? Is style "${style}" accurate or should it be more specific?
+I need ONLY data confirmed by the brewery or reputable beer journalists:
+- Ingredients the brewery officially lists (e.g. "water, barley malt, hops, yeast, sugar" — do NOT add specifics unless the brewery names them)
+- Fermentation type (top/bottom/spontaneous/mixed) and bottle conditioning — ONLY if confirmed
+- General aging method (e.g. "barrel aged", "bottle conditioned") — ONLY if confirmed
+- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
+- Verify: is ABV of ${abv}% correct? Is style "${style}" accurate?
 - Brewery Untappd rating and review count (for "${breweryName}" overall)
+
+IMPORTANT: If detailed production data is not publicly available (which is the case for most traditional Belgian breweries like Trappists), simply state what IS known and note that the brewery does not disclose further details.
 
 ${vBlock}`,
         ).then(r => ({ key: "production", result: r })),
