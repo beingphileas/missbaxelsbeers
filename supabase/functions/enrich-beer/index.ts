@@ -11,13 +11,13 @@ const corsHeaders = {
 // Perplexity helper
 // ────────────────────────────────────────────────────────────
 
-async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string): Promise<{ content: string; citations: string[] }> {
+async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string, model = "sonar"): Promise<{ content: string; citations: string[] }> {
   try {
     const res = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "sonar-pro",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -196,123 +196,66 @@ serve(async (req) => {
       });
     }
 
-    // ── Perplexity searches (3 queries for full, 2 for analyze-only, 2 for factcheck-only) ──
     const needsAnalysis = mode === "full" || mode === "analyze";
     const needsFactcheck = mode === "full" || mode === "factcheck";
 
-    let webSources: Record<string, string> = {};
+    // ── Single Perplexity sonar query (cheap) — AI gateway does the heavy analysis ──
+    let webContext = "";
     let allCitations: string[] = [];
     const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
     const vBlock = variantBlock(beerName, breweryName);
 
     if (perplexityKey) {
-      const queries: Promise<{ key: string; result: { content: string; citations: string[] } }>[] = [];
+      const searchResult = await searchPerplexity(
+        perplexityKey,
+        "You are a Belgian beer expert. Return factual, source-based information only. NEVER include homebrew clone recipe data. Distinguish between product variants.",
+        `Find information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-      // Query 1: Production & Ingredients (needed for both analysis and factcheck)
-      queries.push(
-        searchPerplexity(
-          perplexityKey,
-          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer, aussiehomebrewer, lawrencebrewers). These are reverse-engineered guesses, NOT real production data. If the brewery does not publicly share mash temperatures, fermentation schedules, or exact hop varieties, say so — do NOT fill in data from clone recipes.",
-          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
+I need:
+1. RATINGS: Untappd score + review count, RateBeer score, BeerAdvocate score, URLs for each
+2. TASTING: Key flavor descriptors consistently mentioned across reviews (aroma, taste, finish). Max 6 core flavors.
+3. PRODUCTION: Only officially confirmed info (fermentation type, bottle conditioning, listed ingredients). Do NOT include homebrew clone recipe data.
+4. PAIRINGS: Food, cheese pairings from the brewery or experts
+5. SERVING: Temperature, glass type
+${needsFactcheck ? `6. AWARDS: Any medals, prizes, or notable rankings
+7. PRICE: Retail price in Belgium/Europe if available` : ""}
 
-I need ONLY data confirmed by the brewery or reputable beer journalists:
-- Ingredients the brewery officially lists (e.g. "water, barley malt, hops, yeast, sugar" — do NOT add specifics unless the brewery names them)
-- Fermentation type (top/bottom/spontaneous/mixed) and bottle conditioning — ONLY if confirmed
-- General aging method (e.g. "barrel aged", "bottle conditioned") — ONLY if confirmed
-- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
-- Verify: is ABV of ${abv}% correct? Is style "${style}" accurate?
-- Brewery Untappd rating and review count (for "${breweryName}" overall)
-
-IMPORTANT: If detailed production data is not publicly available (which is the case for most traditional Belgian breweries like Trappists), simply state what IS known and note that the brewery does not disclose further details.
-
+CRITICAL: Only report data for "${beerName}" specifically, not other variants.
 ${vBlock}`,
-        ).then(r => ({ key: "production", result: r })),
+        "sonar" // use sonar, NOT sonar-pro
       );
 
-      // Query 2: Tasting, Reviews & Ratings (merged — saves 1 query vs separate)
-      queries.push(
-        searchPerplexity(
-          perplexityKey,
-          "You are a Belgian beer tasting and ratings expert. Provide source-based tasting notes AND exact numerical ratings from review platforms. IMPORTANT: distinguish between product variants.",
-          `Find ALL tasting information AND ratings for the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
-
-TASTING DATA needed:
-- Professional tasting notes (aroma, taste, mouthfeel, finish)
-- Specific flavor descriptors (not generic style descriptions)
-- Food and cheese pairing recommendations
-- Serving temperature, glass type, storage recommendations
-
-RATINGS DATA needed (provide exact scores, review counts, and URLs):
-- Untappd: score (0-5), review/check-in count, direct URL
-- RateBeer: score (0-100), URL
-- BeerAdvocate: score (0-5), URL
-- Google Reviews for the brewery
-- Any other rating platforms (Vivino for grape beers, etc.)
-
-${vBlock}`,
-        ).then(r => ({ key: "tasting_ratings", result: r })),
-      );
-
-      // Query 3: Awards & Pricing (only for factcheck modes)
-      if (needsFactcheck) {
-        queries.push(
-          searchPerplexity(
-            perplexityKey,
-            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources. Only report awards for the EXACT product requested.",
-            `Has the Belgian beer "${beerName}" by "${breweryName}" won any awards, prizes, or medals? What competitions?
-What is the retail price in Belgium or Europe? Check beer shops, brewery webshop, and retailers.
-Has this beer appeared in notable rankings or best-of lists?
-
-${vBlock}`,
-          ).then(r => ({ key: "awards", result: r })),
-        );
+      if (searchResult.content) {
+        webContext = searchResult.content;
+        allCitations = [...new Set(searchResult.citations)];
       }
-
-      const results = await Promise.all(queries);
-      for (const { key, result } of results) {
-        if (result.content) webSources[key] = result.content;
-        allCitations.push(...result.citations);
-      }
-      allCitations = [...new Set(allCitations)];
-      console.log(`Perplexity: ${Object.keys(webSources).length} sections, ${allCitations.length} citations for ${beerName}`);
+      console.log(`Perplexity sonar: ${webContext.length} chars, ${allCitations.length} citations for ${beerName}`);
     }
 
     // Firecrawl fallback
-    if (Object.keys(webSources).length === 0) {
+    if (!webContext) {
       const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
       if (firecrawlKey) {
         try {
-          const queries = [
-            `"${beerName}" "${breweryName}" Untappd OR RateBeer OR BeerAdvocate rating tasting`,
-            `"${beerName}" "${breweryName}" ingredients production brewing`,
-          ];
-          if (needsFactcheck) queries.push(`"${beerName}" "${breweryName}" award prize price EUR`);
-          const allResults: any[] = [];
-          for (const q of queries) {
-            const res = await fetch("https://api.firecrawl.dev/v1/search", {
-              method: "POST",
-              headers: { Authorization: `Bearer ${firecrawlKey}`, "Content-Type": "application/json" },
-              body: JSON.stringify({ query: q, limit: 3 }),
-            });
-            if (res.ok) {
-              const d = await res.json();
-              allResults.push(...(d.data ?? d.results ?? []));
-            }
+          const q = `"${beerName}" "${breweryName}" Untappd OR RateBeer OR BeerAdvocate rating tasting ingredients`;
+          const res = await fetch("https://api.firecrawl.dev/v1/search", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${firecrawlKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ query: q, limit: 5 }),
+          });
+          if (res.ok) {
+            const d = await res.json();
+            const results = d.data ?? d.results ?? [];
+            webContext = results
+              .map((r: any) => `URL: ${r.url}\nTitle: ${r.title}\nSnippet: ${(r.description ?? "").slice(0, 400)}`)
+              .join("\n---\n").slice(0, 5000);
           }
-          const fallback = allResults
-            .map((r: any) => `URL: ${r.url}\nTitle: ${r.title}\nSnippet: ${(r.description ?? "").slice(0, 400)}`)
-            .join("\n---\n").slice(0, 5000);
-          if (fallback) webSources["fallback"] = fallback;
         } catch (e) {
           console.error("Firecrawl search failed:", e);
         }
       }
     }
 
-    // ── Build combined web context string ──
-    const webContext = Object.entries(webSources)
-      .map(([key, content]) => `=== ${key.toUpperCase()} ===\n${content}`)
-      .join("\n\n---\n\n");
     const citationBlock = allCitations.length > 0
       ? `\nSource URLs found:\n${allCitations.map((c, i) => `[${i + 1}] ${c}`).join("\n")}`
       : "";
@@ -437,7 +380,7 @@ Return this exact JSON (no markdown):
     if (needsAnalysis && result.analysis) {
       const a = result.analysis;
       // Strip if low confidence and no web data
-      if (a.source_confidence === "low" && Object.keys(webSources).length === 0) {
+      if (a.source_confidence === "low" && !webContext) {
         a.taste_notes = null;
         a.radar = { body: null, hops: null, malt: null, fruit: null, spice: null };
         a.primary_flavors = [];
@@ -473,7 +416,7 @@ Return this exact JSON (no markdown):
     if (needsFactcheck && result.factcheck) {
       let fc = result.factcheck;
       // Strip if very low confidence and no web data
-      if ((fc.confidence_score ?? 0) <= 10 && Object.keys(webSources).length === 0) {
+      if ((fc.confidence_score ?? 0) <= 10 && !webContext) {
         fc = {
           confidence_score: fc.confidence_score ?? 0,
           abv_verified: false, abv_sources: [], style_verified: false, style_note: null,
