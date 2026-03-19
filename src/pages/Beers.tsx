@@ -116,6 +116,7 @@ export default function Beers() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="random">🎲 {t('Willekeurig')}</SelectItem>
                 <SelectItem value="name">{t('Naam A-Z')}</SelectItem>
                 <SelectItem value="abv-asc">ABV ↑</SelectItem>
                 <SelectItem value="abv-desc">ABV ↓</SelectItem>
