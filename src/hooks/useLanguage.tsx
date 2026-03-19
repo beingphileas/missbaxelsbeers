@@ -8,6 +8,7 @@ interface LanguageContextType {
   setLang: (lang: Lang) => void;
   t: (text: string) => string;
   translateDynamic: (text: string) => Promise<string>;
+  translations: Record<string, string>;
   isTranslating: boolean;
 }
 
