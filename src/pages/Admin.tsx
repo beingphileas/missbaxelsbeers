@@ -148,14 +148,16 @@ export default function Admin() {
   // Show editors full-screen
   if (showBlogEditor || editingPostId) {
     return (
-      <BlogEditor
-        postId={editingPostId}
-        onClose={() => {
-          setShowBlogEditor(false);
-          setEditingPostId(null);
-          refreshPosts();
-        }}
-      />
+      <Suspense fallback={<TabFallback />}>
+        <BlogEditor
+          postId={editingPostId}
+          onClose={() => {
+            setShowBlogEditor(false);
+            setEditingPostId(null);
+            refreshPosts();
+          }}
+        />
+      </Suspense>
     );
   }
 
