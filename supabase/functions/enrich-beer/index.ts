@@ -376,6 +376,19 @@ CRITICAL RULES:
 - Radar: use null (not 0) for axes without source data. A gueuze has body — 0 would be misleading.
 - Confidence: 80-100 = multiple detailed sources; 50-79 = basic + partial; 20-49 = only basic ID; 0-19 = nothing.
 
+PRODUCTION METHOD — CRITICAL:
+- NEVER use data from homebrew clone recipes, homebrewing forums, or amateur recipe sites.
+- Homebrew sites (BeginBrewing, HomeBrewTalk, BIABrewer, etc.) reverse-engineer recipes — their mash temps, fermentation schedules, and hop schedules are GUESSES, not real brewery data.
+- Most traditional Belgian breweries (especially Trappists) do NOT publish detailed production data. If no official info exists, say "Details not publicly disclosed" — do NOT fill in homebrew clone data.
+- Only include: fermentation type (if confirmed), bottle conditioning (if confirmed), general ingredients listed by the brewery, and any officially published production details.
+
+TASTING NOTES — QUALITY OVER QUANTITY:
+- Synthesize a CONCISE profile from multiple agreeing sources. Do NOT concatenate every descriptor from every review into one giant list.
+- Primary flavors: max 5-6 items that MULTIPLE sources consistently mention.
+- Aroma profile: max 5-6 items. Not every review's full aroma list merged together.
+- Do NOT include flavors that imply production methods not used (e.g. "bourbon burn" for a non-barrel-aged beer, "smoky" for a non-rauchbier).
+- Individual reviewer opinions or off-notes should NOT appear as general characteristics.
+
 VARIANT AWARENESS:
 ${vBlock}
 
@@ -400,7 +413,7 @@ Return this exact JSON (no markdown):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only. Never invent details not in sources. Radar null not 0. Distinguish variants." },
+          { role: "system", content: "You are a Belgian beer expert and fact-checker. Return valid JSON only. CRITICAL: Never use homebrew clone recipe data as production facts. Never concatenate all reviews into one giant flavor list — synthesize only consistently mentioned descriptors. Radar null not 0. Distinguish variants. Production method must only contain brewery-confirmed facts." },
           { role: "user", content: prompt },
         ],
       }),
