@@ -86,52 +86,30 @@ serve(async (req) => {
     const style = beer.style;
     const abv = beer.abv ?? 0;
 
-    // Use Perplexity sonar-pro for comprehensive grounded search
+    // Single sonar query (cheap) — AI gateway handles synthesis
     let webContext = "";
     let citations: string[] = [];
     const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
 
     if (perplexityKey) {
-      // Two parallel searches: one for production/ingredients, one for tasting/reviews
-      const [prodResult, tasteResult] = await Promise.all([
-        searchPerplexity(
-          perplexityKey,
-          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer). These are reverse-engineered guesses, NOT real production data.",
-          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
+      const varBlock = `CRITICAL: Only report data for "${beerName}" specifically, not other variants by "${breweryName}".`;
+      const result = await searchPerplexity(
+        perplexityKey,
+        "You are a Belgian beer expert. Return factual, source-based information only. NEVER include homebrew clone recipe data.",
+        `Find information about "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-I need ONLY data confirmed by the brewery or reputable beer journalists:
-- Ingredients the brewery officially lists (do NOT add specifics unless the brewery names them)
-- Fermentation type and bottle conditioning — ONLY if confirmed
-- General aging method — ONLY if confirmed
-- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
-- If the brewery does not publish detailed production data, simply state what IS known
+1. Key tasting notes (aroma, taste, finish) — max 6 core flavors from multiple reviews
+2. Production: fermentation type, bottle conditioning, listed ingredients (official only, no clone recipes)
+3. Food/cheese pairings, serving temp, glass type
+4. Ratings: Untappd, RateBeer, BeerAdvocate scores + URLs
 
-${variantBlock}`,
-        ),
-        searchPerplexity(
-          perplexityKey,
-          "You are a Belgian beer tasting expert. Provide concise, source-based tasting notes. Only include flavor descriptors that multiple independent sources mention consistently. Do NOT concatenate every review into one giant list. Individual reviewer off-notes should not appear as general characteristics.",
-          `Find tasting information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
+${varBlock}`,
+        "sonar"
+      );
 
-I need:
-1. Professional tasting notes (aroma, taste, mouthfeel, finish) — synthesized from agreeing sources, not every review merged
-2. Max 5-6 core flavor descriptors that multiple sources consistently mention
-3. Food and cheese pairing recommendations from experts or the brewery
-4. Serving temperature, glass type, storage recommendations
-
-IMPORTANT: Do NOT include flavors that imply production methods not used (e.g. "bourbon burn" for a non-barrel-aged beer).
-
-${variantBlock}`,
-        ),
-      ]);
-
-      const parts: string[] = [];
-      if (prodResult.content) parts.push(`PRODUCTION & INGREDIENTS:\n${prodResult.content}`);
-      if (tasteResult.content) parts.push(`TASTING & PAIRINGS:\n${tasteResult.content}`);
-      webContext = parts.join("\n\n---\n\n");
-      citations = [...new Set([...prodResult.citations, ...tasteResult.citations])];
-
-      console.log(`Perplexity returned ${webContext.length} chars, ${citations.length} citations for ${beerName}`);
+      webContext = result.content;
+      citations = [...new Set(result.citations)];
+      console.log(`Perplexity sonar: ${webContext.length} chars, ${citations.length} citations for ${beerName}`);
     }
 
     // Fallback to Firecrawl if Perplexity unavailable
