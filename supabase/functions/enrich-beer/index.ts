@@ -11,13 +11,13 @@ const corsHeaders = {
 // Perplexity helper
 // ────────────────────────────────────────────────────────────
 
-async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string): Promise<{ content: string; citations: string[] }> {
+async function searchPerplexity(apiKey: string, systemPrompt: string, userPrompt: string, model = "sonar"): Promise<{ content: string; citations: string[] }> {
   try {
     const res = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "sonar-pro",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
