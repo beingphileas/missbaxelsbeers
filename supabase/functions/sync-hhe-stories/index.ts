@@ -106,23 +106,24 @@ Deno.serve(async (req) => {
       hheMap.set(b.name.toLowerCase().trim(), b.story);
     }
 
-    // Match and update
-    const matches: Array<{ name: string; status: string }> = [];
-    let updated = 0;
-    let skipped = 0;
-
-    for (const local of localBreweries) {
+    // Filter to only those that can be matched and need updating
+    const toProcess = localBreweries.filter(local => {
       const key = local.name.toLowerCase().trim();
       const hheStory = hheMap.get(key);
+      if (!hheStory) return false;
+      if (local.story && local.story.trim() !== "") return false;
+      return true;
+    });
 
-      if (!hheStory) continue;
+    // Apply offset + batch_size
+    const batch = toProcess.slice(offset, offset + batchSize);
+    
+    const matches: Array<{ name: string; status: string }> = [];
+    let updated = 0;
 
-      // Skip if local already has a story
-      if (local.story && local.story.trim() !== "") {
-        matches.push({ name: local.name, status: "skipped_has_story" });
-        skipped++;
-        continue;
-      }
+    for (const local of batch) {
+      const key = local.name.toLowerCase().trim();
+      const hheStory = hheMap.get(key)!;
 
       if (!dryRun) {
         const { error: updateErr } = await supabase
