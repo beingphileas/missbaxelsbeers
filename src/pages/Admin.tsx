@@ -24,6 +24,7 @@ import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
 import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
+import SuspectBeers from '@/components/admin/SuspectBeers';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
