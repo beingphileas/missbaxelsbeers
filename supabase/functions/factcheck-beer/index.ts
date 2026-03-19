@@ -225,28 +225,42 @@ serve(async (req) => {
         const [ratingsResult, awardsResult, productionResult] = await Promise.all([
           searchPerplexity(
             perplexityKey,
-            "You are a beer data researcher. Provide exact numerical ratings, review counts, and URLs. Be precise.",
+            "You are a beer data researcher. Provide exact numerical ratings, review counts, and URLs. Be precise. IMPORTANT: Many Belgian breweries produce MULTIPLE VARIANTS with similar names (e.g. 'Aardbei' vs 'Aardbei/Kriek', different vintage years). Only provide ratings for the EXACT product requested, not for other variants.",
             `Find ALL ratings and reviews for the Belgian beer "${beerName}" by brewery "${breweryName}" (${beer.style}, ${beer.abv}% ABV).
 Look on: Untappd, RateBeer, BeerAdvocate, Google Reviews, Vivino (if grape beer).
 For each platform provide: exact score, number of reviews/check-ins, and direct URL to the beer page.
-Also check if the brewery "${breweryName}" has an overall Untappd brewery rating.`,
+Also check if the brewery "${breweryName}" has an overall Untappd brewery rating.
+
+CRITICAL — VARIANT AWARENESS:
+- This brewery may have multiple products with similar names. Only report ratings for "${beerName}" specifically.
+- If you find ratings for a different variant (e.g. "${beerName}/Kriek" or "${beerName} Oogst 2021"), clearly state which variant the rating belongs to.
+- Do NOT average or merge ratings from different variants.`,
           ),
           searchPerplexity(
             perplexityKey,
-            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources.",
+            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources. IMPORTANT: Only report awards for the EXACT product requested, not for other variants with similar names.",
             `Has the Belgian beer "${beerName}" by "${breweryName}" won any awards, prizes, or medals? What competitions?
 What is the retail price in Belgium or Europe? Check beer shops, brewery webshop, and retailers.
-Also check if this beer or this brewery's beers have appeared in notable rankings or best-of lists.`,
+Also check if this beer or this brewery's beers have appeared in notable rankings or best-of lists.
+
+CRITICAL — VARIANT AWARENESS:
+- Only report awards for "${beerName}" specifically, not for other variants (e.g. if asked about "Aardbei", don't include awards for "Aardbei/Kriek").
+- If unsure whether an award is for this exact product, say so explicitly.`,
           ),
           searchPerplexity(
             perplexityKey,
-            "You are a beer production expert. Provide exact technical details about brewing, ingredients, and style classification.",
+            "You are a beer production expert. Provide exact technical details about brewing, ingredients, and style classification. IMPORTANT: Many Belgian breweries produce multiple variants with similar names. Only provide production details for the EXACT product requested.",
             `Tell me everything about the production and ingredients of the Belgian beer "${beerName}" by "${breweryName}".
 I need: exact ingredients (malt types, hops, fruits, grapes with varieties and percentages, spices, yeasts), 
 fermentation method (spontaneous, top, bottom, mixed), aging details (barrels, duration, maceration time),
 blending details (number of blends, age of components), bottle conditioning, 
 and whether the current style label "${beer.style}" is accurate or should be more specific.
-Also verify: is the ABV of ${beer.abv}% correct according to sources?`,
+Also verify: is the ABV of ${beer.abv}% correct according to sources?
+
+CRITICAL — VARIANT AWARENESS:
+- "${breweryName}" may produce multiple variants like "${beerName}" (plain), "${beerName}/Kriek", "${beerName} Oogst [year]", "${beerName} BIO". These are DIFFERENT products with different ingredients, ABV, and production methods.
+- Focus ONLY on "${beerName}". If you find data for a different variant, clearly label it as such.
+- If ABV varies by vintage, list each vintage's ABV separately.`,
           ),
         ]);
 
@@ -313,6 +327,13 @@ CRITICAL RULES:
 - Only include a URL if it appears in the sources.
 - IMPORTANT: If sources contain rich data, confidence_score should be high (70-100). Only use low scores when genuinely no data was found.
 
+VARIANT AWARENESS (CRITICAL):
+- This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers with different ABV, ingredients, and ratings.
+- Only report data that applies to "${beerName}" specifically. Do NOT merge or average data from different variants.
+- If a source mentions data for a different variant, do NOT include it unless you clearly flag it as "data is for [variant name], not for ${beerName}".
+- If ABV values in sources differ by vintage/blend, note this in abv_sources and list each value with its vintage.
+- Individual reviewer opinions should not be presented as verified facts.
+
 Beer: "${beerName}"
 Brewery: "${breweryName}"
 Style: "${beer.style}"
@@ -325,21 +346,23 @@ ${citationBlock}
 Return this exact JSON (use null when data is NOT in sources):
 {
   "confidence_score": <0-100, based on how much verifiable data was found>,
-  "abv_verified": <true ONLY if a source explicitly states this ABV, otherwise false>,
+  "variant_note": "<if sources reveal this is part of a family of variants, describe the relationship and which specific variant this data is about, otherwise null>",
+  "abv_verified": <true ONLY if a source explicitly states this ABV for this exact product, otherwise false>,
   "abv_sources": [<ONLY URLs from sources that mention ABV>],
+  "abv_range": "<if ABV varies by vintage/blend, state the range e.g. '5.8%-6.6%', otherwise null>",
   "style_verified": <true ONLY if a source confirms the style, otherwise false>,
   "style_note": "<if sources suggest a different/more specific style, note it here>",
-  "awards": [<ONLY awards explicitly mentioned in sources with year>],
+  "awards": [<ONLY awards explicitly mentioned in sources with year — must be for THIS exact product>],
   "price_range": "<ONLY if a source mentions a price, otherwise null>",
   "external_ratings": {
-    "untappd": {"score": <ONLY if found in sources>, "url": <ONLY if found>, "review_count": <if found>},
+    "untappd": {"score": <ONLY if found in sources for THIS product>, "url": <ONLY if found>, "review_count": <if found>},
     "ratebeer": {"score": <ONLY if found>, "url": <ONLY if found>},
     "beeradvocate": {"score": <ONLY if found>, "url": <ONLY if found>}
   },
   "external_links": [<ONLY URLs actually found in sources>],
-  "production_verified": "<summary of production details confirmed by sources, or null>",
-  "ingredients_verified": "<summary of ingredients confirmed by sources, or null>",
-  "issues": [<data inconsistencies ONLY if sources contradict our data>],
+  "production_verified": "<summary of production details confirmed by sources for THIS specific product, or null>",
+  "ingredients_verified": "<summary of ingredients confirmed by sources for THIS specific product, or null>",
+  "issues": [<data inconsistencies ONLY if sources contradict our data, including variant confusion>],
   "suggestions": [<improvements ONLY based on source evidence>]
 }`;
 
@@ -352,7 +375,7 @@ Return this exact JSON (use null when data is NOT in sources):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score." },
+          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only verify data for the EXACT product requested and never conflate data from different variants." },
           { role: "user", content: prompt },
         ],
       }),

@@ -96,18 +96,24 @@ serve(async (req) => {
       const [prodResult, tasteResult] = await Promise.all([
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer expert researcher. Provide extremely detailed, factual information. Always include exact data: ingredients, percentages, dates, brewing processes, grape varieties, hop varieties, malt types, fermentation details. Be as specific as possible.",
+          "You are a Belgian beer expert researcher. Provide extremely detailed, factual information. Always include exact data: ingredients, percentages, dates, brewing processes, grape varieties, hop varieties, malt types, fermentation details. Be as specific as possible. IMPORTANT: Many Belgian breweries (especially lambic producers like 3 Fonteinen, Cantillon, Tilquin) produce MULTIPLE VARIANTS of a beer (e.g. 'Aardbei' vs 'Aardbei/Kriek', different Oogst/harvest years, BIO versions). You MUST clearly distinguish between these variants and NOT mix data from different products. If you find info about multiple variants, clearly label which variant each fact belongs to.",
           `Give me ALL available production details about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
 1. Complete ingredient list (exact malt types, hop varieties, spices, fruits, grape varieties with percentages if available)
 2. Brewing/production method (fermentation type, aging, barrel details, maceration, blending, bottle conditioning)
 3. Any collaboration details (other breweries, winemakers, farmers)
 4. Bottling dates, blend numbers, seasonal details
 5. Origin of ingredients (region, terroir)
+
+CRITICAL — VARIANT AWARENESS:
+- This brewery may produce MULTIPLE variants with similar names (e.g. "Aardbei", "Aardbei/Kriek", "Aardbei Oogst 2021", "Aardbei BIO Oogst 2022"). These are DIFFERENT products with different ingredients, ABV, and production methods.
+- Focus ONLY on the specific product "${beerName}". Do NOT merge data from other variants.
+- If you cannot find data specific to "${beerName}" but only for a similar variant, clearly state which variant the data is about.
+- If ABV or ingredients vary by vintage/blend, list the range and specify which vintage each value comes from.
 Be extremely specific and detailed. Include every fact you can find.`,
         ),
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer tasting expert. Provide detailed, source-based tasting notes. Include specific flavor descriptors, food pairings from experts, serving recommendations. Never generalize.",
+          "You are a Belgian beer tasting expert. Provide detailed, source-based tasting notes. Include specific flavor descriptors, food pairings from experts, serving recommendations. Never generalize. IMPORTANT: Many Belgian breweries produce multiple variants of a beer with similar names. You MUST only provide tasting notes for the EXACT product requested, not aggregate notes from different variants.",
           `Give me ALL available tasting information about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
 1. Professional tasting notes and reviewer descriptions (aroma, taste, mouthfeel, finish)
 2. Specific flavor descriptors (not generic style descriptions)
@@ -115,6 +121,11 @@ Be extremely specific and detailed. Include every fact you can find.`,
 4. Cheese pairings
 5. Serving temperature, glass type, storage recommendations
 6. How this beer compares to similar beers or other versions
+
+CRITICAL — VARIANT AWARENESS:
+- Focus ONLY on "${beerName}" specifically. Do NOT mix in tasting notes from other variants (e.g. if this is "Aardbei", do not include cherry/kriek notes from "Aardbei/Kriek").
+- If tasting notes are from a specific vintage/blend (e.g. "Aardbei Oogst 2021"), clearly state which one.
+- Individual reviewer opinions (e.g. "acetone", "glue-like") should be labeled as such, not presented as objective characteristics.
 Include every specific detail you can find. Do NOT use generic style-based descriptions.`,
         ),
       ]);
@@ -179,6 +190,14 @@ CRITICAL RULES:
 - For style: if sources suggest a more specific classification, use the more accurate one.
 - IMPORTANT: If sources provide rich data, source_confidence MUST be "high" or "medium". Only use "low" when there is genuinely no source data.
 
+VARIANT AWARENESS (CRITICAL):
+- This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers.
+- Base your analysis ONLY on data that applies to "${beerName}" specifically. Do NOT merge characteristics from other variants.
+- If the web research contains data about multiple variants, use ONLY what applies to "${beerName}".
+- Example: if "${beerName}" is "Aardbei" (strawberry only), do NOT include cherry/kriek flavors from "Aardbei/Kriek".
+- If production details or ABV vary by vintage, note the range and specify which vintage in production_method.
+- Individual reviewer opinions (e.g. off-flavors like "acetone" or "solvent") must NOT be presented as general characteristics. Only include them if multiple independent sources mention them consistently.
+
 Beer: "${beerName}"
 Brewery: "${breweryName}"
 Style (current label): "${style}"
@@ -223,7 +242,7 @@ Return this exact JSON structure (no markdown, no code blocks):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that." },
+          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only analyze the EXACT product requested and never conflate data from different variants." },
           { role: "user", content: prompt },
         ],
       }),
