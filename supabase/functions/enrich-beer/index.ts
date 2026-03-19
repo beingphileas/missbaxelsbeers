@@ -446,6 +446,19 @@ Return this exact JSON (no markdown):
       result.score_breakdown = breakdown;
     }
 
+    // ── Auto-flag suspect beers ──
+    if (result.factcheck) {
+      const fc = result.factcheck;
+      const isSuspect = fc.beer_exists === false || 
+        ((fc.confidence_score ?? 0) <= 20 && !webContext) ||
+        ((fc.confidence_score ?? 0) <= 30 && !fc.abv_verified && !fc.style_verified);
+      if (isSuspect) {
+        updateFields.beer_status = "suspect";
+        result.beer_status = "suspect";
+        console.log(`⚠️ Flagged as SUSPECT: ${beerName} (confidence: ${fc.confidence_score}, beer_exists: ${fc.beer_exists})`);
+      }
+    }
+
     // ── Save ──
     if (Object.keys(updateFields).length > 0) {
       const { error: updateErr } = await supabase.from("beers").update(updateFields).eq("id", beer_id);
