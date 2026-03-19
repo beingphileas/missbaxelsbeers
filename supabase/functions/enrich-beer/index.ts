@@ -289,6 +289,7 @@ ${vBlock}`,
 
     const factcheckBlock = needsFactcheck ? `
   "factcheck": {
+    "beer_exists": <true if sources confirm this specific beer exists as a real commercial product, false if no evidence found or sources indicate it does not exist>,
     "confidence_score": <0-100>,
     "variant_note": "<relationship to other variants, or null>",
     "abv_verified": <true only if source confirms>,
