@@ -188,7 +188,20 @@ CRITICAL RULES:
 - If no specific info is found for a field, use null or empty array — NEVER fill with generic style-based guesses.
 - The radar values should reflect what sources describe, not what is "typical for the style".
 - For style: if sources suggest a more specific classification, use the more accurate one.
-- IMPORTANT: If sources provide rich data, source_confidence MUST be "high" or "medium". Only use "low" when there is genuinely no source data.
+
+ANTI-HALLUCINATION RULES (CRITICAL):
+- NEVER invent specific details like distillery names, barrel brands, hop varieties, grape names, or ingredient percentages unless they are EXPLICITLY stated in the web research.
+- Example: if sources say "aged in ex-Scotch whisky casks" but do NOT name the distillery, you MUST NOT add a distillery name (e.g. do NOT say "Highland Park" or "Glengoyne" unless a source explicitly names it).
+- If sources only provide vague descriptions (e.g. "whisky notes"), do NOT expand these into detailed tasting notes. Report only what is actually stated.
+- Radar values: use null for ANY axis where sources provide no specific description. Do NOT use 0 — use null. A gueuze always has body and malt character; if you have no source data, use null rather than 0 which implies absence.
+- Do NOT paraphrase production method details as tasting notes. Tasting notes must describe actual flavor/aroma/mouthfeel experiences from sources.
+
+CONFIDENCE SCORING:
+- source_confidence should reflect ACTUAL data coverage:
+  * "high" = multiple sources with detailed, specific, verifiable data (ingredients, production method, professional tasting notes)
+  * "medium" = basic facts confirmed (ABV, style, brewery) plus some partial details
+  * "low" = only basic identification data or nothing specific found
+  * Having just name/style/ABV confirmed does NOT justify "high" confidence.
 
 VARIANT AWARENESS (CRITICAL):
 - This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers.
@@ -213,24 +226,24 @@ Return this exact JSON structure (no markdown, no code blocks):
 {
   "quality_score": <number 1-100, or null if insufficient data>,
   "summary": "<2-3 sentence summary based on sources, or null if no data>",
-  "taste_notes": "<detailed tasting notes from sources, include specific flavors/ingredients mentioned. Or null if no source-based notes available>",
+  "taste_notes": "<detailed tasting notes from sources ONLY. Do NOT paraphrase production method as tasting notes. Or null if no source-based notes available>",
   "radar": {
-    "body": <1-5 based on source descriptions, or null>,
-    "hops": <1-5 based on source descriptions, or null>,
-    "malt": <1-5 based on source descriptions, or null>,
-    "fruit": <1-5 based on source descriptions, or null>,
-    "spice": <1-5 based on source descriptions, or null>
+    "body": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
+    "hops": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
+    "malt": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
+    "fruit": <1-5 based on source descriptions, or null if no data — NEVER use 0>,
+    "spice": <1-5 based on source descriptions, or null if no data — NEVER use 0>
   },
-  "primary_flavors": ["<ONLY flavors explicitly mentioned in sources — include specific grape varieties, spices, ingredients>"],
+  "primary_flavors": ["<ONLY flavors explicitly mentioned in sources — NEVER invent flavors>"],
   "secondary_flavors": ["<ONLY subtle flavors mentioned in sources>"],
   "aroma_profile": ["<ONLY aromas mentioned in sources>"],
   "pairing_food": ["<food pairings from sources, or empty>"],
   "pairing_classic": ["<classic Belgian pairings from sources, or empty>"],
   "pairing_cheese": ["<cheese pairings from sources, or empty>"],
   "serve_style": "<from sources (temperature, glass type, storage), or null>",
-  "production_method": "<DETAILED production method from sources: fermentation, maceration, barrel aging, blending, grape varieties with percentages, ingredient origins. Or null if not available>",
+  "production_method": "<ONLY production details EXPLICITLY confirmed by sources. Do NOT invent distillery names, barrel brands, or percentages not in sources. Or null>",
   "style_suggestion": "<if sources suggest a more accurate style than '${style}', put it here, otherwise null>",
-  "source_confidence": "<high if rich source data available, medium if partial, low ONLY if genuinely no data>"
+  "source_confidence": "<high ONLY if rich detailed source data, medium if basic facts plus some details, low if only name/style/ABV or nothing>"
 }`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -242,7 +255,7 @@ Return this exact JSON structure (no markdown, no code blocks):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. When sources are rich and detailed, make sure source_confidence reflects that. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only analyze the EXACT product requested and never conflate data from different variants." },
+          { role: "system", content: "You are a Belgian beer expert. Return valid JSON only, no markdown. ONLY use data from the provided web research. If information is not in the sources, use null — never guess or generalize. CRITICAL: Never invent specific details (distillery names, barrel brands, ingredient percentages) not found in sources. Radar values must be null (not 0) when no source data exists. source_confidence must accurately reflect actual data coverage. Many Belgian breweries produce multiple variants/blends with similar names — only analyze the EXACT product requested." },
           { role: "user", content: prompt },
         ],
       }),
