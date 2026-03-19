@@ -203,7 +203,7 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.3 }}
-      className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 relative"
+      className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 relative flex flex-col h-full"
     >
       <div className="absolute top-0 right-0 w-0 h-0 border-t-[18px] border-t-secondary border-l-[18px] border-l-transparent" />
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
