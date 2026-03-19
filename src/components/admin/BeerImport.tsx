@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -97,14 +98,13 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
   const hasWebsite = (b: { website_url: string | null }) =>
     b.website_url && b.website_url.trim().length > 0;
 
-  const filteredBreweries = brewerySearch.length >= 1
-    ? breweries
-        .filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 50)
-    : breweries
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 50);
+  const filteredBreweries = useMemo(() => {
+    const sorted = [...breweries].sort((a, b) => a.name.localeCompare(b.name));
+    if (brewerySearch.length >= 1) {
+      return sorted.filter(b => b.name.toLowerCase().includes(brewerySearch.toLowerCase()));
+    }
+    return sorted;
+  }, [breweries, brewerySearch]);
 
   const parseInput = useCallback((raw: string): any[] => {
     const trimmed = raw.trim();
@@ -260,64 +260,12 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
               />
             </div>
             {filteredBreweries.length > 0 && (
-              <div className="border rounded-lg max-h-64 overflow-auto divide-y divide-border">
-                {filteredBreweries.map(b => (
-                  <div key={b.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {b.last_scraped_at ? (
-                        <div className="flex items-center gap-1 shrink-0" title={`Geïmporteerd op ${format(new Date(b.last_scraped_at), 'dd/MM/yyyy HH:mm')}`}>
-                          <CheckCircle size={14} className="text-success" />
-                          <span className="text-[10px] text-muted-foreground tabular-nums">{format(new Date(b.last_scraped_at), 'dd/MM')}</span>
-                        </div>
-                      ) : (
-                        <div className="w-[14px] shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{b.name}</p>
-                        {b.website_url && <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
-                      <BreweryScreenCapture
-                        breweryId={b.id}
-                        breweryName={b.name}
-                        onBeersFound={(beers) => {
-                          const previewBeers = beers.map((beer: any) => ({
-                            name: beer.name, style: beer.style || '', abv: beer.abv || null,
-                            description: beer.description || '', source_url: '', image_url: '',
-                            brewery_input: b.name,
-                            brewery_matches: [{ id: b.id, name: b.name, similarity: 100 }],
-                            brewery_id: b.id, _excluded: false,
-                          }));
-                          setPreview(prev => [...prev, ...previewBeers]);
-                          setStep('preview');
-                        }}
-                      />
-                      <BreweryBeerManager breweryId={b.id} breweryName={b.name} />
-                      <Button
-                        size="sm" variant="ghost"
-                        className="gap-1.5 text-muted-foreground"
-                        title="Markeer als geen info beschikbaar"
-                        onClick={async () => {
-                          await supabase.from('breweries').update({ last_scraped_at: new Date().toISOString() }).eq('id', b.id);
-                          setBreweries(prev => prev.map(br => br.id === b.id ? { ...br, last_scraped_at: new Date().toISOString() } : br));
-                          toast({ title: `${b.name} gemarkeerd`, description: 'Geen Untappd-info beschikbaar' });
-                        }}
-                      >
-                        <Ban size={12} /> Geen info
-                      </Button>
-                      <a
-                        href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`}
-                        target="_blank" rel="noopener noreferrer"
-                      >
-                        <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground" type="button" asChild>
-                          <span><Beer size={12} /> Untappd</span>
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BreweryVirtualList
+                breweries={filteredBreweries}
+                setBreweries={setBreweries}
+                setPreview={setPreview}
+                setStep={setStep}
+              />
             )}
           </div>
 
@@ -369,69 +317,11 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
             </p>
           </div>
 
-          <div className="max-h-[500px] overflow-auto border rounded-lg">
-            <table className="w-full text-xs">
-              <thead className="bg-muted sticky top-0 z-10">
-                <tr>
-                  <th className="px-3 py-2 text-left w-8"></th>
-                  <th className="px-3 py-2 text-left">Bier</th>
-                  <th className="px-3 py-2 text-left">Stijl</th>
-                  <th className="px-3 py-2 text-left w-16">ABV</th>
-                  <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {preview.map((beer, i) => (
-                  <tr key={i} className={beer._excluded ? 'opacity-30 bg-muted/30' : ''}>
-                    <td className="px-3 py-2">
-                      <button onClick={() => toggleExclude(i)} className="text-muted-foreground hover:text-destructive"
-                        title={beer._excluded ? 'Opnieuw includeren' : 'Uitsluiten'}>
-                        <X size={14} />
-                      </button>
-                    </td>
-                    <td className="px-3 py-2 font-medium">
-                      <div className="flex items-center gap-1.5">
-                        {beer.name}
-                        {beer._validation?.exists === false && (
-                          <Badge variant="destructive" className="text-[9px] px-1">⚠ suspect</Badge>
-                        )}
-                        {beer._validation?.exists === true && (
-                          <CheckCircle size={10} className="text-success" />
-                        )}
-                      </div>
-                      {beer._validation?.reason && !beer._validation.exists && (
-                        <p className="text-[10px] text-destructive mt-0.5">{beer._validation.reason}</p>
-                      )}
-                    </td>
-                    <td className="px-3 py-2">{beer.style || '—'}</td>
-                    <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
-                    <td className="px-3 py-2">
-                      {beer.brewery_matches.length > 0 ? (
-                        <div className="flex items-center gap-2">
-                          <Select value={beer.brewery_id || ''} onValueChange={(v) => setBreweryId(i, v)}>
-                            <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Selecteer..." /></SelectTrigger>
-                            <SelectContent>
-                              {beer.brewery_matches.map(m => (
-                                <SelectItem key={m.id} value={m.id} className="text-xs">
-                                  <span className="flex items-center gap-2">
-                                    {m.name}
-                                    <Badge variant="outline" className="text-[9px] px-1">{m.similarity}%</Badge>
-                                  </span>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {beer.brewery_id && <Link2 size={12} className="text-success shrink-0" />}
-                        </div>
-                      ) : (
-                        <span className="text-destructive flex items-center gap-1"><AlertTriangle size={12} /> Geen match</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PreviewVirtualTable
+            preview={preview}
+            toggleExclude={toggleExclude}
+            setBreweryId={setBreweryId}
+          />
 
           {loading && <Progress value={progress} className="h-2" />}
           <div className="flex gap-3">
@@ -470,6 +360,203 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Virtualized Brewery List ── */
+function BreweryVirtualList({
+  breweries,
+  setBreweries,
+  setPreview,
+  setStep,
+}: {
+  breweries: BreweryItem[];
+  setBreweries: React.Dispatch<React.SetStateAction<BreweryItem[]>>;
+  setPreview: React.Dispatch<React.SetStateAction<BeerPreview[]>>;
+  setStep: React.Dispatch<React.SetStateAction<'input' | 'preview' | 'done'>>;
+}) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: breweries.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 44,
+    overscan: 10,
+  });
+
+  return (
+    <div ref={parentRef} className="border rounded-lg max-h-64 overflow-auto">
+      <div style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
+        {virtualizer.getVirtualItems().map(virtualRow => {
+          const b = breweries[virtualRow.index];
+          return (
+            <div
+              key={b.id}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: virtualRow.size,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+              className="flex items-center justify-between px-3 py-2 hover:bg-muted/50 border-b border-border"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                {b.last_scraped_at ? (
+                  <div className="flex items-center gap-1 shrink-0" title={`Geïmporteerd op ${format(new Date(b.last_scraped_at), 'dd/MM/yyyy HH:mm')}`}>
+                    <CheckCircle size={14} className="text-success" />
+                    <span className="text-[10px] text-muted-foreground tabular-nums">{format(new Date(b.last_scraped_at), 'dd/MM')}</span>
+                  </div>
+                ) : (
+                  <div className="w-[14px] shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{b.name}</p>
+                  {b.website_url && <p className="text-[10px] text-muted-foreground truncate">{b.website_url}</p>}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                <BreweryScreenCapture
+                  breweryId={b.id}
+                  breweryName={b.name}
+                  onBeersFound={(beers) => {
+                    const previewBeers = beers.map((beer: any) => ({
+                      name: beer.name, style: beer.style || '', abv: beer.abv || null,
+                      description: beer.description || '', source_url: '', image_url: '',
+                      brewery_input: b.name,
+                      brewery_matches: [{ id: b.id, name: b.name, similarity: 100 }],
+                      brewery_id: b.id, _excluded: false,
+                    }));
+                    setPreview(prev => [...prev, ...previewBeers]);
+                    setStep('preview');
+                  }}
+                />
+                <BreweryBeerManager breweryId={b.id} breweryName={b.name} />
+                <Button
+                  size="sm" variant="ghost"
+                  className="gap-1.5 text-muted-foreground"
+                  title="Markeer als geen info beschikbaar"
+                  onClick={async () => {
+                    await supabase.from('breweries').update({ last_scraped_at: new Date().toISOString() }).eq('id', b.id);
+                    setBreweries(prev => prev.map(br => br.id === b.id ? { ...br, last_scraped_at: new Date().toISOString() } : br));
+                    toast({ title: `${b.name} gemarkeerd`, description: 'Geen Untappd-info beschikbaar' });
+                  }}
+                >
+                  <Ban size={12} /> Geen info
+                </Button>
+                <a href={`https://untappd.com/search?q=${encodeURIComponent(b.name)}`} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground" type="button" asChild>
+                    <span><Beer size={12} /> Untappd</span>
+                  </Button>
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Virtualized Preview Table ── */
+function PreviewVirtualTable({
+  preview,
+  toggleExclude,
+  setBreweryId,
+}: {
+  preview: BeerPreview[];
+  toggleExclude: (i: number) => void;
+  setBreweryId: (i: number, id: string) => void;
+}) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: preview.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 48,
+    overscan: 15,
+  });
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <table className="w-full text-xs">
+        <thead className="bg-muted">
+          <tr>
+            <th className="px-3 py-2 text-left w-8"></th>
+            <th className="px-3 py-2 text-left">Bier</th>
+            <th className="px-3 py-2 text-left">Stijl</th>
+            <th className="px-3 py-2 text-left w-16">ABV</th>
+            <th className="px-3 py-2 text-left min-w-[200px]">Gekoppeld aan</th>
+          </tr>
+        </thead>
+      </table>
+      <div ref={parentRef} className="max-h-[500px] overflow-auto">
+        <div style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
+          {virtualizer.getVirtualItems().map(virtualRow => {
+            const i = virtualRow.index;
+            const beer = preview[i];
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: virtualRow.size,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+                className={`flex items-center text-xs border-b border-border ${beer._excluded ? 'opacity-30 bg-muted/30' : ''}`}
+              >
+                <div className="px-3 py-2 w-8 shrink-0">
+                  <button onClick={() => toggleExclude(i)} className="text-muted-foreground hover:text-destructive"
+                    title={beer._excluded ? 'Opnieuw includeren' : 'Uitsluiten'}>
+                    <X size={14} />
+                  </button>
+                </div>
+                <div className="px-3 py-2 flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium truncate">{beer.name}</span>
+                    {beer._validation?.exists === false && (
+                      <Badge variant="destructive" className="text-[9px] px-1">⚠ suspect</Badge>
+                    )}
+                    {beer._validation?.exists === true && (
+                      <CheckCircle size={10} className="text-success" />
+                    )}
+                  </div>
+                  {beer._validation?.reason && !beer._validation.exists && (
+                    <p className="text-[10px] text-destructive mt-0.5">{beer._validation.reason}</p>
+                  )}
+                </div>
+                <div className="px-3 py-2 w-24 shrink-0 truncate">{beer.style || '—'}</div>
+                <div className="px-3 py-2 w-16 shrink-0">{beer.abv ? `${beer.abv}%` : '—'}</div>
+                <div className="px-3 py-2 min-w-[200px] shrink-0">
+                  {beer.brewery_matches.length > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <Select value={beer.brewery_id || ''} onValueChange={(v) => setBreweryId(i, v)}>
+                        <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Selecteer..." /></SelectTrigger>
+                        <SelectContent>
+                          {beer.brewery_matches.map(m => (
+                            <SelectItem key={m.id} value={m.id} className="text-xs">
+                              <span className="flex items-center gap-2">
+                                {m.name}
+                                <Badge variant="outline" className="text-[9px] px-1">{m.similarity}%</Badge>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {beer.brewery_id && <Link2 size={12} className="text-success shrink-0" />}
+                    </div>
+                  ) : (
+                    <span className="text-destructive flex items-center gap-1"><AlertTriangle size={12} /> Geen match</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
