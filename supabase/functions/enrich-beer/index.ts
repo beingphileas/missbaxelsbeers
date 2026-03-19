@@ -289,6 +289,7 @@ ${vBlock}`,
 
     const factcheckBlock = needsFactcheck ? `
   "factcheck": {
+    "beer_exists": <true if sources confirm this specific beer exists as a real commercial product, false if no evidence found or sources indicate it does not exist>,
     "confidence_score": <0-100>,
     "variant_note": "<relationship to other variants, or null>",
     "abv_verified": <true only if source confirms>,
@@ -443,6 +444,19 @@ Return this exact JSON (no markdown):
 
       result.factcheck = fc;
       result.score_breakdown = breakdown;
+    }
+
+    // ── Auto-flag suspect beers ──
+    if (result.factcheck) {
+      const fc = result.factcheck;
+      const isSuspect = fc.beer_exists === false || 
+        ((fc.confidence_score ?? 0) <= 20 && !webContext) ||
+        ((fc.confidence_score ?? 0) <= 30 && !fc.abv_verified && !fc.style_verified);
+      if (isSuspect) {
+        updateFields.beer_status = "suspect";
+        result.beer_status = "suspect";
+        console.log(`⚠️ Flagged as SUSPECT: ${beerName} (confidence: ${fc.confidence_score}, beer_exists: ${fc.beer_exists})`);
+      }
     }
 
     // ── Save ──

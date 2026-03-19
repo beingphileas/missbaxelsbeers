@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer, BookOpen, FileText, Store, Star, Map, Database, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer, BookOpen, FileText, Store, Star, Map, Database, Upload, ShieldAlert } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import QuickTasting from '@/components/admin/QuickTasting';
@@ -24,6 +24,7 @@ import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
 import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
+import SuspectBeers from '@/components/admin/SuspectBeers';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -277,6 +278,9 @@ export default function Admin() {
                 </TabsTrigger>
                 <TabsTrigger value="bulk-factcheck" className="gap-1.5">
                   <ShieldCheck size={12} /> Bulk Factcheck
+                </TabsTrigger>
+                <TabsTrigger value="suspect-beers" className="gap-1.5">
+                  <ShieldAlert size={12} /> Verdacht
                 </TabsTrigger>
                 <TabsTrigger value="pending" className="gap-1.5">
                   <ClipboardCheck size={12} /> Moderatie
@@ -543,6 +547,20 @@ export default function Admin() {
               </CardHeader>
               <CardContent>
                 <BulkFactCheck />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Suspect Beers Tab */}
+          <TabsContent value="suspect-beers">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldAlert size={18} /> Verdachte & problematische bieren
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SuspectBeers />
               </CardContent>
             </Card>
           </TabsContent>

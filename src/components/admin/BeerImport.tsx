@@ -24,6 +24,7 @@ import {
   X,
   Search,
   Ban,
+  ShieldAlert,
 } from 'lucide-react';
 import BreweryScreenCapture from './BreweryScreenCapture';
 import BreweryBeerManager from './BreweryBeerManager';
@@ -45,6 +46,7 @@ interface BeerPreview {
   brewery_matches: BreweryMatch[];
   brewery_id: string | null;
   _excluded?: boolean;
+  _validation?: { exists: boolean; reason: string } | null;
 }
 
 interface BreweryItem {
@@ -61,6 +63,7 @@ interface BeerImportProps {
 export default function BeerImport({ onComplete }: BeerImportProps) {
   const [step, setStep] = useState<'input' | 'preview' | 'done'>('input');
   const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<BeerPreview[]>([]);
@@ -192,6 +195,41 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
       toast({ title: 'Fout', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleValidate = async () => {
+    const toValidate = preview.filter(b => !b._excluded).map(b => ({
+      name: b.name,
+      brewery_name: b.brewery_matches[0]?.name || b.brewery_input,
+    }));
+    if (toValidate.length === 0) return;
+    setValidating(true);
+    try {
+      const res = await supabase.functions.invoke('import-beers', {
+        body: { beers: toValidate, mode: 'validate' },
+      });
+      if (res.error) throw res.error;
+      const validations = res.data?.validations ?? [];
+      setPreview(prev => prev.map(beer => {
+        const match = validations.find((v: any) =>
+          v.name?.toLowerCase().trim() === beer.name.toLowerCase().trim()
+        );
+        if (match && !match.exists) {
+          return { ...beer, _validation: match, _excluded: true };
+        }
+        return { ...beer, _validation: match ?? null };
+      }));
+      const suspects = validations.filter((v: any) => !v.exists);
+      if (suspects.length > 0) {
+        toast({ title: `${suspects.length} verdachte bieren gevonden`, description: 'Deze zijn automatisch uitgesloten.', variant: 'destructive' });
+      } else {
+        toast({ title: 'Alle bieren gevalideerd ✓' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Validatie mislukt', description: err.message, variant: 'destructive' });
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -351,7 +389,20 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                         <X size={14} />
                       </button>
                     </td>
-                    <td className="px-3 py-2 font-medium">{beer.name}</td>
+                    <td className="px-3 py-2 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        {beer.name}
+                        {beer._validation?.exists === false && (
+                          <Badge variant="destructive" className="text-[9px] px-1">⚠ suspect</Badge>
+                        )}
+                        {beer._validation?.exists === true && (
+                          <CheckCircle size={10} className="text-success" />
+                        )}
+                      </div>
+                      {beer._validation?.reason && !beer._validation.exists && (
+                        <p className="text-[10px] text-destructive mt-0.5">{beer._validation.reason}</p>
+                      )}
+                    </td>
                     <td className="px-3 py-2">{beer.style || '—'}</td>
                     <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
                     <td className="px-3 py-2">
@@ -384,6 +435,10 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
 
           {loading && <Progress value={progress} className="h-2" />}
           <div className="flex gap-3">
+            <Button onClick={handleValidate} disabled={validating || loading} variant="outline" className="gap-2">
+              {validating ? <Loader2 size={14} className="animate-spin" /> : <ShieldAlert size={14} />}
+              Valideer bieren (AI)
+            </Button>
             <Button onClick={handleCommit} disabled={loading || linkedCount === 0} className="gap-2">
               {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
               {linkedCount} bieren importeren
