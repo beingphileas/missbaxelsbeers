@@ -195,7 +195,12 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       <div className="absolute top-0 right-0 w-0 h-0 border-t-[18px] border-t-secondary border-l-[18px] border-l-transparent" />
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
         <span className="text-[10px] font-bold uppercase tracking-wide text-accent truncate mr-2">{beer.style}</span>
-        <span className="text-[11px] font-sans font-bold tabular-nums shrink-0">{beer.abv}%</span>
+        <div className="flex items-center gap-2 shrink-0">
+          {beer.qualityScore != null && beer.qualityScore >= 70 && (
+            <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 bg-success/15 text-success border border-success/25 rounded-sm">{beer.qualityScore}</span>
+          )}
+          <span className="text-[11px] font-sans font-bold tabular-nums">{beer.abv}%</span>
+        </div>
       </div>
       <div className="p-3.5">
         <h3 className="font-display text-sm md:text-base leading-tight mb-0.5 group-hover:text-accent transition-colors">{beer.name}</h3>
