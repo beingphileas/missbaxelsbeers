@@ -23,6 +23,7 @@ import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
 import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
 import SuspectBeers from '@/components/admin/SuspectBeers';
+import VerificationDashboard from '@/components/admin/VerificationDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQueryClient } from '@tanstack/react-query';
 
