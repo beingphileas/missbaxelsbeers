@@ -35,11 +35,20 @@ export default function Beers() {
   const [style, setStyle] = useState('');
   const [abvRange, setAbvRange] = useState<[number, number]>(ABV_RANGE);
   const [showFilters, setShowFilters] = useState(false);
-  const [sort, setSort] = useState<'name' | 'abv-asc' | 'abv-desc'>('name');
+  const [sort, setSort] = useState<'random' | 'name' | 'abv-asc' | 'abv-desc'>('random');
+
+  const shuffledBeers = useMemo(() => {
+    const arr = [...allBeers];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [allBeers]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    let list = allBeers.filter(beer => {
+    let list = (sort === 'random' ? shuffledBeers : allBeers).filter(beer => {
       if (style && beer.style !== style) return false;
       if (beer.abv < abvRange[0] || beer.abv > abvRange[1]) return false;
       if (q) {
@@ -55,10 +64,10 @@ export default function Beers() {
 
     if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
     else if (sort === 'abv-asc') list.sort((a, b) => a.abv - b.abv);
-    else list.sort((a, b) => b.abv - a.abv);
+    else if (sort === 'abv-desc') list.sort((a, b) => b.abv - a.abv);
 
     return list;
-  }, [allBeers, search, style, abvRange, sort]);
+  }, [allBeers, shuffledBeers, search, style, abvRange, sort]);
 
   const hasActiveFilters = style || abvRange[0] !== ABV_RANGE[0] || abvRange[1] !== ABV_RANGE[1];
 
@@ -107,6 +116,7 @@ export default function Beers() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="random">🎲 {t('Willekeurig')}</SelectItem>
                 <SelectItem value="name">{t('Naam A-Z')}</SelectItem>
                 <SelectItem value="abv-asc">ABV ↑</SelectItem>
                 <SelectItem value="abv-desc">ABV ↓</SelectItem>
@@ -193,7 +203,7 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.3 }}
-      className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 relative"
+      className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300 relative flex flex-col h-full"
     >
       <div className="absolute top-0 right-0 w-0 h-0 border-t-[18px] border-t-secondary border-l-[18px] border-l-transparent" />
       <div className="bg-accent/8 border-b border-border/40 px-3 py-2 flex justify-between items-center">
@@ -205,7 +215,7 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
           <span className="text-[11px] font-sans font-bold tabular-nums">{beer.abv}%</span>
         </div>
       </div>
-      <div className="p-3.5">
+      <div className="p-3.5 flex-1 flex flex-col">
         <h3 className="font-display text-sm md:text-base leading-tight mb-0.5 group-hover:text-accent transition-colors">{beer.name}</h3>
         {beer.breweryName && <p className="text-[10px] text-muted-foreground italic mb-1.5">{beer.breweryName}</p>}
         <p className="text-[10px] font-semibold mb-2.5">
@@ -226,7 +236,7 @@ function BeerCard({ beer, index }: { beer: Beer; index: number }) {
             🍽 {beer.foodPairing}
           </p>
         )}
-        <div className="flex gap-1.5 mt-2">
+        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
           {beer.isHiddenGem && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-success/10 text-success border border-success/20 text-[9px] font-bold uppercase tracking-wide">
               <Star size={9} /> {t('Verborgen parel')}
