@@ -325,7 +325,22 @@ CRITICAL RULES:
 - If no web sources were found, return mostly null/empty values with confidence_score: 0.
 - A score on Untappd is typically 0-5, RateBeer 0-100, BeerAdvocate 0-5.
 - Only include a URL if it appears in the sources.
-- IMPORTANT: If sources contain rich data, confidence_score should be high (70-100). Only use low scores when genuinely no data was found.
+
+ANTI-HALLUCINATION RULES (CRITICAL):
+- NEVER invent specific details not found in sources. Examples of things you must NOT fabricate:
+  * Distillery names for barrel-aged beers (e.g. do NOT say "Highland Park" unless a source explicitly names it)
+  * Specific ingredient percentages or varieties not mentioned in sources
+  * Award categories or years not explicitly stated
+- If sources say "Scotch whisky casks" without naming the distillery, report EXACTLY that — do not add specifics.
+- production_verified and ingredients_verified should contain ONLY facts explicitly stated in sources, with no embellishment.
+
+CONFIDENCE SCORING:
+- confidence_score should reflect ACTUAL verified data coverage:
+  * 80-100: Multiple sources with detailed, specific data (ratings from multiple platforms, awards, detailed production info, ingredients)
+  * 50-79: Basic facts confirmed (ABV, style) plus some additional data (one rating source, partial production info)
+  * 20-49: Only basic identification confirmed (name, style, ABV, brewery)
+  * 0-19: Almost nothing found
+- Having just name/style/ABV/one Untappd score does NOT justify a score above 60.
 
 VARIANT AWARENESS (CRITICAL):
 - This brewery may produce MULTIPLE products with similar names (e.g. "Aardbei" vs "Aardbei/Kriek", different Oogst/harvest years, BIO versions). These are DIFFERENT beers with different ABV, ingredients, and ratings.
@@ -345,7 +360,7 @@ ${citationBlock}
 
 Return this exact JSON (use null when data is NOT in sources):
 {
-  "confidence_score": <0-100, based on how much verifiable data was found>,
+  "confidence_score": <0-100, based on ACTUAL data coverage — see scoring guide above>,
   "variant_note": "<if sources reveal this is part of a family of variants, describe the relationship and which specific variant this data is about, otherwise null>",
   "abv_verified": <true ONLY if a source explicitly states this ABV for this exact product, otherwise false>,
   "abv_sources": [<ONLY URLs from sources that mention ABV>],
@@ -360,8 +375,8 @@ Return this exact JSON (use null when data is NOT in sources):
     "beeradvocate": {"score": <ONLY if found>, "url": <ONLY if found>}
   },
   "external_links": [<ONLY URLs actually found in sources>],
-  "production_verified": "<summary of production details confirmed by sources for THIS specific product, or null>",
-  "ingredients_verified": "<summary of ingredients confirmed by sources for THIS specific product, or null>",
+  "production_verified": "<ONLY production facts explicitly stated in sources — do NOT add distillery names, barrel brands, or specifics not in sources. Or null>",
+  "ingredients_verified": "<ONLY ingredients explicitly mentioned in sources — do NOT invent varieties or percentages. Or null>",
   "issues": [<data inconsistencies ONLY if sources contradict our data, including variant confusion>],
   "suggestions": [<improvements ONLY based on source evidence>]
 }`;
@@ -375,7 +390,7 @@ Return this exact JSON (use null when data is NOT in sources):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only verify data for the EXACT product requested and never conflate data from different variants." },
+          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. CRITICAL: Never invent specific details (distillery names, barrel brands, ingredient percentages) not explicitly found in sources. Confidence scores must accurately reflect actual data coverage — basic identification only does not justify high confidence. Many Belgian breweries produce multiple variants/blends with similar names — only verify data for the EXACT product requested." },
           { role: "user", content: prompt },
         ],
       }),
