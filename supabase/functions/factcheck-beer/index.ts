@@ -375,7 +375,7 @@ Return this exact JSON (use null when data is NOT in sources):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score." },
+          { role: "system", content: "You are a beer data verification expert. Return valid JSON only. When sources provide data, reflect that in confidence_score. CRITICAL: Many Belgian breweries produce multiple variants/blends with similar names — you must only verify data for the EXACT product requested and never conflate data from different variants." },
           { role: "user", content: prompt },
         ],
       }),
