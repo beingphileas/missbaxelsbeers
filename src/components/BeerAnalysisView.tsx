@@ -173,7 +173,7 @@ export default function BeerAnalysisView(props: BeerAnalysisProps) {
   const handleFactcheck = async () => {
     setFactchecking(true);
     try {
-      const { data, error } = await supabase.functions.invoke('factcheck-beer', { body: { beer_id: beerId } });
+      const { data, error } = await supabase.functions.invoke('enrich-beer', { body: { beer_id: beerId, mode: 'factcheck' } });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       toast.success('Factcheck voltooid!');

@@ -165,19 +165,13 @@ export default function BreweryBeerManager({ breweryId, breweryName }: BreweryBe
       setBulkCurrent(beer.name);
 
       try {
-        if (!beer.analysis_json || !onlyMissing) {
-          const { error } = await supabase.functions.invoke('analyze-beer', {
-            body: { beer_id: beer.id },
-          });
-          if (error) throw error;
-        }
-
-        if (!beer.factcheck_json || !onlyMissing) {
-          const { error } = await supabase.functions.invoke('factcheck-beer', {
-            body: { beer_id: beer.id },
-          });
-          if (error) throw error;
-        }
+        const needsAnalysis = !beer.analysis_json || !onlyMissing;
+        const needsFactcheck = !beer.factcheck_json || !onlyMissing;
+        const mode = (needsAnalysis && needsFactcheck) ? 'full' : needsAnalysis ? 'analyze' : needsFactcheck ? 'factcheck' : 'rescore';
+        const { error } = await supabase.functions.invoke('enrich-beer', {
+          body: { beer_id: beer.id, mode },
+        });
+        if (error) throw error;
       } catch (err: any) {
         console.error(`Failed for ${beer.name}:`, err);
         errors++;

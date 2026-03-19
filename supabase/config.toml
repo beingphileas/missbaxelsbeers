@@ -45,6 +45,9 @@ verify_jwt = false
 [functions.factcheck-beer]
 verify_jwt = false
 
+[functions.enrich-beer]
+verify_jwt = false
+
 [functions.translate]
 verify_jwt = false
 
