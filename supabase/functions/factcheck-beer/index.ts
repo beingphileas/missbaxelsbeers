@@ -225,28 +225,42 @@ serve(async (req) => {
         const [ratingsResult, awardsResult, productionResult] = await Promise.all([
           searchPerplexity(
             perplexityKey,
-            "You are a beer data researcher. Provide exact numerical ratings, review counts, and URLs. Be precise.",
+            "You are a beer data researcher. Provide exact numerical ratings, review counts, and URLs. Be precise. IMPORTANT: Many Belgian breweries produce MULTIPLE VARIANTS with similar names (e.g. 'Aardbei' vs 'Aardbei/Kriek', different vintage years). Only provide ratings for the EXACT product requested, not for other variants.",
             `Find ALL ratings and reviews for the Belgian beer "${beerName}" by brewery "${breweryName}" (${beer.style}, ${beer.abv}% ABV).
 Look on: Untappd, RateBeer, BeerAdvocate, Google Reviews, Vivino (if grape beer).
 For each platform provide: exact score, number of reviews/check-ins, and direct URL to the beer page.
-Also check if the brewery "${breweryName}" has an overall Untappd brewery rating.`,
+Also check if the brewery "${breweryName}" has an overall Untappd brewery rating.
+
+CRITICAL — VARIANT AWARENESS:
+- This brewery may have multiple products with similar names. Only report ratings for "${beerName}" specifically.
+- If you find ratings for a different variant (e.g. "${beerName}/Kriek" or "${beerName} Oogst 2021"), clearly state which variant the rating belongs to.
+- Do NOT average or merge ratings from different variants.`,
           ),
           searchPerplexity(
             perplexityKey,
-            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources.",
+            "You are a beer awards and pricing expert. Provide exact details with years, categories, and sources. IMPORTANT: Only report awards for the EXACT product requested, not for other variants with similar names.",
             `Has the Belgian beer "${beerName}" by "${breweryName}" won any awards, prizes, or medals? What competitions?
 What is the retail price in Belgium or Europe? Check beer shops, brewery webshop, and retailers.
-Also check if this beer or this brewery's beers have appeared in notable rankings or best-of lists.`,
+Also check if this beer or this brewery's beers have appeared in notable rankings or best-of lists.
+
+CRITICAL — VARIANT AWARENESS:
+- Only report awards for "${beerName}" specifically, not for other variants (e.g. if asked about "Aardbei", don't include awards for "Aardbei/Kriek").
+- If unsure whether an award is for this exact product, say so explicitly.`,
           ),
           searchPerplexity(
             perplexityKey,
-            "You are a beer production expert. Provide exact technical details about brewing, ingredients, and style classification.",
+            "You are a beer production expert. Provide exact technical details about brewing, ingredients, and style classification. IMPORTANT: Many Belgian breweries produce multiple variants with similar names. Only provide production details for the EXACT product requested.",
             `Tell me everything about the production and ingredients of the Belgian beer "${beerName}" by "${breweryName}".
 I need: exact ingredients (malt types, hops, fruits, grapes with varieties and percentages, spices, yeasts), 
 fermentation method (spontaneous, top, bottom, mixed), aging details (barrels, duration, maceration time),
 blending details (number of blends, age of components), bottle conditioning, 
 and whether the current style label "${beer.style}" is accurate or should be more specific.
-Also verify: is the ABV of ${beer.abv}% correct according to sources?`,
+Also verify: is the ABV of ${beer.abv}% correct according to sources?
+
+CRITICAL — VARIANT AWARENESS:
+- "${breweryName}" may produce multiple variants like "${beerName}" (plain), "${beerName}/Kriek", "${beerName} Oogst [year]", "${beerName} BIO". These are DIFFERENT products with different ingredients, ABV, and production methods.
+- Focus ONLY on "${beerName}". If you find data for a different variant, clearly label it as such.
+- If ABV varies by vintage, list each vintage's ABV separately.`,
           ),
         ]);
 
