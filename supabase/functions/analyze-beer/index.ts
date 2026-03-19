@@ -96,37 +96,32 @@ serve(async (req) => {
       const [prodResult, tasteResult] = await Promise.all([
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer expert researcher. Provide extremely detailed, factual information. Always include exact data: ingredients, percentages, dates, brewing processes, grape varieties, hop varieties, malt types, fermentation details. Be as specific as possible. IMPORTANT: Many Belgian breweries (especially lambic producers like 3 Fonteinen, Cantillon, Tilquin) produce MULTIPLE VARIANTS of a beer (e.g. 'Aardbei' vs 'Aardbei/Kriek', different Oogst/harvest years, BIO versions). You MUST clearly distinguish between these variants and NOT mix data from different products. If you find info about multiple variants, clearly label which variant each fact belongs to.",
-          `Give me ALL available production details about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
-1. Complete ingredient list (exact malt types, hop varieties, spices, fruits, grape varieties with percentages if available)
-2. Brewing/production method (fermentation type, aging, barrel details, maceration, blending, bottle conditioning)
-3. Any collaboration details (other breweries, winemakers, farmers)
-4. Bottling dates, blend numbers, seasonal details
-5. Origin of ingredients (region, terroir)
+          "You are a Belgian beer production expert. Provide ONLY officially confirmed data from the brewery, brewery websites, or reputable beer journalism. CRITICAL: NEVER include data from homebrew clone recipes, homebrewing forums, or amateur recipe sites (e.g. BeginBrewing, HomeBrewTalk, BIABrewer). These are reverse-engineered guesses, NOT real production data.",
+          `Find OFFICIAL production information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-CRITICAL — VARIANT AWARENESS:
-- This brewery may produce MULTIPLE variants with similar names (e.g. "Aardbei", "Aardbei/Kriek", "Aardbei Oogst 2021", "Aardbei BIO Oogst 2022"). These are DIFFERENT products with different ingredients, ABV, and production methods.
-- Focus ONLY on the specific product "${beerName}". Do NOT merge data from other variants.
-- If you cannot find data specific to "${beerName}" but only for a similar variant, clearly state which variant the data is about.
-- If ABV or ingredients vary by vintage/blend, list the range and specify which vintage each value comes from.
-Be extremely specific and detailed. Include every fact you can find.`,
+I need ONLY data confirmed by the brewery or reputable beer journalists:
+- Ingredients the brewery officially lists (do NOT add specifics unless the brewery names them)
+- Fermentation type and bottle conditioning — ONLY if confirmed
+- General aging method — ONLY if confirmed
+- DO NOT include: exact mash temperatures, mash schedules, boil times, hop addition schedules, fermentation temperatures, or conditioning durations UNLESS the brewery itself publishes these
+- If the brewery does not publish detailed production data, simply state what IS known
+
+${variantBlock}`,
         ),
         searchPerplexity(
           perplexityKey,
-          "You are a Belgian beer tasting expert. Provide detailed, source-based tasting notes. Include specific flavor descriptors, food pairings from experts, serving recommendations. Never generalize. IMPORTANT: Many Belgian breweries produce multiple variants of a beer with similar names. You MUST only provide tasting notes for the EXACT product requested, not aggregate notes from different variants.",
-          `Give me ALL available tasting information about the Belgian beer "${beerName}" from brewery "${breweryName}" (${style}, ${abv}% ABV). I need:
-1. Professional tasting notes and reviewer descriptions (aroma, taste, mouthfeel, finish)
-2. Specific flavor descriptors (not generic style descriptions)
-3. Food pairing recommendations from experts or the brewery
-4. Cheese pairings
-5. Serving temperature, glass type, storage recommendations
-6. How this beer compares to similar beers or other versions
+          "You are a Belgian beer tasting expert. Provide concise, source-based tasting notes. Only include flavor descriptors that multiple independent sources mention consistently. Do NOT concatenate every review into one giant list. Individual reviewer off-notes should not appear as general characteristics.",
+          `Find tasting information about the Belgian beer "${beerName}" by "${breweryName}" (${style}, ${abv}% ABV).
 
-CRITICAL — VARIANT AWARENESS:
-- Focus ONLY on "${beerName}" specifically. Do NOT mix in tasting notes from other variants (e.g. if this is "Aardbei", do not include cherry/kriek notes from "Aardbei/Kriek").
-- If tasting notes are from a specific vintage/blend (e.g. "Aardbei Oogst 2021"), clearly state which one.
-- Individual reviewer opinions (e.g. "acetone", "glue-like") should be labeled as such, not presented as objective characteristics.
-Include every specific detail you can find. Do NOT use generic style-based descriptions.`,
+I need:
+1. Professional tasting notes (aroma, taste, mouthfeel, finish) — synthesized from agreeing sources, not every review merged
+2. Max 5-6 core flavor descriptors that multiple sources consistently mention
+3. Food and cheese pairing recommendations from experts or the brewery
+4. Serving temperature, glass type, storage recommendations
+
+IMPORTANT: Do NOT include flavors that imply production methods not used (e.g. "bourbon burn" for a non-barrel-aged beer).
+
+${variantBlock}`,
         ),
       ]);
 
