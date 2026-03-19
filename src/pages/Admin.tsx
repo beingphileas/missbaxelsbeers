@@ -249,6 +249,9 @@ export default function Admin() {
             <TabsTrigger value="bulk-factcheck" className="gap-1.5">
               <ShieldCheck size={12} /> Bulk Factcheck
             </TabsTrigger>
+            <TabsTrigger value="bulk-stories" className="gap-1.5">
+              <BookOpen size={12} /> Bulk Verhalen
+            </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
 
