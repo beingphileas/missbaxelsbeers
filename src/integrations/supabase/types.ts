@@ -317,22 +317,31 @@ export type Database = {
       breweries: {
         Row: {
           address: string | null
+          brewery_category: string
+          code: string | null
+          company_number: string | null
           created_at: string
           email: string | null
           established_year: number | null
+          facebook_url: string | null
           featured: boolean
           google_rating: number | null
           google_review_count: number | null
           google_url: string | null
           id: string
+          is_brewsite: boolean
           last_scraped_at: string | null
           lat: number
           lng: number
+          municipality: string | null
           name: string
+          official_name: string | null
           phone: string | null
+          phone2: string | null
           province: string
           rating_weight: number | null
           story: string | null
+          story_ai_generated: boolean
           type: string
           untappd_rating: number | null
           untappd_review_count: number | null
@@ -342,22 +351,31 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          brewery_category?: string
+          code?: string | null
+          company_number?: string | null
           created_at?: string
           email?: string | null
           established_year?: number | null
+          facebook_url?: string | null
           featured?: boolean
           google_rating?: number | null
           google_review_count?: number | null
           google_url?: string | null
           id?: string
+          is_brewsite?: boolean
           last_scraped_at?: string | null
           lat: number
           lng: number
+          municipality?: string | null
           name: string
+          official_name?: string | null
           phone?: string | null
+          phone2?: string | null
           province: string
           rating_weight?: number | null
           story?: string | null
+          story_ai_generated?: boolean
           type: string
           untappd_rating?: number | null
           untappd_review_count?: number | null
@@ -367,22 +385,31 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          brewery_category?: string
+          code?: string | null
+          company_number?: string | null
           created_at?: string
           email?: string | null
           established_year?: number | null
+          facebook_url?: string | null
           featured?: boolean
           google_rating?: number | null
           google_review_count?: number | null
           google_url?: string | null
           id?: string
+          is_brewsite?: boolean
           last_scraped_at?: string | null
           lat?: number
           lng?: number
+          municipality?: string | null
           name?: string
+          official_name?: string | null
           phone?: string | null
+          phone2?: string | null
           province?: string
           rating_weight?: number | null
           story?: string | null
+          story_ai_generated?: boolean
           type?: string
           untappd_rating?: number | null
           untappd_review_count?: number | null
