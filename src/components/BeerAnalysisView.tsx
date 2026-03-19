@@ -158,7 +158,7 @@ export default function BeerAnalysisView(props: BeerAnalysisProps) {
   const handleAnalyze = async () => {
     setAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-beer', { body: { beer_id: beerId } });
+      const { data, error } = await supabase.functions.invoke('enrich-beer', { body: { beer_id: beerId, mode: 'analyze' } });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       toast.success('Analyse voltooid!');
