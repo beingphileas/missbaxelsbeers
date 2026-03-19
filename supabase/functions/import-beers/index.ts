@@ -106,6 +106,77 @@ serve(async (req) => {
       });
     }
 
+    // ── Validate mode: quick AI check if beers actually exist ──
+    if (mode === "validate") {
+      const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
+      if (!perplexityKey) {
+        return new Response(JSON.stringify({ error: "PERPLEXITY_API_KEY not configured" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const beerList = beers.map((b: any) => {
+        const name = (b.name || b.naam || "").trim();
+        const brewery = (b.brewery_name || b.brewery || "").trim();
+        return `- "${name}" by "${brewery}"`;
+      }).join("\n");
+
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) {
+        return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Single sonar call to verify existence of all beers in batch
+      const searchRes = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${perplexityKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            { role: "system", content: "You are a Belgian beer database validator. For each beer listed, determine if it is a REAL commercially available product. Return ONLY a JSON array." },
+            { role: "user", content: `For each beer below, check if it is a real, commercially produced beer (not a homebrew recipe, not a typo, not a discontinued variant that never existed).
+
+${beerList}
+
+Return JSON array (no markdown): [{"name": "...", "exists": true/false, "reason": "brief reason"}]` },
+          ],
+        }),
+      });
+
+      if (!searchRes.ok) {
+        console.error("Perplexity validate error:", searchRes.status);
+        // Fallback: use AI gateway
+        const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-lite",
+            messages: [
+              { role: "system", content: "You are a Belgian beer expert. Determine if each beer is real. Return JSON array only." },
+              { role: "user", content: `Are these real Belgian beers?\n${beerList}\n\nReturn: [{"name": "...", "exists": true/false, "reason": "..."}]` },
+            ],
+          }),
+        });
+        if (!aiRes.ok) throw new Error("AI validation failed");
+        const aiData = await aiRes.json();
+        const raw = (aiData.choices?.[0]?.message?.content ?? "").replace(/```json?\n?/g, "").replace(/```/g, "").trim();
+        const validations = JSON.parse(raw);
+        return new Response(JSON.stringify({ validations }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const data = await searchRes.json();
+      const raw = (data.choices?.[0]?.message?.content ?? "").replace(/```json?\n?/g, "").replace(/```/g, "").trim();
+      const validations = JSON.parse(raw);
+
+      return new Response(JSON.stringify({ validations }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (mode === "commit") {
       // beers should have brewery_id already assigned from the preview step
       let inserted = 0;
