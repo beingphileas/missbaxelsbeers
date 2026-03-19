@@ -22,6 +22,7 @@ import BulkFactCheck from '@/components/admin/BulkFactCheck';
 import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
+import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
