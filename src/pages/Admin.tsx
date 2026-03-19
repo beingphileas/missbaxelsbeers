@@ -551,6 +551,20 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
+          {/* Suspect Beers Tab */}
+          <TabsContent value="suspect-beers">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="font-serif text-xl flex items-center gap-2">
+                  <ShieldAlert size={18} /> Verdachte & problematische bieren
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SuspectBeers />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Pending Changes / Moderation Tab */}
           <TabsContent value="pending">
             <Card className="shadow-card">
