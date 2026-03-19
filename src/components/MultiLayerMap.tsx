@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { Brewery } from '@/data/breweries';
 import { Venue, BlogPost } from '@/data/blog';
+import { useLeafletMap, createDotIcon, buildPopupHtml } from '@/hooks/useLeafletMap';
 
 /* ── Layer colors ── */
 const breweryTypeColors: Record<string, string> = {
@@ -17,14 +17,6 @@ const breweryTypeColors: Record<string, string> = {
 
 const VENUE_COLOR = '#2563eb';
 const STORY_COLOR = '#e04040';
-
-const dot = (color: string, size = 26) =>
-  L.divIcon({
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);"></div>`,
-    className: '',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-  });
 
 const storyIcon = L.divIcon({
   html: `<div style="width:30px;height:30px;border-radius:50%;background:${STORY_COLOR};border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;">
@@ -53,13 +45,8 @@ const LAYER_META: Record<LayerKey, { label: string; color: string }> = {
   stories: { label: 'Story Pins', color: STORY_COLOR },
 };
 
-/* Dark/Vintage tile URL */
-const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>';
-
 export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewery, focusLocation, hoveredPostId }: MultiLayerMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const { containerRef, mapRef } = useLeafletMap();
   const storyMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const layersRef = useRef<Record<LayerKey, L.MarkerClusterGroup | L.LayerGroup>>({
     breweries: (L as any).markerClusterGroup({
@@ -98,26 +85,14 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
   const toggle = (key: LayerKey) =>
     setVisible(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // Init map with dark tiles
+  // Add layers to map once ready
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-
-    const map = L.map(containerRef.current, {
-      center: [50.5, 4.5],
-      zoom: 8,
-      zoomControl: false,
+    const map = mapRef.current;
+    if (!map) return;
+    Object.values(layersRef.current).forEach(lg => {
+      if (!map.hasLayer(lg)) lg.addTo(map);
     });
-
-    L.tileLayer(DARK_TILES, { attribution: TILE_ATTR }).addTo(map);
-
-    Object.values(layersRef.current).forEach(lg => lg.addTo(map));
-    mapRef.current = map;
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, []);
+  });
 
   // Sync visibility
   useEffect(() => {
@@ -128,15 +103,15 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
       if (visible[key] && !map.hasLayer(lg)) map.addLayer(lg);
       if (!visible[key] && map.hasLayer(lg)) map.removeLayer(lg);
     });
-  }, [visible]);
+  }, [visible, mapRef]);
 
   // Populate brewery markers
   useEffect(() => {
     const lg = layersRef.current.breweries;
     lg.clearLayers();
     breweries.forEach(b => {
-      const m = L.marker([b.lat, b.lng], { icon: dot(breweryTypeColors[b.type] || '#6B3A2A') });
-      m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;background:hsl(20,20%,12%);color:#fff;padding:8px 12px;border-radius:4px;"><strong>${b.name}</strong><br/><span style="font-size:11px;opacity:0.7;">${b.type} · ${b.province}</span></div>`, { className: 'dark-popup' });
+      const m = L.marker([b.lat, b.lng], { icon: createDotIcon(breweryTypeColors[b.type] || '#6B3A2A') });
+      m.bindPopup(buildPopupHtml(b.name, `${b.type} · ${b.province}`), { className: 'dark-popup' });
       if (onSelectBrewery) m.on('click', () => onSelectBrewery(b));
       lg.addLayer(m);
     });
@@ -147,7 +122,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
     const lg = layersRef.current.venues;
     lg.clearLayers();
     venues.forEach(v => {
-      const m = L.marker([v.lat, v.lng], { icon: dot(VENUE_COLOR, 22) });
+      const m = L.marker([v.lat, v.lng], { icon: createDotIcon(VENUE_COLOR, 22) });
       m.bindPopup(`<div style="font-family:'DM Sans',sans-serif;font-size:13px;"><strong>${v.name}</strong><br/><span style="font-size:11px;color:#888;">${v.venueType} · ${v.province}</span>${v.address ? `<br/><span style="font-size:11px;">${v.address}</span>` : ''}</div>`);
       lg.addLayer(m);
     });
@@ -187,7 +162,7 @@ export default function MultiLayerMap({ breweries, venues, posts, onSelectBrewer
   useEffect(() => {
     if (!focusLocation || !mapRef.current) return;
     mapRef.current.flyTo([focusLocation.lat, focusLocation.lng], 14, { duration: 1.2 });
-  }, [focusLocation]);
+  }, [focusLocation, mapRef]);
 
   return (
     <div className="relative w-full h-full">
