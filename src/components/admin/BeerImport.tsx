@@ -389,7 +389,20 @@ export default function BeerImport({ onComplete }: BeerImportProps) {
                         <X size={14} />
                       </button>
                     </td>
-                    <td className="px-3 py-2 font-medium">{beer.name}</td>
+                    <td className="px-3 py-2 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        {beer.name}
+                        {beer._validation?.exists === false && (
+                          <Badge variant="destructive" className="text-[9px] px-1">⚠ suspect</Badge>
+                        )}
+                        {beer._validation?.exists === true && (
+                          <CheckCircle size={10} className="text-success" />
+                        )}
+                      </div>
+                      {beer._validation?.reason && !beer._validation.exists && (
+                        <p className="text-[10px] text-destructive mt-0.5">{beer._validation.reason}</p>
+                      )}
+                    </td>
                     <td className="px-3 py-2">{beer.style || '—'}</td>
                     <td className="px-3 py-2">{beer.abv ? `${beer.abv}%` : '—'}</td>
                     <td className="px-3 py-2">
