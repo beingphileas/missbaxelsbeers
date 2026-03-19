@@ -35,7 +35,7 @@ export default function Beers() {
   const [style, setStyle] = useState('');
   const [abvRange, setAbvRange] = useState<[number, number]>(ABV_RANGE);
   const [showFilters, setShowFilters] = useState(false);
-  const [sort, setSort] = useState<'name' | 'abv-asc' | 'abv-desc'>('name');
+  const [sort, setSort] = useState<'random' | 'name' | 'abv-asc' | 'abv-desc'>('random');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
