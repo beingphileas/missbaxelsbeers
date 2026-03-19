@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, MapPin, CheckCircle, ShieldCheck, Users, ClipboardCheck, Beer, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import QuickTasting from '@/components/admin/QuickTasting';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ import BulkFactCheck from '@/components/admin/BulkFactCheck';
 import BreweryAccounts from '@/components/admin/BreweryAccounts';
 import PendingChanges from '@/components/admin/PendingChanges';
 import BreweryEditor from '@/components/admin/BreweryEditor';
+import BulkStoryGenerator from '@/components/admin/BulkStoryGenerator';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Admin() {
@@ -247,6 +248,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="bulk-factcheck" className="gap-1.5">
               <ShieldCheck size={12} /> Bulk Factcheck
+            </TabsTrigger>
+            <TabsTrigger value="bulk-stories" className="gap-1.5">
+              <BookOpen size={12} /> Bulk Verhalen
             </TabsTrigger>
             <TabsTrigger value="coords">Kaart-fixes</TabsTrigger>
           </TabsList>
@@ -541,6 +545,11 @@ export default function Admin() {
           {/* Coords Tab */}
           <TabsContent value="coords">
             <CoordFixer />
+          </TabsContent>
+
+          {/* Bulk Stories Tab */}
+          <TabsContent value="bulk-stories">
+            <BulkStoryGenerator />
           </TabsContent>
         </Tabs>
       </div>

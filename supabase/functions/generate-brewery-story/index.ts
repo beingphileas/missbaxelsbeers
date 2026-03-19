@@ -49,14 +49,24 @@ serve(async (req) => {
       .map((b) => `${b.name} (${b.style}, ${b.abv}% ABV, flavors: ${(b.flavor_profile ?? []).join(", ")})`)
       .join("; ");
 
-    const prompt = `Write a compelling 2-3 sentence description for a Belgian brewery with the following details:
-- Name: ${brewery.name}
-- Type: ${brewery.type}
-- Province: ${brewery.province}
-- Established: ${brewery.established_year ?? "unknown year"}
-- Their beers: ${beerList || "no beers listed"}
+    const prompt = `Schrijf een unieke, beknopte beschrijving van exact 2 zinnen IN HET ENGELS voor deze Belgische brouwerij:
 
-Make it evocative and informative, highlighting what makes this brewery special in the Belgian beer landscape. Focus on tradition, brewing philosophy, or unique characteristics. Do not use quotes around the text.`;
+Naam: ${brewery.name}
+Type: ${brewery.type}
+Provincie: ${brewery.province}
+Adres: ${brewery.address ?? "onbekend"}
+Opgericht: ${brewery.established_year ?? "onbekend"}
+Bieren: ${beerList || "geen bieren vermeld"}
+
+STRIKTE REGELS:
+- Begin NOOIT met "In the heart of", "Nestled in", "Located in" of een andere locatie-openingszin
+- Begin direct met de brouwerijnaam of een uniek feit over de brouwerij
+- Wees SPECIFIEK: noem concrete bieren, stijlen, technieken of geschiedenis
+- Als het een bierfirma is (geen eigen brouwsite), vermeld dat ze laten brouwen
+- Als het een geuzestekerij is, focus op het blendproces
+- Vermijd vage superlatieven zoals "passion for beer", "artisanal tradition", "unique flavors"
+- Schrijf feitelijk en informatief, niet promotioneel
+- Maximaal 2 zinnen, geen aanhalingstekens`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -67,7 +77,7 @@ Make it evocative and informative, highlighting what makes this brewery special 
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "You are a knowledgeable Belgian beer expert and storyteller. Write concise, vivid brewery descriptions." },
+          { role: "system", content: "You are a knowledgeable Belgian beer expert and storyteller. Write concise, vivid brewery descriptions in English." },
           { role: "user", content: prompt },
         ],
       }),
