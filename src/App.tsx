@@ -62,7 +62,9 @@ const App = () => (
                 path="/admin"
                 element={
                   <ProtectedRoute>
-                    <Admin />
+                    <Suspense fallback={<LazyFallback />}>
+                      <Admin />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />
@@ -70,7 +72,9 @@ const App = () => (
                 path="/mijn-brouwerij"
                 element={
                   <ProtectedRoute>
-                    <BreweryPortal />
+                    <Suspense fallback={<LazyFallback />}>
+                      <BreweryPortal />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />
