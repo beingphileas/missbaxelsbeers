@@ -219,7 +219,18 @@ export default function BeerDetail() {
                     <h3 className="font-display text-sm leading-tight group-hover:text-accent transition-colors">{b.name}</h3>
                     <span className="text-[10px] font-bold tabular-nums shrink-0 ml-2">{b.abv}%</span>
                   </div>
-                  <p className="text-[10px] text-accent font-bold uppercase tracking-wide">{b.style}</p>
+                  <p className="text-[10px] text-accent font-bold uppercase tracking-wide mb-1.5">{b.style}</p>
+                  <p className="text-[10px] text-muted-foreground italic flex items-center gap-1 mb-2">
+                    <Handshake size={9} className="text-accent shrink-0" />
+                    <span className="truncate">{b.brewedAt || t('Collab — t.b.a.')}</span>
+                  </p>
+                  {b.flavorProfile.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {b.flavorProfile.slice(0, 3).map(tag => (
+                        <span key={tag} className="px-1.5 py-0.5 bg-secondary/60 border border-border/40 text-[8px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </Link>
               ))}
             </div>
