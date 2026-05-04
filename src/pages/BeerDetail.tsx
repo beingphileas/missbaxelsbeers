@@ -146,6 +146,15 @@ export default function BeerDetail() {
               <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">{t('Gebrouwen bij')}:</span>
               <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
             </div>
+
+            {isAdmin && (
+              <div className="mt-4">
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={handleEnrich} disabled={enriching}>
+                  {enriching ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                  {enriching ? t('Verrijken…') : t('Verrijk via Untappd')}
+                </Button>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
