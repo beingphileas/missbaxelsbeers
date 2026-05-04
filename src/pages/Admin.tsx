@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, LogOut, Eye, Beer as BeerIcon, FileText, Star, ShieldCheck, Archive, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Eye, Beer as BeerIcon, FileText, Star, ShieldCheck, Archive, RefreshCw, Download } from 'lucide-react';
 import QuickTasting from '@/components/admin/QuickTasting';
 import FeaturedManager from '@/components/admin/FeaturedManager';
 import FactChecker from '@/components/admin/FactChecker';
 import BulkFactCheck from '@/components/admin/BulkFactCheck';
+import FirecrawlImport from '@/components/admin/FirecrawlImport';
 import { Link, useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQueryClient } from '@tanstack/react-query';
@@ -145,6 +146,7 @@ export default function Admin() {
           <TabsList className="mb-6 flex-wrap h-auto">
             <TabsTrigger value="posts" className="gap-1.5"><FileText size={12} /> Verhalen</TabsTrigger>
             <TabsTrigger value="beers" className="gap-1.5"><BeerIcon size={12} /> Bieren</TabsTrigger>
+            <TabsTrigger value="import" className="gap-1.5"><Download size={12} /> Import</TabsTrigger>
             <TabsTrigger value="featured" className="gap-1.5"><Star size={12} /> Featured</TabsTrigger>
             <TabsTrigger value="fact-check" className="gap-1.5"><ShieldCheck size={12} /> Fact-check</TabsTrigger>
             <TabsTrigger value="bulk-factcheck" className="gap-1.5"><ShieldCheck size={12} /> Bulk</TabsTrigger>
@@ -242,6 +244,15 @@ export default function Admin() {
                   </div>
                 )}
               </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="import">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-serif text-xl">Bier importeren via Firecrawl</CardTitle>
+              </CardHeader>
+              <CardContent><FirecrawlImport /></CardContent>
             </Card>
           </TabsContent>
 
