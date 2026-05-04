@@ -27,6 +27,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
   const [featured, setFeatured] = useState(false);
   const [isHiddenGem, setIsHiddenGem] = useState(false);
   const [breweryId, setBreweryId] = useState<string>('');
+  const [shopUrl, setShopUrl] = useState('');
 
   useEffect(() => {
     // Default brewery: MissBaxel's
@@ -48,6 +49,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
         setFeatured(data.featured ?? false);
         setIsHiddenGem(data.is_hidden_gem ?? false);
         setBreweryId(data.brewery_id);
+        setShopUrl((data as any).shop_url ?? '');
       });
     }
   }, [beerId]);
@@ -70,6 +72,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
       featured,
       is_hidden_gem: isHiddenGem,
       brewery_id: breweryId,
+      shop_url: shopUrl.trim() || null,
     };
 
     const { error } = beerId
@@ -123,6 +126,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
           <div>
             <Label>Foodpairing</Label>
             <Input value={foodPairing} onChange={e => setFoodPairing(e.target.value)} />
+          </div>
+          <div>
+            <Label>Bierstekers shop-link <span className="text-muted-foreground text-xs">(optioneel)</span></Label>
+            <Input
+              value={shopUrl}
+              onChange={e => setShopUrl(e.target.value)}
+              placeholder="https://bierstekers.com/product/..."
+              type="url"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Wordt op de bierdetailpagina als "Bestel via Bierstekers" knop getoond.</p>
           </div>
           <div className="grid grid-cols-3 gap-4 items-center">
             <div>
