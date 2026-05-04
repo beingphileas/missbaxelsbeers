@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBeers } from '@/data/beers';
 import { useBlogPosts } from '@/data/blog';
@@ -6,10 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake } from 'lucide-react';
+import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake, Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import SEOHead from '@/components/SEOHead';
 import BeerAnalysisView from '@/components/BeerAnalysisView';
 import { useLanguage } from '@/hooks/useLanguage';
