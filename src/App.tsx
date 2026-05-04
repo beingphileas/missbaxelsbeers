@@ -9,7 +9,7 @@ import { LanguageProvider } from "@/hooks/useLanguage";
 import SiteHeader from "@/components/SiteHeader";
 import WhisperFAB from "@/components/WhisperFAB";
 import Home from "./pages/Home";
-import Tastings from "./pages/Tastings";
+import Stories from "./pages/Stories";
 import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Beers from "./pages/Beers";
@@ -42,7 +42,7 @@ const App = () => (
             <SiteHeader />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/tastings" element={<Tastings />} />
+              <Route path="/stories" element={<Stories />} />
               <Route path="/post/:slug" element={<BlogPost />} />
               <Route path="/beers" element={<Beers />} />
               <Route path="/beers/:id" element={<BeerDetail />} />
