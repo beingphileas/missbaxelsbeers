@@ -21,6 +21,7 @@ export type Database = {
           analysis_json: Json | null
           aroma_profile: string[] | null
           beer_status: string | null
+          brewed_at: string | null
           brewery_id: string
           created_at: string
           cross_ref_notes: string | null
@@ -64,6 +65,7 @@ export type Database = {
           analysis_json?: Json | null
           aroma_profile?: string[] | null
           beer_status?: string | null
+          brewed_at?: string | null
           brewery_id: string
           created_at?: string
           cross_ref_notes?: string | null
@@ -107,6 +109,7 @@ export type Database = {
           analysis_json?: Json | null
           aroma_profile?: string[] | null
           beer_status?: string | null
+          brewed_at?: string | null
           brewery_id?: string
           created_at?: string
           cross_ref_notes?: string | null
