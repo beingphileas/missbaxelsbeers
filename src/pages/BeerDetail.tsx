@@ -42,7 +42,7 @@ export default function BeerDetail() {
     setEnriching(true);
     try {
       const { data, error } = await supabase.functions.invoke('search-beer-firecrawl', {
-        body: { query: beer.name },
+        body: { query: beer.name, replaceBeerId: beer.id },
       });
       if (error) {
         toast.error('Verrijken mislukt', { description: error.message });
@@ -52,8 +52,13 @@ export default function BeerDetail() {
         toast.error('Niet gevonden', { description: data.error });
         return;
       }
-      toast.success(`Bierdata bijgewerkt via Untappd`);
-      queryClient.invalidateQueries({ queryKey: ['beers'] });
+      await queryClient.invalidateQueries({ queryKey: ['beers'] });
+      if (data?.replaced?.deleted && data?.beer_id && data.beer_id !== beer.id) {
+        toast.success('Bier vervangen door verrijkte versie');
+        navigate(`/beers/${data.beer_id}`, { replace: true });
+      } else {
+        toast.success('Bierdata bijgewerkt via Untappd');
+      }
     } catch (e: any) {
       toast.error('Onverwachte fout', { description: e?.message });
     } finally {
