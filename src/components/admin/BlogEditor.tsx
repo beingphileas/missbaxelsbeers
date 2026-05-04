@@ -1,7 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { supabase } from '@/integrations/supabase/client';
-import { useBreweries } from '@/data/breweries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +22,6 @@ interface BlogEditorProps {
 }
 
 export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
-  const { data: breweries = [] } = useBreweries();
   const [beers, setBeers] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -61,21 +59,10 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     }
   }, [postId]);
 
-  // Load beers when brewery changes
+  // Load all beers (no brewery filter — single-brand site)
   useEffect(() => {
-    if (breweryId) {
-      supabase
-        .from('beers')
-        .select('id, name')
-        .eq('brewery_id', breweryId)
-        .order('name')
-        .then(({ data }) => setBeers(data ?? []));
-    } else {
-      setBeers([]);
-      setBeerId('');
-      setSelectedBeerIds([]);
-    }
-  }, [breweryId]);
+    supabase.from('beers').select('id, name').order('name').then(({ data }) => setBeers(data ?? []));
+  }, []);
 
   // Auto-generate slug from title
   useEffect(() => {
