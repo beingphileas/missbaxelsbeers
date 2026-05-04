@@ -168,7 +168,38 @@ Deno.serve(async (req) => {
       action = 'inserted';
     }
 
-    return json({ success: true, action, beer_id: beerId, source_url: beerUrl, data: payload });
+    // If caller asked to replace an original beer (e.g. user clicked "enrich" on
+    // an existing record but the matched Untappd page produced a different
+    // canonical name → upsert created a new row). Delete the original to keep
+    // the catalog clean.
+    let replaced: { id: string; deleted: boolean } | null = null;
+    if (replaceBeerId && replaceBeerId !== beerId) {
+      // Re-point any blog references so we don't break links
+      await supabase
+        .from('blog_post_beers')
+        .update({ beer_id: beerId })
+        .eq('beer_id', replaceBeerId);
+      await supabase
+        .from('blog_posts')
+        .update({ beer_id: beerId })
+        .eq('beer_id', replaceBeerId);
+
+      const { error: delErr } = await supabase
+        .from('beers')
+        .delete()
+        .eq('id', replaceBeerId);
+      replaced = { id: replaceBeerId, deleted: !delErr };
+      if (delErr) console.error('replace delete failed', delErr);
+    }
+
+    return json({
+      success: true,
+      action,
+      beer_id: beerId,
+      source_url: beerUrl,
+      data: payload,
+      replaced,
+    });
   } catch (e) {
     console.error('search-beer-firecrawl error', e);
     return json({ error: (e as Error).message ?? 'Onbekende fout' }, 500);
