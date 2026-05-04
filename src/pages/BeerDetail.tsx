@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useBeers } from '@/data/beers';
 import { useBlogPosts } from '@/data/blog';
 import { useAuth } from '@/hooks/useAuth';
