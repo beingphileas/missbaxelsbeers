@@ -95,6 +95,25 @@ export default function FirecrawlImport() {
     }
   };
 
+  const handleImportBierstekers = async () => {
+    setImportingBs(true);
+    setBsResults(null);
+    toast.info('Bierstekers import gestart… (~20 producten, ±10s)');
+    try {
+      const { data, error } = await supabase.functions.invoke('import-bierstekers', { body: {} });
+      if (error) return toast.error('Import mislukt', { description: error.message });
+      if (data?.error) return toast.error('Import mislukt', { description: data.error });
+      setBsResults(data);
+      const s = data.summary;
+      toast.success(`Bierstekers: ${s.inserted} nieuw, ${s.updated} bijgewerkt, ${s.skipped} overgeslagen, ${s.errors} fouten`);
+      invalidate();
+    } catch (e: any) {
+      toast.error('Onverwachte fout', { description: e?.message });
+    } finally {
+      setImportingBs(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Search by name */}
