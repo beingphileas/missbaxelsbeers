@@ -1,0 +1,2 @@
+ALTER TABLE public.beers ADD COLUMN IF NOT EXISTS lifecycle_status text NOT NULL DEFAULT 'current' CHECK (lifecycle_status IN ('current','archive'));
+CREATE INDEX IF NOT EXISTS idx_beers_lifecycle_status ON public.beers(lifecycle_status);
