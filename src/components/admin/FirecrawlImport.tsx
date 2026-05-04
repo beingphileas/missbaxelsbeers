@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Download, Sparkles, Search, Wand2 } from 'lucide-react';
+import { Loader2, Download, Sparkles, Search, Wand2, PackageOpen } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function FirecrawlImport() {
@@ -13,6 +13,8 @@ export default function FirecrawlImport() {
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [bulking, setBulking] = useState(false);
+  const [importingBs, setImportingBs] = useState(false);
+  const [bsResults, setBsResults] = useState<any | null>(null);
   const [lastResult, setLastResult] = useState<any>(null);
   const [bulkResults, setBulkResults] = useState<any[] | null>(null);
   const queryClient = useQueryClient();
