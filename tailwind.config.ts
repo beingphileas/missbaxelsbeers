@@ -57,6 +57,10 @@ export default {
         rust: "hsl(var(--rust))",
         slate: "hsl(var(--slate))",
         parchment: "hsl(var(--parchment))",
+        bierstekers: {
+          DEFAULT: "hsl(var(--bierstekers))",
+          foreground: "hsl(var(--bierstekers-foreground))",
+        },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
