@@ -40,6 +40,8 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const query = typeof body?.query === 'string' ? body.query.trim() : '';
+    const replaceBeerId =
+      typeof body?.replaceBeerId === 'string' ? body.replaceBeerId.trim() : '';
     if (!query) return json({ error: 'Geef een biernaam op' }, 400);
 
     // 1) Find a likely Untappd URL via Firecrawl search
