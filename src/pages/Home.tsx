@@ -1,204 +1,152 @@
-import { useBreweries } from '@/data/breweries';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Beer as BeerIcon, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useBeers, type Beer } from '@/data/beers';
 import { useBlogPosts } from '@/data/blog';
 import BlogCard from '@/components/BlogCard';
-import FeaturedBreweries from '@/components/FeaturedBreweries';
-import FeaturedBeers from '@/components/FeaturedBeers';
-import HeroMap from '@/components/HeroMap';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Beer, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
+import logo from '@/assets/missbaxels-logo.jpg';
+
+const HERO_BEER_NAMES = ['Totetrekkerie', 'Maria Guimauva', 'MissBaxels Tripel'];
 
 export default function Home() {
-  const { data: breweries = [] } = useBreweries();
+  const { data: beers = [] } = useBeers();
   const { data: posts = [] } = useBlogPosts();
-  const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const handleMapPin = useCallback((breweryId: string) => {
-    const brewery = breweries.find(b => b.id === breweryId);
-    if (brewery) {
-      navigate(`/map?lat=${brewery.lat}&lng=${brewery.lng}&zoom=14`);
-    }
-  }, [breweries, navigate]);
+  const heroBeers = HERO_BEER_NAMES
+    .map(name => beers.find(b => b.name.toLowerCase() === name.toLowerCase()))
+    .filter(Boolean) as Beer[];
 
-  const hero = posts[0];
-  const secondary = posts.slice(1, 3);
-  const rest = posts.slice(3, 7);
+  const currentBeers = beers.filter(b => b.lifecycleStatus === 'current');
+  const recentPosts = posts.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ═══ MAP HERO with Glassmorphism ═══ */}
-      <section className="relative min-h-[85vh] overflow-hidden">
-        <HeroMap breweries={breweries} />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-charcoal/30 via-transparent to-charcoal/80 pointer-events-none" />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-charcoal/50 via-transparent to-transparent pointer-events-none" />
-
-        <div className="relative z-[2] h-full min-h-[85vh] flex flex-col justify-end px-5 pb-8 md:pb-12 max-w-[1400px] mx-auto">
-          {posts.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5">
-              {hero && (
-                <Link to={`/post/${hero.slug}`} className="lg:col-span-2 group">
-                  <motion.article
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="relative overflow-hidden rounded-2xl border border-white/10 backdrop-blur-xl bg-white/[0.07] shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:bg-white/[0.1] transition-all duration-500"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-5">
-                      <div className="md:col-span-3 aspect-[16/10] md:aspect-auto md:min-h-[320px] overflow-hidden relative">
-                        {hero.coverImageUrl ? (
-                          <img src={hero.coverImageUrl} alt={hero.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" width={800} height={500} decoding="async" fetchPriority="high" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/40 md:block hidden" />
-                      </div>
-                      <div className="md:col-span-2 p-5 md:p-7 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-[10px] uppercase tracking-[0.25em] font-semibold text-accent">
-                            ✦ {t("Uitgelicht verhaal")}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 mb-4">
-                          {hero.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="text-[10px] uppercase tracking-wider font-medium text-white/70 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">{tag}</span>
-                          ))}
-                        </div>
-                        <h1 className="font-display text-2xl md:text-3xl leading-[1] text-white mb-3">{hero.title}</h1>
-                        {hero.excerpt && <p className="text-white/50 text-sm leading-relaxed line-clamp-3 mb-5">{hero.excerpt}</p>}
-                        <span className="inline-flex items-center gap-2 text-accent text-xs font-semibold tracking-wider group-hover:gap-3 transition-all">
-                          {t('Lees het verhaal')} <ArrowRight size={14} />
-                        </span>
-                      </div>
-                    </div>
-                  </motion.article>
-                </Link>
-              )}
-
-              <div className="flex flex-col gap-4">
-                {secondary.map((post, i) => (
-                  <Link key={post.id} to={`/post/${post.slug}`} className="group flex-1">
-                    <motion.article
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                      className="h-full rounded-xl border border-white/10 backdrop-blur-xl bg-white/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.25)] hover:bg-white/[0.09] transition-all duration-500 overflow-hidden flex flex-row"
-                    >
-                      <div className="w-28 md:w-32 shrink-0 overflow-hidden">
-                        {post.coverImageUrl ? (
-                          <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" width={128} height={128} loading="lazy" decoding="async" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-charcoal to-slate" />
-                        )}
-                      </div>
-                      <div className="p-4 flex flex-col justify-center min-w-0">
-                        <span className="text-[9px] uppercase tracking-[0.2em] font-medium text-accent/80 mb-1.5 block truncate">
-                          {post.tags[0] || t('Verhaal')}
-                          {post.breweryName && ` · ${post.breweryName}`}
-                        </span>
-                        <h2 className="font-display text-sm md:text-base leading-tight text-white mb-1.5 line-clamp-2 group-hover:text-accent transition-colors">{post.title}</h2>
-                        {post.excerpt && <p className="text-white/40 text-[11px] leading-relaxed line-clamp-2">{post.excerpt}</p>}
-                      </div>
-                    </motion.article>
-                  </Link>
-                ))}
-
-                <Link to="/map" className="group">
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                    className="rounded-xl border border-accent/20 backdrop-blur-xl bg-accent/[0.08] hover:bg-accent/[0.14] shadow-[0_4px_20px_rgba(0,0,0,0.2)] transition-all duration-500 p-4 flex items-center gap-3"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                      <MapPin size={18} className="text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-semibold">{t('Verken de kaart')}</p>
-                      <p className="text-white/40 text-[11px]">{breweries.length} {t('brouwerijen op de kaart')}</p>
-                    </div>
-                    <ArrowRight size={16} className="text-accent ml-auto group-hover:translate-x-1 transition-transform" />
-                  </motion.div>
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-md mx-auto">
-              <div className="rounded-2xl border border-white/10 backdrop-blur-xl bg-white/[0.06] p-10">
-                <Beer size={40} className="mx-auto text-accent/40 mb-6" />
-                <h1 className="font-display text-3xl md:text-5xl text-white mb-4">{t('Elk Bier Heeft een Verhaal')}</h1>
-                <p className="text-white/50 text-sm md:text-base mb-6">{t('Persoonlijke bierproefnotities, brouwerijbezoeken, en verborgen pareltjes — binnenkort hier.')}</p>
-              </div>
-            </motion.div>
-          )}
+      {/* Hero — Brand intro */}
+      <section className="relative border-b border-border/40 vintage-paper">
+        <div className="max-w-5xl mx-auto px-5 pt-14 pb-16 md:pt-20 md:pb-24 text-center">
+          <motion.img
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            src={logo}
+            alt="MissBaxel's Beers"
+            className="mx-auto h-28 w-28 md:h-36 md:w-36 rounded-full object-cover border-2 border-accent/30 shadow-vintage mb-6"
+          />
+          <p className="text-accent text-[11px] font-bold uppercase tracking-[0.4em] mb-3">
+            Collaborative Brewing
+          </p>
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="font-display text-4xl md:text-6xl leading-[1.05] mb-5"
+          >
+            MissBaxel<span className="text-accent font-light">'s</span> Beers
+          </motion.h1>
+          <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-8">
+            {t('Recepten, smaakdromen en vakmanschap — gebrouwen samen met de beste collega-brouwers van België.')}
+          </p>
+          <Link
+            to="/beers"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            {t('Ontdek de bieren')} <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 
-      {/* Stats ribbon */}
-      <div className="border-y border-border/60 bg-card vintage-paper">
-        <div className="max-w-5xl mx-auto px-5 py-6 flex justify-center gap-12 md:gap-20">
-          {[
-            { value: breweries.length, label: t('Brouwerijen') },
-            { value: posts.length, label: t('Verhalen') },
-            { value: '11', label: t('Provincies') },
-          ].map(stat => (
-            <div key={stat.label} className="text-center">
-              <p className="font-display text-3xl md:text-4xl text-accent">{stat.value}</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1.5 font-medium">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* More Discoveries */}
-      {rest.length > 0 && (
-        <section className="py-14 md:py-20">
+      {/* Hero beers */}
+      {heroBeers.length > 0 && (
+        <section className="py-14 md:py-20 border-b border-border/40">
           <div className="max-w-5xl mx-auto px-5">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-accent text-[10px] font-semibold uppercase tracking-[0.25em] mb-2">{t('Meer')}</p>
-                <h2 className="font-display text-2xl md:text-3xl">{t('Ontdekkingen')}</h2>
-              </div>
-              <Link to="/tastings" className="text-sm text-muted-foreground hover:text-accent flex items-center gap-1.5 transition-colors">
-                {t('Alles bekijken')} <ArrowRight size={14} />
-              </Link>
+            <div className="text-center mb-10">
+              <p className="text-accent text-[11px] font-bold uppercase tracking-[0.3em] mb-2">{t('Onze kernbieren')}</p>
+              <h2 className="font-display text-2xl md:text-3xl">{t('De Drie Klassiekers')}</h2>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {rest.map(post => (
-                <BlogCard key={post.id} post={post} onMapPin={handleMapPin} />
+            <div className="grid gap-5 md:grid-cols-3">
+              {heroBeers.map((beer, i) => (
+                <motion.div
+                  key={beer.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                >
+                  <Link
+                    to={`/beers/${beer.id}`}
+                    className="group block h-full bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <div className="bg-accent/8 border-b border-border/40 px-4 py-2.5 flex justify-between items-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-accent">{beer.style}</span>
+                      <span className="text-[11px] font-bold tabular-nums">{beer.abv}%</span>
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-display text-xl mb-2 group-hover:text-accent transition-colors">{beer.name}</h3>
+                      {beer.description && (
+                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                          {beer.description}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      <FeaturedBeers beers={breweries.flatMap(b => b.beers)} />
-      <FeaturedBreweries breweries={breweries} />
-
-      {/* Footer */}
-      <footer className="border-t border-border/60 bg-primary text-primary-foreground py-14 md:py-18">
-        <div className="max-w-5xl mx-auto px-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-center md:text-left">
-              <span className="font-display text-2xl">MissBaxel's</span>
-              <p className="text-sm text-primary-foreground/50 mt-2 tracking-wide">
-                Belgian Beer Whisperer · {t('Elk bier heeft een verhaal')}
-              </p>
-            </div>
-            <div className="flex gap-8 text-sm text-primary-foreground/60">
-              <Link to="/about" className="hover:text-primary-foreground transition-colors">{t('Over')}</Link>
-              <Link to="/map" className="hover:text-primary-foreground transition-colors">{t('Kaart')}</Link>
-              <Link to="/breweries" className="hover:text-primary-foreground transition-colors">{t('Brouwerijen')}</Link>
-              <Link to="/venues" className="hover:text-primary-foreground transition-colors">Venues</Link>
-            </div>
-          </div>
-          <div className="vintage-divider my-8" />
-          <p className="text-center text-xs text-primary-foreground/30">
-            © {new Date().getFullYear()} MissBaxel's Belgian Beer Whisperer. {t('Alle rechten voorbehouden.')}
+      {/* About / collab story */}
+      <section className="py-14 md:py-20 border-b border-border/40 bg-parchment">
+        <div className="max-w-3xl mx-auto px-5 text-center">
+          <Sparkles size={20} className="text-accent mx-auto mb-4" />
+          <h2 className="font-display text-2xl md:text-3xl mb-5">{t('Receptontwikkelaar & smaakmaker')}</h2>
+          <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
+            {t('MissBaxel heeft geen eigen brouwketels. Elk bier is een collab — ontwikkeld door MissBaxel en gebrouwen bij vrienden en collega-brouwers. Het resultaat: kleine series, grote verhalen, en bieren die je nergens anders vindt.')}
           </p>
         </div>
+      </section>
+
+      {/* Stories */}
+      {recentPosts.length > 0 && (
+        <section className="py-14 md:py-20">
+          <div className="max-w-5xl mx-auto px-5">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-accent text-[10px] font-semibold uppercase tracking-[0.25em] mb-2">{t('Recent')}</p>
+                <h2 className="font-display text-2xl md:text-3xl">{t('Verhalen')}</h2>
+              </div>
+              <Link to="/stories" className="text-sm text-muted-foreground hover:text-accent flex items-center gap-1.5 transition-colors">
+                {t('Alles bekijken')} <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {recentPosts.map(post => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Footer */}
+      <footer className="border-t border-border/60 bg-primary text-primary-foreground py-12">
+        <div className="max-w-5xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div>
+            <span className="font-display text-2xl">MissBaxel's Beers</span>
+            <p className="text-sm text-primary-foreground/50 mt-2 tracking-wide">
+              {t('Recepten gebrouwen in samenwerking.')}
+            </p>
+          </div>
+          <div className="flex gap-6 text-sm text-primary-foreground/60">
+            <Link to="/beers" className="hover:text-primary-foreground transition-colors">{t('Bieren')}</Link>
+            <Link to="/stories" className="hover:text-primary-foreground transition-colors">{t('Verhalen')}</Link>
+          </div>
+        </div>
+        <p className="text-center text-xs text-primary-foreground/30 mt-8">
+          © {new Date().getFullYear()} MissBaxel's Beers. {currentBeers.length} {t('bieren in assortiment')}.
+        </p>
       </footer>
     </div>
   );

@@ -1,0 +1,1 @@
+ALTER TABLE public.beers ADD COLUMN IF NOT EXISTS brewed_at text;

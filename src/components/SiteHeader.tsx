@@ -7,8 +7,8 @@ import { useLanguage, Lang } from '@/hooks/useLanguage';
 import logo from '@/assets/missbaxels-logo.jpg';
 
 const navItems = [
-  { label: 'Verhalen', path: '/tastings' },
   { label: 'Bieren', path: '/beers' },
+  { label: 'Verhalen', path: '/stories' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string; flag: string }[] = [

@@ -1,24 +1,22 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useBreweries, Beer } from '@/data/breweries';
-import { useVenues, useBlogPosts } from '@/data/blog';
+import { useBeers } from '@/data/beers';
+import { useBlogPosts } from '@/data/blog';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, ExternalLink, MapPin, BookOpen, FlaskConical, Map, Sparkles } from 'lucide-react';
+import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import ContextMap from '@/components/ContextMap';
 import SEOHead from '@/components/SEOHead';
 import BeerAnalysisView from '@/components/BeerAnalysisView';
 import { useLanguage } from '@/hooks/useLanguage';
 
 export default function BeerDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data: breweries = [], isLoading } = useBreweries();
-  const { data: venues = [] } = useVenues();
+  const { data: beers = [], isLoading } = useBeers();
   const { data: posts = [] } = useBlogPosts();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -34,40 +32,20 @@ export default function BeerDetail() {
     enabled: !!user,
   });
 
-  const allBeers = useMemo(() => breweries.flatMap(b => b.beers), [breweries]);
-  const beer = useMemo(() => allBeers.find(b => b.id === id), [allBeers, id]);
-  const brewery = useMemo(() => breweries.find(b => b.id === beer?.breweryId), [breweries, beer]);
+  const beer = useMemo(() => beers.find(b => b.id === id), [beers, id]);
 
   const relatedPosts = useMemo(() => {
     if (!beer) return [];
-    return posts.filter(p => p.beerIds?.includes(beer.id) || p.beerId === beer.id || p.breweryId === beer.breweryId);
+    return posts.filter(p => p.beerIds?.includes(beer.id) || p.beerId === beer.id);
   }, [posts, beer]);
-
-  const nearbyVenues = useMemo(() => {
-    if (!brewery) return [];
-    return venues
-      .map(v => ({ venue: v, distance: Math.sqrt(Math.pow(v.lat - brewery.lat, 2) + Math.pow(v.lng - brewery.lng, 2)) }))
-      .filter(v => v.distance < 0.15)
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 6)
-      .map(v => v.venue);
-  }, [brewery, venues]);
-
-  const mapMarkers = useMemo(() => {
-    if (!brewery) return [];
-    const markers = [{ lat: brewery.lat, lng: brewery.lng, name: brewery.name, color: '#D4AF37', type: t('Brouwerij') }];
-    nearbyVenues.forEach(v => { markers.push({ lat: v.lat, lng: v.lng, name: v.name, color: '#c2703e', type: v.venueType }); });
-    return markers;
-  }, [brewery, nearbyVenues, t]);
 
   const similarBeers = useMemo(() => {
     if (!beer) return [];
-    return allBeers
-      .filter(b => b.id !== beer.id)
+    return beers
+      .filter(b => b.id !== beer.id && b.lifecycleStatus === beer.lifecycleStatus)
       .map(b => {
         let score = 0;
         if (b.style === beer.style) score += 3;
-        if (b.breweryId === beer.breweryId) score += 2;
         if (Math.abs(b.abv - beer.abv) < 1.5) score += 1;
         score += b.flavorProfile.filter(f => beer.flavorProfile.includes(f)).length;
         return { beer: b, score };
@@ -76,7 +54,7 @@ export default function BeerDetail() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 6)
       .map(s => s.beer);
-  }, [beer, allBeers]);
+  }, [beer, beers]);
 
   if (isLoading) {
     return (
@@ -85,7 +63,6 @@ export default function BeerDetail() {
           <Skeleton className="h-8 w-48 mb-6" />
           <Skeleton className="h-12 w-72 mb-4" />
           <Skeleton className="h-6 w-56 mb-8" />
-          <div className="grid gap-4 grid-cols-2"><Skeleton className="h-32" /><Skeleton className="h-32" /></div>
         </div>
       </div>
     );
@@ -97,7 +74,7 @@ export default function BeerDetail() {
         <div className="text-center">
           <p className="text-muted-foreground mb-4">{t('Bier niet gevonden.')}</p>
           <Button asChild variant="outline">
-            <Link to="/beers"><ArrowLeft size={14} /> {t('Terug naar database')}</Link>
+            <Link to="/beers"><ArrowLeft size={14} /> {t('Terug naar bieren')}</Link>
           </Button>
         </div>
       </div>
@@ -106,41 +83,62 @@ export default function BeerDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={beer.name} description={`${beer.style} · ${beer.abv}% ABV${brewery ? ` — ${brewery.name}, ${brewery.province}` : ''}. ${beer.flavorProfile.join(', ')}.`} url={`/beers/${beer.id}`} />
+      <SEOHead
+        title={beer.name}
+        description={`${beer.style} · ${beer.abv}% ABV — MissBaxel's Beers. ${beer.flavorProfile.join(', ')}.`}
+        url={`/beers/${beer.id}`}
+      />
 
       <div className="border-b border-border/40 bg-parchment">
         <div className="max-w-4xl mx-auto px-5 py-8 md:py-12">
           <Link to="/beers" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-xs mb-4 transition-colors">
-            <ArrowLeft size={12} /> {t('Bier Database')}
+            <ArrowLeft size={12} /> {t('Bieren')}
           </Link>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-accent text-[10px] font-bold uppercase tracking-[0.3em]">{beer.style}</span>
               <span className="text-muted-foreground text-[10px]">•</span>
               <span className="text-[11px] font-bold tabular-nums">{beer.abv}% ABV</span>
+              <Badge
+                variant="outline"
+                className={`text-[9px] uppercase tracking-wider ${beer.lifecycleStatus === 'archive' ? 'border-muted-foreground/40 text-muted-foreground' : 'border-accent/40 text-accent'}`}
+              >
+                {beer.lifecycleStatus === 'archive' ? t('Archief') : t('Huidig assortiment')}
+              </Badge>
               {beer.hasPost && (
                 <Badge className="bg-accent/15 text-accent border-accent/25 text-[9px] gap-1">
-                  <Sparkles size={8} /> {t('Geverifieerd')}
+                  <Sparkles size={8} /> {t('Verhaal')}
                 </Badge>
               )}
             </div>
-            <h1 className="font-display text-3xl md:text-5xl mb-2">{beer.name}</h1>
-            {brewery && (
-              <Link to={`/breweries/${brewery.id}`} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-accent text-sm transition-colors">
-                <MapPin size={12} /> {brewery.name} — {brewery.province}
-              </Link>
-            )}
+            <h1 className="font-display text-3xl md:text-5xl mb-3">{beer.name}</h1>
+
+            {/* Brewed at — prominent */}
+            <div className="inline-flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/25 rounded-md text-sm">
+              <Handshake size={14} className="text-accent" />
+              <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">{t('Gebrouwen bij')}:</span>
+              <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
+            </div>
           </motion.div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-5 py-8 space-y-10">
+        {/* Story / description */}
+        {beer.description && (
+          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <p className="font-serif text-lg leading-relaxed text-foreground/90 italic">
+              {beer.description}
+            </p>
+          </motion.section>
+        )}
+
         {relatedPosts.length > 0 && (
           <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={16} className="text-accent" />
-              <h2 className="font-display text-xl">{t("Whisperer's Oordeel")}</h2>
+              <h2 className="font-display text-xl">{t('Verhalen rond dit bier')}</h2>
             </div>
             <div className="space-y-3">
               {relatedPosts.map(post => (
@@ -148,9 +146,6 @@ export default function BeerDetail() {
                   <div className="flex gap-4">
                     {post.coverImageUrl && <img src={post.coverImageUrl} alt={post.title} className="w-24 h-24 md:w-32 md:h-28 object-cover shrink-0" />}
                     <div className="py-3 pr-4 flex flex-col justify-center">
-                      <span className="inline-flex items-center gap-1 text-[9px] text-accent font-bold uppercase tracking-[0.2em] mb-1">
-                        <Sparkles size={8} /> {t("Whisperer's Oordeel")}
-                      </span>
                       <h3 className="font-display text-sm md:text-base leading-tight group-hover:text-accent transition-colors mb-1">{post.title}</h3>
                       {post.excerpt && <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{post.excerpt}</p>}
                     </div>
@@ -164,27 +159,21 @@ export default function BeerDetail() {
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div className="flex items-center gap-2 mb-4">
             <FlaskConical size={16} className="text-accent" />
-            <h2 className="font-display text-xl">{t('De Data')}</h2>
+            <h2 className="font-display text-xl">{t('Smaak & Specs')}</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
             <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
-              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">{t('Technisch')}</h3>
+              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">{t('Specs')}</h3>
               <dl className="space-y-2.5 text-sm">
                 <div className="flex justify-between"><dt className="text-muted-foreground">{t('Stijl')}</dt><dd className="font-medium">{beer.style}</dd></div>
                 <div className="flex justify-between"><dt className="text-muted-foreground">ABV</dt><dd className="font-medium tabular-nums">{beer.abv}%</dd></div>
-                {brewery && (
-                  <>
-                    <div className="flex justify-between"><dt className="text-muted-foreground">{t('Brouwerij')}</dt><dd className="font-medium"><Link to={`/breweries/${brewery.id}`} className="hover:text-accent transition-colors">{brewery.name}</Link></dd></div>
-                    <div className="flex justify-between"><dt className="text-muted-foreground">Type</dt><dd className="font-medium">{brewery.type}</dd></div>
-                    <div className="flex justify-between"><dt className="text-muted-foreground">{t('Provincie')}</dt><dd className="font-medium">{brewery.province}</dd></div>
-                    {brewery.establishedYear > 0 && <div className="flex justify-between"><dt className="text-muted-foreground">{t('Opgericht')}</dt><dd className="font-medium tabular-nums">{brewery.establishedYear}</dd></div>}
-                  </>
-                )}
+                <div className="flex justify-between"><dt className="text-muted-foreground">{t('Status')}</dt><dd className="font-medium">{beer.lifecycleStatus === 'archive' ? t('Archief') : t('Huidig')}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">{t('Gebrouwen bij')}</dt><dd className="font-medium text-right">{beer.brewedAt || '—'}</dd></div>
               </dl>
               <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-dashed border-border/40">
-                {beer.isHiddenGem && <Badge className="bg-success/10 text-success border-success/20 hover:bg-success/20"><Star size={10} className="mr-1" /> {t('Verborgen parel')}</Badge>}
-                {beer.featured && <Badge className="bg-accent/10 text-accent border-accent/20 hover:bg-accent/20">{t('Uitgelicht')}</Badge>}
+                {beer.isHiddenGem && <Badge className="bg-success/10 text-success border-success/20"><Star size={10} className="mr-1" /> {t('Verborgen parel')}</Badge>}
+                {beer.featured && <Badge className="bg-accent/10 text-accent border-accent/20">{t('Uitgelicht')}</Badge>}
               </div>
             </div>
 
@@ -200,16 +189,9 @@ export default function BeerDetail() {
                 <p className="text-muted-foreground text-sm mb-4">{t('Geen smaakprofiel beschikbaar.')}</p>
               )}
               {beer.foodPairing && (
-                <div className="mb-4">
+                <div>
                   <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">{t('Aanbevolen combinatie')}</h4>
                   <p className="text-sm leading-relaxed">🍽 {beer.foodPairing}</p>
-                </div>
-              )}
-              {brewery?.websiteUrl && (
-                <div className="pt-3 border-t border-dashed border-border/40">
-                  <a href={brewery.websiteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-accent hover:underline text-sm">
-                    <ExternalLink size={12} /> {t('Website brouwerij')}
-                  </a>
                 </div>
               )}
             </div>
@@ -224,48 +206,8 @@ export default function BeerDetail() {
           primaryFlavors={beer.primaryFlavors ?? null} secondaryFlavors={beer.secondaryFlavors ?? null} aromaProfile={beer.aromaProfile ?? null}
           pairingFood={beer.pairingFood ?? null} pairingClassic={beer.pairingClassic ?? null} pairingCheese={beer.pairingCheese ?? null}
           serveStyle={beer.serveStyle ?? null} productionMethod={beer.productionMethod ?? null}
-          isAdmin={!!isAdmin} onRefresh={() => queryClient.invalidateQueries({ queryKey: ['breweries'] })}
+          isAdmin={!!isAdmin} onRefresh={() => queryClient.invalidateQueries({ queryKey: ['beers'] })}
         />
-
-        {brewery && (
-          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <div className="flex items-center gap-2 mb-4">
-              <Map size={16} className="text-accent" />
-              <h2 className="font-display text-xl">{t('De Context')}</h2>
-            </div>
-            <div className="grid md:grid-cols-5 gap-5">
-              <div className="md:col-span-3 bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] overflow-hidden h-64 md:h-80">
-                <ContextMap center={{ lat: brewery.lat, lng: brewery.lng }} markers={mapMarkers} zoom={nearbyVenues.length > 0 ? 12 : 13} />
-              </div>
-              <div className="md:col-span-2">
-                <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3">
-                  {nearbyVenues.length > 0 ? t('Cafés & venues in de buurt') : t('Locatie')}
-                </h3>
-                {nearbyVenues.length > 0 ? (
-                  <div className="space-y-2">
-                    {nearbyVenues.map(v => (
-                      <div key={v.id} className="bg-card border border-border/60 p-2.5 text-sm">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-medium text-xs">{v.name}</p>
-                            <p className="text-[10px] text-muted-foreground">{v.venueType} · {v.province}</p>
-                          </div>
-                          {v.googleRating && <span className="text-[10px] font-bold tabular-nums text-accent shrink-0">★ {v.googleRating}</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-card border border-border/60 p-3">
-                    <p className="text-sm font-medium">{brewery.name}</p>
-                    {brewery.address && <p className="text-[11px] text-muted-foreground mt-1">{brewery.address}</p>}
-                    <p className="text-[11px] text-muted-foreground">{brewery.province}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.section>
-        )}
 
         {similarBeers.length > 0 && (
           <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
@@ -277,15 +219,7 @@ export default function BeerDetail() {
                     <h3 className="font-display text-sm leading-tight group-hover:text-accent transition-colors">{b.name}</h3>
                     <span className="text-[10px] font-bold tabular-nums shrink-0 ml-2">{b.abv}%</span>
                   </div>
-                  <p className="text-[10px] text-accent font-bold uppercase tracking-wide mb-1">{b.style}</p>
-                  {b.breweryName && <p className="text-[10px] text-muted-foreground italic">{b.breweryName}</p>}
-                  {b.flavorProfile.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {b.flavorProfile.slice(0, 3).map(tag => (
-                        <span key={tag} className="px-1.5 py-0.5 bg-secondary/80 border border-border/40 text-[8px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
-                      ))}
-                    </div>
-                  )}
+                  <p className="text-[10px] text-accent font-bold uppercase tracking-wide">{b.style}</p>
                 </Link>
               ))}
             </div>
