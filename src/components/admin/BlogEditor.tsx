@@ -30,7 +30,6 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
-  const [breweryId, setBreweryId] = useState<string>('');
   const [beerId, setBeerId] = useState<string>('');
   const [selectedBeerIds, setSelectedBeerIds] = useState<string[]>([]);
   const [tags, setTags] = useState('');
@@ -49,7 +48,6 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
           setExcerpt(data.excerpt ?? '');
           setContent(data.content);
           setCoverImageUrl(data.cover_image_url ?? '');
-          setBreweryId(data.brewery_id ?? '');
           setBeerId(data.beer_id ?? '');
           setSelectedBeerIds((links ?? []).map((l: any) => l.beer_id));
           setTags((data.tags ?? []).join(', '));
@@ -91,7 +89,6 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
       excerpt: excerpt.trim() || null,
       content,
       cover_image_url: coverImageUrl.trim() || null,
-      brewery_id: breweryId || null,
       beer_id: beerId || null,
       tags: tags
         .split(',')
@@ -207,48 +204,29 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Brouwerij</Label>
-              <Select value={breweryId} onValueChange={setBreweryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Kies brouwerij" />
-                </SelectTrigger>
-                <SelectContent>
-                  {breweries.map(b => (
-                    <SelectItem key={b.id} value={b.id}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Bieren (meerdere selecteerbaar)</Label>
-              {!breweryId ? (
-                <p className="text-xs text-muted-foreground py-2">Kies eerst een brouwerij</p>
-              ) : (
-                <div className="border border-input rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
-                  {beers.map(b => (
-                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/50 px-1 py-0.5 rounded">
-                      <input
-                        type="checkbox"
-                        checked={selectedBeerIds.includes(b.id)}
-                        onChange={e => {
-                          if (e.target.checked) {
-                            setSelectedBeerIds(prev => [...prev, b.id]);
-                            if (!beerId) setBeerId(b.id);
-                          } else {
-                            setSelectedBeerIds(prev => prev.filter(id => id !== b.id));
-                          }
-                        }}
-                        className="accent-[hsl(var(--accent))]"
-                      />
-                      {b.name}
-                    </label>
-                  ))}
-                </div>
-              )}
+              <div className="border border-input rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
+                {beers.map(b => (
+                  <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary/50 px-1 py-0.5 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedBeerIds.includes(b.id)}
+                      onChange={e => {
+                        if (e.target.checked) {
+                          setSelectedBeerIds(prev => [...prev, b.id]);
+                          if (!beerId) setBeerId(b.id);
+                        } else {
+                          setSelectedBeerIds(prev => prev.filter(id => id !== b.id));
+                        }
+                      }}
+                      className="accent-[hsl(var(--accent))]"
+                    />
+                    {b.name}
+                  </label>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Tags (komma-gescheiden)</Label>
