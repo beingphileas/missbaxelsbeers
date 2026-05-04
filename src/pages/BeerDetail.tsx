@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake, Wand2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake, Wand2, Loader2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -152,6 +152,16 @@ export default function BeerDetail() {
               <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">{t('Gebrouwen bij')}:</span>
               <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
             </div>
+
+            {beer.shopUrl && (
+              <div className="mt-4">
+                <Button asChild size="lg" className="gap-2">
+                  <a href={beer.shopUrl} target="_blank" rel="noopener noreferrer">
+                    <ShoppingCart size={16} /> {t('Bestel via Bierstekers')}
+                  </a>
+                </Button>
+              </div>
+            )}
 
             {isAdmin && (
               <div className="mt-4">

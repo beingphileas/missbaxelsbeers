@@ -127,6 +127,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
             <Label>Foodpairing</Label>
             <Input value={foodPairing} onChange={e => setFoodPairing(e.target.value)} />
           </div>
+          <div>
+            <Label>Bierstekers shop-link <span className="text-muted-foreground text-xs">(optioneel)</span></Label>
+            <Input
+              value={shopUrl}
+              onChange={e => setShopUrl(e.target.value)}
+              placeholder="https://bierstekers.com/product/..."
+              type="url"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Wordt op de bierdetailpagina als "Bestel via Bierstekers" knop getoond.</p>
+          </div>
           <div className="grid grid-cols-3 gap-4 items-center">
             <div>
               <Label>Status</Label>
