@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.assign_seed_admin() FROM PUBLIC, anon, authenticated;
