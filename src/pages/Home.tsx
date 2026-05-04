@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Beer as BeerIcon, Sparkles } from 'lucide-react';
+import { ArrowRight, Beer as BeerIcon, Sparkles, Handshake } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useBeers, type Beer } from '@/data/beers';
 import { useBlogPosts } from '@/data/blog';
@@ -82,11 +82,25 @@ export default function Home() {
                       <span className="text-[11px] font-bold tabular-nums">{beer.abv}%</span>
                     </div>
                     <div className="p-5">
-                      <h3 className="font-display text-xl mb-2 group-hover:text-accent transition-colors">{beer.name}</h3>
+                      <h3 className="font-display text-xl mb-1 group-hover:text-accent transition-colors">{beer.name}</h3>
+                      <p className="text-[11px] text-muted-foreground italic mb-3 flex items-center gap-1.5">
+                        <Handshake size={11} className="text-accent shrink-0" />
+                        <span className="truncate">
+                          <span className="uppercase tracking-wider text-[9px] font-bold text-accent/80 mr-1">{t('Gebrouwen bij')}:</span>
+                          {beer.brewedAt || t('Collab — t.b.a.')}
+                        </span>
+                      </p>
                       {beer.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
                           {beer.description}
                         </p>
+                      )}
+                      {beer.flavorProfile.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-dashed border-border/40">
+                          {beer.flavorProfile.slice(0, 4).map(tag => (
+                            <span key={tag} className="px-2 py-0.5 bg-secondary/80 border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </Link>
