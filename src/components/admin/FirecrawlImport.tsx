@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Download, Sparkles, Search, Wand2 } from 'lucide-react';
+import { Loader2, Download, Sparkles, Search, Wand2, PackageOpen } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function FirecrawlImport() {
@@ -13,6 +13,8 @@ export default function FirecrawlImport() {
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [bulking, setBulking] = useState(false);
+  const [importingBs, setImportingBs] = useState(false);
+  const [bsResults, setBsResults] = useState<any | null>(null);
   const [lastResult, setLastResult] = useState<any>(null);
   const [bulkResults, setBulkResults] = useState<any[] | null>(null);
   const queryClient = useQueryClient();
@@ -90,6 +92,25 @@ export default function FirecrawlImport() {
       toast.error('Onverwachte fout', { description: e?.message });
     } finally {
       setBulking(false);
+    }
+  };
+
+  const handleImportBierstekers = async () => {
+    setImportingBs(true);
+    setBsResults(null);
+    toast.info('Bierstekers import gestart… (~20 producten, ±10s)');
+    try {
+      const { data, error } = await supabase.functions.invoke('import-bierstekers', { body: {} });
+      if (error) return toast.error('Import mislukt', { description: error.message });
+      if (data?.error) return toast.error('Import mislukt', { description: data.error });
+      setBsResults(data);
+      const s = data.summary;
+      toast.success(`Bierstekers: ${s.inserted} nieuw, ${s.updated} bijgewerkt, ${s.skipped} overgeslagen, ${s.errors} fouten`);
+      invalidate();
+    } catch (e: any) {
+      toast.error('Onverwachte fout', { description: e?.message });
+    } finally {
+      setImportingBs(false);
     }
   };
 
@@ -176,6 +197,49 @@ export default function FirecrawlImport() {
                 </span>
               </div>
             ))}
+          </div>
+        )}
+      </section>
+
+      {/* Bierstekers full catalog import */}
+      <section className="space-y-2 border border-bierstekers/40 rounded-md p-4 bg-bierstekers/5">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <PackageOpen size={14} className="text-bierstekers" />
+          <span>Importeer alle Bierstekers-bieren</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Haalt het volledige archief van bierstekers.com op (~20 blends), tagt ze als <code className="text-bierstekers">source=bierstekers</code> en <code>archive</code>.
+        </p>
+        <Button onClick={handleImportBierstekers} disabled={importingBs} variant="secondary" className="gap-1.5 mt-2">
+          {importingBs ? <Loader2 size={14} className="animate-spin" /> : <PackageOpen size={14} />}
+          {importingBs ? 'Importeren…' : 'Start Bierstekers import'}
+        </Button>
+
+        {bsResults?.summary && (
+          <div className="mt-3 text-xs space-y-1">
+            <div className="flex gap-3 flex-wrap">
+              <span><strong>{bsResults.summary.inserted}</strong> nieuw</span>
+              <span><strong>{bsResults.summary.updated}</strong> bijgewerkt</span>
+              <span className="text-muted-foreground">{bsResults.summary.skipped} overgeslagen</span>
+              {bsResults.summary.errors > 0 && (
+                <span className="text-destructive">{bsResults.summary.errors} fouten</span>
+              )}
+            </div>
+            <div className="max-h-60 overflow-y-auto mt-2 border-t border-border/30 pt-2">
+              {bsResults.results?.map((r: any, i: number) => (
+                <div key={i} className="flex justify-between border-b border-border/20 py-1">
+                  <span className="truncate">{r.name ?? r.slug}</span>
+                  <span className={
+                    r.status === 'inserted' ? 'text-bierstekers font-medium' :
+                    r.status === 'updated' ? 'text-accent' :
+                    r.status === 'error' ? 'text-destructive' :
+                    'text-muted-foreground'
+                  }>
+                    {r.status}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>
