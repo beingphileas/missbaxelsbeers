@@ -35,6 +35,7 @@ export interface Beer {
   pairingCheese?: string[] | null;
   serveStyle?: string | null;
   productionMethod?: string | null;
+  shopUrl?: string | null;
 }
 
 async function fetchPostLinks() {
@@ -93,6 +94,7 @@ async function fetchBeers(): Promise<Beer[]> {
     pairingCheese: b.pairing_cheese,
     serveStyle: b.serve_style,
     productionMethod: b.production_method,
+    shopUrl: b.shop_url,
   }));
 }
 
