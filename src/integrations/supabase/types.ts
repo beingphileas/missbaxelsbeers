@@ -48,6 +48,7 @@ export type Database = {
           radar_spice: number | null
           secondary_flavors: string[] | null
           serve_style: string | null
+          shop_url: string | null
           source_count: number | null
           source_records: Json | null
           source_url: string | null
@@ -92,6 +93,7 @@ export type Database = {
           radar_spice?: number | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
+          shop_url?: string | null
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           radar_spice?: number | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
+          shop_url?: string | null
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
