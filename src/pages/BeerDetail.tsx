@@ -21,6 +21,7 @@ export default function BeerDetail() {
   const { data: posts = [] } = useBlogPosts();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const { data: isAdmin } = useQuery({
