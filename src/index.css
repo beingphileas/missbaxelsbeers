@@ -58,6 +58,10 @@
     --vintage-cream: 220 18% 14%;
     --vintage-sepia: 220 10% 40%;
 
+    /* Bierstekers sub-brand: warm copper/amber to differ from gold accent */
+    --bierstekers: 22 75% 52%;
+    --bierstekers-foreground: 220 20% 8%;
+
     /* Shadows – dark & deep */
     --shadow-hard: 3px 3px 0px hsl(0 0% 0% / 0.5);
     --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.4), 0 1px 3px hsl(0 0% 0% / 0.2);

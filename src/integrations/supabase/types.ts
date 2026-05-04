@@ -49,6 +49,7 @@ export type Database = {
           secondary_flavors: string[] | null
           serve_style: string | null
           shop_url: string | null
+          source: Database["public"]["Enums"]["beer_source"]
           source_count: number | null
           source_records: Json | null
           source_url: string | null
@@ -94,6 +95,7 @@ export type Database = {
           secondary_flavors?: string[] | null
           serve_style?: string | null
           shop_url?: string | null
+          source?: Database["public"]["Enums"]["beer_source"]
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
@@ -139,6 +141,7 @@ export type Database = {
           secondary_flavors?: string[] | null
           serve_style?: string | null
           shop_url?: string | null
+          source?: Database["public"]["Enums"]["beer_source"]
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
@@ -657,6 +660,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      beer_source: "missbaxel" | "bierstekers" | "beide"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -785,6 +789,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      beer_source: ["missbaxel", "bierstekers", "beide"],
     },
   },
 } as const

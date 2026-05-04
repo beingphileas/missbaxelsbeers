@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import logo from '@/assets/missbaxels-logo.jpg';
 
@@ -33,29 +32,23 @@ export default function SiteFooter() {
           <ul className="space-y-2 text-sm">
             <li><Link to="/beers" className="text-muted-foreground hover:text-foreground transition-colors">{t('Bieren')}</Link></li>
             <li><Link to="/stories" className="text-muted-foreground hover:text-foreground transition-colors">{t('Verhalen')}</Link></li>
-            <li><Link to="/bierstekers" className="text-muted-foreground hover:text-foreground transition-colors">Bierstekers</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-accent mb-3">
-            {t('Onze Werking')}
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-bierstekers mb-3">
+            Bierstekers
           </h3>
           <ul className="space-y-2 text-sm">
             <li>
               <Link to="/bierstekers" className="text-muted-foreground hover:text-foreground transition-colors">
-                {t('Over Bierstekers')}
+                {t('Over de werking')}
               </Link>
             </li>
             <li>
-              <a
-                href="https://bierstekers.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Bierstekers.com <ExternalLink size={11} />
-              </a>
+              <Link to="/bierstekers/archief" className="text-muted-foreground hover:text-foreground transition-colors">
+                {t('Het archief')}
+              </Link>
             </li>
           </ul>
         </div>
@@ -63,9 +56,10 @@ export default function SiteFooter() {
 
       <div className="border-t border-border/30">
         <div className="max-w-[1400px] mx-auto px-5 py-4 text-[11px] text-muted-foreground text-center">
-          © {year} MissBaxel's Beers · {t('Een zustermerk van Bierstekers')}
+          © {year} MissBaxel's Beers <span className="text-bierstekers/70">·</span> {t('Inclusief de Bierstekers-werking')}
         </div>
       </div>
     </footer>
   );
 }
+

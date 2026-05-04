@@ -153,13 +153,18 @@ export default function BeerDetail() {
               <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
             </div>
 
-            {beer.shopUrl && (
-              <div className="mt-4">
-                <Button asChild size="lg" className="gap-2">
-                  <a href={beer.shopUrl} target="_blank" rel="noopener noreferrer">
-                    <ShoppingCart size={16} /> {t('Bestel via Bierstekers')}
+            {(beer.source === 'bierstekers' || beer.source === 'beide') && (
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 bg-bierstekers/10 border border-bierstekers/30 rounded-md text-sm">
+                <ShoppingCart size={14} className="text-bierstekers" />
+                <span className="text-bierstekers font-bold uppercase tracking-wider text-[10px]">Bierstekers</span>
+                <span className="text-muted-foreground text-xs">·</span>
+                {beer.shopUrl ? (
+                  <a href={beer.shopUrl} target="_blank" rel="noopener noreferrer" className="text-foreground font-medium hover:text-bierstekers transition-colors">
+                    {t('Bestellen')}
                   </a>
-                </Button>
+                ) : (
+                  <span className="text-muted-foreground italic text-xs">{t('Uitverkocht — archiefbier')}</span>
+                )}
               </div>
             )}
 

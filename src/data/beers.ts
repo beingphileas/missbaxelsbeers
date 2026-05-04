@@ -36,6 +36,7 @@ export interface Beer {
   serveStyle?: string | null;
   productionMethod?: string | null;
   shopUrl?: string | null;
+  source: 'missbaxel' | 'bierstekers' | 'beide';
 }
 
 async function fetchPostLinks() {
@@ -95,6 +96,7 @@ async function fetchBeers(): Promise<Beer[]> {
     serveStyle: b.serve_style,
     productionMethod: b.production_method,
     shopUrl: b.shop_url,
+    source: (b.source ?? 'missbaxel') as 'missbaxel' | 'bierstekers' | 'beide',
   }));
 }
 
