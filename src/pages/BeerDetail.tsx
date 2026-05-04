@@ -34,6 +34,31 @@ export default function BeerDetail() {
   });
 
   const beer = useMemo(() => beers.find(b => b.id === id), [beers, id]);
+  const [enriching, setEnriching] = useState(false);
+
+  const handleEnrich = async () => {
+    if (!beer) return;
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('search-beer-firecrawl', {
+        body: { query: beer.name },
+      });
+      if (error) {
+        toast.error('Verrijken mislukt', { description: error.message });
+        return;
+      }
+      if (data?.error) {
+        toast.error('Niet gevonden', { description: data.error });
+        return;
+      }
+      toast.success(`Bierdata bijgewerkt via Untappd`);
+      queryClient.invalidateQueries({ queryKey: ['beers'] });
+    } catch (e: any) {
+      toast.error('Onverwachte fout', { description: e?.message });
+    } finally {
+      setEnriching(false);
+    }
+  };
 
   const relatedPosts = useMemo(() => {
     if (!beer) return [];
