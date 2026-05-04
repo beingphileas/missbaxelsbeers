@@ -32,6 +32,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_hidden_gem: boolean | null
+          lifecycle_status: string
           name: string
           pairing_cheese: string[] | null
           pairing_classic: string[] | null
@@ -74,6 +75,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_hidden_gem?: boolean | null
+          lifecycle_status?: string
           name: string
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
@@ -116,6 +118,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_hidden_gem?: boolean | null
+          lifecycle_status?: string
           name?: string
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
