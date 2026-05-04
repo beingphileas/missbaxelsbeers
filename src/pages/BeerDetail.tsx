@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBeers } from '@/data/beers';
 import { useBlogPosts } from '@/data/blog';
@@ -6,10 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake } from 'lucide-react';
+import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake, Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import SEOHead from '@/components/SEOHead';
 import BeerAnalysisView from '@/components/BeerAnalysisView';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -33,6 +34,31 @@ export default function BeerDetail() {
   });
 
   const beer = useMemo(() => beers.find(b => b.id === id), [beers, id]);
+  const [enriching, setEnriching] = useState(false);
+
+  const handleEnrich = async () => {
+    if (!beer) return;
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('search-beer-firecrawl', {
+        body: { query: beer.name },
+      });
+      if (error) {
+        toast.error('Verrijken mislukt', { description: error.message });
+        return;
+      }
+      if (data?.error) {
+        toast.error('Niet gevonden', { description: data.error });
+        return;
+      }
+      toast.success(`Bierdata bijgewerkt via Untappd`);
+      queryClient.invalidateQueries({ queryKey: ['beers'] });
+    } catch (e: any) {
+      toast.error('Onverwachte fout', { description: e?.message });
+    } finally {
+      setEnriching(false);
+    }
+  };
 
   const relatedPosts = useMemo(() => {
     if (!beer) return [];
@@ -120,6 +146,15 @@ export default function BeerDetail() {
               <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">{t('Gebrouwen bij')}:</span>
               <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
             </div>
+
+            {isAdmin && (
+              <div className="mt-4">
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={handleEnrich} disabled={enriching}>
+                  {enriching ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                  {enriching ? t('Verrijken…') : t('Verrijk via Untappd')}
+                </Button>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
