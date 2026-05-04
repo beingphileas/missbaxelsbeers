@@ -1,8 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-export type BreweryType = 'Trappist' | 'Family-owned' | 'Microbrewery' | 'Industrial' | 'Contract brewer';
-
 export interface Beer {
   id: string;
   name: string;
@@ -15,6 +13,9 @@ export interface Beer {
   breweryId: string;
   breweryName?: string;
   hasPost?: boolean;
+  imageUrl?: string | null;
+  description?: string | null;
+  lifecycleStatus: 'current' | 'archive';
   qualityScore?: number | null;
   analysisJson?: any;
   factcheckJson?: any;
@@ -35,168 +36,78 @@ export interface Beer {
   productionMethod?: string | null;
 }
 
-export interface Brewery {
-  id: string;
-  name: string;
-  type: BreweryType;
-  province: string;
-  lat: number;
-  lng: number;
-  story: string;
-  establishedYear: number;
-  websiteUrl: string;
-  address: string;
-  phone: string;
-  email: string;
-  featured: boolean;
-  hasPost?: boolean;
-  beers: Beer[];
-}
-
-async function fetchAllBreweriesRows() {
-  const pageSize = 1000;
-  let from = 0;
-  const all: any[] = [];
-
-  while (true) {
-    const { data, error } = await supabase
-      .from('breweries')
-      .select('*')
-      .order('name')
-      .range(from, from + pageSize - 1);
-
-    if (error) throw error;
-    if (!data || data.length === 0) break;
-
-    all.push(...data);
-    if (data.length < pageSize) break;
-    from += pageSize;
-  }
-
-  return all;
-}
-
 async function fetchAllBeerRows() {
   const pageSize = 1000;
   let from = 0;
   const all: any[] = [];
-
   while (true) {
     const { data, error } = await supabase
       .from('beers')
       .select('*')
-      .order('id')
+      .order('name')
       .range(from, from + pageSize - 1);
-
     if (error) throw error;
     if (!data || data.length === 0) break;
-
     all.push(...data);
     if (data.length < pageSize) break;
     from += pageSize;
   }
-
   return all;
 }
 
-async function fetchAllPublishedPostRows() {
-  const pageSize = 1000;
-  let from = 0;
-  const all: any[] = [];
-
-  while (true) {
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('brewery_id, beer_id, blog_post_beers(beer_id)')
-      .eq('status', 'published')
-      .order('id')
-      .range(from, from + pageSize - 1);
-
-    if (error) throw error;
-    if (!data || data.length === 0) break;
-
-    all.push(...data);
-    if (data.length < pageSize) break;
-    from += pageSize;
-  }
-
-  return all;
-}
-
-async function fetchBreweries(): Promise<Brewery[]> {
-  const [breweryRows, beerRows, postRows] = await Promise.all([
-    fetchAllBreweriesRows(),
-    fetchAllBeerRows(),
-    fetchAllPublishedPostRows(),
-  ]);
-
-  // Build sets of IDs that have blog posts
-  const breweryIdsWithPost = new Set<string>();
+async function fetchPostLinks() {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('beer_id, blog_post_beers(beer_id)')
+    .eq('status', 'published');
+  if (error) throw error;
   const beerIdsWithPost = new Set<string>();
-  for (const p of postRows ?? []) {
-    if (p.brewery_id) breweryIdsWithPost.add(p.brewery_id);
-    if (p.beer_id) beerIdsWithPost.add(p.beer_id);
+  for (const p of data ?? []) {
+    if ((p as any).beer_id) beerIdsWithPost.add((p as any).beer_id);
     for (const link of (p as any).blog_post_beers ?? []) {
       if (link.beer_id) beerIdsWithPost.add(link.beer_id);
     }
   }
+  return beerIdsWithPost;
+}
 
-  return (breweryRows ?? []).map(b => ({
-    id: b.id,
-    name: b.name,
-    type: b.type as BreweryType,
-    province: b.province,
-    lat: b.lat,
-    lng: b.lng,
-    story: b.story ?? '',
-    establishedYear: b.established_year ?? 0,
-    websiteUrl: b.website_url ?? '',
-    address: (b as any).address ?? '',
-    phone: (b as any).phone ?? '',
-    email: (b as any).email ?? '',
-    featured: (b as any).featured ?? false,
-    hasPost: breweryIdsWithPost.has(b.id),
-    beers: (beerRows ?? [])
-      .filter(beer => beer.brewery_id === b.id)
-      .map(beer => ({
-        id: beer.id,
-        name: beer.name,
-        style: beer.style,
-        abv: beer.abv ?? 0,
-        flavorProfile: beer.flavor_profile ?? [],
-        foodPairing: beer.food_pairing ?? '',
-        isHiddenGem: beer.is_hidden_gem ?? false,
-        featured: (beer as any).featured ?? false,
-        breweryId: beer.brewery_id,
-        breweryName: b.name,
-        hasPost: beerIdsWithPost.has(beer.id),
-        qualityScore: (beer as any).quality_score,
-        analysisJson: (beer as any).analysis_json,
-        factcheckJson: (beer as any).factcheck_json,
-        summary: (beer as any).summary,
-        tasteNotes: (beer as any).taste_notes,
-        radarBody: (beer as any).radar_body,
-        radarHops: (beer as any).radar_hops,
-        radarMalt: (beer as any).radar_malt,
-        radarFruit: (beer as any).radar_fruit,
-        radarSpice: (beer as any).radar_spice,
-        primaryFlavors: (beer as any).primary_flavors,
-        secondaryFlavors: (beer as any).secondary_flavors,
-        aromaProfile: (beer as any).aroma_profile,
-        pairingFood: (beer as any).pairing_food,
-        pairingClassic: (beer as any).pairing_classic,
-        pairingCheese: (beer as any).pairing_cheese,
-        serveStyle: (beer as any).serve_style,
-        productionMethod: (beer as any).production_method,
-      })),
+async function fetchBeers(): Promise<Beer[]> {
+  const [beerRows, postLinks] = await Promise.all([fetchAllBeerRows(), fetchPostLinks()]);
+  return (beerRows ?? []).map((beer: any) => ({
+    id: beer.id,
+    name: beer.name,
+    style: beer.style,
+    abv: beer.abv ?? 0,
+    flavorProfile: beer.flavor_profile ?? [],
+    foodPairing: beer.food_pairing ?? '',
+    isHiddenGem: beer.is_hidden_gem ?? false,
+    featured: beer.featured ?? false,
+    breweryId: beer.brewery_id,
+    hasPost: postLinks.has(beer.id),
+    imageUrl: beer.image_url,
+    description: beer.description,
+    lifecycleStatus: (beer.lifecycle_status ?? 'current') as 'current' | 'archive',
+    qualityScore: beer.quality_score,
+    analysisJson: beer.analysis_json,
+    factcheckJson: beer.factcheck_json,
+    summary: beer.summary,
+    tasteNotes: beer.taste_notes,
+    radarBody: beer.radar_body,
+    radarHops: beer.radar_hops,
+    radarMalt: beer.radar_malt,
+    radarFruit: beer.radar_fruit,
+    radarSpice: beer.radar_spice,
+    primaryFlavors: beer.primary_flavors,
+    secondaryFlavors: beer.secondary_flavors,
+    aromaProfile: beer.aroma_profile,
+    pairingFood: beer.pairing_food,
+    pairingClassic: beer.pairing_classic,
+    pairingCheese: beer.pairing_cheese,
+    serveStyle: beer.serve_style,
+    productionMethod: beer.production_method,
   }));
 }
 
-export function useBreweries() {
-  return useQuery({
-    queryKey: ['breweries'],
-    queryFn: fetchBreweries,
-  });
+export function useBeers() {
+  return useQuery({ queryKey: ['beers'], queryFn: fetchBeers });
 }
-
-export const breweryTypes: BreweryType[] = ['Trappist', 'Family-owned', 'Microbrewery', 'Industrial', 'Contract brewer'];
