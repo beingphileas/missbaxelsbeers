@@ -9,6 +9,7 @@ import logo from '@/assets/missbaxels-logo.jpg';
 const navItems = [
   { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/stories' },
+  { label: 'Bierstekers', path: '/bierstekers' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string; flag: string }[] = [

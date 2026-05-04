@@ -14,7 +14,9 @@ import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Beers from "./pages/Beers";
 import BeerDetail from "./pages/BeerDetail";
+import Bierstekers from "./pages/Bierstekers";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SiteFooter from "./components/SiteFooter";
 import NotFound from "./pages/NotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -46,6 +48,7 @@ const App = () => (
               <Route path="/post/:slug" element={<BlogPost />} />
               <Route path="/beers" element={<Beers />} />
               <Route path="/beers/:id" element={<BeerDetail />} />
+              <Route path="/bierstekers" element={<Bierstekers />} />
               <Route path="/login" element={<Login />} />
               <Route
                 path="/admin"
@@ -59,6 +62,7 @@ const App = () => (
               />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <SiteFooter />
             <WhisperFAB />
           </BrowserRouter>
         </LanguageProvider>
