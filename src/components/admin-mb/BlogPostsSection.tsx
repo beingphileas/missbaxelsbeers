@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save, Upload, Sparkles, Copy } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
-import { useAdminGuard } from '@/hooks/useAdminGuard';
+
 
 interface PostRow {
   id: string; title: string; slug: string; date: string | null; style: string | null;
