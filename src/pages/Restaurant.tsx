@@ -72,7 +72,7 @@ export default function Restaurant() {
       addressLocality: r?.city || 'Brugge',
       addressCountry: 'BE',
     },
-    telephone: r?.telephone || (r as any)?.phone || undefined,
+    telephone: (r as any)?.phone || undefined,
     email: r?.email || undefined,
     openingHours: openingSpec.length ? openingSpec : undefined,
     servesCuisine: 'Belgian',
