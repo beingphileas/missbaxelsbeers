@@ -7,7 +7,7 @@ import { useLanguage, Lang } from '@/hooks/useLanguage';
 const navItems = [
   { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/stories' },
-  { label: 'Over', path: '/over' },
+  { label: 'Restaurant', path: '/restaurant' },
   { label: 'Bierstekers', path: '/bierstekers' },
   { label: 'Archief', path: '/archief' },
 ];
@@ -84,10 +84,10 @@ export default function SiteHeader() {
 
           {/* Bierstekers CTA */}
           <Link
-            to="/bierstekers"
-            className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-[7px] text-[12px] font-semibold hover:bg-primary/90 transition-colors"
+            to="/restaurant"
+            className="inline-flex items-center gap-1.5 bg-[var(--copper)] text-white rounded-full px-4 py-[7px] text-[12px] font-semibold hover:opacity-90 transition-opacity"
           >
-            {t('Bierstekers')}
+            {t('Reserveer een tafel')}
             <ArrowRight size={13} />
           </Link>
 
@@ -158,10 +158,10 @@ export default function SiteHeader() {
           </div>
 
           <Link
-            to="/bierstekers"
-            className="mt-3 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-2 text-[12px] font-semibold"
+            to="/restaurant"
+            className="mt-3 inline-flex items-center gap-1.5 bg-[var(--copper)] text-white rounded-full px-4 py-2 text-[12px] font-semibold hover:opacity-90 transition-opacity"
           >
-            {t('Bierstekers')} <ArrowRight size={13} />
+            {t('Reserveer een tafel')} <ArrowRight size={13} />
           </Link>
 
           {user ? (
