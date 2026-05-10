@@ -22,17 +22,16 @@ Bij Koen & Marijke in 't Nieuw Museum is het restaurant van Marijke en haar man 
 ## Bierstekers
 Bierstekers was een eerder project waarbij Marijke en Koen zelf bieren blendden. Dit project staat momenteel op pauze maar is deel van de ontstaansgeschiedenis van MissBaxel's Beers. Het volledige blendarchief is beschikbaar op missbaxelsbeers.com/archief.
 
-## Sitemap
-- / — Homepage
-- /beers — Overzicht van alle bieren
-- /beers/[slug] — Detailpagina per bier
-- /over — Het verhaal van Marijke Bax
-- /restaurant — Restaurant Bij Koen & Marijke in Brugge
-- /verhalen — Blog en verhalen
-- /archief — Archief blog + Bierstekers blends
-- /bierstekers — Bierstekers: oorsprong en blendarchief
-
-## Contact
+## Contactinformatie
 Website: https://www.missbaxelsbeers.com
 Instagram: @missbaxelsbeers
 Locatie: Brugge, West-Vlaanderen, België
+
+## Sitemap
+- / — Homepage met overzicht van alle rollen
+- /beers — Overzicht van alle bieren
+- /beers/[slug] — Detailpagina per bier
+- /over — Het verhaal van Marijke Bax en MissBaxel's
+- /restaurant — Restaurant Bij Koen & Marijke in Brugge
+- /verhalen — Blog en verhalen over Belgisch bier
+- /archief — Archief van de originele blog + Bierstekers blends
