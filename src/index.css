@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap');
+/* Fonts loaded via index.html for faster FCP */
 
 @tailwind base;
 @tailwind components;
@@ -6,6 +6,27 @@
 
 @layer base {
   :root {
+    /* ═══ Raw brand palette (hex tokens) ═══ */
+    --bg: #FDFAF6;
+    --bg-cream: #FFF8EE;
+    --ink: #1C1510;
+    --muted: #7A6E64;
+    --line: #E8E0D4;
+    --surface: #FFFFFF;
+    --hop: #4A7C3F;
+    --hop-light: #EAF3DE;
+    --hop-mid: #97C459;
+    --hop-dark: #27500A;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --copper: #993C1D;
+    --copper-light: #FAECE7;
+    --copper-dark: #712B13;
+    --radius-pill: 24px;
+    --radius-card: 12px;
+    --radius-sm: 8px;
+
     /* ═══ Light, airy palette ═══ */
     /* Background  #FDFAF6 */
     --background: 36 38% 98%;
