@@ -236,6 +236,25 @@ export default function Beers() {
             <div className="text-center py-16" style={{ color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
               Laden…
             </div>
+          ) : beers.length === 0 ? (
+            <div
+              className="text-center py-16 px-6"
+              style={{ border: '1px dashed var(--line)', borderRadius: 12, fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <p style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
+                Binnenkort hier
+              </p>
+              <p style={{ fontSize: 14, color: 'var(--muted)', maxWidth: 440, margin: '0 auto 24px' }}>
+                De bieren worden binnenkort toegevoegd. Kom later terug of reserveer alvast een tafel in het restaurant.
+              </p>
+              <Link
+                to="/restaurant"
+                className="inline-block px-5 py-2.5 rounded-full text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+                style={{ background: '#B87333', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                Reserveer een tafel
+              </Link>
+            </div>
           ) : filtered.length === 0 ? (
             <div
               className="text-center py-16"
