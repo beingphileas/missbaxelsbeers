@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, ArrowLeft, Save, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowLeft, Save, Upload, Sparkles, Copy } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
+
 
 interface PostRow {
   id: string; title: string; slug: string; date: string | null; style: string | null;
@@ -20,7 +21,70 @@ export default function BlogPostsSection() {
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [scraping, setScraping] = useState(false);
+  const [enriching, setEnriching] = useState(false);
+  const [deduping, setDeduping] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function enrichWithAI() {
+    if (!confirm('Verrijk alle posts met ontbrekende metadata via AI? Dit kan even duren.')) return;
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-blog-posts', {
+        body: { onlyMissing: true, limit: 100 },
+      });
+      if (error) throw error;
+      toast.success(`${data.updated}/${data.total} posts verrijkt${data.errors ? ` (${data.errors} fouten)` : ''}`);
+      load();
+    } catch (e: any) {
+      toast.error(e.message || 'Verrijken mislukt');
+    } finally { setEnriching(false); }
+  }
+
+  async function dedupPosts() {
+    setDeduping(true);
+    try {
+      const { data: all, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug, content, date')
+        .limit(2000);
+      if (error) throw error;
+      const groups = new Map<string, any[]>();
+      for (const p of all || []) {
+        const key = (p.title || '').trim().toLowerCase();
+        if (!key) continue;
+        const arr = groups.get(key) || [];
+        arr.push(p);
+        groups.set(key, arr);
+      }
+      const toDelete: string[] = [];
+      let dupGroups = 0;
+      for (const arr of groups.values()) {
+        if (arr.length < 2) continue;
+        dupGroups++;
+        // keep the one with longest content; tiebreak on oldest date
+        arr.sort((a, b) => {
+          const lenDiff = (b.content?.length || 0) - (a.content?.length || 0);
+          if (lenDiff !== 0) return lenDiff;
+          return (a.date || '').localeCompare(b.date || '');
+        });
+        for (const dup of arr.slice(1)) toDelete.push(dup.id);
+      }
+      if (toDelete.length === 0) {
+        toast.success('Geen duplicaten gevonden');
+      } else {
+        if (!confirm(`${toDelete.length} duplicaten verwijderen (${dupGroups} groepen)?`)) {
+          setDeduping(false);
+          return;
+        }
+        const { error: delErr } = await supabase.from('blog_posts').delete().in('id', toDelete);
+        if (delErr) throw delErr;
+        toast.success(`${toDelete.length} duplicaten verwijderd`);
+        load();
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Dedup mislukt');
+    } finally { setDeduping(false); }
+  }
 
   async function scrapeMissBaxels() {
     setScraping(true);
@@ -101,6 +165,12 @@ export default function BlogPostsSection() {
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => e.target.files?.[0] && importCsv(e.target.files[0])} />
           <button onClick={scrapeMissBaxels} disabled={scraping} className={btnGhost}>
             {scraping ? 'Scrapen…' : 'Scrape missbaxelsbeers.com'}
+          </button>
+          <button onClick={dedupPosts} disabled={deduping} className={btnGhost} title="Verwijder dubbele posts (zelfde titel)">
+            <Copy size={12} /> {deduping ? 'Bezig…' : 'Dedupliceren'}
+          </button>
+          <button onClick={enrichWithAI} disabled={enriching} className={btnGhost} title="Vul ontbrekende stijl, categorie, excerpt en emoji via AI">
+            <Sparkles size={12} /> {enriching ? 'Verrijken…' : 'Verrijk met AI'}
           </button>
           <button onClick={() => fileRef.current?.click()} disabled={importing} className={btnGhost}>
             <Upload size={12} /> {importing ? 'Importeren…' : 'CSV importeren'}
