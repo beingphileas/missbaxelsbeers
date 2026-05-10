@@ -52,14 +52,21 @@ export default function Restaurant() {
   const mapsUrl = r?.google_maps_url || '#';
 
   // JSON-LD
-  const openingSpec = DAYS.flatMap(({ key, label }) => {
+  const dayMap: Record<string, string> = {
+    ma: 'Monday', di: 'Tuesday', wo: 'Wednesday', do: 'Thursday',
+    vr: 'Friday', za: 'Saturday', zo: 'Sunday',
+  };
+  const openingHoursSpecification = DAYS.flatMap(({ key }) => {
     const v = hours[key];
     if (!v || isClosed(v)) return [];
-    const dayMap: Record<string, string> = {
-      ma: 'Monday', di: 'Tuesday', wo: 'Wednesday', do: 'Thursday',
-      vr: 'Friday', za: 'Saturday', zo: 'Sunday',
-    };
-    return [`${dayMap[key].slice(0, 2)} ${v}`];
+    const m = v.match(/(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}[:.]\d{2})/);
+    if (!m) return [];
+    return [{
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: dayMap[key],
+      opens: m[1].replace('.', ':'),
+      closes: m[2].replace('.', ':'),
+    }];
   });
 
   const jsonLd = {
@@ -69,13 +76,15 @@ export default function Restaurant() {
     address: {
       '@type': 'PostalAddress',
       streetAddress: r?.address || undefined,
-      addressLocality: r?.city || 'Brugge',
+      addressLocality: 'Brugge',
       addressCountry: 'BE',
     },
     telephone: (r as any)?.phone || undefined,
     email: r?.email || undefined,
-    openingHours: openingSpec.length ? openingSpec : undefined,
-    servesCuisine: 'Belgian',
+    url: r?.reservation_url || undefined,
+    servesCuisine: 'Belgisch',
+    hasMenu: 'https://www.missbaxelsbeers.com/restaurant',
+    openingHoursSpecification: openingHoursSpecification.length ? openingHoursSpecification : undefined,
     priceRange: '€€',
   };
 
