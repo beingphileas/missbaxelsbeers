@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Fraunces", "Playfair Display", "Georgia", "serif"],
-        headline: ["Fraunces", "Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Playfair Display", "Georgia", "serif"],
+        display: ["Fraunces", "Georgia", "serif"],
+        headline: ["Fraunces", "Georgia", "serif"],
+        sans: ["DM Sans", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Fraunces", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -61,6 +61,15 @@ export default {
           DEFAULT: "hsl(var(--bierstekers))",
           foreground: "hsl(var(--bierstekers-foreground))",
         },
+        tertiary: {
+          DEFAULT: "hsl(var(--tertiary))",
+          foreground: "hsl(var(--tertiary-foreground))",
+          light: "hsl(var(--tertiary-light))",
+        },
+        cream: "hsl(var(--cream))",
+        "primary-light": "hsl(var(--primary-light))",
+        "primary-mid": "hsl(var(--primary-mid))",
+        "secondary-light": "hsl(var(--secondary-light))",
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
