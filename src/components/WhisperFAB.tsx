@@ -4,6 +4,7 @@ import { Sparkles, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ASK_EVENT } from '@/lib/askMissBaxel';
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-whisperer`;
 
@@ -31,6 +32,19 @@ export default function WhisperFAB() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [answer]);
+
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const q = (e as CustomEvent<{ query: string }>).detail?.query?.trim();
+      if (!q) return;
+      setOpen(true);
+      setQuery(q);
+      handleAsk(q);
+    };
+    window.addEventListener(ASK_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_EVENT, onAsk);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAsk = useCallback(async (q: string) => {
     if (!q.trim() || loading) return;
