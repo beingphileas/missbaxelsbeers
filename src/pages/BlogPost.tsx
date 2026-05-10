@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { Helmet } from 'react-helmet-async';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -80,6 +81,17 @@ export default function BlogPost() {
         type="article"
         publishedAt={post.date || undefined}
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: post.title,
+          datePublished: post.date || undefined,
+          author: { '@type': 'Person', name: 'Marijke Bax' },
+          publisher: { '@type': 'Organization', name: "MissBaxel's Beers" },
+          description: post.excerpt || undefined,
+        })}</script>
+      </Helmet>
 
       <div className="max-w-3xl mx-auto px-5 pt-6">
         <Link

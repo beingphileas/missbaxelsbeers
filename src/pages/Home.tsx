@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   MapPin, Beer as BeerIcon, Heart, Users, Lightbulb, HeartHandshake,
 } from 'lucide-react';
@@ -116,6 +117,23 @@ export default function Home() {
         description="Marijke Bax stapt met een smaakdroom naar bevriende brouwers. Ontdek de bieren, het restaurant en het verhaal achter MissBaxel's."
         url="/"
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: "MissBaxel's Beers",
+          url: 'https://www.missbaxelsbeers.com',
+          logo: 'https://www.missbaxelsbeers.com/logo.png',
+          description: "MissBaxel's Beers ontwikkelt biericeeën en werkt samen met Belgische brouwers. Opgericht door Marijke Bax vanuit Brugge.",
+          founder: { '@type': 'Person', name: 'Marijke Bax' },
+          foundingDate: '2021',
+          areaServed: 'BE',
+          sameAs: [
+            'https://www.instagram.com/missbaxelsbeers',
+            'https://www.facebook.com/missbaxelsbeers',
+          ],
+        })}</script>
+      </Helmet>
 
       {/* SECTION 1 — HERO */}
       <section style={{ borderBottom: '1px solid var(--line)' }}>

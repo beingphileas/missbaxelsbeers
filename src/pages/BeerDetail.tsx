@@ -139,11 +139,12 @@ export default function BeerDetail() {
     description: beer.description || undefined,
     brand: { '@type': 'Brand', name: "MissBaxel's Beers" },
     manufacturer: brewerNames.length
-      ? { '@type': 'Organization', name: brewerNames.join(' & ') }
+      ? brewerNames.map(n => ({ '@type': 'Organization', name: n }))
       : undefined,
     additionalProperty: [
-      beer.abv != null && { '@type': 'PropertyValue', name: 'Alcoholpercentage', value: `${beer.abv}%` },
+      beer.abv != null && { '@type': 'PropertyValue', name: 'Alcoholpercentage', value: `${beer.abv}% vol` },
       beer.style && { '@type': 'PropertyValue', name: 'Bierstijl', value: beer.style },
+      tags.length && { '@type': 'PropertyValue', name: 'Smaaktags', value: tags.join(', ') },
     ].filter(Boolean),
   };
 
