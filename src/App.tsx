@@ -62,6 +62,16 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Suspense fallback={<LazyFallback />}>
+                      <AdminPanel />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin-legacy"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LazyFallback />}>
                       <Admin />
                     </Suspense>
                   </ProtectedRoute>
