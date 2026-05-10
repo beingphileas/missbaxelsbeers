@@ -1,135 +1,174 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage, Lang } from '@/hooks/useLanguage';
-import logo from '@/assets/missbaxels-logo.jpg';
 
 const navItems = [
   { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/stories' },
   { label: 'Bierstekers', path: '/bierstekers' },
+  { label: 'Archief', path: '/bierstekers/archief' },
 ];
 
-const LANG_OPTIONS: { value: Lang; label: string; flag: string }[] = [
-  { value: 'nl', label: 'NL', flag: '🇳🇱' },
-  { value: 'en', label: 'EN', flag: '🇬🇧' },
-  { value: 'fr', label: 'FR', flag: '🇫🇷' },
+const LANG_OPTIONS: { value: Lang; label: string }[] = [
+  { value: 'nl', label: 'NL' },
+  { value: 'en', label: 'EN' },
+  { value: 'fr', label: 'FR' },
 ];
 
 export default function SiteHeader() {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const { lang, setLang, t, isTranslating } = useLanguage();
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Gebruiker';
+  const isActive = (path: string) => pathname === path;
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled
-        ? 'bg-background/95 backdrop-blur-md shadow-vintage border-b border-border/60'
-        : 'bg-background border-b border-border/40'
-    }`}>
-      <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <img src={logo} alt="MissBaxel's Beers" className="h-9 w-9 rounded-full object-cover border border-accent/30" />
-          <span className="font-display text-xl tracking-tight">
-            MissBaxel<span className="text-accent font-light">'s</span>
+    <header className="sticky top-0 z-50 bg-background border-b border-border">
+      <div className="max-w-[1400px] mx-auto px-5 h-14 flex items-center justify-between gap-4">
+        {/* Logo — left */}
+        <Link to="/" className="flex items-center shrink-0 group" aria-label="MissBaxel's home">
+          <span className="font-display text-xl leading-none text-foreground" style={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+            Miss<span className="font-italic-accent text-primary" style={{ fontWeight: 300 }}>Baxel</span>
+            <span style={{ fontWeight: 900 }}>'s</span>
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`px-4 py-2 text-[12px] font-medium tracking-wide rounded-md transition-all duration-200 ${
-                pathname === item.path
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground/70 hover:text-foreground hover:bg-secondary'
-              }`}
-            >
-              {t(item.label)}
-            </Link>
-          ))}
-
-          <div className="flex items-center gap-0.5 ml-2 pl-2 border-l border-border/40">
-            {isTranslating && <Loader2 size={12} className="animate-spin text-accent mr-1" />}
-            {LANG_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => setLang(opt.value)}
-                disabled={isTranslating}
-                className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all ${
-                  lang === opt.value
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+        {/* Nav — center */}
+        <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          {navItems.map(item => {
+            const active = isActive(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`px-[14px] py-[6px] text-[12px] font-medium tracking-wide rounded-full transition-colors no-underline ${
+                  active
+                    ? 'bg-[hsl(var(--primary-light))] text-primary'
+                    : 'text-muted-foreground hover:bg-[hsl(var(--primary-light))] hover:text-primary'
                 }`}
               >
-                {opt.flag} {opt.label}
-              </button>
-            ))}
-          </div>
-
-          {user ? (
-            <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border/40">
-              <span className="text-xs text-muted-foreground">{t('Welkom')}, <span className="font-medium text-foreground">{displayName}</span></span>
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={signOut}>
-                <LogOut size={14} /> {t('Uitloggen')}
-              </Button>
-            </div>
-          ) : (
-            <Button asChild variant="outline" size="sm" className="ml-3 h-8 gap-1.5 text-xs">
-              <Link to="/login"><LogIn size={14} /> {t('Inloggen')}</Link>
-            </Button>
-          )}
+                {t(item.label)}
+              </Link>
+            );
+          })}
         </nav>
 
-        <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 rounded-lg" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-        </Button>
+        {/* Right — language + CTA */}
+        <div className="hidden md:flex items-center gap-2 shrink-0">
+          {/* Language pill */}
+          <div className="inline-flex items-center gap-0.5 border border-border rounded-full px-1 py-0.5 bg-card">
+            {isTranslating && <Loader2 size={11} className="animate-spin text-primary mx-1" />}
+            {LANG_OPTIONS.map((opt, i) => (
+              <span key={opt.value} className="flex items-center">
+                {i > 0 && <span className="text-muted-foreground/50 text-[10px] px-0.5">·</span>}
+                <button
+                  onClick={() => setLang(opt.value)}
+                  disabled={isTranslating}
+                  className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-colors ${
+                    lang === opt.value
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              </span>
+            ))}
+          </div>
+
+          {/* Bierstekers CTA */}
+          <Link
+            to="/bierstekers"
+            className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-[7px] text-[12px] font-semibold hover:bg-primary/90 transition-colors"
+          >
+            {t('Bierstekers')}
+            <ArrowRight size={13} />
+          </Link>
+
+          {/* Auth */}
+          {user ? (
+            <button
+              onClick={signOut}
+              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-[11px] font-medium px-2 py-1 transition-colors"
+              aria-label={t('Uitloggen')}
+            >
+              <LogOut size={13} />
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-[11px] font-medium px-2 py-1 transition-colors"
+              aria-label={t('Inloggen')}
+            >
+              <LogIn size={13} />
+            </Link>
+          )}
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          className="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-full border border-border text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Menu"
+        >
+          {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+        </button>
       </div>
 
+      {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border/40 bg-background/98 backdrop-blur-md px-5 py-3 space-y-1">
-          <div className="flex items-center gap-1 px-4 py-2 mb-2">
+        <nav className="md:hidden border-t border-border bg-background px-5 py-3 space-y-1">
+          {navItems.map(item => {
+            const active = isActive(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`block px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                  active
+                    ? 'bg-[hsl(var(--primary-light))] text-primary'
+                    : 'text-muted-foreground hover:bg-[hsl(var(--primary-light))] hover:text-primary'
+                }`}
+              >
+                {t(item.label)}
+              </Link>
+            );
+          })}
+
+          <div className="flex items-center gap-1 pt-2 mt-2 border-t border-border">
             {LANG_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setLang(opt.value)}
-                className={`px-3 py-1.5 text-[11px] font-bold uppercase rounded transition-all ${
-                  lang === opt.value ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-secondary'
+                className={`px-3 py-1.5 text-[11px] font-medium rounded-full transition-colors ${
+                  lang === opt.value
+                    ? 'bg-[hsl(var(--primary-light))] text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {opt.flag} {opt.label}
+                {opt.label}
               </button>
             ))}
           </div>
-          <Link to="/" className={`block px-4 py-3 text-sm font-medium rounded-lg ${pathname === '/' ? 'bg-primary text-primary-foreground' : 'text-foreground/70 hover:bg-secondary'}`}>
-            Home
+
+          <Link
+            to="/bierstekers"
+            className="mt-3 inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-2 text-[12px] font-semibold"
+          >
+            {t('Bierstekers')} <ArrowRight size={13} />
           </Link>
-          {navItems.map(item => (
-            <Link key={item.path} to={item.path} className={`block px-4 py-3 text-sm font-medium rounded-lg ${pathname === item.path ? 'bg-primary text-primary-foreground' : 'text-foreground/70 hover:bg-secondary'}`}>
-              {t(item.label)}
-            </Link>
-          ))}
+
           {user ? (
-            <button onClick={signOut} className="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg text-destructive hover:bg-destructive/10">
+            <button onClick={signOut} className="block w-full text-left px-4 py-2 text-sm font-medium rounded-full text-muted-foreground hover:text-foreground">
               {t('Uitloggen')}
             </button>
           ) : (
-            <Link to="/login" className="block px-4 py-3 text-sm font-medium rounded-lg text-accent hover:bg-accent/10">
+            <Link to="/login" className="block px-4 py-2 text-sm font-medium rounded-full text-primary">
               {t('Inloggen')}
             </Link>
           )}
