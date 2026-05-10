@@ -1,146 +1,212 @@
-import { MapPin, Heart, Users } from 'lucide-react';
-import { useLanguage } from '@/hooks/useLanguage';
+import { Link } from 'react-router-dom';
+import { MapPin, Heart, Users, Beer as BeerIcon, Utensils } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
 
-const INFO_PILLS = [
-  { Icon: MapPin, label: 'Brugge' },
-  { Icon: Heart, label: 'Kleine brouwerijen' },
-  { Icon: Users, label: 'Voor iedereen' },
+const Pill = ({
+  children, color = 'hop', icon,
+}: { children: React.ReactNode; color?: 'hop' | 'amber' | 'copper'; icon?: React.ReactNode }) => {
+  const styles: Record<string, React.CSSProperties> = {
+    hop: { background: 'var(--hop-light)', color: 'var(--hop-dark)' },
+    amber: { background: 'var(--amber-light)', color: 'var(--amber-dark)' },
+    copper: { background: 'var(--copper-light)', color: 'var(--copper)' },
+  };
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
+      style={{ ...styles[color], fontFamily: 'DM Sans, sans-serif' }}
+    >
+      {icon}
+      {children}
+    </span>
+  );
+};
+
+const TIMELINE = [
+  {
+    period: 'Begin',
+    title: "Restaurant Bij Koen & Marijke",
+    body: 'De bierkaart werd een passie.',
+    color: 'var(--hop)',
+  },
+  {
+    period: '2019–2020',
+    title: 'Bierstekers',
+    body:
+      'Samen met Koen begon Marijke bieren te blenden — de Bierstekers waren geboren. Een creatieve speeltuin die alles in gang zette. Momenteel op pauze, maar het archief leeft verder.',
+    color: 'var(--copper)',
+  },
+  {
+    period: '2021',
+    title: "MissBaxel's Beers",
+    body:
+      'De eerste bierblog, de eerste recensies, de eerste stem van een vrouw in de Belgische bierwereld online.',
+    color: 'var(--hop)',
+  },
+  {
+    period: '2023+',
+    title: 'Eigen bieren',
+    body:
+      'De stap naar eigen bieren: Marijke brengt ideeën, bevriende brouwers krijgen de vrije hand.',
+    color: 'var(--hop)',
+  },
+  {
+    period: 'Nu',
+    title: 'Een bruisend ecosysteem',
+    body:
+      "Blog, eigen bieren, restaurant, collabs — MissBaxel's is een platform geworden.",
+    color: 'var(--hop)',
+  },
 ];
-
-const TAGS = ['Belgisch bier', 'Kleine brouwerijen', 'Collabs', 'Brugge'];
 
 const WINNERS = [
   {
-    label: 'Restaurant',
-    title: 'Bieren die écht bij het gerecht passen',
-    body: 'Geen standaard kaart, maar bieren die het menu verlengen en versterken.',
-    badge: 'Op tafel',
-    color: 'hsl(var(--tertiary))',
-    light: 'hsl(var(--tertiary-light))',
+    title: 'Restaurant',
+    subtitle: 'Exclusiviteit & identiteit',
+    body: 'Bieren die écht bij het gerecht passen.',
+    color: 'var(--copper)',
   },
   {
-    label: 'Brouwer',
-    title: 'Creatieve vrijheid met een gegarandeerd podium',
-    body: 'Geen briefing, geen lastenboek — wel een vaste plek waar het bier geserveerd wordt.',
-    badge: 'In de ketel',
-    color: 'hsl(var(--secondary))',
-    light: 'hsl(var(--secondary-light))',
+    title: 'Brouwer',
+    subtitle: 'Vrijheid & zichtbaarheid',
+    body: 'Creatieve vrijheid met een gegarandeerd podium.',
+    color: 'var(--amber)',
   },
   {
-    label: 'Liefhebber',
-    title: 'Bieren die je nergens anders vindt',
-    body: 'Eigenwijze, kleine brouwsels — kort beschikbaar, lang nagesmaakt.',
-    badge: 'In het glas',
-    color: 'hsl(var(--primary))',
-    light: 'hsl(var(--primary-light))',
+    title: 'Liefhebber',
+    subtitle: 'Uniciteit & beleving',
+    body: 'Bieren die je nergens anders vindt.',
+    color: 'var(--hop)',
   },
-];
-
-const TIMELINE = [
-  { when: 'Begin', title: 'Uit de Kempen', desc: 'Marijke groeit op in de Kempen, met een neus voor smaak en verhalen.' },
-  { when: 'Restaurant', title: 'Bij Koen & Marijke', desc: 'Samen met Koen opent ze het restaurant in \'t Nieuw Museum, Brugge.' },
-  { when: '2021', title: 'Eerste collab', desc: 'Een eerste smaakdroom belandt in een ketel van een bevriende brouwer.' },
-  { when: 'Nu', title: 'Een groeiend assortiment', desc: 'Een vast netwerk van brouwers, en een catalogus die blijft uitbreiden.' },
 ];
 
 export default function Over() {
-  const { t } = useLanguage();
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* ─── 1. HERO ─── */}
-      <section className="border-b border-border">
-        <div className="max-w-[1100px] mx-auto px-5 py-12">
-          <span
-            className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
-            style={{ background: 'hsl(var(--secondary-light))', color: 'hsl(var(--secondary))' }}
-          >
-            {t('Het verhaal')}
-          </span>
+    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
+      <SEOHead
+        title="Over — MissBaxel's Beers"
+        description="Marijke Bax over MissBaxel's Beers: een vrouwelijke stem in de Belgische bierwereld, gegroeid uit het restaurant en de Bierstekers blends."
+        url="/over"
+      />
 
+      {/* SECTION 1 — HERO */}
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '52px 0' }}>
+        <div className="max-w-3xl mx-auto px-5">
+          <Pill color="amber">Het verhaal</Pill>
           <h1
-            className="font-display mt-4 text-foreground"
-            style={{ fontWeight: 900, fontSize: '44px', lineHeight: 1.05, letterSpacing: '-0.025em' }}
+            className="mt-5 mb-7"
+            style={{
+              fontFamily: 'Fraunces, serif', fontWeight: 900,
+              fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em',
+            }}
           >
-            {t('Bier proeven, verhalen')}{' '}
-            <em
-              className="not-italic"
-              style={{ fontStyle: 'italic', fontWeight: 300, color: 'hsl(var(--secondary))' }}
-            >
-              {t('vertellen.')}
+            Bier proeven, verhalen{' '}
+            <em style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--amber)' }}>
+              vertellen.
             </em>
           </h1>
 
-          <blockquote
-            className="mt-7 max-w-[760px]"
+          <div
             style={{
-              borderLeft: '3px solid hsl(var(--secondary))',
-              background: 'hsl(var(--secondary-light))',
-              padding: '20px 24px',
+              borderLeft: '3px solid var(--amber)',
+              background: 'var(--amber-light)',
               borderRadius: '0 12px 12px 0',
+              padding: '20px 24px',
+              fontFamily: 'Fraunces, serif',
+              fontStyle: 'italic',
+              fontSize: 17,
+              lineHeight: 1.55,
+              color: 'var(--ink)',
             }}
           >
-            <p
-              className="font-serif italic text-foreground"
-              style={{ fontSize: '18px', lineHeight: 1.5 }}
-            >
-              {t('Verwacht geen hoogdravende termen of technisch gegoochel. Ik doe het op mijn manier: rechttoe, rechtaan.')}
-            </p>
-          </blockquote>
+            Verwacht geen hoogdravende termen of technisch gegoochel. Ik doe het op mijn manier: rechttoe, rechtaan. Wat ik proef, zet ik om in mensentaal.
+          </div>
         </div>
       </section>
 
-      {/* ─── 2. BIO + QUOTE CARD ─── */}
-      <section className="border-b border-border">
-        <div className="max-w-[1100px] mx-auto px-5 py-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          {/* Bio */}
+      {/* SECTION 2 — BIO + PROFILE CARD */}
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
+        <div className="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-10 items-start">
           <div>
-            <div className="space-y-4 text-[14px] leading-relaxed text-muted-foreground">
-              <p>{t('Mijn naam is Marijke Bax. Uit de Kempen, de liefde gevolgd naar West-Vlaanderen. Samen met mijn man Koen baat ik restaurant Bij Koen & Marijke in \'t Nieuw Museum in Brugge uit.')}</p>
-              <p>{t('De liefde voor bier groeide mee met het restaurant. Ik stapt met ideeën naar bevriende brouwers — geen briefing, geen lastenboek. De brouwer krijgt de vrije hand.')}</p>
-              <p>{t('Goed voor het restaurant, goed voor de brouwer — en het allermeest voor de bierliefhebber.')}</p>
+            <h2
+              className="mb-5"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
+            >
+              Wie is MissBaxel?
+            </h2>
+            <div
+              className="space-y-4"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', lineHeight: 1.85 }}
+            >
+              <p>
+                Mijn naam is Marijke Bax. Uit de Kempen, de liefde gevolgd naar West-Vlaanderen. Samen met mijn man Koen baat ik restaurant Bij Koen &amp; Marijke in 't Nieuw Museum in Brugge uit.
+              </p>
+              <p>
+                De liefde voor bier groeide mee met het restaurant. Ik bouw de bierkaart uit, leer proeven en pairen — en raak steeds meer gefascineerd door de verhalen achter de fles.
+              </p>
+              <p>
+                Er zijn maar weinig vrouwen actief in de Belgische bierwereld online. Dat gaf me de extra duw. Niet als expert op een sokkel, maar als iemand die naast jou staat — met een glas in de hand.
+              </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {INFO_PILLS.map(({ Icon, label }) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-1.5 bg-card border border-border rounded-full px-3 py-1.5 text-[12px] text-foreground"
-                >
-                  <Icon size={13} className="text-primary" /> {t(label)}
-                </span>
-              ))}
+              <Pill icon={<MapPin size={12} />}>Brugge</Pill>
+              <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwerijen</Pill>
+              <Pill color="copper" icon={<Users size={12} />}>Voor iedereen</Pill>
             </div>
           </div>
 
-          {/* Quote card */}
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <div className="flex items-center gap-3">
+          {/* Profile card */}
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid var(--line)',
+              borderRadius: 16,
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              className="flex items-center gap-3"
+              style={{ background: 'var(--hop-light)', padding: 16 }}
+            >
               <div
-                className="w-10 h-10 rounded-full inline-flex items-center justify-center font-display"
-                style={{ background: 'hsl(var(--primary-light))', color: '#27500A', fontWeight: 700, fontSize: '14px' }}
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 44, height: 44, borderRadius: '50%',
+                  background: '#fff', color: 'var(--hop-dark)',
+                  fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 16,
+                }}
               >
                 MB
               </div>
-              <div>
-                <div className="text-[14px] font-semibold text-foreground">Marijke Bax</div>
-                <div className="text-[11px] text-muted-foreground">Bij Koen & Marijke · Brugge</div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Marijke Bax</div>
+                <div style={{ fontSize: 12, color: 'var(--hop-dark)' }}>Bij Koen &amp; Marijke · Brugge</div>
               </div>
             </div>
 
-            <div className="mt-5 space-y-3 text-[13px] leading-relaxed text-muted-foreground">
-              <p>{t('Een bier hoeft geen prijs te winnen om bijzonder te zijn. Het moet vooral kloppen — bij de mensen die het maken én drinken.')}</p>
-              <p>{t('Daarom werk ik graag met kleine brouwers. Niet om snel te groeien, maar om eerlijk te blijven.')}</p>
+            <div
+              className="space-y-3"
+              style={{ padding: 20, fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}
+            >
+              <p>
+                Sommelier én vertaler. Ik probeer de wereld van het ambachtelijk bier toegankelijk te houden — voor wie niet wekelijks een bierfestival bezoekt.
+              </p>
+              <p>
+                Mijn focus: kleine Belgische brouwers, eerlijke proefnotities, en bieren die ontstaan uit échte samenwerking.
+              </p>
             </div>
 
-            <div className="mt-5 pt-5 border-t border-border flex flex-wrap gap-1.5">
-              {TAGS.map(tag => (
+            <div
+              className="flex flex-wrap gap-2"
+              style={{ borderTop: '1px solid var(--line)', padding: 14 }}
+            >
+              {['Bierblog', 'Eigen bieren', 'Sommelier', 'Restaurant'].map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
-                  style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
+                  className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
+                  style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
                 >
-                  {t(tag)}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -148,77 +214,139 @@ export default function Over() {
         </div>
       </section>
 
-      {/* ─── 3. WINNERS ─── */}
-      <section className="bg-cream border-b border-border">
-        <div className="max-w-[1100px] mx-auto px-5 py-11">
+      {/* SECTION 3 — TIMELINE */}
+      <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream)', padding: '48px 0' }}>
+        <div className="max-w-3xl mx-auto px-5">
           <h2
-            className="font-display text-foreground"
-            style={{ fontWeight: 900, fontSize: '32px', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+            className="mb-3"
+            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
-            {t('Goed voor iedereen')}
+            Hoe het groeide
+          </h2>
+          <p
+            className="mb-10"
+            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}
+          >
+            MissBaxel's Beers ontstond niet van de ene dag op de andere. Het groeide — stap voor stap.
+          </p>
+
+          <div style={{ position: 'relative', paddingLeft: 24 }}>
+            <div
+              style={{
+                position: 'absolute', left: 0, top: 6, bottom: 6,
+                width: 2, background: 'var(--line)',
+              }}
+            />
+            <div className="space-y-7">
+              {TIMELINE.map((item, i) => (
+                <div key={i} className="flex flex-col md:flex-row md:gap-6 relative">
+                  <div
+                    style={{
+                      position: 'absolute', left: -28, top: 6,
+                      width: 10, height: 10, borderRadius: '50%',
+                      background: item.color, border: '2px solid var(--bg-cream)',
+                    }}
+                  />
+                  <div
+                    className="shrink-0"
+                    style={{
+                      fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 13,
+                      color: item.color, minWidth: 80,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {item.period}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
+                      {item.title}
+                    </div>
+                    <div
+                      className="mt-1.5"
+                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)', lineHeight: 1.7 }}
+                    >
+                      {item.body}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4 — DRIE WINNAARS */}
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
+        <div className="max-w-5xl mx-auto px-5">
+          <h2
+            className="mb-8"
+            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+          >
+            Goed voor iedereen
           </h2>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {WINNERS.map(w => (
+          <div className="grid md:grid-cols-3 gap-4">
+            {WINNERS.map((w) => (
               <div
-                key={w.label}
-                className="bg-card border border-border p-6"
-                style={{ borderRadius: 12, borderTop: `3px solid ${w.color}` }}
+                key={w.title}
+                style={{
+                  background: '#fff',
+                  border: '1px solid var(--line)',
+                  borderTop: `3px solid ${w.color}`,
+                  borderRadius: 12,
+                  padding: 24,
+                }}
               >
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: w.color }}
-                >
-                  {t(w.label)}
-                </span>
                 <h3
-                  className="font-display mt-2 text-foreground"
-                  style={{ fontWeight: 700, fontSize: '18px', lineHeight: 1.25 }}
+                  style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 18, color: w.color }}
                 >
-                  {t(w.title)}
+                  {w.title}
                 </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{t(w.body)}</p>
-
-                <span
-                  className="inline-flex items-center mt-5 rounded-full px-2.5 py-1 text-[10px] font-semibold"
-                  style={{ background: w.light, color: w.color }}
+                <div
+                  className="mt-1"
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+                    color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                  }}
                 >
-                  {t(w.badge)}
-                </span>
+                  {w.subtitle}
+                </div>
+                <p
+                  className="mt-4"
+                  style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)', lineHeight: 1.6 }}
+                >
+                  {w.body}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── 4. TIMELINE ─── */}
-      <section className="border-b border-border">
-        <div className="max-w-[800px] mx-auto px-5 py-12">
+      {/* SECTION 5 — CTA */}
+      <section style={{ padding: '48px 0', textAlign: 'center' }}>
+        <div className="max-w-2xl mx-auto px-5">
           <h2
-            className="font-display text-foreground"
-            style={{ fontWeight: 900, fontSize: '32px', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+            className="mb-7"
+            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
-            {t('Hoe het groeide')}
+            Zin gekregen?
           </h2>
-
-          <div className="mt-7">
-            {TIMELINE.map((item, i) => (
-              <div
-                key={item.when}
-                className={`flex gap-5 py-4 ${i < TIMELINE.length - 1 ? 'border-b border-border' : ''}`}
-              >
-                <div
-                  className="font-display text-primary shrink-0"
-                  style={{ fontWeight: 700, fontSize: '13px', minWidth: 60, lineHeight: 1.5 }}
-                >
-                  {t(item.when)}
-                </div>
-                <div className="flex-1">
-                  <div className="text-[13px] font-medium text-foreground">{t(item.title)}</div>
-                  <div className="mt-0.5 text-[12px] text-muted-foreground leading-relaxed">{t(item.desc)}</div>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link
+              to="/beers"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--hop)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <BeerIcon size={14} /> Ontdek de bieren
+            </Link>
+            <Link
+              to="/restaurant"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <Utensils size={14} /> Reserveer een tafel
+            </Link>
           </div>
         </div>
       </section>
