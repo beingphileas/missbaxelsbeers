@@ -19,6 +19,7 @@ type BeerRow = {
   flavor_profile: string[] | null;
   primary_flavors: string[] | null;
   breweries: string[];
+  image_url: string | null;
 };
 
 const STYLE_FILTERS = [
@@ -69,7 +70,7 @@ export default function Beers() {
       setLoading(true);
       const { data: bs } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, flavor_profile, primary_flavors')
+        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, flavor_profile, primary_flavors, image_url')
         .order('name');
 
       const ids = (bs || []).map(b => b.id);
@@ -290,15 +291,24 @@ export default function Beers() {
                       e.currentTarget.style.transform = 'translateX(0)';
                     }}
                   >
-                    {/* Icon */}
+                    {/* Thumbnail */}
                     <div
-                      className="flex items-center justify-center shrink-0"
+                      className="flex items-center justify-center shrink-0 overflow-hidden"
                       style={{
-                        width: 44, height: 44, borderRadius: 10,
+                        width: 56, height: 56, borderRadius: 10,
                         background: 'var(--hop-light)', color: 'var(--hop-dark)',
                       }}
                     >
-                      <Icon size={20} />
+                      {b.image_url ? (
+                        <img
+                          src={b.image_url}
+                          alt={b.name}
+                          loading="lazy"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                      ) : (
+                        <Icon size={20} />
+                      )}
                     </div>
 
                     {/* Body */}

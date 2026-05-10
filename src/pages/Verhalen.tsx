@@ -14,6 +14,7 @@ type Post = {
   excerpt: string | null;
   external_url: string | null;
   image_emoji: string | null;
+  cover_image_url: string | null;
 };
 
 const FILTERS = [
@@ -55,7 +56,7 @@ export default function Verhalen() {
       const to = (page + 1) * PAGE_SIZE - 1;
       const { data, count } = await supabase
         .from('blog_posts')
-        .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji', { count: 'exact' })
+        .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url', { count: 'exact' })
         .order('date', { ascending: false, nullsFirst: false })
         .range(from, to);
       setPosts((data || []) as any);
@@ -191,12 +192,23 @@ export default function Verhalen() {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    <div
-                      className="flex items-center justify-center"
-                      style={{ height: 80, background: TOP_BG[i % 3], fontSize: 32 }}
-                    >
-                      {p.image_emoji || '📖'}
-                    </div>
+                    {p.cover_image_url ? (
+                      <div style={{ height: 160, overflow: 'hidden', background: TOP_BG[i % 3] }}>
+                        <img
+                          src={p.cover_image_url}
+                          alt={p.title}
+                          loading="lazy"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="flex items-center justify-center"
+                        style={{ height: 80, background: TOP_BG[i % 3], fontSize: 32 }}
+                      >
+                        {p.image_emoji || '📖'}
+                      </div>
+                    )}
                     <div style={{ padding: 14 }}>
                       <span
                         className="inline-block text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
