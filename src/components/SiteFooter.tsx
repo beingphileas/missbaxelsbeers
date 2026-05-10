@@ -67,9 +67,9 @@ export default function SiteFooter() {
           </h3>
           <ul className="space-y-2.5">
             {[
+              { to: '/over', label: t('Over') },
               { to: '/beers', label: t('Bieren') },
               { to: '/stories', label: t('Verhalen') },
-              { to: '/over', label: t('Over') },
               { to: '/archief', label: t('Archief') },
             ].map((l) => (
               <li key={l.to}>
@@ -85,7 +85,7 @@ export default function SiteFooter() {
           </ul>
         </div>
 
-        {/* Bierstekers */}
+        {/* MissBaxel's */}
         <div>
           <h3
             className="mb-4 text-muted-foreground"
@@ -97,12 +97,14 @@ export default function SiteFooter() {
               textTransform: 'uppercase',
             }}
           >
-            Bierstekers
+            MissBaxel's
           </h3>
           <ul className="space-y-2.5">
             {[
-              { to: '/bierstekers', label: t('Over de werking') },
-              { to: '/archief', label: t('Het archief') },
+              { to: '/over', label: t('Het verhaal') },
+              { to: '/restaurant', label: t('Restaurant') },
+              { to: '/bierstekers', label: t('Bierstekers') },
+              { to: '/archief', label: t('Archief') },
             ].map((l) => (
               <li key={l.to}>
                 <Link
@@ -124,7 +126,10 @@ export default function SiteFooter() {
           className="max-w-[1200px] mx-auto px-5 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-muted-foreground"
           style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px' }}
         >
-          <div>© {year} MissBaxel's Beers · Bij Koen &amp; Marijke · Brugge</div>
+          <div className="flex items-center gap-3">
+            <span>© {year} MissBaxel's Beers · Bij Koen &amp; Marijke · Brugge</span>
+            <a href="/llms.txt" className="text-muted text-[10px] hover:underline">llms.txt</a>
+          </div>
           <div>
             {t('Een zustermerk:')}{' '}
             <span style={{ color: 'hsl(var(--tertiary))', fontWeight: 600 }}>Bierstekers</span>
