@@ -99,8 +99,6 @@ async function scrapePost(url: string) {
 
   const ogDesc = extract(html, /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i);
   const metaDesc = extract(html, /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i);
-  const firstP = extract(html, /<p[^>]*>([^<]{30,400})<\/p>/i);
-  const excerpt = decode((ogDesc || metaDesc || firstP || '').slice(0, 300));
 
   const dateRaw = extract(html, /<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i)
     || extract(html, /<time[^>]+datetime=["']([^"']+)["']/i);
@@ -108,19 +106,63 @@ async function scrapePost(url: string) {
 
   const ogImage = extract(html, /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
 
+  // Extract main article content
+  let articleHtml = '';
+  const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i)
+    || html.match(/<main[^>]*>([\s\S]*?)<\/main>/i)
+    || html.match(/<div[^>]+class="[^"]*(?:entry-content|post-content|article-content|prose)[^"]*"[^>]*>([\s\S]*?)<\/div>\s*(?:<footer|<aside|<\/article|<\/main)/i);
+  if (articleMatch) articleHtml = articleMatch[1];
+
+  // HTML → markdown-ish
+  const content = htmlToMarkdown(articleHtml || html);
+  const firstP = content.split('\n').find(l => l.trim().length > 30) || '';
+  const excerpt = decode((ogDesc || metaDesc || firstP).slice(0, 280));
+
   const pathSlug = url.replace(BASE, '').replace(/^\/|\/$/g, '').split('/').pop() || slugify(title);
 
   return {
     title,
     slug: slugify(pathSlug || title),
     excerpt,
-    content: excerpt || title,
+    content: content || excerpt || title,
     date,
     external_url: url,
     image_emoji: pickEmoji(title),
     cover_image_url: ogImage,
     status: 'published',
   };
+}
+
+function htmlToMarkdown(html: string): string {
+  let s = html;
+  // Strip scripts/styles/nav/footer
+  s = s.replace(/<script[\s\S]*?<\/script>/gi, '');
+  s = s.replace(/<style[\s\S]*?<\/style>/gi, '');
+  s = s.replace(/<(nav|footer|aside|form)[\s\S]*?<\/\1>/gi, '');
+  // Headings
+  s = s.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '\n# $1\n');
+  s = s.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '\n## $1\n');
+  s = s.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '\n### $1\n');
+  // Lists
+  s = s.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+  // Bold/italic
+  s = s.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
+  s = s.replace(/<(em|i)[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
+  // Links
+  s = s.replace(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)');
+  // Images
+  s = s.replace(/<img[^>]+src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi, '\n![$2]($1)\n');
+  s = s.replace(/<img[^>]+src=["']([^"']+)["'][^>]*\/?>/gi, '\n![]($1)\n');
+  // Paragraphs / breaks
+  s = s.replace(/<p[^>]*>/gi, '\n\n').replace(/<\/p>/gi, '\n');
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  // Strip remaining tags
+  s = s.replace(/<[^>]+>/g, '');
+  // Decode entities
+  s = decode(s);
+  // Collapse whitespace
+  s = s.replace(/\n{3,}/g, '\n\n').replace(/[ \t]+/g, ' ').trim();
+  return s;
 }
 
 Deno.serve(async (req) => {
