@@ -9,7 +9,7 @@ const navItems = [
   { label: 'Verhalen', path: '/stories' },
   { label: 'Over', path: '/over' },
   { label: 'Bierstekers', path: '/bierstekers' },
-  { label: 'Archief', path: '/bierstekers/archief' },
+  { label: 'Archief', path: '/archief' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
