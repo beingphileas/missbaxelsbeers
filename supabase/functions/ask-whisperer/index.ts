@@ -26,7 +26,11 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const sb = createClient(supabaseUrl, supabaseKey);
 
-    const [{ data: breweries }, { data: beers }, { data: posts }] = await Promise.all([
+    const [{ data: missbaxelBeers }, { data: breweries }, { data: beers }, { data: posts }] = await Promise.all([
+      sb.from("beers")
+        .select("id, name, style, abv, description, flavor_profile, primary_flavors, pairing_food, brewery_id")
+        .eq("is_current", true)
+        .order("name"),
       sb.from("breweries").select("id, name, type, province, story, established_year").order("name"),
       sb.from("beers").select("id, name, style, abv, flavor_profile, food_pairing, is_hidden_gem, brewery_id").order("name"),
       sb.from("blog_posts").select("id, title, slug, excerpt, tags, brewery_id, beer_id").eq("status", "published").order("published_at", { ascending: false }).limit(20),
@@ -35,6 +39,13 @@ serve(async (req) => {
     // Build brewery name map for beers
     const breweryMap: Record<string, string> = {};
     (breweries ?? []).forEach((b: any) => { breweryMap[b.id] = b.name; });
+
+    const missbaxelContext = (missbaxelBeers ?? []).map((b: any) => {
+      const flavors = [...(b.primary_flavors || []), ...(b.flavor_profile || [])].filter(Boolean).slice(0, 6).join(", ");
+      const pairing = (b.pairing_food || []).slice(0, 3).join(", ");
+      const brewer = breweryMap[b.brewery_id] || "onbekend";
+      return `- ${b.name} (${b.style || "?"}, ${b.abv ?? "?"}% ABV) — gebrouwen bij ${brewer}${flavors ? ` | smaken: ${flavors}` : ""}${pairing ? ` | past bij: ${pairing}` : ""}${b.description ? ` — ${b.description.slice(0, 140)}` : ""}`;
+    }).join("\n");
 
     const beerContext = (beers ?? []).map((b: any) =>
       `- ${b.name} (${b.style}, ${b.abv}% ABV) by ${breweryMap[b.brewery_id] || "unknown"} — flavors: ${(b.flavor_profile || []).join(", ")}${b.is_hidden_gem ? " ⭐ Hidden Gem" : ""}${b.food_pairing ? ` | food: ${b.food_pairing}` : ""}`
@@ -48,29 +59,32 @@ serve(async (req) => {
       `- "${p.title}" [/post/${p.slug}] — ${p.excerpt?.slice(0, 100) || ""} tags: ${(p.tags || []).join(", ")}`
     ).join("\n");
 
-    const systemPrompt = `You are "The Belgian Beer Whisperer" — a knowledgeable, warm, and slightly poetic expert on Belgian beers, breweries, and craft beer culture. You help people discover the perfect Belgian beer.
+    const systemPrompt = `Je bent de persoonlijke biergids van MissBaxel's Beers, het bierproject van Marijke Bax uit Brugge.
+MissBaxel's ontwikkelt biericeeën en werkt samen met Belgische brouwers die de vrije hand krijgen.
+De bieren zijn te proeven in restaurant Bij Koen & Marijke in 't Nieuw Museum in Brugge.
+Beantwoord vragen over de eigen bieren, de brouwers, bierstijlen en bier-spijs combinaties.
+Spreek de gebruiker aan in het Nederlands, tenzij die een andere taal gebruikt.
 
-Your knowledge base (real data from our database):
+EIGEN BIEREN VAN MISSBAXEL'S (huidig assortiment):
+${missbaxelContext || "(nog geen bieren in de database)"}
 
-BREWERIES:
+ACHTERGROND — Belgische brouwerijen in onze database:
 ${breweryContext}
 
-BEERS:
+ACHTERGROND — andere bieren:
 ${beerContext}
 
-RECENT STORIES:
+RECENTE VERHALEN OP DE SITE:
 ${blogContext}
 
-RULES:
-- Answer in the same language as the user's query (Dutch or English)
-- Be concise but evocative — max 3-4 sentences per recommendation
-- When recommending beers, always mention the brewery, style, ABV, and why it's special
-- If a blog post exists about the beer/brewery, mention it and include the link as [Title](/post/slug)
-- If asked about food pairings, use the actual food_pairing data
-- Mark hidden gems with ⭐
-- If you can't find something in the database, say so honestly
-- Use beer emoji sparingly 🍺
-- Never invent data not in your knowledge base`;
+REGELS:
+- Geef voorrang aan MissBaxel's eigen bieren wanneer dat past bij de vraag
+- Wees beknopt maar warm — max 3-4 zinnen per aanbeveling
+- Noem altijd brouwer, stijl, ABV en waarom het bijzonder is
+- Als er een verhaal bestaat, link het als [Titel](/post/slug)
+- Verwijs gerust naar restaurant Bij Koen & Marijke om de bieren te proeven
+- Verzin geen data die niet in je kennisbasis staat — zeg het eerlijk als je iets niet weet
+- Gebruik bier-emoji spaarzaam 🍺`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
