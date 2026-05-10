@@ -166,6 +166,12 @@ export default function BlogPostsSection() {
           <button onClick={scrapeMissBaxels} disabled={scraping} className={btnGhost}>
             {scraping ? 'Scrapen…' : 'Scrape missbaxelsbeers.com'}
           </button>
+          <button onClick={dedupPosts} disabled={deduping} className={btnGhost} title="Verwijder dubbele posts (zelfde titel)">
+            <Copy size={12} /> {deduping ? 'Bezig…' : 'Dedupliceren'}
+          </button>
+          <button onClick={enrichWithAI} disabled={enriching} className={btnGhost} title="Vul ontbrekende stijl, categorie, excerpt en emoji via AI">
+            <Sparkles size={12} /> {enriching ? 'Verrijken…' : 'Verrijk met AI'}
+          </button>
           <button onClick={() => fileRef.current?.click()} disabled={importing} className={btnGhost}>
             <Upload size={12} /> {importing ? 'Importeren…' : 'CSV importeren'}
           </button>
