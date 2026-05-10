@@ -25,7 +25,6 @@ import SiteFooter from "./components/SiteFooter";
 import NotFound from "./pages/NotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const Admin = lazy(() => import("./pages/Admin"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 
 const LazyFallback = () => (
@@ -68,16 +67,6 @@ const App = () => (
                   <ProtectedRoute>
                     <Suspense fallback={<LazyFallback />}>
                       <AdminPanel />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin-legacy"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<LazyFallback />}>
-                      <Admin />
                     </Suspense>
                   </ProtectedRoute>
                 }
