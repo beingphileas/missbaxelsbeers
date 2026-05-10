@@ -1,298 +1,473 @@
-import { useMemo, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useBeers } from '@/data/beers';
-import { useBlogPosts } from '@/data/blog';
-import { useAuth } from '@/hooks/useAuth';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Star, FlaskConical, Sparkles, Handshake, Wand2, Loader2, ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import {
+  Beer as BeerIcon, Leaf, Sun, Droplet, Citrus, Wheat, Flame, Sparkles,
+  Utensils, ExternalLink, MapPin, ArrowLeft,
+} from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
-import BeerAnalysisView from '@/components/BeerAnalysisView';
-import { useLanguage } from '@/hooks/useLanguage';
+import { supabase } from '@/integrations/supabase/client';
+
+type Brewery = {
+  id: string;
+  name: string;
+  slug: string | null;
+  location: string | null;
+  region: string | null;
+  description: string | null;
+  image_url: string | null;
+  website_url: string | null;
+  role: string;
+};
+
+type Beer = {
+  id: string;
+  slug: string | null;
+  name: string;
+  style: string | null;
+  style_category: string | null;
+  abv: number | null;
+  description: string | null;
+  marijke_idea: string | null;
+  brew_story: string | null;
+  pairing_suggestion: string | null;
+  food_pairing: string | null;
+  image_url: string | null;
+  label_url: string | null;
+  is_collab: boolean | null;
+  flavor_profile: string[] | null;
+  primary_flavors: string[] | null;
+};
+
+function iconForStyle(style: string | null) {
+  const s = (style || '').toLowerCase();
+  if (/tripel|dubbel|abdij|quad/.test(s)) return Leaf;
+  if (/saison|farmhouse|grisette/.test(s)) return Sun;
+  if (/stout|porter|donker|dark|imperial|bruin|schwarz/.test(s)) return Droplet;
+  if (/sour|zuur|lambiek|lambic|gueuze|geuze|kriek|wild|brett/.test(s)) return Citrus;
+  if (/ipa|pale|hop/.test(s)) return Flame;
+  if (/wit|wheat|weizen|blanche/.test(s)) return Wheat;
+  if (/speciaal|special/.test(s)) return Sparkles;
+  return BeerIcon;
+}
 
 export default function BeerDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data: beers = [], isLoading } = useBeers();
-  const { data: posts = [] } = useBlogPosts();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { t } = useLanguage();
+  const [beer, setBeer] = useState<Beer | null>(null);
+  const [breweries, setBreweries] = useState<Brewery[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const { data: isAdmin } = useQuery({
-    queryKey: ['is-admin', user?.id],
-    queryFn: async () => {
-      if (!user) return false;
-      const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      return !!data;
-    },
-    enabled: !!user,
-  });
+  useEffect(() => {
+    if (!id) return;
+    (async () => {
+      setLoading(true);
+      // Try slug first, then id
+      let { data: b } = await supabase
+        .from('beers')
+        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+        .eq('slug', id)
+        .maybeSingle();
 
-  const beer = useMemo(() => beers.find(b => b.id === id), [beers, id]);
-  const [enriching, setEnriching] = useState(false);
+      if (!b) {
+        const r = await supabase
+          .from('beers')
+          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+          .eq('id', id)
+          .maybeSingle();
+        b = r.data;
+      }
 
-  const handleEnrich = async () => {
-    if (!beer) return;
-    setEnriching(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('search-beer-firecrawl', {
-        body: { query: beer.name, replaceBeerId: beer.id },
-      });
-      if (error) {
-        toast.error('Verrijken mislukt', { description: error.message });
+      if (!b) {
+        setNotFound(true);
+        setLoading(false);
         return;
       }
-      if (data?.error) {
-        toast.error('Niet gevonden', { description: data.error });
-        return;
+
+      setBeer(b as any);
+
+      const { data: links } = await supabase
+        .from('beer_breweries')
+        .select('brewery_id, role')
+        .eq('beer_id', b.id);
+
+      const brewIds = (links || []).map(l => l.brewery_id);
+      if (brewIds.length) {
+        const { data: brews } = await supabase
+          .from('breweries')
+          .select('id, name, slug, location, region, description, image_url, website_url')
+          .in('id', brewIds);
+        const linkMap = new Map((links || []).map(l => [l.brewery_id, l.role]));
+        const ordered = (brews || [])
+          .map(br => ({ ...(br as any), role: linkMap.get(br.id) || 'main' }))
+          .sort((a, b) => (a.role === 'main' ? -1 : 1));
+        setBreweries(ordered as any);
       }
-      await queryClient.invalidateQueries({ queryKey: ['beers'] });
-      if (data?.replaced?.deleted && data?.beer_id && data.beer_id !== beer.id) {
-        toast.success('Bier vervangen door verrijkte versie');
-        navigate(`/beers/${data.beer_id}`, { replace: true });
-      } else {
-        toast.success('Bierdata bijgewerkt via Untappd');
-      }
-    } catch (e: any) {
-      toast.error('Onverwachte fout', { description: e?.message });
-    } finally {
-      setEnriching(false);
-    }
+      setLoading(false);
+    })();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
+        Laden…
+      </div>
+    );
+  }
+
+  if (notFound || !beer) {
+    return (
+      <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', fontFamily: 'DM Sans, sans-serif' }}>
+        <p style={{ color: 'var(--muted)' }}>Bier niet gevonden.</p>
+        <Link to="/beers" style={{ color: 'var(--hop)', fontWeight: 600 }}>← Terug naar de bieren</Link>
+      </div>
+    );
+  }
+
+  const Icon = iconForStyle(beer.style);
+  const imgSrc = beer.image_url || beer.label_url;
+  const tags = (beer.primary_flavors || beer.flavor_profile || []).slice(0, 8);
+  const main = breweries.filter(b => b.role === 'main' || b.role === '' || !b.role);
+  const co = breweries.filter(b => b.role !== 'main' && b.role !== '' && b.role);
+  const brewerNames = breweries.map(b => b.name);
+  const pairing = beer.pairing_suggestion || beer.food_pairing;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: beer.name,
+    description: beer.description || undefined,
+    brand: { '@type': 'Brand', name: "MissBaxel's Beers" },
+    manufacturer: brewerNames.length
+      ? { '@type': 'Organization', name: brewerNames.join(' & ') }
+      : undefined,
+    additionalProperty: [
+      beer.abv != null && { '@type': 'PropertyValue', name: 'Alcoholpercentage', value: `${beer.abv}%` },
+      beer.style && { '@type': 'PropertyValue', name: 'Bierstijl', value: beer.style },
+    ].filter(Boolean),
   };
 
-  const relatedPosts = useMemo(() => {
-    if (!beer) return [];
-    return posts.filter(p => p.beerIds?.includes(beer.id) || p.beerId === beer.id);
-  }, [posts, beer]);
-
-  const similarBeers = useMemo(() => {
-    if (!beer) return [];
-    return beers
-      .filter(b => b.id !== beer.id && b.lifecycleStatus === beer.lifecycleStatus)
-      .map(b => {
-        let score = 0;
-        if (b.style === beer.style) score += 3;
-        if (Math.abs(b.abv - beer.abv) < 1.5) score += 1;
-        score += b.flavorProfile.filter(f => beer.flavorProfile.includes(f)).length;
-        return { beer: b, score };
-      })
-      .filter(s => s.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6)
-      .map(s => s.beer);
-  }, [beer, beers]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-5 py-10">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <Skeleton className="h-12 w-72 mb-4" />
-          <Skeleton className="h-6 w-56 mb-8" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!beer) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">{t('Bier niet gevonden.')}</p>
-          <Button asChild variant="outline">
-            <Link to="/beers"><ArrowLeft size={14} /> {t('Terug naar bieren')}</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title={beer.name}
-        description={`${beer.style} · ${beer.abv}% ABV — MissBaxel's Beers. ${beer.flavorProfile.join(', ')}.`}
-        url={`/beers/${beer.id}`}
+        title={`${beer.name} — MissBaxel's Beers`}
+        description={beer.description || `${beer.name}${beer.style ? ` · ${beer.style}` : ''} — een MissBaxel's samenwerking.`}
+        url={`/beers/${beer.slug || beer.id}`}
+        type="article"
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
 
-      <div className="border-b border-border/40 bg-parchment">
-        <div className="max-w-4xl mx-auto px-5 py-8 md:py-12">
-          <Link to="/beers" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-xs mb-4 transition-colors">
-            <ArrowLeft size={12} /> {t('Bieren')}
-          </Link>
+      {/* Back link */}
+      <div className="max-w-5xl mx-auto px-5 pt-5">
+        <Link
+          to="/beers"
+          className="inline-flex items-center gap-1.5 no-underline"
+          style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)' }}
+        >
+          <ArrowLeft size={13} /> Alle bieren
+        </Link>
+      </div>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-accent text-[10px] font-bold uppercase tracking-[0.3em]">{beer.style}</span>
-              <span className="text-muted-foreground text-[10px]">•</span>
-              <span className="text-[11px] font-bold tabular-nums">{beer.abv}% ABV</span>
-              <Badge
-                variant="outline"
-                className={`text-[9px] uppercase tracking-wider ${beer.lifecycleStatus === 'archive' ? 'border-muted-foreground/40 text-muted-foreground' : 'border-accent/40 text-accent'}`}
+      {/* HERO */}
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '32px 0 48px' }}>
+        <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10 items-start">
+          {/* Image — order on desktop left, mobile below */}
+          <div className="order-2 md:order-1">
+            {imgSrc ? (
+              <img
+                src={imgSrc}
+                alt={beer.name}
+                loading="lazy"
+                style={{
+                  width: '100%', borderRadius: 16, border: '1px solid var(--line)',
+                  background: '#fff', display: 'block', aspectRatio: '1 / 1', objectFit: 'cover',
+                }}
+              />
+            ) : (
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: '100%', aspectRatio: '1 / 1',
+                  borderRadius: 16, border: '1px solid var(--line)',
+                  background: 'var(--hop-light)', color: 'var(--hop-dark)',
+                }}
               >
-                {beer.lifecycleStatus === 'archive' ? t('Archief') : t('Huidig assortiment')}
-              </Badge>
-              {beer.hasPost && (
-                <Badge className="bg-accent/15 text-accent border-accent/25 text-[9px] gap-1">
-                  <Sparkles size={8} /> {t('Verhaal')}
-                </Badge>
-              )}
-            </div>
-            <h1 className="font-display text-3xl md:text-5xl mb-3">{beer.name}</h1>
+                <Icon size={120} />
+              </div>
+            )}
+          </div>
 
-            {/* Brewed at — prominent */}
-            <div className="inline-flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/25 rounded-md text-sm">
-              <Handshake size={14} className="text-accent" />
-              <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">{t('Gebrouwen bij')}:</span>
-              <span className="font-medium">{beer.brewedAt || t('Collab brouwerij — t.b.a.')}</span>
-            </div>
+          {/* Info */}
+          <div className="order-1 md:order-2">
+            {beer.style && (
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
+                style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                <Icon size={12} /> {beer.style}
+              </span>
+            )}
 
-            {(beer.source === 'bierstekers' || beer.source === 'beide') && (
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 bg-bierstekers/10 border border-bierstekers/30 rounded-md text-sm">
-                <ShoppingCart size={14} className="text-bierstekers" />
-                <span className="text-bierstekers font-bold uppercase tracking-wider text-[10px]">Bierstekers</span>
-                <span className="text-muted-foreground text-xs">·</span>
-                {beer.shopUrl ? (
-                  <a href={beer.shopUrl} target="_blank" rel="noopener noreferrer" className="text-foreground font-medium hover:text-bierstekers transition-colors">
-                    {t('Bestellen')}
-                  </a>
-                ) : (
-                  <span className="text-muted-foreground italic text-xs">{t('Uitverkocht — archiefbier')}</span>
-                )}
+            <h1
+              className="mt-4 mb-3"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(32px, 5vw, 42px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
+            >
+              {beer.name}
+            </h1>
+
+            {breweries.length > 0 && (
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
+                Gebrouwen bij{' '}
+                {main.map((b) => b.name).join(' & ')}
+                {co.map((b) => (
+                  <span key={b.id}>
+                    {' '}&amp;{' '}
+                    <span style={{ color: 'var(--ink)' }}>{b.name}</span>{' '}
+                    <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>(co-brouwer)</span>
+                  </span>
+                ))}
+              </p>
+            )}
+
+            {beer.is_collab && (
+              <span
+                className="mt-3 inline-block text-[10px] font-semibold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
+                style={{ background: '#FDF1DC', color: '#8A5A1F', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                Collab
+              </span>
+            )}
+
+            {beer.abv != null && (
+              <div className="mt-6 flex items-baseline gap-2">
+                <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 48, color: 'var(--hop)', lineHeight: 1 }}>
+                  {Number(beer.abv).toFixed(1)}%
+                </div>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)' }}>/vol</div>
               </div>
             )}
 
-            {isAdmin && (
-              <div className="mt-4">
-                <Button size="sm" variant="outline" className="gap-1.5" onClick={handleEnrich} disabled={enriching}>
-                  {enriching ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
-                  {enriching ? t('Verrijken…') : t('Verrijk via Untappd')}
-                </Button>
+            {tags.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             )}
-          </motion.div>
+
+            <Link
+              to="/restaurant"
+              className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <Utensils size={14} /> Proef het in het restaurant
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-5 py-8 space-y-10">
-        {/* Story / description */}
-        {beer.description && (
-          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="font-serif text-lg leading-relaxed text-foreground/90 italic">
-              {beer.description}
-            </p>
-          </motion.section>
-        )}
-
-        {relatedPosts.length > 0 && (
-          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-accent" />
-              <h2 className="font-display text-xl">{t('Verhalen rond dit bier')}</h2>
+      {/* HET IDEE */}
+      {beer.marijke_idea && (
+        <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
+          <div className="max-w-3xl mx-auto px-5">
+            <span
+              className="inline-block text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
+              style={{ background: '#FDF1DC', color: '#8A5A1F', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              Marijke's idee
+            </span>
+            <div
+              className="mt-5"
+              style={{
+                borderLeft: '3px solid #C99347',
+                background: '#FDF1DC',
+                borderRadius: '0 12px 12px 0',
+                padding: '20px 24px',
+                fontFamily: 'Fraunces, serif',
+                fontStyle: 'italic',
+                fontSize: 18,
+                lineHeight: 1.55,
+                color: 'var(--ink)',
+              }}
+            >
+              {beer.marijke_idea}
             </div>
-            <div className="space-y-3">
-              {relatedPosts.map(post => (
-                <Link key={post.id} to={`/post/${post.slug}`} className="group block bg-card border border-accent/20 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden rounded-lg">
-                  <div className="flex gap-4">
-                    {post.coverImageUrl && <img src={post.coverImageUrl} alt={post.title} className="w-24 h-24 md:w-32 md:h-28 object-cover shrink-0" />}
-                    <div className="py-3 pr-4 flex flex-col justify-center">
-                      <h3 className="font-display text-sm md:text-base leading-tight group-hover:text-accent transition-colors mb-1">{post.title}</h3>
-                      {post.excerpt && <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{post.excerpt}</p>}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </motion.section>
-        )}
-
-        <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <div className="flex items-center gap-2 mb-4">
-            <FlaskConical size={16} className="text-accent" />
-            <h2 className="font-display text-xl">{t('Smaak & Specs')}</h2>
           </div>
+        </section>
+      )}
 
-          <div className="grid md:grid-cols-2 gap-5">
-            <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
-              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">{t('Specs')}</h3>
-              <dl className="space-y-2.5 text-sm">
-                <div className="flex justify-between"><dt className="text-muted-foreground">{t('Stijl')}</dt><dd className="font-medium">{beer.style}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">ABV</dt><dd className="font-medium tabular-nums">{beer.abv}%</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">{t('Status')}</dt><dd className="font-medium">{beer.lifecycleStatus === 'archive' ? t('Archief') : t('Huidig')}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">{t('Gebrouwen bij')}</dt><dd className="font-medium text-right">{beer.brewedAt || '—'}</dd></div>
-              </dl>
-              <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-dashed border-border/40">
-                {beer.isHiddenGem && <Badge className="bg-success/10 text-success border-success/20"><Star size={10} className="mr-1" /> {t('Verborgen parel')}</Badge>}
-                {beer.featured && <Badge className="bg-accent/10 text-accent border-accent/20">{t('Uitgelicht')}</Badge>}
+      {/* HET BIER */}
+      {beer.brew_story && (
+        <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
+          <div className="max-w-3xl mx-auto px-5">
+            <h2
+              className="mb-4"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 24 }}
+            >
+              Het bier
+            </h2>
+            <div
+              style={{
+                fontFamily: 'DM Sans, sans-serif', fontSize: 15,
+                color: 'var(--muted)', lineHeight: 1.85, whiteSpace: 'pre-wrap',
+              }}
+            >
+              {beer.brew_story}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* SMAAKPROFIEL */}
+      {(tags.length > 0 || pairing) && (
+        <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
+          <div className="max-w-3xl mx-auto px-5">
+            <h2
+              className="mb-5"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 24 }}
+            >
+              Smaakprofiel
+            </h2>
+
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full"
+                    style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
-            </div>
+            )}
 
-            <div className="bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] p-5">
-              <h3 className="font-display text-base mb-3 border-b border-dashed border-border/40 pb-2">{t('Smaakprofiel')}</h3>
-              {beer.flavorProfile.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {beer.flavorProfile.map(tag => (
-                    <span key={tag} className="px-2.5 py-1 bg-secondary/80 border border-border/40 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{tag}</span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm mb-4">{t('Geen smaakprofiel beschikbaar.')}</p>
-              )}
-              {beer.foodPairing && (
-                <div>
-                  <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">{t('Aanbevolen combinatie')}</h4>
-                  <p className="text-sm leading-relaxed">🍽 {beer.foodPairing}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.section>
-
-        <BeerAnalysisView
-          beerId={beer.id} beerName={beer.name} analysisJson={beer.analysisJson} factcheckJson={beer.factcheckJson}
-          qualityScore={beer.qualityScore ?? null} summary={beer.summary ?? null} tasteNotes={beer.tasteNotes ?? null}
-          radarBody={beer.radarBody ?? null} radarHops={beer.radarHops ?? null} radarMalt={beer.radarMalt ?? null}
-          radarFruit={beer.radarFruit ?? null} radarSpice={beer.radarSpice ?? null}
-          primaryFlavors={beer.primaryFlavors ?? null} secondaryFlavors={beer.secondaryFlavors ?? null} aromaProfile={beer.aromaProfile ?? null}
-          pairingFood={beer.pairingFood ?? null} pairingClassic={beer.pairingClassic ?? null} pairingCheese={beer.pairingCheese ?? null}
-          serveStyle={beer.serveStyle ?? null} productionMethod={beer.productionMethod ?? null}
-          isAdmin={!!isAdmin} onRefresh={() => queryClient.invalidateQueries({ queryKey: ['beers'] })}
-        />
-
-        {similarBeers.length > 0 && (
-          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <h2 className="font-display text-xl mb-4">{t('Vergelijkbare bieren')}</h2>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {similarBeers.map(b => (
-                <Link key={b.id} to={`/beers/${b.id}`} className="group bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-0.5 transition-all duration-300 p-3.5">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-display text-sm leading-tight group-hover:text-accent transition-colors">{b.name}</h3>
-                    <span className="text-[10px] font-bold tabular-nums shrink-0 ml-2">{b.abv}%</span>
+            {pairing && (
+              <div
+                style={{
+                  background: '#fff', border: '1px solid var(--line)',
+                  borderRadius: 12, padding: 20,
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex items-center justify-center shrink-0"
+                    style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--copper-light)', color: 'var(--copper)' }}
+                  >
+                    <Utensils size={18} />
                   </div>
-                  <p className="text-[10px] text-accent font-bold uppercase tracking-wide mb-1.5">{b.style}</p>
-                  <p className="text-[10px] text-muted-foreground italic flex items-center gap-1 mb-2">
-                    <Handshake size={9} className="text-accent shrink-0" />
-                    <span className="truncate">{b.brewedAt || t('Collab — t.b.a.')}</span>
-                  </p>
-                  {b.flavorProfile.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {b.flavorProfile.slice(0, 3).map(tag => (
-                        <span key={tag} className="px-1.5 py-0.5 bg-secondary/60 border border-border/40 text-[8px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
-                      ))}
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+                        color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                      }}
+                    >
+                      Spijs-biercombinatie
                     </div>
+                    <div
+                      className="mt-1.5"
+                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)', lineHeight: 1.6 }}
+                    >
+                      {pairing}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* DE BROUWERIJ(EN) */}
+      {breweries.length > 0 && (
+        <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
+          <div className="max-w-3xl mx-auto px-5">
+            <h2
+              className="mb-5"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 24 }}
+            >
+              {breweries.length > 1 ? 'De brouwerijen' : 'De brouwerij'}
+            </h2>
+
+            <div className="space-y-4">
+              {breweries.map((br) => (
+                <div
+                  key={br.id}
+                  className="flex flex-col md:flex-row gap-4"
+                  style={{
+                    background: '#fff', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: 18,
+                  }}
+                >
+                  {br.image_url && (
+                    <img
+                      src={br.image_url}
+                      alt={br.name}
+                      loading="lazy"
+                      style={{
+                        width: 120, height: 120, borderRadius: 10,
+                        objectFit: 'cover', flexShrink: 0,
+                      }}
+                    />
                   )}
-                </Link>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 18 }}>
+                        {br.name}
+                      </h3>
+                      {br.role && br.role !== 'main' && (
+                        <span
+                          className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                          style={{ background: '#FDF1DC', color: '#8A5A1F', fontFamily: 'DM Sans, sans-serif' }}
+                        >
+                          {br.role}
+                        </span>
+                      )}
+                    </div>
+                    {(br.location || br.region) && (
+                      <div
+                        className="flex items-center gap-1 mt-1"
+                        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)' }}
+                      >
+                        <MapPin size={12} /> {[br.location, br.region].filter(Boolean).join(', ')}
+                      </div>
+                    )}
+                    {br.description && (
+                      <p
+                        className="mt-2.5"
+                        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}
+                      >
+                        {br.description}
+                      </p>
+                    )}
+                    {br.website_url && (
+                      <a
+                        href={br.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-1 no-underline"
+                        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}
+                      >
+                        Bezoek website <ExternalLink size={11} />
+                      </a>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
-          </motion.section>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
