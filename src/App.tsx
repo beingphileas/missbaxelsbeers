@@ -17,6 +17,7 @@ import BeerDetail from "./pages/BeerDetail";
 import Bierstekers from "./pages/Bierstekers";
 import BierstekersArchive from "./pages/BierstekersArchive";
 import Over from "./pages/Over";
+import Restaurant from "./pages/Restaurant";
 import Archief from "./pages/Archief";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SiteFooter from "./components/SiteFooter";
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/bierstekers/archief" element={<BierstekersArchive />} />
               <Route path="/over" element={<Over />} />
               <Route path="/archief" element={<Archief />} />
+              <Route path="/restaurant" element={<Restaurant />} />
               <Route path="/login" element={<Login />} />
               <Route
                 path="/admin"
