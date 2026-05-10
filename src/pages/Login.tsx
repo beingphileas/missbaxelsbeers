@@ -52,14 +52,25 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
 
-    if (error) {
-      toast({ title: 'Google login mislukt', description: String(error), variant: 'destructive' });
+    if (result.error) {
+      toast({ title: 'Google login mislukt', description: String(result.error), variant: 'destructive' });
       setLoading(false);
+      return;
     }
+
+    if (result.redirected) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      toast({ title: 'Welkom!' });
+      const redirect = await determineRedirect(user.id);
+      navigate(redirect);
+    }
+    setLoading(false);
   };
 
   return (
