@@ -19,6 +19,7 @@ type BeerRow = {
   flavor_profile: string[] | null;
   primary_flavors: string[] | null;
   breweries: string[];
+  image_url: string | null;
 };
 
 const STYLE_FILTERS = [
