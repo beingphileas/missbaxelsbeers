@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,89 @@
 
 @layer base {
   :root {
-    /* Wine Cellar Dark Palette */
-    --background: 220 20% 8%;
-    --foreground: 30 20% 90%;
+    /* ═══ Light, airy palette ═══ */
+    /* Background  #FDFAF6 */
+    --background: 36 38% 98%;
+    /* Ink         #1C1510 */
+    --foreground: 24 28% 9%;
 
-    --card: 220 18% 12%;
-    --card-foreground: 30 20% 90%;
+    /* Surface card #FFFFFF */
+    --card: 0 0% 100%;
+    --card-foreground: 24 28% 9%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 30 20% 90%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 28% 9%;
 
-    --primary: 348 60% 42%;
-    --primary-foreground: 30 20% 95%;
+    /* Primary hop green #4A7C3F */
+    --primary: 111 33% 37%;
+    --primary-foreground: 0 0% 100%;
+    /* Primary light #EAF3DE */
+    --primary-light: 88 45% 91%;
+    /* Primary mid   #97C459 */
+    --primary-mid: 86 47% 56%;
 
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 30 15% 80%;
+    /* Secondary amber #BA7517 / light #FAEEDA */
+    --secondary: 33 79% 41%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 38 79% 92%;
 
-    --muted: 220 15% 16%;
-    --muted-foreground: 220 10% 50%;
+    /* Tertiary copper (Bierstekers) #993C1D / light #FAECE7 */
+    --tertiary: 14 68% 36%;
+    --tertiary-foreground: 0 0% 100%;
+    --tertiary-light: 18 71% 94%;
 
-    --accent: 38 70% 55%;
-    --accent-foreground: 220 20% 8%;
+    /* Muted text #7A6E64 */
+    --muted: 36 100% 97%;
+    --muted-foreground: 28 9% 44%;
 
-    --success: 90 42% 24%;
+    /* Accent = amber */
+    --accent: 33 79% 41%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 111 33% 37%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 30 20% 95%;
+    --destructive: 14 68% 36%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 348 60% 42%;
+    /* Borders/lines #E8E0D4 */
+    --border: 33 28% 87%;
+    --input: 33 28% 87%;
+    --ring: 111 33% 37%;
 
-    --radius: 0.75rem;
+    --radius: 0.75rem; /* 12px */
 
-    --sidebar-background: 220 20% 6%;
-    --sidebar-foreground: 30 20% 90%;
-    --sidebar-primary: 348 60% 42%;
-    --sidebar-primary-foreground: 30 20% 95%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 30 15% 80%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 348 60% 42%;
+    /* Cream sections #FFF8EE */
+    --cream: 36 100% 97%;
 
-    /* Extended wine cellar palette */
-    --charcoal: 220 20% 6%;
-    --rust: 348 60% 42%;
-    --slate: 220 15% 25%;
-    --parchment: 220 18% 12%;
-    --vintage-gold: 38 70% 55%;
-    --vintage-cream: 220 18% 14%;
-    --vintage-sepia: 220 10% 40%;
+    --sidebar-background: 36 38% 98%;
+    --sidebar-foreground: 24 28% 9%;
+    --sidebar-primary: 111 33% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 36 100% 97%;
+    --sidebar-accent-foreground: 24 28% 9%;
+    --sidebar-border: 33 28% 87%;
+    --sidebar-ring: 111 33% 37%;
 
-    /* Bierstekers sub-brand: warm copper/amber to differ from gold accent */
-    --bierstekers: 22 75% 52%;
-    --bierstekers-foreground: 220 20% 8%;
+    /* Legacy aliases (kept for compatibility) */
+    --charcoal: 24 28% 9%;
+    --rust: 14 68% 36%;
+    --slate: 28 9% 44%;
+    --parchment: 0 0% 100%;
+    --vintage-gold: 33 79% 41%;
+    --vintage-cream: 36 100% 97%;
+    --vintage-sepia: 28 9% 44%;
 
-    /* Shadows – dark & deep */
-    --shadow-hard: 3px 3px 0px hsl(0 0% 0% / 0.5);
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.4), 0 1px 3px hsl(0 0% 0% / 0.2);
-    --shadow-scrapbook: 0 4px 16px -4px hsl(0 0% 0% / 0.5), 0 1px 4px hsl(0 0% 0% / 0.3);
-    --shadow-scrapbook-hover: 0 8px 28px -4px hsl(0 0% 0% / 0.6), 0 2px 8px hsl(0 0% 0% / 0.35);
-    --shadow-vintage: 0 1px 3px hsl(0 0% 0% / 0.3);
+    /* Bierstekers sub-brand → copper */
+    --bierstekers: 14 68% 36%;
+    --bierstekers-foreground: 0 0% 100%;
+
+    /* No drop shadows — kept as no-ops for back-compat */
+    --shadow-hard: 0 0 0 transparent;
+    --shadow-card: 0 0 0 transparent;
+    --shadow-scrapbook: 0 0 0 transparent;
+    --shadow-scrapbook-hover: 0 0 0 transparent;
+    --shadow-vintage: 0 0 0 transparent;
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -80,182 +101,139 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     font-weight: 400;
   }
 
-  /* Fraunces for all headings – editorial vintage feel */
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    font-optical-sizing: auto;
+    color: hsl(var(--foreground));
+  }
+
+  .font-serif, .font-headline {
+    font-family: 'Fraunces', Georgia, serif;
     font-optical-sizing: auto;
   }
 
-  .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
-  }
-
-  .font-headline {
-    font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
-    font-optical-sizing: auto;
+  .font-italic-accent {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
   }
 }
 
 @layer utilities {
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 
-  .shadow-hard {
-    box-shadow: var(--shadow-hard);
-  }
+  /* Shadows neutralized — design uses borders, not drops */
+  .shadow-hard,
+  .shadow-card,
+  .shadow-scrapbook,
+  .shadow-scrapbook-hover,
+  .shadow-vintage { box-shadow: none; }
 
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .shadow-scrapbook {
-    box-shadow: var(--shadow-scrapbook);
-  }
+  .text-balance { text-wrap: balance; }
 
-  .shadow-scrapbook-hover {
-    box-shadow: var(--shadow-scrapbook-hover);
-  }
-
-  .shadow-vintage {
-    box-shadow: var(--shadow-vintage);
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* Wine cellar decorative utilities */
   .vintage-divider {
-    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
     height: 1px;
   }
 
-  .vintage-paper {
-    background-image: 
-      radial-gradient(ellipse at 20% 50%, hsl(348 60% 42% / 0.05), transparent 50%),
-      radial-gradient(ellipse at 80% 50%, hsl(38 70% 55% / 0.03), transparent 50%);
-  }
+  .vintage-paper { background: hsl(var(--cream)); }
 
   .glass-card {
-    background: hsl(220 18% 14% / 0.6);
-    backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    backdrop-filter: none;
   }
 
   .wine-gradient {
-    background: linear-gradient(135deg, hsl(348 70% 25%), hsl(348 60% 42%));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-mid)));
   }
 
-  .gold-text {
-    color: hsl(38 70% 55%);
-  }
+  .gold-text { color: hsl(var(--secondary)); }
+
+  .bg-cream { background-color: hsl(var(--cream)); }
+  .bg-primary-light { background-color: hsl(var(--primary-light)); }
+  .bg-secondary-light { background-color: hsl(var(--secondary-light)); }
+  .bg-tertiary-light { background-color: hsl(var(--tertiary-light)); }
+
+  .rounded-pill { border-radius: 9999px; }
 }
 
-/* ═══ Editorial "New Yorker meets Craft Beer" typography ═══ */
+/* ═══ Editorial typography ═══ */
 .prose-editorial {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.05rem;
-  line-height: 1.85;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.075rem;
+  line-height: 1.8;
   color: hsl(var(--foreground));
 }
 
-.prose-editorial p {
-  margin-bottom: 1.5em;
-}
+.prose-editorial p { margin-bottom: 1.5em; }
 
-/* Drop cap on first paragraph */
 .prose-editorial > p:first-of-type::first-letter {
-  font-family: 'Fraunces', 'Playfair Display', serif;
+  font-family: 'Fraunces', serif;
   font-size: 3.8em;
   float: left;
   line-height: 0.8;
   padding-right: 0.08em;
   margin-top: 0.05em;
-  color: hsl(var(--accent));
-  font-weight: 700;
+  color: hsl(var(--primary));
+  font-weight: 900;
 }
 
 .prose-editorial a {
-  color: hsl(var(--accent));
+  color: hsl(var(--primary));
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: hsl(var(--accent) / 0.3);
+  text-decoration-color: hsl(var(--primary) / 0.35);
   transition: text-decoration-color 0.2s;
 }
 
-.prose-editorial a:hover {
-  text-decoration-color: hsl(var(--accent));
-}
+.prose-editorial a:hover { text-decoration-color: hsl(var(--primary)); }
 
-.prose-editorial ul, .prose-editorial ol {
-  padding-left: 1.5em;
-  margin-bottom: 1.5em;
-}
-
-.prose-editorial li {
-  margin-bottom: 0.5em;
-}
-
-.prose-editorial strong {
-  font-weight: 700;
-  color: hsl(var(--foreground));
-}
-
-.prose-editorial em {
-  font-style: italic;
-}
+.prose-editorial ul, .prose-editorial ol { padding-left: 1.5em; margin-bottom: 1.5em; }
+.prose-editorial li { margin-bottom: 0.5em; }
+.prose-editorial strong { font-weight: 700; color: hsl(var(--foreground)); }
+.prose-editorial em { font-style: italic; }
 
 .prose-editorial hr {
   border: none;
   height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.4), transparent);
+  background: hsl(var(--border));
   margin: 2.5em 0;
 }
 
 /* Leaflet overrides */
 .leaflet-container {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: hsl(220 20% 8%);
-  }
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: hsl(var(--cream));
+}
 
 .leaflet-popup-content-wrapper {
   border-radius: var(--radius);
-  box-shadow: var(--shadow-scrapbook);
   border: 1px solid hsl(var(--border));
-  font-family: 'Inter', sans-serif;
-}
-
-.leaflet-popup-tip {
   box-shadow: none;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  font-family: 'DM Sans', sans-serif;
 }
 
-/* Map pin pulse animation */
+.leaflet-popup-tip { box-shadow: none; background: hsl(var(--card)); }
+
 @keyframes map-pulse {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.5); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
 }
+.map-pin-pulse > div { animation: map-pulse 0.8s ease-in-out infinite; }
 
-.map-pin-pulse > div {
-  animation: map-pulse 0.8s ease-in-out infinite;
-}
-
-/* Vintage ornament keyframe */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
