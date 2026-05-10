@@ -21,7 +21,70 @@ export default function BlogPostsSection() {
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [scraping, setScraping] = useState(false);
+  const [enriching, setEnriching] = useState(false);
+  const [deduping, setDeduping] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function enrichWithAI() {
+    if (!confirm('Verrijk alle posts met ontbrekende metadata via AI? Dit kan even duren.')) return;
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-blog-posts', {
+        body: { onlyMissing: true, limit: 100 },
+      });
+      if (error) throw error;
+      toast.success(`${data.updated}/${data.total} posts verrijkt${data.errors ? ` (${data.errors} fouten)` : ''}`);
+      load();
+    } catch (e: any) {
+      toast.error(e.message || 'Verrijken mislukt');
+    } finally { setEnriching(false); }
+  }
+
+  async function dedupPosts() {
+    setDeduping(true);
+    try {
+      const { data: all, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug, content, date')
+        .limit(2000);
+      if (error) throw error;
+      const groups = new Map<string, any[]>();
+      for (const p of all || []) {
+        const key = (p.title || '').trim().toLowerCase();
+        if (!key) continue;
+        const arr = groups.get(key) || [];
+        arr.push(p);
+        groups.set(key, arr);
+      }
+      const toDelete: string[] = [];
+      let dupGroups = 0;
+      for (const arr of groups.values()) {
+        if (arr.length < 2) continue;
+        dupGroups++;
+        // keep the one with longest content; tiebreak on oldest date
+        arr.sort((a, b) => {
+          const lenDiff = (b.content?.length || 0) - (a.content?.length || 0);
+          if (lenDiff !== 0) return lenDiff;
+          return (a.date || '').localeCompare(b.date || '');
+        });
+        for (const dup of arr.slice(1)) toDelete.push(dup.id);
+      }
+      if (toDelete.length === 0) {
+        toast.success('Geen duplicaten gevonden');
+      } else {
+        if (!confirm(`${toDelete.length} duplicaten verwijderen (${dupGroups} groepen)?`)) {
+          setDeduping(false);
+          return;
+        }
+        const { error: delErr } = await supabase.from('blog_posts').delete().in('id', toDelete);
+        if (delErr) throw delErr;
+        toast.success(`${toDelete.length} duplicaten verwijderd`);
+        load();
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Dedup mislukt');
+    } finally { setDeduping(false); }
+  }
 
   async function scrapeMissBaxels() {
     setScraping(true);
