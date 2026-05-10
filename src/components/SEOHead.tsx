@@ -17,7 +17,7 @@ export default function SEOHead({
   type = 'website',
   publishedAt,
 }: SEOHeadProps) {
-  const fullTitle = `${title} — Belgium Beer Whisperer`;
+  const fullTitle = `${title} | MissBaxel's Beers`;
   const siteUrl = window.location.origin;
   const canonical = url ? `${siteUrl}${url}` : siteUrl;
   const ogImage = image || `${siteUrl}/favicon.ico`;
@@ -34,7 +34,9 @@ export default function SEOHead({
       <meta property="og:image" content={ogImage} />
       <meta property="og:url" content={canonical} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="Belgium Beer Whisperer" />
+      <meta property="og:site_name" content="MissBaxel's Beers" />
+      <meta property="og:locale" content="nl_BE" />
+      <meta name="robots" content="index, follow" />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
