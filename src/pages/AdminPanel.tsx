@@ -103,7 +103,7 @@ export default function AdminPanel() {
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
           {section === 'import' && <FirecrawlImport />}
-          {section === 'tasting' && <QuickTasting />}
+          {section === 'tasting' && <QuickTasting onPublished={() => {}} />}
           {section === 'factcheck' && <BulkFactCheck />}
         </main>
       </div>
