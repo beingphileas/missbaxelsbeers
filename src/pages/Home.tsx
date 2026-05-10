@@ -549,12 +549,8 @@ export default function Home() {
                   </div>
                 </article>
               );
-              return p.external_url ? (
-                <a key={p.id} href={p.external_url} target="_blank" rel="noopener noreferrer" className="no-underline">
-                  {card}
-                </a>
-              ) : (
-                <Link key={p.id} to={`/post/${p.slug}`} className="no-underline">
+              return (
+                <Link key={p.id} to={`/verhalen/${p.slug}`} className="no-underline">
                   {card}
                 </Link>
               );

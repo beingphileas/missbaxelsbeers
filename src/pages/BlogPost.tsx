@@ -53,14 +53,6 @@ export default function BlogPost() {
 
   if (notFound) return <Navigate to="/verhalen" replace />;
   if (!post) return null;
-  if (post.external_url) {
-    return (
-      <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
-        Doorverwijzen naar de originele post…
-      </div>
-    );
-  }
-
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
