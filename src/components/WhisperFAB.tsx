@@ -18,10 +18,10 @@ export default function WhisperFAB() {
   const { t } = useLanguage();
 
   const SUGGESTIONS = [
-    t("Welk Belgisch bier past bij kaas?"),
-    t("Geef me een verborgen parel tripel"),
-    t("Wat is een goed zuur bier?"),
-    t("Welke brouwerij moet ik bezoeken in West-Vlaanderen?"),
+    t("Welk MissBaxel's bier past bij kaas?"),
+    t("Vertel me over de samenwerking met Alvinne"),
+    t("Wat is een goed zuur bier voor beginners?"),
+    t("Welke brouwerijen werken samen met MissBaxel's?"),
   ];
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function WhisperFAB() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={() => setOpen(true)}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent text-accent-foreground shadow-[0_4px_20px_rgba(218,165,32,0.4)] hover:shadow-[0_6px_28px_rgba(218,165,32,0.55)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
-            aria-label={t('Vraag de Whisperer')}
+            aria-label={t('Stel een biervraag')}
           >
             <Sparkles size={22} />
           </motion.button>
@@ -151,8 +151,8 @@ export default function WhisperFAB() {
                     <Sparkles size={16} className="text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-white text-sm font-semibold">{t('Vraag de Whisperer')}</h3>
-                    <p className="text-white/40 text-[10px]">{t('AI-gestuurd bieradvies')}</p>
+                    <h3 className="text-white text-sm font-semibold">{t("Vraag MissBaxel's")}</h3>
+                    <p className="text-white/40 text-[10px]">{t('Jouw persoonlijke biergids')}</p>
                   </div>
                 </div>
                 <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors">
@@ -163,7 +163,7 @@ export default function WhisperFAB() {
               <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 min-h-[200px]">
                 {!answer && !loading && !error && (
                   <div className="space-y-3">
-                    <p className="text-white/50 text-sm mb-4">{t('Stel me een vraag over Belgisch bier, brouwerijen of stijlen...')}</p>
+                    <p className="text-white/50 text-sm mb-4">{t("Stel me een vraag over de bieren van MissBaxel's, de brouwers of bier-spijs combinaties...")}</p>
                     <div className="flex flex-wrap gap-2">
                       {SUGGESTIONS.map(s => (
                         <button
@@ -196,7 +196,7 @@ export default function WhisperFAB() {
                   type="text"
                   value={query}
                   onChange={e => setQuery(e.target.value)}
-                  placeholder={t('Vraag iets over Belgisch bier...')}
+                  placeholder={t("Vraag iets over MissBaxel's bieren...")}
                   className="flex-1 bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-accent/40 transition-colors"
                   disabled={loading}
                 />
