@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 
 const LazyFallback = () => (
   <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-8">
@@ -58,6 +59,16 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route
                 path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LazyFallback />}>
+                      <AdminPanel />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin-legacy"
                 element={
                   <ProtectedRoute>
                     <Suspense fallback={<LazyFallback />}>
