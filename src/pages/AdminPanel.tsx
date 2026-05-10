@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert } from 'lucide-react';
+import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Download, Wine, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BeersSection from '@/components/admin-mb/BeersSection';
@@ -7,8 +7,11 @@ import BreweriesSection from '@/components/admin-mb/BreweriesSection';
 import BlogPostsSection from '@/components/admin-mb/BlogPostsSection';
 import BierstekersSection from '@/components/admin-mb/BierstekersSection';
 import RestaurantSection from '@/components/admin-mb/RestaurantSection';
+import FirecrawlImport from '@/components/admin/FirecrawlImport';
+import QuickTasting from '@/components/admin/QuickTasting';
+import BulkFactCheck from '@/components/admin/BulkFactCheck';
 
-type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant';
+type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'import' | 'tasting' | 'factcheck';
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bieren', label: 'Bieren', icon: Beer },
@@ -16,6 +19,9 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any>
   { key: 'blogposts', label: 'Blogposts', icon: Newspaper },
   { key: 'bierstekers', label: 'Bierstekers', icon: FlaskConical },
   { key: 'restaurant', label: 'Restaurant', icon: UtensilsCrossed },
+  { key: 'import', label: 'Importeren', icon: Download },
+  { key: 'tasting', label: 'Quick Tasting', icon: Wine },
+  { key: 'factcheck', label: 'Factcheck', icon: ShieldCheck },
 ];
 
 export default function AdminPanel() {
@@ -96,6 +102,9 @@ export default function AdminPanel() {
           {section === 'blogposts' && <BlogPostsSection />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
+          {section === 'import' && <FirecrawlImport />}
+          {section === 'tasting' && <QuickTasting />}
+          {section === 'factcheck' && <BulkFactCheck />}
         </main>
       </div>
     </div>
