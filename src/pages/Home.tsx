@@ -103,7 +103,6 @@ export default function Home() {
       const { data: p } = await supabase
         .from('blog_posts')
         .select('id, title, style, date, slug, external_url')
-        .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false })
         .limit(3);
       setPosts((p || []) as any);

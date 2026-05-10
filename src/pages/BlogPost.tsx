@@ -32,7 +32,6 @@ export default function BlogPost() {
         .from('blog_posts')
         .select('*')
         .eq('slug', slug)
-        .eq('status', 'published')
         .maybeSingle();
       if (!data) {
         setNotFound(true);

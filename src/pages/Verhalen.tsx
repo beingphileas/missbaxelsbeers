@@ -56,7 +56,6 @@ export default function Verhalen() {
       const { data, count } = await supabase
         .from('blog_posts')
         .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji', { count: 'exact' })
-        .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false })
         .range(from, to);
       setPosts((data || []) as any);
