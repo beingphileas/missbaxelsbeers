@@ -21,6 +21,20 @@ export default function RestaurantSection() {
   const [row, setRow] = useState<RestaurantRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [scraping, setScraping] = useState(false);
+
+  async function scrape() {
+    setScraping(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-restaurant');
+      if (error) throw error;
+      toast.success(`Bijgewerkt: ${(data.updated_fields || []).join(', ') || 'geen velden gevonden'}`);
+      const { data: fresh } = await supabase.from('restaurant').select('*').eq('id', 1).maybeSingle();
+      if (fresh) setRow(fresh as any);
+    } catch (e: any) {
+      toast.error(e.message || 'Scrape mislukt');
+    } finally { setScraping(false); }
+  }
 
   useEffect(() => {
     supabase.from('restaurant').select('*').eq('id', 1).maybeSingle().then(({ data }) => {
@@ -54,9 +68,14 @@ export default function RestaurantSection() {
   return (
     <div>
       <AdminHeader title="Restaurant" subtitle="Bij Koen & Marijke" right={
-        <button onClick={save} disabled={saving} className={btnPrimary}>
-          <Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={scrape} disabled={scraping} className={btnGhost}>
+            {scraping ? 'Scrapen…' : 'Scrape restaurantinfo'}
+          </button>
+          <button onClick={save} disabled={saving} className={btnPrimary}>
+            <Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}
+          </button>
+        </div>
       } />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
