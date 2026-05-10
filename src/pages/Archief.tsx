@@ -179,7 +179,7 @@ export default function Archief() {
       <section className="max-w-[1200px] mx-auto px-5 py-6">
         {tab === 'blog' ? (
           <>
-            <FilterPills
+            <FilterPills<BlogCat>
               filters={BLOG_FILTERS}
               active={blogCat}
               onChange={setBlogCat}
@@ -229,7 +229,7 @@ export default function Archief() {
           </>
         ) : (
           <>
-            <FilterPills
+            <FilterPills<BlendCat>
               filters={BLEND_FILTERS}
               active={blendCat}
               onChange={setBlendCat}
