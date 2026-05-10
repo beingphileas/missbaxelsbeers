@@ -22,6 +22,13 @@ export default function AdminPanel() {
   const { user } = useAuth();
   const [section, setSection] = useState<SectionKey>('bieren');
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
@@ -29,6 +36,18 @@ export default function AdminPanel() {
       setIsAdmin(Boolean(data));
     });
   }, [user?.id]);
+
+  if (isMobile) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-8">
+        <div className="max-w-sm text-center bg-card border border-border rounded-[12px] p-8">
+          <ShieldAlert size={28} className="mx-auto text-muted-foreground mb-3" />
+          <h1 className="font-display text-lg mb-2" style={{ fontWeight: 900 }}>Desktop vereist</h1>
+          <p className="text-[13px] text-muted-foreground">Gebruik desktop voor het beheerpaneel.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isAdmin === null) {
     return <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center text-muted-foreground text-sm">Toegang verifiëren…</div>;
