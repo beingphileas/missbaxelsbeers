@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Notebook, ExternalLink } from 'lucide-react';
+import { Search, Notebook } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
