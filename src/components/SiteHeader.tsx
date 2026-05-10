@@ -7,6 +7,7 @@ import { useLanguage, Lang } from '@/hooks/useLanguage';
 const navItems = [
   { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/stories' },
+  { label: 'Over', path: '/over' },
   { label: 'Bierstekers', path: '/bierstekers' },
   { label: 'Archief', path: '/bierstekers/archief' },
 ];
