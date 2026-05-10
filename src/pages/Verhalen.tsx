@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Notebook, ExternalLink } from 'lucide-react';
+import { Search, Notebook } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -222,23 +222,13 @@ export default function Verhalen() {
                         className="mt-3 inline-flex items-center gap-1"
                         style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}
                       >
-                        Lees de post {p.external_url && <ExternalLink size={11} />} →
+                        Lees de post →
                       </div>
                     </div>
                   </article>
                 );
 
-                return p.external_url ? (
-                  <a
-                    key={p.id}
-                    href={p.external_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="no-underline"
-                  >
-                    {inner}
-                  </a>
-                ) : (
+                return (
                   <Link key={p.id} to={`/verhalen/${p.slug}`} className="no-underline">
                     {inner}
                   </Link>
