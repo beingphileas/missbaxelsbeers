@@ -70,7 +70,7 @@ export default function Beers() {
       setLoading(true);
       const { data: bs } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, flavor_profile, primary_flavors')
+        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, flavor_profile, primary_flavors, image_url')
         .order('name');
 
       const ids = (bs || []).map(b => b.id);
