@@ -19,9 +19,9 @@ export default function WhisperFAB() {
   const { t } = useLanguage();
 
   const SUGGESTIONS = [
-    t("Welk MissBaxel's bier past bij kaas?"),
+    t("Welk MissBaxel's bier past bij gegrild vlees?"),
     t("Vertel me over de samenwerking met Alvinne"),
-    t("Wat is een goed zuur bier voor beginners?"),
+    t("Wat maakt Bij Koen & Marijke uniek in Brugge?"),
     t("Welke brouwerijen werken samen met MissBaxel's?"),
   ];
 
