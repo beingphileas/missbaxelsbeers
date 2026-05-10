@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Save } from 'lucide-react';
-import { AdminHeader, AdminCard, Field, inputCls, btnPrimary } from './ui';
+import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost } from './ui';
 
 const DAYS = [
   { k: 'ma', l: 'Maandag' }, { k: 'di', l: 'Dinsdag' }, { k: 'wo', l: 'Woensdag' },
