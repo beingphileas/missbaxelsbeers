@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      beer_breweries: {
+        Row: {
+          beer_id: string
+          brewery_id: string
+          created_at: string
+          role: string
+        }
+        Insert: {
+          beer_id: string
+          brewery_id: string
+          created_at?: string
+          role?: string
+        }
+        Update: {
+          beer_id?: string
+          brewery_id?: string
+          created_at?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beer_breweries_beer_id_fkey"
+            columns: ["beer_id"]
+            isOneToOne: false
+            referencedRelation: "beers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beer_breweries_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beers: {
         Row: {
           abv: number | null
@@ -21,6 +57,7 @@ export type Database = {
           analysis_json: Json | null
           aroma_profile: string[] | null
           beer_status: string | null
+          brew_story: string | null
           brewed_at: string | null
           brewery_id: string
           created_at: string
@@ -32,12 +69,17 @@ export type Database = {
           food_pairing: string | null
           id: string
           image_url: string | null
+          is_collab: boolean | null
+          is_current: boolean | null
           is_hidden_gem: boolean | null
+          label_url: string | null
           lifecycle_status: string
+          marijke_idea: string | null
           name: string
           pairing_cheese: string[] | null
           pairing_classic: string[] | null
           pairing_food: string[] | null
+          pairing_suggestion: string | null
           primary_flavors: string[] | null
           production_method: string | null
           quality_score: number | null
@@ -46,14 +88,17 @@ export type Database = {
           radar_hops: number | null
           radar_malt: number | null
           radar_spice: number | null
+          release_date: string | null
           secondary_flavors: string[] | null
           serve_style: string | null
           shop_url: string | null
+          slug: string | null
           source: Database["public"]["Enums"]["beer_source"]
           source_count: number | null
           source_records: Json | null
           source_url: string | null
           style: string
+          style_category: string | null
           summary: string | null
           taste_notes: string | null
           updated_at: string
@@ -67,6 +112,7 @@ export type Database = {
           analysis_json?: Json | null
           aroma_profile?: string[] | null
           beer_status?: string | null
+          brew_story?: string | null
           brewed_at?: string | null
           brewery_id: string
           created_at?: string
@@ -78,12 +124,17 @@ export type Database = {
           food_pairing?: string | null
           id?: string
           image_url?: string | null
+          is_collab?: boolean | null
+          is_current?: boolean | null
           is_hidden_gem?: boolean | null
+          label_url?: string | null
           lifecycle_status?: string
+          marijke_idea?: string | null
           name: string
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
           pairing_food?: string[] | null
+          pairing_suggestion?: string | null
           primary_flavors?: string[] | null
           production_method?: string | null
           quality_score?: number | null
@@ -92,14 +143,17 @@ export type Database = {
           radar_hops?: number | null
           radar_malt?: number | null
           radar_spice?: number | null
+          release_date?: string | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
           shop_url?: string | null
+          slug?: string | null
           source?: Database["public"]["Enums"]["beer_source"]
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
           style: string
+          style_category?: string | null
           summary?: string | null
           taste_notes?: string | null
           updated_at?: string
@@ -113,6 +167,7 @@ export type Database = {
           analysis_json?: Json | null
           aroma_profile?: string[] | null
           beer_status?: string | null
+          brew_story?: string | null
           brewed_at?: string | null
           brewery_id?: string
           created_at?: string
@@ -124,12 +179,17 @@ export type Database = {
           food_pairing?: string | null
           id?: string
           image_url?: string | null
+          is_collab?: boolean | null
+          is_current?: boolean | null
           is_hidden_gem?: boolean | null
+          label_url?: string | null
           lifecycle_status?: string
+          marijke_idea?: string | null
           name?: string
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
           pairing_food?: string[] | null
+          pairing_suggestion?: string | null
           primary_flavors?: string[] | null
           production_method?: string | null
           quality_score?: number | null
@@ -138,14 +198,17 @@ export type Database = {
           radar_hops?: number | null
           radar_malt?: number | null
           radar_spice?: number | null
+          release_date?: string | null
           secondary_flavors?: string[] | null
           serve_style?: string | null
           shop_url?: string | null
+          slug?: string | null
           source?: Database["public"]["Enums"]["beer_source"]
           source_count?: number | null
           source_records?: Json | null
           source_url?: string | null
           style?: string
+          style_category?: string | null
           summary?: string | null
           taste_notes?: string | null
           updated_at?: string
@@ -162,6 +225,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      bierstekers_blends: {
+        Row: {
+          created_at: string
+          description: string | null
+          flavor_tags: string[] | null
+          id: number
+          name: string
+          style: string | null
+          style_category: string | null
+          untappd_score: number | null
+          untappd_url: string | null
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          flavor_tags?: string[] | null
+          id?: number
+          name: string
+          style?: string | null
+          style_category?: string | null
+          untappd_score?: number | null
+          untappd_url?: string | null
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          flavor_tags?: string[] | null
+          id?: number
+          name?: string
+          style?: string | null
+          style_category?: string | null
+          untappd_score?: number | null
+          untappd_url?: string | null
+          year?: number | null
+        }
+        Relationships: []
       }
       blog_post_beers: {
         Row: {
@@ -275,14 +377,20 @@ export type Database = {
         Row: {
           beer_id: string | null
           brewery_id: string | null
+          brewery_name: string | null
           content: string
           cover_image_url: string | null
           created_at: string
+          date: string | null
           excerpt: string | null
+          external_url: string | null
           id: string
+          image_emoji: string | null
           published_at: string | null
           slug: string
           status: string
+          style: string | null
+          style_category: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -291,14 +399,20 @@ export type Database = {
         Insert: {
           beer_id?: string | null
           brewery_id?: string | null
+          brewery_name?: string | null
           content: string
           cover_image_url?: string | null
           created_at?: string
+          date?: string | null
           excerpt?: string | null
+          external_url?: string | null
           id?: string
+          image_emoji?: string | null
           published_at?: string | null
           slug: string
           status?: string
+          style?: string | null
+          style_category?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -307,14 +421,20 @@ export type Database = {
         Update: {
           beer_id?: string | null
           brewery_id?: string | null
+          brewery_name?: string | null
           content?: string
           cover_image_url?: string | null
           created_at?: string
+          date?: string | null
           excerpt?: string | null
+          external_url?: string | null
           id?: string
+          image_emoji?: string | null
           published_at?: string | null
           slug?: string
           status?: string
+          style?: string | null
+          style_category?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -351,6 +471,7 @@ export type Database = {
           code: string | null
           company_number: string | null
           created_at: string
+          description: string | null
           email: string | null
           established_year: number | null
           facebook_url: string | null
@@ -359,10 +480,12 @@ export type Database = {
           google_review_count: number | null
           google_url: string | null
           id: string
+          image_url: string | null
           is_brewsite: boolean
           last_scraped_at: string | null
           lat: number
           lng: number
+          location: string | null
           municipality: string | null
           name: string
           official_name: string | null
@@ -370,6 +493,8 @@ export type Database = {
           phone2: string | null
           province: string
           rating_weight: number | null
+          region: string | null
+          slug: string | null
           story: string | null
           story_ai_generated: boolean
           type: string
@@ -385,6 +510,7 @@ export type Database = {
           code?: string | null
           company_number?: string | null
           created_at?: string
+          description?: string | null
           email?: string | null
           established_year?: number | null
           facebook_url?: string | null
@@ -393,10 +519,12 @@ export type Database = {
           google_review_count?: number | null
           google_url?: string | null
           id?: string
+          image_url?: string | null
           is_brewsite?: boolean
           last_scraped_at?: string | null
           lat: number
           lng: number
+          location?: string | null
           municipality?: string | null
           name: string
           official_name?: string | null
@@ -404,6 +532,8 @@ export type Database = {
           phone2?: string | null
           province: string
           rating_weight?: number | null
+          region?: string | null
+          slug?: string | null
           story?: string | null
           story_ai_generated?: boolean
           type: string
@@ -419,6 +549,7 @@ export type Database = {
           code?: string | null
           company_number?: string | null
           created_at?: string
+          description?: string | null
           email?: string | null
           established_year?: number | null
           facebook_url?: string | null
@@ -427,10 +558,12 @@ export type Database = {
           google_review_count?: number | null
           google_url?: string | null
           id?: string
+          image_url?: string | null
           is_brewsite?: boolean
           last_scraped_at?: string | null
           lat?: number
           lng?: number
+          location?: string | null
           municipality?: string | null
           name?: string
           official_name?: string | null
@@ -438,6 +571,8 @@ export type Database = {
           phone2?: string | null
           province?: string
           rating_weight?: number | null
+          region?: string | null
+          slug?: string | null
           story?: string | null
           story_ai_generated?: boolean
           type?: string
@@ -533,6 +668,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      restaurant: {
+        Row: {
+          address: string | null
+          city: string | null
+          description: string | null
+          email: string | null
+          facebook_url: string | null
+          google_maps_url: string | null
+          id: number
+          instagram_url: string | null
+          name: string | null
+          opening_hours: Json | null
+          phone: string | null
+          reservation_url: string | null
+          story: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          description?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          google_maps_url?: string | null
+          id?: number
+          instagram_url?: string | null
+          name?: string | null
+          opening_hours?: Json | null
+          phone?: string | null
+          reservation_url?: string | null
+          story?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          description?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          google_maps_url?: string | null
+          id?: number
+          instagram_url?: string | null
+          name?: string | null
+          opening_hours?: Json | null
+          phone?: string | null
+          reservation_url?: string | null
+          story?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
