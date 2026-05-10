@@ -70,6 +70,14 @@ export default function BeersSection() {
         }
       />
 
+      {!loading && rows.length === 0 && (
+        <div className="mb-4 p-4 bg-[hsl(var(--primary-light))] border border-[hsl(var(--primary))]/20 rounded-[12px]">
+          <p className="text-[13px] text-foreground">
+            <strong>Nog geen bieren toegevoegd.</strong> Voeg de MissBaxel's bieren hier handmatig toe — inclusief brouwer, beschrijving, Marijke's idee en smaakprofiel.
+          </p>
+        </div>
+      )}
+
       {loading ? <p className="text-muted-foreground text-sm">Laden…</p> : (
         <div className="bg-card border border-border rounded-[12px] overflow-hidden">
           <table className="w-full text-[13px]">

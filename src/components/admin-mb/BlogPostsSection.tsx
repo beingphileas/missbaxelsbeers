@@ -19,7 +19,20 @@ export default function BlogPostsSection() {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [scraping, setScraping] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function scrapeMissBaxels() {
+    setScraping(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-missbaxels-blog');
+      if (error) throw error;
+      toast.success(`${data.upserted}/${data.discovered} posts geïmporteerd`);
+      load();
+    } catch (e: any) {
+      toast.error(e.message || 'Scrape mislukt');
+    } finally { setScraping(false); }
+  }
 
   async function load() {
     setLoading(true);
@@ -86,6 +99,9 @@ export default function BlogPostsSection() {
       <AdminHeader title="Blogposts" subtitle={`${rows.length} posts`} right={
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => e.target.files?.[0] && importCsv(e.target.files[0])} />
+          <button onClick={scrapeMissBaxels} disabled={scraping} className={btnGhost}>
+            {scraping ? 'Scrapen…' : 'Scrape missbaxelsbeers.com'}
+          </button>
           <button onClick={() => fileRef.current?.click()} disabled={importing} className={btnGhost}>
             <Upload size={12} /> {importing ? 'Importeren…' : 'CSV importeren'}
           </button>
