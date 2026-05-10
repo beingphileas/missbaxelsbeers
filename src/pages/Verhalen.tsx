@@ -14,6 +14,7 @@ type Post = {
   excerpt: string | null;
   external_url: string | null;
   image_emoji: string | null;
+  cover_image_url: string | null;
 };
 
 const FILTERS = [
