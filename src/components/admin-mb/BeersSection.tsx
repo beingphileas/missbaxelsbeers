@@ -8,8 +8,8 @@ import ImageUploader from './ImageUploader';
 interface BeerRow {
   id: string; name: string; slug: string | null; style: string | null; style_category: string | null;
   abv: number | null; description: string | null; marijke_idea: string | null; brew_story: string | null;
-  flavor_tags: string[] | null; pairing_suggestion: string | null; image_url: string | null; label_url: string | null;
-  is_current: boolean | null; is_featured: boolean; is_collab: boolean | null; release_date: string | null;
+  flavor_profile: string[] | null; pairing_suggestion: string | null; image_url: string | null; label_url: string | null;
+  is_current: boolean | null; featured: boolean; is_collab: boolean | null; release_date: string | null;
 }
 interface BreweryRef { id: string; name: string }
 interface Link { brewery_id: string; role: string }
@@ -29,7 +29,7 @@ export default function BeersSection() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_tags,pairing_suggestion,image_url,label_url,is_current,is_featured,is_collab,release_date')
+      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date')
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) toast.error(error.message); else setRows((data as any) || []);
@@ -37,7 +37,7 @@ export default function BeersSection() {
   }
   useEffect(() => { load(); }, []);
 
-  async function toggle(id: string, field: 'is_current' | 'is_featured', value: boolean) {
+  async function toggle(id: string, field: 'is_current' | 'featured', value: boolean) {
     const { error } = await supabase.from('beers').update({ [field]: value }).eq('id', id);
     if (error) return toast.error(error.message);
     setRows(rs => rs.map(r => r.id === id ? { ...r, [field]: value } : r));
@@ -104,9 +104,9 @@ export default function BeersSection() {
                     </button>
                   </td>
                   <td className="px-4 py-2.5">
-                    <button onClick={() => toggle(r.id, 'is_featured', !r.is_featured)}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] ${r.is_featured ? 'bg-[hsl(var(--secondary-light))] text-[hsl(var(--secondary))]' : 'border border-border text-muted-foreground'}`}>
-                      <Star size={11} /> {r.is_featured ? 'Uitgelicht' : 'Nee'}
+                    <button onClick={() => toggle(r.id, 'featured', !r.featured)}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] ${r.featured ? 'bg-[hsl(var(--secondary-light))] text-[hsl(var(--secondary))]' : 'border border-border text-muted-foreground'}`}>
+                      <Star size={11} /> {r.featured ? 'Uitgelicht' : 'Nee'}
                     </button>
                   </td>
                   <td className="px-4 py-2.5 text-right space-x-1">
@@ -132,12 +132,12 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
   const [description, setDescription] = useState(initial?.description || '');
   const [marijkeIdea, setMarijkeIdea] = useState(initial?.marijke_idea || '');
   const [brewStory, setBrewStory] = useState(initial?.brew_story || '');
-  const [flavorTags, setFlavorTags] = useState((initial?.flavor_tags || []).join(', '));
+  const [flavorTags, setFlavorTags] = useState((initial?.flavor_profile || []).join(', '));
   const [pairing, setPairing] = useState(initial?.pairing_suggestion || '');
   const [imageUrl, setImageUrl] = useState(initial?.image_url || null);
   const [labelUrl, setLabelUrl] = useState(initial?.label_url || null);
   const [isCurrent, setIsCurrent] = useState(initial?.is_current ?? true);
-  const [isFeatured, setIsFeatured] = useState(initial?.is_featured ?? false);
+  const [isFeatured, setIsFeatured] = useState(initial?.featured ?? false);
   const [isCollab, setIsCollab] = useState(initial?.is_collab ?? false);
   const [releaseDate, setReleaseDate] = useState(initial?.release_date || '');
 
@@ -169,12 +169,12 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       description: description.trim() || null,
       marijke_idea: marijkeIdea.trim() || null,
       brew_story: brewStory.trim() || null,
-      flavor_tags: flavorTags.split(',').map(t => t.trim()).filter(Boolean),
+      flavor_profile: flavorTags.split(',').map(t => t.trim()).filter(Boolean),
       pairing_suggestion: pairing.trim() || null,
       image_url: imageUrl,
       label_url: labelUrl,
       is_current: isCurrent,
-      is_featured: isFeatured,
+      featured: isFeatured,
       is_collab: isCollab,
       release_date: releaseDate || null,
     };
@@ -269,7 +269,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
             <div className="space-y-2">
               {[
                 { k: 'isCurrent', l: 'Huidig (is_current)', v: isCurrent, set: setIsCurrent },
-                { k: 'isFeatured', l: 'Uitgelicht (is_featured)', v: isFeatured, set: setIsFeatured },
+                { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured },
                 { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab },
               ].map(f => (
                 <label key={f.k} className="flex items-center gap-2 text-[13px] cursor-pointer">
