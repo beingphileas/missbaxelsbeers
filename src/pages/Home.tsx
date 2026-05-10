@@ -1,167 +1,265 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Beer as BeerIcon, Sparkles, Handshake } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, MapPin, Beer as BeerIcon, Sparkles, Handshake, Lightbulb, FlaskConical, GlassWater } from 'lucide-react';
 import { useBeers, type Beer } from '@/data/beers';
-import { useBlogPosts } from '@/data/blog';
-import BlogCard from '@/components/BlogCard';
 import { useLanguage } from '@/hooks/useLanguage';
-import logo from '@/assets/missbaxels-logo.jpg';
 
 const HERO_BEER_NAMES = ['Totetrekkerie', 'Maria Guimauva', 'MissBaxels Tripel'];
 
+const HERO_ICON_VARIANTS = [
+  { bg: 'hsl(var(--primary-light))', color: 'hsl(var(--primary))', Icon: BeerIcon },
+  { bg: 'hsl(var(--secondary-light))', color: 'hsl(var(--secondary))', Icon: Sparkles },
+  { bg: 'hsl(var(--tertiary-light))', color: 'hsl(var(--tertiary))', Icon: Handshake },
+];
+
+const STATS = [
+  { value: '24', label: 'Bieren in assortiment' },
+  { value: '11', label: 'Bevriende brouwers' },
+  { value: '6', label: 'Bierstekers blends' },
+  { value: '2019', label: 'Opgericht' },
+];
+
+const STEPS = [
+  {
+    n: '01',
+    title: 'Het idee',
+    desc: 'Marijke vertrekt vanuit een smaakdroom — een herinnering, een ingrediënt, een gevoel.',
+    Icon: Lightbulb,
+    bg: 'hsl(var(--primary-light))',
+    color: 'hsl(var(--primary))',
+  },
+  {
+    n: '02',
+    title: 'De brouwer',
+    desc: 'Een bevriende brouwer krijgt de vrije hand. Vakmanschap mag de smaak vertalen.',
+    Icon: FlaskConical,
+    bg: 'hsl(var(--secondary-light))',
+    color: 'hsl(var(--secondary))',
+  },
+  {
+    n: '03',
+    title: 'In het glas',
+    desc: 'Het resultaat: een uniek bier dat enkel hier ontstaat — voor de liefhebber.',
+    Icon: GlassWater,
+    bg: 'hsl(var(--tertiary-light))',
+    color: 'hsl(var(--tertiary))',
+  },
+];
+
 export default function Home() {
   const { data: beers = [] } = useBeers();
-  const { data: posts = [] } = useBlogPosts();
   const { t } = useLanguage();
 
   const heroBeers = HERO_BEER_NAMES
     .map(name => beers.find(b => b.name.toLowerCase() === name.toLowerCase()))
     .filter(Boolean) as Beer[];
 
-  const currentBeers = beers.filter(b => b.lifecycleStatus === 'current');
-  const recentPosts = posts.slice(0, 4);
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero — Brand intro */}
-      <section className="relative border-b border-border/40 vintage-paper">
-        <div className="max-w-5xl mx-auto px-5 pt-14 pb-16 md:pt-20 md:pb-24 text-center">
-          <motion.img
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            src={logo}
-            alt="MissBaxel's Beers"
-            className="mx-auto h-28 w-28 md:h-36 md:w-36 rounded-full object-cover border-2 border-accent/30 shadow-vintage mb-6"
-          />
-          <p className="text-accent text-[11px] font-bold uppercase tracking-[0.4em] mb-3">
-            Collaborative Brewing
-          </p>
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.5 }}
-            className="font-display text-4xl md:text-6xl leading-[1.05] mb-5"
-          >
-            MissBaxel<span className="text-accent font-light">'s</span> Beers
-          </motion.h1>
-          <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-8">
-            {t('Recepten, smaakdromen en vakmanschap — gebrouwen samen met de beste collega-brouwers van België.')}
-          </p>
-          <Link
-            to="/beers"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            {t('Ontdek de bieren')} <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
+      {/* ─── 1. HERO ─── */}
+      <section className="border-b border-border">
+        <div className="max-w-[1200px] mx-auto px-5 py-[52px] grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Left */}
+          <div>
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium"
+              style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
+            >
+              <MapPin size={12} /> Brugge · West-Vlaanderen
+            </span>
 
-      {/* Hero beers */}
-      {heroBeers.length > 0 && (
-        <section className="py-14 md:py-20 border-b border-border/40">
-          <div className="max-w-5xl mx-auto px-5">
-            <div className="text-center mb-10">
-              <p className="text-accent text-[11px] font-bold uppercase tracking-[0.3em] mb-2">{t('Onze kernbieren')}</p>
-              <h2 className="font-display text-2xl md:text-3xl">{t('De Drie Klassiekers')}</h2>
-            </div>
-            <div className="grid gap-5 md:grid-cols-3">
-              {heroBeers.map((beer, i) => (
-                <motion.div
-                  key={beer.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                >
-                  <Link
-                    to={`/beers/${beer.id}`}
-                    className="group block h-full bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-1 transition-all duration-300"
-                  >
-                    <div className="bg-accent/8 border-b border-border/40 px-4 py-2.5 flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-accent">{beer.style}</span>
-                      <span className="text-[11px] font-bold tabular-nums">{beer.abv}%</span>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-display text-xl mb-1 group-hover:text-accent transition-colors">{beer.name}</h3>
-                      <p className="text-[11px] text-muted-foreground italic mb-3 flex items-center gap-1.5">
-                        <Handshake size={11} className="text-accent shrink-0" />
-                        <span className="truncate">
-                          <span className="uppercase tracking-wider text-[9px] font-bold text-accent/80 mr-1">{t('Gebrouwen bij')}:</span>
-                          {beer.brewedAt || t('Collab — t.b.a.')}
-                        </span>
-                      </p>
-                      {beer.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
-                          {beer.description}
-                        </p>
-                      )}
-                      {beer.flavorProfile.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-dashed border-border/40">
-                          {beer.flavorProfile.slice(0, 4).map(tag => (
-                            <span key={tag} className="px-2 py-0.5 bg-secondary/80 border border-border/40 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">{tag}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+            <h1
+              className="font-display mt-5 text-foreground"
+              style={{ fontWeight: 900, fontSize: '48px', lineHeight: 1.05, letterSpacing: '-0.03em' }}
+            >
+              {t('Ideeën brengen,')}{' '}
+              <br className="hidden md:block" />
+              {t('bieren laten')}{' '}
+              <em className="font-italic-accent text-primary not-italic" style={{ fontStyle: 'italic', fontWeight: 300 }}>
+                {t('ontstaan.')}
+              </em>
+            </h1>
 
-      {/* About / collab story */}
-      <section className="py-14 md:py-20 border-b border-border/40 bg-parchment">
-        <div className="max-w-3xl mx-auto px-5 text-center">
-          <Sparkles size={20} className="text-accent mx-auto mb-4" />
-          <h2 className="font-display text-2xl md:text-3xl mb-5">{t('Receptontwikkelaar & smaakmaker')}</h2>
-          <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
-            {t('MissBaxel heeft geen eigen brouwketels. Elk bier is een collab — ontwikkeld door MissBaxel en gebrouwen bij vrienden en collega-brouwers. Het resultaat: kleine series, grote verhalen, en bieren die je nergens anders vindt.')}
-          </p>
-        </div>
-      </section>
+            <p className="mt-5 text-[15px] leading-relaxed text-muted-foreground max-w-[360px]">
+              {t('Marijke Bax stapt met een smaakdroom naar bevriende brouwers. De brouwer krijgt de vrije hand. Het resultaat is iets dat je nergens anders vindt.')}
+            </p>
 
-      {/* Stories */}
-      {recentPosts.length > 0 && (
-        <section className="py-14 md:py-20">
-          <div className="max-w-5xl mx-auto px-5">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-accent text-[10px] font-semibold uppercase tracking-[0.25em] mb-2">{t('Recent')}</p>
-                <h2 className="font-display text-2xl md:text-3xl">{t('Verhalen')}</h2>
-              </div>
-              <Link to="/stories" className="text-sm text-muted-foreground hover:text-accent flex items-center gap-1.5 transition-colors">
-                {t('Alles bekijken')} <ArrowRight size={14} />
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link
+                to="/beers"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-[13px] font-semibold hover:bg-primary/90 transition-colors"
+              >
+                <BeerIcon size={15} /> {t('Ontdek de bieren')}
+              </Link>
+              <Link
+                to="/over"
+                className="inline-flex items-center gap-2 border border-border bg-card text-foreground rounded-full px-5 py-2.5 text-[13px] font-semibold hover:border-primary-mid transition-colors"
+              >
+                {t('Lees het verhaal')} <ArrowRight size={14} />
               </Link>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {recentPosts.map(post => (
-                <BlogCard key={post.id} post={post} />
-              ))}
-            </div>
           </div>
-        </section>
-      )}
 
-      {/* Footer */}
-      <footer className="border-t border-border/60 bg-primary text-primary-foreground py-12">
-        <div className="max-w-5xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div>
-            <span className="font-display text-2xl">MissBaxel's Beers</span>
-            <p className="text-sm text-primary-foreground/50 mt-2 tracking-wide">
-              {t('Recepten gebrouwen in samenwerking.')}
-            </p>
-          </div>
-          <div className="flex gap-6 text-sm text-primary-foreground/60">
-            <Link to="/beers" className="hover:text-primary-foreground transition-colors">{t('Bieren')}</Link>
-            <Link to="/stories" className="hover:text-primary-foreground transition-colors">{t('Verhalen')}</Link>
+          {/* Right — beer cards */}
+          <div className="flex flex-col gap-3">
+            {heroBeers.map((beer, i) => {
+              const v = HERO_ICON_VARIANTS[i % HERO_ICON_VARIANTS.length];
+              const Icon = v.Icon;
+              return (
+                <Link
+                  key={beer.id}
+                  to={`/beers/${beer.id}`}
+                  className="group flex items-center gap-4 bg-card border border-border rounded-xl p-3 transition-all hover:translate-x-[3px]"
+                  style={{ borderColor: undefined }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'hsl(var(--primary-mid))')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '')}
+                >
+                  <div
+                    className="shrink-0 w-12 h-12 inline-flex items-center justify-center"
+                    style={{ background: v.bg, color: v.color, borderRadius: 10 }}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display text-[14px] font-bold text-foreground truncate">{beer.name}</div>
+                    <div className="text-[12px] text-muted-foreground truncate">
+                      {beer.breweryName ? `${beer.breweryName} · ${beer.style}` : beer.style}
+                    </div>
+                  </div>
+                  <div
+                    className="font-display text-primary tabular-nums shrink-0"
+                    style={{ fontWeight: 900, fontSize: '22px' }}
+                  >
+                    {beer.abv ? `${beer.abv}%` : '—'}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
-        <p className="text-center text-xs text-primary-foreground/30 mt-8">
-          © {new Date().getFullYear()} MissBaxel's Beers. {currentBeers.length} {t('bieren in assortiment')}.
-        </p>
-      </footer>
+      </section>
+
+      {/* ─── 2. STATS ─── */}
+      <section className="border-b border-border">
+        <div className="max-w-[1200px] mx-auto px-5 grid grid-cols-2 md:grid-cols-4">
+          {STATS.map((s, i) => (
+            <div
+              key={s.label}
+              className={`py-7 px-5 text-center ${i < STATS.length - 1 ? 'md:border-r border-border' : ''} ${i % 2 === 0 ? 'border-r md:border-r' : ''} ${i < 2 ? 'border-b md:border-b-0' : ''} border-border`}
+            >
+              <div
+                className="font-display text-primary tabular-nums"
+                style={{ fontWeight: 900, fontSize: '28px', lineHeight: 1.1 }}
+              >
+                {s.value}
+              </div>
+              <div className="mt-1 text-[11px] font-medium text-muted-foreground">{t(s.label)}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── 3. VERHAAL ─── */}
+      <section className="border-b border-border">
+        <div className="max-w-[1200px] mx-auto px-5 py-[44px] grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          <div>
+            <span
+              className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
+              style={{ background: 'hsl(var(--secondary-light))', color: 'hsl(var(--secondary))' }}
+            >
+              {t('Het verhaal')}
+            </span>
+
+            <h2
+              className="font-display mt-4 text-foreground"
+              style={{ fontWeight: 900, fontSize: '32px', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+            >
+              {t('Geen eigen brouwketel.')}{' '}
+              <em className="not-italic" style={{ fontStyle: 'italic', fontWeight: 300, color: 'hsl(var(--secondary))' }}>
+                {t('Dat is de kracht.')}
+              </em>
+            </h2>
+
+            <div className="mt-5 space-y-4 text-[14px] leading-relaxed text-muted-foreground">
+              <p>{t('MissBaxel\'s heeft bewust geen eigen brouwerij. Wat er wél is: een uitgelezen netwerk van bevriende brouwers die graag mee dromen.')}</p>
+              <p>{t('Elk recept vertrekt vanuit een idee van Marijke. Vanaf daar krijgt de brouwer de volledige vrijheid — geen formules, geen sjablonen.')}</p>
+              <p>{t('Dat is goed voor de brouwers, goed voor de cafés, en het allermeest voor de liefhebber.')}</p>
+            </div>
+          </div>
+
+          {/* Quote card */}
+          <div className="bg-card border border-border rounded-2xl p-7 relative">
+            <div
+              className="font-display absolute top-3 left-5 select-none"
+              style={{ fontWeight: 900, fontSize: '72px', lineHeight: 1, color: 'hsl(var(--primary-light))' }}
+              aria-hidden
+            >
+              "
+            </div>
+            <p
+              className="font-serif italic text-foreground relative z-10 mt-6"
+              style={{ fontSize: '18px', lineHeight: 1.55 }}
+            >
+              {t('Een bier mag eigenwijs zijn. Het mag traag ontstaan, en zichzelf zijn. Daarvoor moet je geen eigen ketel hebben — alleen goede vrienden met een ketel.')}
+            </p>
+            <div className="mt-6 flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-full inline-flex items-center justify-center font-display"
+                style={{ background: 'hsl(var(--primary-light))', color: '#27500A', fontWeight: 700, fontSize: '13px' }}
+              >
+                MB
+              </div>
+              <div>
+                <div className="text-[13px] font-semibold text-foreground">Marijke Bax</div>
+                <div className="text-[11px] text-muted-foreground">{t('Oprichter · MissBaxel\'s')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. COLLAB FLOW ─── */}
+      <section className="bg-cream">
+        <div className="max-w-[1200px] mx-auto px-5 py-[44px]">
+          <span
+            className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium"
+            style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
+          >
+            {t('Hoe het werkt')}
+          </span>
+
+          <h2
+            className="font-display mt-4 text-foreground"
+            style={{ fontWeight: 900, fontSize: '32px', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+          >
+            {t('Van idee tot glas')}
+          </h2>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {STEPS.map(step => {
+              const Icon = step.Icon;
+              return (
+                <div key={step.n} className="bg-card border border-border p-[22px] relative" style={{ borderRadius: 14 }}>
+                  <div
+                    className="font-display absolute top-3 right-4 select-none"
+                    style={{ fontWeight: 900, fontSize: '46px', lineHeight: 1, color: 'hsl(var(--border))' }}
+                    aria-hidden
+                  >
+                    {step.n}
+                  </div>
+                  <div
+                    className="inline-flex items-center justify-center"
+                    style={{ width: 38, height: 38, background: step.bg, color: step.color, borderRadius: 10 }}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <div className="mt-4 text-[14px] font-semibold text-foreground">{t(step.title)}</div>
+                  <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{t(step.desc)}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
