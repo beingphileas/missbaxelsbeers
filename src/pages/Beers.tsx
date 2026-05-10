@@ -1,34 +1,51 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useBeers, type Beer } from '@/data/beers';
 import {
-  Search, Beer as BeerIcon, Leaf, Sun, Droplet, Citrus, Sparkles, Wheat, Flame,
+  Search, Beer as BeerIcon, Leaf, Sun, Droplet, Citrus, Wheat, Flame, Sparkles,
 } from 'lucide-react';
-import { useLanguage } from '@/hooks/useLanguage';
+import SEOHead from '@/components/SEOHead';
+import { supabase } from '@/integrations/supabase/client';
 
-type StyleCat = 'all' | 'tripel' | 'saison' | 'donker' | 'sour';
+type BeerRow = {
+  id: string;
+  slug: string | null;
+  name: string;
+  style: string | null;
+  style_category: string | null;
+  abv: number | null;
+  is_current: boolean | null;
+  is_collab: boolean | null;
+  featured: boolean | null;
+  flavor_profile: string[] | null;
+  primary_flavors: string[] | null;
+  breweries: string[];
+};
 
-const STYLE_FILTERS: { id: StyleCat; label: string }[] = [
+const STYLE_FILTERS = [
   { id: 'all', label: 'Alle' },
   { id: 'tripel', label: 'Tripel & Dubbel' },
   { id: 'saison', label: 'Saison' },
   { id: 'donker', label: 'Donker' },
   { id: 'sour', label: 'Zuur & Sour' },
-];
+  { id: 'wit', label: 'Wit' },
+  { id: 'speciaal', label: 'Speciaal' },
+] as const;
 
-function matchesCategory(style: string, cat: StyleCat): boolean {
+type Cat = typeof STYLE_FILTERS[number]['id'];
+
+function matchesCategory(b: BeerRow, cat: Cat): boolean {
   if (cat === 'all') return true;
-  const s = style.toLowerCase();
+  const s = `${b.style || ''} ${b.style_category || ''}`.toLowerCase();
   if (cat === 'tripel') return /tripel|dubbel|trippel|abdij|quadrupel|quad/.test(s);
   if (cat === 'saison') return /saison|farmhouse|grisette/.test(s);
-  if (cat === 'donker')
-    return /stout|porter|donker|dark|imperial|bruin|brown|schwarz/.test(s);
-  if (cat === 'sour')
-    return /sour|zuur|lambiek|lambic|gueuze|geuze|kriek|wild|brett/.test(s);
+  if (cat === 'donker') return /stout|porter|donker|dark|imperial|bruin|brown|schwarz/.test(s);
+  if (cat === 'sour') return /sour|zuur|lambiek|lambic|gueuze|geuze|kriek|wild|brett/.test(s);
+  if (cat === 'wit') return /wit|wheat|weizen|blanche/.test(s);
+  if (cat === 'speciaal') return /speciaal|special|experiment|barrel|infused/.test(s);
   return true;
 }
 
-function iconForStyle(style: string) {
+function iconForStyle(style: string | null) {
   const s = (style || '').toLowerCase();
   if (/tripel|dubbel|abdij|quad/.test(s)) return Leaf;
   if (/saison|farmhouse|grisette/.test(s)) return Sun;
@@ -36,221 +53,313 @@ function iconForStyle(style: string) {
   if (/sour|zuur|lambiek|lambic|gueuze|geuze|kriek|wild|brett/.test(s)) return Citrus;
   if (/ipa|pale|hop/.test(s)) return Flame;
   if (/wit|wheat|weizen|blanche/.test(s)) return Wheat;
+  if (/speciaal|special/.test(s)) return Sparkles;
   return BeerIcon;
 }
 
 export default function Beers() {
-  const { data: beers = [], isLoading } = useBeers();
-  const { t } = useLanguage();
+  const [beers, setBeers] = useState<BeerRow[]>([]);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'current' | 'archive'>('current');
-  const [cat, setCat] = useState<StyleCat>('all');
+  const [cat, setCat] = useState<Cat>('all');
+  const [loading, setLoading] = useState(true);
 
-  const current = useMemo(() => beers.filter(b => b.lifecycleStatus === 'current'), [beers]);
-  const archive = useMemo(() => beers.filter(b => b.lifecycleStatus === 'archive'), [beers]);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const { data: bs } = await supabase
+        .from('beers')
+        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, flavor_profile, primary_flavors')
+        .order('name');
 
-  const filterFn = (list: Beer[]) => {
+      const ids = (bs || []).map(b => b.id);
+      let brewMap = new Map<string, string[]>();
+      if (ids.length) {
+        const { data: links } = await supabase
+          .from('beer_breweries')
+          .select('beer_id, brewery_id')
+          .in('beer_id', ids);
+        const brewIds = Array.from(new Set((links || []).map(l => l.brewery_id)));
+        const { data: brews } = brewIds.length
+          ? await supabase.from('breweries').select('id, name').in('id', brewIds)
+          : { data: [] as { id: string; name: string }[] };
+        const nameMap = new Map((brews || []).map(b => [b.id, b.name]));
+        for (const l of links || []) {
+          const arr = brewMap.get(l.beer_id) || [];
+          const n = nameMap.get(l.brewery_id);
+          if (n) arr.push(n);
+          brewMap.set(l.beer_id, arr);
+        }
+      }
+
+      setBeers(
+        (bs || []).map((b): BeerRow => ({
+          ...(b as any),
+          breweries: brewMap.get(b.id) || [],
+        }))
+      );
+      setLoading(false);
+    })();
+  }, []);
+
+  const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return list
-      .filter(b => matchesCategory(b.style || '', cat))
-      .filter(b => {
-        if (!q) return true;
-        return (
-          b.name.toLowerCase().includes(q) ||
-          b.style.toLowerCase().includes(q) ||
-          b.flavorProfile.some(f => f.toLowerCase().includes(q))
-        );
-      });
-  };
-
-  const visible = filterFn(tab === 'current' ? current : archive);
+    return beers.filter((b) => {
+      if (tab === 'current' && b.is_current === false) return false;
+      if (tab === 'archive' && b.is_current !== false) return false;
+      if (!matchesCategory(b, cat)) return false;
+      if (q) {
+        const hay = `${b.name} ${b.breweries.join(' ')} ${b.style || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [beers, search, tab, cat]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* ─── Hero ─── */}
-      <section className="border-b border-border">
-        <div className="max-w-[1200px] mx-auto px-5 py-9">
+    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
+      <SEOHead
+        title="De bieren — MissBaxel's Beers"
+        description="Alle bieren van MissBaxel's Beers — samenwerkingen met bevriende brouwers, elk met een eigen verhaal en smaakprofiel."
+        url="/beers"
+      />
+
+      {/* HERO */}
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '40px 0 28px' }}>
+        <div className="max-w-5xl mx-auto px-5">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium"
-            style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
+            style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
           >
-            <BeerIcon size={12} /> {t('Catalogus')}
+            <BeerIcon size={12} /> Catalogus
           </span>
           <h1
-            className="font-display mt-3 text-foreground"
-            style={{ fontWeight: 900, fontSize: '36px', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+            className="mt-4 mb-2"
+            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 36, lineHeight: 1.1, letterSpacing: '-0.02em' }}
           >
-            {t('De bieren')}
+            De bieren
           </h1>
-          <p className="mt-2 text-[14px] text-muted-foreground max-w-[560px]">
-            {t('Alles wat MissBaxel ontwikkelde — gebrouwen in samenwerking met collega-brouwers.')}
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
+            Elk bier een samenwerking. Elk smaakprofiel een verhaal.
           </p>
         </div>
       </section>
 
-      {/* ─── Filter bar ─── */}
-      <section className="sticky top-14 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="max-w-[1200px] mx-auto px-5 py-3 flex flex-wrap items-center gap-3">
-          {/* Tab pills */}
-          <div className="inline-flex items-center gap-1 border border-border rounded-full p-0.5 bg-card">
-            {(['current', 'archive'] as const).map(tk => (
-              <button
-                key={tk}
-                onClick={() => setTab(tk)}
-                className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-colors ${
-                  tab === tk ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {tk === 'current' ? `${t('Huidig')} (${current.length})` : `${t('Archief')} (${archive.length})`}
-              </button>
-            ))}
-          </div>
-
-          {/* Style filters */}
-          <div className="flex flex-wrap gap-1.5">
-            {STYLE_FILTERS.map(f => {
-              const active = cat === f.id;
+      {/* FILTERS */}
+      <section
+        className="md:sticky md:top-14 z-30"
+        style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg)' }}
+      >
+        <div className="max-w-5xl mx-auto px-5 py-3 space-y-3">
+          {/* Tabs */}
+          <div className="flex gap-2">
+            {[
+              { id: 'current' as const, label: 'Huidig assortiment' },
+              { id: 'archive' as const, label: 'Archief' },
+            ].map((t) => {
+              const active = tab === t.id;
               return (
                 <button
-                  key={f.id}
-                  onClick={() => setCat(f.id)}
-                  className="px-3 py-1 rounded-full text-[11px] font-semibold border transition-colors"
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className="px-4 py-1.5 rounded-full text-[12px] font-semibold transition-colors"
                   style={{
-                    borderColor: active ? 'hsl(var(--primary-mid))' : 'hsl(var(--border))',
-                    background: active ? 'hsl(var(--primary-light))' : 'transparent',
-                    color: active ? '#27500A' : 'hsl(var(--muted-foreground))',
+                    fontFamily: 'DM Sans, sans-serif',
+                    background: active ? 'var(--ink)' : 'transparent',
+                    color: active ? '#fff' : 'var(--muted)',
+                    border: '1px solid ' + (active ? 'var(--ink)' : 'var(--line)'),
                   }}
                 >
-                  {t(f.label)}
+                  {t.label}
                 </button>
               );
             })}
           </div>
 
-          {/* Search */}
-          <div className="relative flex-1 min-w-[180px] ml-auto max-w-[280px]">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={t('Zoek bier, stijl of smaak…')}
-              className="w-full h-9 pl-9 pr-3 text-[12px] bg-card border border-border rounded-full focus:outline-none focus:border-primary-mid placeholder:text-muted-foreground"
-            />
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            {/* Pills */}
+            <div
+              className="flex gap-2 overflow-x-auto md:flex-wrap flex-1"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style>{`.beer-pills::-webkit-scrollbar{display:none}`}</style>
+              <div className="beer-pills flex gap-2 overflow-x-auto md:flex-wrap" style={{ scrollbarWidth: 'none' }}>
+                {STYLE_FILTERS.map((f) => {
+                  const active = cat === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => setCat(f.id)}
+                      className="px-3.5 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors"
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        background: active ? 'var(--hop-light)' : 'transparent',
+                        color: active ? 'var(--hop-dark)' : 'var(--muted)',
+                        border: '1px solid ' + (active ? 'var(--hop-mid)' : 'var(--line)'),
+                      }}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Search */}
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 shrink-0"
+              style={{
+                background: '#fff',
+                border: '1px solid var(--line)',
+                borderRadius: 20,
+                width: 280,
+                maxWidth: '100%',
+              }}
+            >
+              <Search size={14} style={{ color: 'var(--muted)' }} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Zoek op naam of brouwer…"
+                className="bg-transparent outline-none flex-1 min-w-0"
+                style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--ink)' }}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── List ─── */}
-      <section className="max-w-[1200px] mx-auto px-5 py-5">
-        {isLoading ? (
-          <p className="text-muted-foreground text-sm text-center py-12">{t('Laden…')}</p>
-        ) : visible.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-12">{t('Geen bieren gevonden.')}</p>
-        ) : (
-          <div className="flex flex-col gap-2.5">
-            {visible.map(beer => <BeerRow key={beer.id} beer={beer} />)}
-          </div>
-        )}
+      {/* LIST */}
+      <section style={{ padding: '20px 0' }}>
+        <div className="max-w-5xl mx-auto px-5">
+          {loading ? (
+            <div className="text-center py-16" style={{ color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
+              Laden…
+            </div>
+          ) : filtered.length === 0 ? (
+            <div
+              className="text-center py-16"
+              style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}
+            >
+              Geen bieren gevonden.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {filtered.map((b) => {
+                const Icon = iconForStyle(b.style);
+                const tags = (b.primary_flavors || b.flavor_profile || []).slice(0, 4);
+                const target = `/beers/${b.slug || b.id}`;
+                return (
+                  <Link
+                    key={b.id}
+                    to={target}
+                    className="flex items-start gap-4 no-underline transition-all"
+                    style={{
+                      background: '#fff',
+                      border: '1px solid var(--line)',
+                      borderRadius: 12,
+                      padding: '16px 20px',
+                      color: 'var(--ink)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--hop-mid)';
+                      e.currentTarget.style.transform = 'translateX(2px)';
+                      e.currentTarget.style.transition = 'all 0.18s';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--line)';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                  >
+                    {/* Icon */}
+                    <div
+                      className="flex items-center justify-center shrink-0"
+                      style={{
+                        width: 44, height: 44, borderRadius: 10,
+                        background: 'var(--hop-light)', color: 'var(--hop-dark)',
+                      }}
+                    >
+                      <Icon size={20} />
+                    </div>
+
+                    {/* Body */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 17, lineHeight: 1.2 }}>
+                          {b.name}
+                        </h3>
+                        {b.is_collab && (
+                          <span
+                            className="text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+                            style={{ background: '#FDF1DC', color: '#8A5A1F', fontFamily: 'DM Sans, sans-serif' }}
+                          >
+                            Collab
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className="mt-1"
+                        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)' }}
+                      >
+                        {[b.style, b.breweries.join(' & ')].filter(Boolean).join(' · ')}
+                      </div>
+
+                      {tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2.5">
+                          {tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                              style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right */}
+                    <div className="shrink-0 flex flex-col items-end gap-1.5">
+                      {b.abv != null && (
+                        <div className="text-right leading-none">
+                          <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 22, color: 'var(--hop)' }}>
+                            {Number(b.abv).toFixed(1)}%
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: 'DM Sans, sans-serif', fontSize: 10,
+                              color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 3,
+                            }}
+                          >
+                            ABV
+                          </div>
+                        </div>
+                      )}
+                      {b.featured && (
+                        <span
+                          className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                          style={{ background: '#FDF1DC', color: '#8A5A1F', fontFamily: 'DM Sans, sans-serif' }}
+                        >
+                          Uitgelicht
+                        </span>
+                      )}
+                      {b.is_current === false && (
+                        <span
+                          className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                          style={{ background: '#EFEAE2', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}
+                        >
+                          Archief
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
     </div>
-  );
-}
-
-function BeerRow({ beer }: { beer: Beer }) {
-  const { t } = useLanguage();
-  const Icon = iconForStyle(beer.style);
-  const isArchive = beer.lifecycleStatus === 'archive';
-
-  return (
-    <Link
-      to={`/beers/${beer.id}`}
-      className="group flex items-center gap-4 bg-card border border-border rounded-xl px-5 py-4 transition-all hover:translate-x-[2px]"
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'hsl(var(--primary-mid))')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = '')}
-    >
-      {/* Icon square */}
-      <div
-        className="shrink-0 inline-flex items-center justify-center"
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 10,
-          background: 'hsl(var(--primary-light))',
-          color: 'hsl(var(--primary))',
-        }}
-      >
-        <Icon size={20} />
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 min-w-0">
-        <h3 className="font-display text-foreground truncate" style={{ fontWeight: 700, fontSize: '17px', lineHeight: 1.2 }}>
-          {beer.name}
-        </h3>
-        <div className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
-          <span className="truncate">{beer.style || t('Stijl onbekend')}</span>
-          {(beer.brewedAt || beer.breweryName) && (
-            <>
-              <span
-                className="inline-block shrink-0 rounded-full"
-                style={{ width: 3, height: 3, background: 'hsl(var(--muted-foreground))' }}
-              />
-              <span className="truncate">{beer.brewedAt || beer.breweryName}</span>
-            </>
-          )}
-        </div>
-
-        {beer.flavorProfile.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {beer.flavorProfile.slice(0, 4).map(tag => (
-              <span
-                key={tag}
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Right */}
-      <div className="shrink-0 flex flex-col items-end gap-1.5">
-        <div className="flex items-baseline gap-1">
-          <span className="font-display text-primary tabular-nums" style={{ fontWeight: 900, fontSize: '22px', lineHeight: 1 }}>
-            {beer.abv ? beer.abv.toFixed(1) : '—'}
-          </span>
-          <span className="text-[10px] text-muted-foreground font-medium">% ABV</span>
-        </div>
-
-        <div className="flex flex-wrap justify-end gap-1">
-          {isArchive && (
-            <span
-              className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
-              style={{ background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', border: '1px solid hsl(var(--border))' }}
-            >
-              {t('Archief')}
-            </span>
-          )}
-          {beer.featured && !isArchive && (
-            <span
-              className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
-              style={{ background: 'hsl(var(--secondary-light))', color: 'hsl(var(--secondary))' }}
-            >
-              {t('Uitgelicht')}
-            </span>
-          )}
-          {beer.isHiddenGem && (
-            <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
-              style={{ background: 'hsl(var(--primary-light))', color: '#27500A' }}
-            >
-              <Sparkles size={8} /> {t('Nieuw')}
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
   );
 }
