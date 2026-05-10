@@ -43,13 +43,6 @@ export default function BlogPost() {
     })();
   }, [slug]);
 
-  // Redirect to external if set
-  useEffect(() => {
-    if (post?.external_url) {
-      window.location.replace(post.external_url);
-    }
-  }, [post]);
-
   if (loading) {
     return (
       <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
