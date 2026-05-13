@@ -42,6 +42,7 @@ export default function BreweriesSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Brouwerijen" subtitle={`${rows.length} brouwerijen`} right={
         <button onClick={() => setCreating(true)} className={btnPrimary}><Plus size={13} /> Nieuwe brouwerij</button>
       } />
