@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Send } from 'lucide-react';
+import { ArrowLeft, Save, Send, Sparkles } from 'lucide-react';
 import ImageUpload, { uploadInlineImage } from './ImageUpload';
+import BlogAssistantPanel from './BlogAssistantPanel';
 
 interface BlogEditorProps {
   postId: string | null;
