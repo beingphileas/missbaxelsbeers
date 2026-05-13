@@ -12,11 +12,22 @@ type Post = {
   title: string;
   date: string | null;
   style: string | null;
+  style_category: string | null;
   excerpt: string | null;
   content: string;
   external_url: string | null;
   image_emoji: string | null;
   cover_image_url: string | null;
+  beer_id: string | null;
+};
+
+type LinkedBeer = {
+  id: string;
+  name: string;
+  style: string | null;
+  abv: number | null;
+  flavor_profile: string[] | null;
+  slug: string | null;
 };
 
 export default function BlogPost() {
