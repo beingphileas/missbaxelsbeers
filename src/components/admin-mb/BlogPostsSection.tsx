@@ -391,6 +391,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
+      cover_image_url: coverImageUrl.trim() || null,
       status: 'published',
     };
     let postId = initial?.id;
@@ -404,17 +405,23 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     }
     if (rubric && postId) {
       const def = RUBRICS[rubric];
-      // Only persist scores when rubric defines any
-      if (def.scores.length > 0) {
-        const cleanScores: Record<string, number> = {};
+      // Build external scores subset (display_in_scorecard)
+      const externalKeys = def.enrichment?.display_in_scorecard ?? [];
+      const external: Record<string, { value: any; source: string }> = {};
+      for (const k of externalKeys) {
+        const f = enrichResult?.fields?.[k];
+        if (f && f.value != null) external[k] = f;
+      }
+      if (def.scores.length > 0 || Object.keys(external).length > 0) {
+        const cleanScores: Record<string, any> = {};
         for (const f of def.scores) cleanScores[f.key] = Number(scores[f.key]) || 0;
+        if (Object.keys(external).length > 0) cleanScores._external = external;
         const { error: rErr } = await supabase.from('post_scores' as any).upsert(
           { blog_post_id: postId, rubric, scores: cleanScores },
           { onConflict: 'blog_post_id' },
         );
         if (rErr) { setSaving(false); return toast.error('Scores opslaan mislukt: ' + rErr.message); }
       } else {
-        // Rubric without scores: clear any existing row
         await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
       }
     } else if (!rubric && postId) {
