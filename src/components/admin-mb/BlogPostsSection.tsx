@@ -472,8 +472,8 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
             <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
             <Field label="Datum"><input type="date" className={inputCls} value={date} onChange={e => setDate(e.target.value)} /></Field>
             <Field label="Brouwerij (naam)"><input className={inputCls} value={brewery} onChange={e => setBrewery(e.target.value)} /></Field>
-            <Field label={<>Stijl<SourceBadge field="style" onReject={() => rejectField('style', setStyle)} /></>}>
-              <input className={inputCls} value={style} onChange={e => { setStyle(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.style; return n; }); }} />
+            <Field label="Stijl">
+              <div className="flex items-center"><input className={inputCls} value={style} onChange={e => { setStyle(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.style; return n; }); }} /><SourceBadge field="style" onReject={() => rejectField('style', setStyle)} /></div>
             </Field>
             <Field label="Stijl-categorie">
               <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
@@ -481,20 +481,20 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
                 {['tripel','saison','donker','zuur','wit','speciaal'].map(c => <option key={c}>{c}</option>)}
               </select>
             </Field>
-            <Field label={<>ABV (%)<SourceBadge field="abv" onReject={() => rejectField('abv', setAbv)} /></>}>
-              <input className={inputCls} value={abv} onChange={e => { setAbv(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.abv; return n; }); }} placeholder="6.2" />
+            <Field label="ABV (%)">
+              <div className="flex items-center"><input className={inputCls} value={abv} onChange={e => { setAbv(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.abv; return n; }); }} placeholder="6.2" /><SourceBadge field="abv" onReject={() => rejectField('abv', setAbv)} /></div>
             </Field>
-            <Field label={<>Stad / locatie<SourceBadge field="shop_city" onReject={() => rejectField('shop_city', setShopCity)} /></>}>
-              <input className={inputCls} value={shopCity} onChange={e => { setShopCity(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.shop_city; return n; }); }} placeholder="Brugge" />
+            <Field label="Stad / locatie">
+              <div className="flex items-center"><input className={inputCls} value={shopCity} onChange={e => { setShopCity(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.shop_city; return n; }); }} placeholder="Brugge" /><SourceBadge field="shop_city" onReject={() => rejectField('shop_city', setShopCity)} /></div>
             </Field>
-            <Field label={<>Shop-URL<SourceBadge field="shop_url" onReject={() => rejectField('shop_url', setShopUrl)} /></>}>
-              <input className={inputCls} value={shopUrl} onChange={e => { setShopUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.shop_url; return n; }); }} placeholder="https://…" />
+            <Field label="Shop-URL">
+              <div className="flex items-center"><input className={inputCls} value={shopUrl} onChange={e => { setShopUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.shop_url; return n; }); }} placeholder="https://…" /><SourceBadge field="shop_url" onReject={() => rejectField('shop_url', setShopUrl)} /></div>
             </Field>
-            <Field label={<>Cover-afbeelding URL<SourceBadge field="cover_image_url" onReject={() => rejectField('cover_image_url', setCoverImageUrl)} /></>}>
-              <input className={inputCls} value={coverImageUrl} onChange={e => { setCoverImageUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.cover_image_url; return n; }); }} placeholder="https://…" />
+            <Field label="Cover-afbeelding URL">
+              <div className="flex items-center"><input className={inputCls} value={coverImageUrl} onChange={e => { setCoverImageUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.cover_image_url; return n; }); }} placeholder="https://…" /><SourceBadge field="cover_image_url" onReject={() => rejectField('cover_image_url', setCoverImageUrl)} /></div>
             </Field>
-            <Field label={<>Externe URL<SourceBadge field="website_url" onReject={() => rejectField('website_url', setExternalUrl)} /></>} hint="Link naar originele post of website">
-              <input className={inputCls} value={externalUrl} onChange={e => { setExternalUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.website_url; return n; }); }} placeholder="https://…" />
+            <Field label="Externe URL" hint="Link naar originele post of website">
+              <div className="flex items-center"><input className={inputCls} value={externalUrl} onChange={e => { setExternalUrl(e.target.value); setEnrichSources(s => { const n = { ...s }; delete n.website_url; return n; }); }} placeholder="https://…" /><SourceBadge field="website_url" onReject={() => rejectField('website_url', setExternalUrl)} /></div>
             </Field>
             <Field label="Emoji (fallback)"><input className={inputCls} value={emoji} onChange={e => setEmoji(e.target.value)} placeholder="🍺" /></Field>
           </div>
