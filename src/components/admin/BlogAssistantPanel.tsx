@@ -10,6 +10,7 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 interface Props {
   title: string;
   rubric?: string;
+  enrichment?: Record<string, { value: any; source: string }>;
   onClose: () => void;
   onDraft: (markdown: string) => void;
 }
