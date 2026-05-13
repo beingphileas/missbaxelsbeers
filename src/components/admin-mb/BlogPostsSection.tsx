@@ -249,16 +249,21 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
 
-  // Biershop review state
-  const [isShopReview, setIsShopReview] = useState(false);
-  const [shopName, setShopName] = useState('');
-  const [shopCity, setShopCity] = useState('');
-  const [shopUrl, setShopUrl] = useState('');
-  const [scAanbod, setScAanbod] = useState(4);
-  const [scKennis, setScKennis] = useState(4);
-  const [scSfeer, setScSfeer] = useState(4);
-  const [scPrijs, setScPrijs] = useState(4);
-  const [scOverall, setScOverall] = useState(4);
+  // Rubric + flexible scores
+  const initialRubric = isRubricKey(initial?.style_category) ? (initial!.style_category as RubricKey) : null;
+  const [rubric, setRubric] = useState<RubricKey | ''>(initialRubric || '');
+  const [scores, setScores] = useState<Record<string, number>>({});
+
+  // Auto-init scores when rubric changes (defaults to 4 if missing)
+  useEffect(() => {
+    if (!rubric) { setScores({}); return; }
+    const def = RUBRICS[rubric];
+    setScores(prev => {
+      const next: Record<string, number> = {};
+      for (const f of def.scores) next[f.key] = prev[f.key] ?? 4;
+      return next;
+    });
+  }, [rubric]);
 
   useEffect(() => {
     const onR = () => setIsDesktop(window.innerWidth >= 1024);
@@ -268,29 +273,34 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
-  // Load existing shop review when editing
+  // Load existing post_scores when editing
   useEffect(() => {
     if (!initial) return;
     (async () => {
-      const { data } = await supabase.from('shop_reviews' as any).select('*').eq('blog_post_id', initial.id).maybeSingle();
+      const { data } = await supabase
+        .from('post_scores' as any)
+        .select('rubric, scores')
+        .eq('blog_post_id', initial.id)
+        .maybeSingle();
       if (data) {
         const d: any = data;
-        setIsShopReview(true);
-        setShopName(d.shop_name || ''); setShopCity(d.shop_city || ''); setShopUrl(d.shop_url || '');
-        setScAanbod(d.score_aanbod); setScKennis(d.score_kennis);
-        setScSfeer(d.score_sfeer); setScPrijs(d.score_prijs); setScOverall(d.score_overall);
+        if (isRubricKey(d.rubric)) {
+          setRubric(d.rubric);
+          // override defaults with stored values
+          setScores(d.scores || {});
+        }
       }
     })();
   }, [initial]);
 
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
-    if (isShopReview && (!shopName.trim() || !shopCity.trim())) return toast.error('Shop naam en stad zijn verplicht voor een biershop-review');
     setSaving(true);
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
       date: date || null, style: style.trim() || null,
-      style_category: isShopReview ? 'biershop' : (styleCat || null),
+      style_category: rubric || (styleCat || null),
+      rubric: rubric || null,
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
@@ -305,18 +315,23 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       if (error || !data) { setSaving(false); return toast.error(error?.message || 'Kan post niet aanmaken'); }
       postId = data.id;
     }
-    if (isShopReview && postId) {
-      const reviewPayload: any = {
-        blog_post_id: postId,
-        shop_name: shopName.trim(), shop_city: shopCity.trim(), shop_url: shopUrl.trim() || null,
-        score_aanbod: scAanbod, score_kennis: scKennis, score_sfeer: scSfeer,
-        score_prijs: scPrijs, score_overall: scOverall,
-      };
-      const { error: rErr } = await supabase.from('shop_reviews' as any).upsert(reviewPayload, { onConflict: 'blog_post_id' });
-      if (rErr) { setSaving(false); return toast.error('Review opslaan mislukt: ' + rErr.message); }
-    } else if (!isShopReview && postId) {
-      // Cleanup if toggle was disabled
-      await supabase.from('shop_reviews' as any).delete().eq('blog_post_id', postId);
+    if (rubric && postId) {
+      const def = RUBRICS[rubric];
+      // Only persist scores when rubric defines any
+      if (def.scores.length > 0) {
+        const cleanScores: Record<string, number> = {};
+        for (const f of def.scores) cleanScores[f.key] = Number(scores[f.key]) || 0;
+        const { error: rErr } = await supabase.from('post_scores' as any).upsert(
+          { blog_post_id: postId, rubric, scores: cleanScores },
+          { onConflict: 'blog_post_id' },
+        );
+        if (rErr) { setSaving(false); return toast.error('Scores opslaan mislukt: ' + rErr.message); }
+      } else {
+        // Rubric without scores: clear any existing row
+        await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
+      }
+    } else if (!rubric && postId) {
+      await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
     }
     setSaving(false);
     toast.success(initial ? 'Opgeslagen' : 'Aangemaakt');
