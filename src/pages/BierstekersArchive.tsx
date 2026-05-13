@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SEOHead from '@/components/SEOHead';
 import { useLanguage } from '@/hooks/useLanguage';
+import BierstekersPauseBanner from '@/components/BierstekersPauseBanner';
 
 type Blend = {
   id: number;
@@ -83,6 +84,8 @@ export default function BierstekersArchive() {
           </div>
         </div>
       </section>
+
+      <BierstekersPauseBanner />
 
       <section className="max-w-5xl mx-auto px-5 py-10">
         {loading ? (

@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { BierstekersBlend } from '@/types';
+import BierstekersPauseBanner from '@/components/BierstekersPauseBanner';
 
 const Pill = ({ children, color = 'copper' }: { children: React.ReactNode; color?: 'copper' | 'amber' | 'hop' }) => {
   const styles: Record<string, React.CSSProperties> = {
@@ -116,6 +117,8 @@ export default function Bierstekers() {
           </div>
         </div>
       </section>
+
+      <BierstekersPauseBanner />
 
       {/* SECTION 2 — HET VERHAAL */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>

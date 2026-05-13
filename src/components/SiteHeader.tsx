@@ -8,7 +8,7 @@ const navItems = [
   { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/verhalen' },
   { label: 'Restaurant', path: '/restaurant' },
-  { label: 'Bierstekers', path: '/bierstekers' },
+  { label: 'Bierstekers archief', path: '/bierstekers' },
   { label: 'Over', path: '/over' },
   { label: 'Archief', path: '/archief' },
 ];
