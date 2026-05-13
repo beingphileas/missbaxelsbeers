@@ -68,7 +68,7 @@ export default function BlogAssistantPanel({ title, rubric, enrichment, onClose,
     setDrafting(true);
     try {
       const { data, error } = await supabase.functions.invoke('blog-assistant', {
-        body: { mode: 'draft', rubric, title, messages: history.filter(m => m !== INTRO) },
+        body: { mode: 'draft', rubric, title, enrichment, messages: history.filter(m => m !== INTRO) },
       });
       if (error) throw error;
       const draft: string = (data?.content ?? '').trim();
