@@ -726,6 +726,56 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_reviews: {
+        Row: {
+          blog_post_id: string
+          created_at: string
+          id: string
+          score_aanbod: number
+          score_kennis: number
+          score_overall: number
+          score_prijs: number
+          score_sfeer: number
+          shop_city: string
+          shop_name: string
+          shop_url: string | null
+        }
+        Insert: {
+          blog_post_id: string
+          created_at?: string
+          id?: string
+          score_aanbod: number
+          score_kennis: number
+          score_overall: number
+          score_prijs: number
+          score_sfeer: number
+          shop_city: string
+          shop_name: string
+          shop_url?: string | null
+        }
+        Update: {
+          blog_post_id?: string
+          created_at?: string
+          id?: string
+          score_aanbod?: number
+          score_kennis?: number
+          score_overall?: number
+          score_prijs?: number
+          score_sfeer?: number
+          shop_city?: string
+          shop_name?: string
+          shop_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_reviews_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: true
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_health: {
         Row: {
           key: string
