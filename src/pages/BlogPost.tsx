@@ -33,6 +33,7 @@ type LinkedBeer = {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<Post | null>(null);
+  const [beer, setBeer] = useState<LinkedBeer | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -47,8 +48,19 @@ export default function BlogPost() {
         .maybeSingle();
       if (!data) {
         setNotFound(true);
+        setBeer(null);
       } else {
         setPost(data as any);
+        if ((data as any).beer_id) {
+          const { data: b } = await supabase
+            .from('beers')
+            .select('id, name, style, abv, flavor_profile, slug')
+            .eq('id', (data as any).beer_id)
+            .maybeSingle();
+          setBeer((b as any) ?? null);
+        } else {
+          setBeer(null);
+        }
       }
       setLoading(false);
     })();
@@ -64,6 +76,8 @@ export default function BlogPost() {
 
   if (notFound) return <Navigate to="/verhalen" replace />;
   if (!post) return null;
+
+  const isLongForm = !post.external_url && (post.content?.length ?? 0) > 500;
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
