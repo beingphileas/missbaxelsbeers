@@ -289,7 +289,32 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
             preview="live"
           />
         </div>
+        </div>
+
+        {/* Desktop side panel */}
+        {assistantOpen && (
+          <aside className="hidden lg:block">
+            <div className="sticky top-6 h-[calc(100vh-6rem)] border border-border rounded-lg overflow-hidden">
+              <BlogAssistantPanel
+                title={title}
+                onClose={() => setAssistantOpen(false)}
+                onDraft={insertDraft}
+              />
+            </div>
+          </aside>
+        )}
       </div>
+
+      {/* Mobile bottom drawer */}
+      <Drawer open={assistantOpen} onOpenChange={setAssistantOpen}>
+        <DrawerContent className="lg:hidden h-[85vh] p-0">
+          <BlogAssistantPanel
+            title={title}
+            onClose={() => setAssistantOpen(false)}
+            onDraft={insertDraft}
+          />
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
