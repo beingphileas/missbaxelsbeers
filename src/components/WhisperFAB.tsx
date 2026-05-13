@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Send, Loader2 } from 'lucide-react';
+import { Sparkles, X, Send, Loader2, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ASK_EVENT } from '@/lib/askMissBaxel';
+import QuickStorySheet from './QuickStorySheet';
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-whisperer`;
 
