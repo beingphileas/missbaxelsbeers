@@ -9,6 +9,7 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 
 interface Props {
   title: string;
+  flow?: 'beer' | 'biershop';
   onClose: () => void;
   onDraft: (markdown: string) => void;
 }
