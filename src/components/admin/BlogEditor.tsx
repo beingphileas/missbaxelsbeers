@@ -29,6 +29,7 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [selectedBeerIds, setSelectedBeerIds] = useState<string[]>([]);
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('draft');
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   // Load post if editing
   useEffect(() => {
