@@ -220,6 +220,7 @@ export default function BlogPost() {
             >
               <ReactMarkdown>{post.content}</ReactMarkdown>
             </div>
+            {ShopScoreCard}
           </article>
 
           {beer && (
@@ -304,6 +305,7 @@ export default function BlogPost() {
           >
             <ReactMarkdown>{post.content}</ReactMarkdown>
           </div>
+          {ShopScoreCard}
         </article>
       )}
     </div>
