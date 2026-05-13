@@ -18,15 +18,38 @@ export interface RubricScoreField {
   label: string;
 }
 
+export type EnrichmentTrigger =
+  | 'beer_name + brewery_name'
+  | 'beer_name'
+  | 'beer_name or brewery_name'
+  | 'brewery_name'
+  | 'location_name'
+  | 'shop_name + shop_city';
+
+export interface EnrichmentSource {
+  name: 'untappd' | 'ratebeer' | 'google_places' | 'untappd_brewery' | 'internal_db';
+  description?: string;
+  fields: string[];
+}
+
+export interface EnrichmentConfig {
+  trigger: EnrichmentTrigger;
+  sources: EnrichmentSource[];
+  prefill: string[];
+  display_in_scorecard: string[];
+  note?: string;
+}
+
 export interface RubricDef {
   label: string;
-  icon: string; // lucide-react icon name
-  color: string; // CSS variable expression
+  icon: string;
+  color: string;
   description: string;
   scores: RubricScoreField[];
   wordCount: [number, number];
   interviewQuestions: string[];
   draftInstructions: string;
+  enrichment: EnrichmentConfig | null;
 }
 
 export const RUBRICS: Record<RubricKey, RubricDef> = {
@@ -50,6 +73,15 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Open met een moment of scène. Beschrijf de smaak in mensentaal. Sluit af met een vraag.',
+    enrichment: {
+      trigger: 'beer_name + brewery_name',
+      sources: [
+        { name: 'untappd', description: 'Rating, check-in count, style confirmation', fields: ['untappd_score', 'untappd_url', 'style', 'abv'] },
+        { name: 'ratebeer', description: 'Score and style info', fields: ['ratebeer_score', 'ratebeer_url'] },
+      ],
+      prefill: ['style', 'abv', 'brewery_name'],
+      display_in_scorecard: ['untappd_score', 'ratebeer_score'],
+    },
   },
   brouwerij: {
     label: 'Brouwerij in de kijker',
@@ -72,6 +104,15 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Focus op de mensen achter de brouwerij, niet op technische details. Vertel het verhaal alsof je het aan een vriend vertelt.',
+    enrichment: {
+      trigger: 'brewery_name',
+      sources: [
+        { name: 'google_places', description: 'Address, opening hours, rating, website', fields: ['address', 'opening_hours', 'google_rating', 'google_maps_url', 'website_url'] },
+        { name: 'untappd_brewery', description: 'Brewery rating and top beers', fields: ['untappd_rating', 'untappd_url'] },
+      ],
+      prefill: ['shop_city', 'website_url'],
+      display_in_scorecard: ['google_rating', 'untappd_rating'],
+    },
   },
   hidden_gem: {
     label: 'Hidden gem',
@@ -93,6 +134,13 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Kort en overtuigend. Dit is een tip, geen essay. De lezer moet het willen opzoeken.',
+    enrichment: {
+      trigger: 'beer_name or brewery_name',
+      sources: [{ name: 'untappd', fields: ['untappd_score', 'untappd_url', 'check_in_count'] }],
+      prefill: ['style', 'abv'],
+      display_in_scorecard: ['untappd_score', 'check_in_count'],
+      note: 'Low check-in count confirms hidden gem status — show as a badge: "X check-ins op Untappd"',
+    },
   },
   bier_en_eten: {
     label: 'Bier & eten',
@@ -113,6 +161,12 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Concreet en praktisch. Geef de lezer iets om vanavond mee te proberen.',
+    enrichment: {
+      trigger: 'beer_name',
+      sources: [{ name: 'untappd', fields: ['style', 'abv', 'untappd_score'] }],
+      prefill: ['style'],
+      display_in_scorecard: [],
+    },
   },
   column: {
     label: 'Column',
@@ -128,6 +182,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Direct en persoonlijk. Geen opsommingen. Eindig met een stelling, niet een vraag.',
+    enrichment: null,
   },
   biertrip: {
     label: 'Biertrip',
@@ -150,6 +205,14 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Vertel het als een verhaal, niet als een reisverslag. Eén moment dat alles samenvat.',
+    enrichment: {
+      trigger: 'location_name',
+      sources: [
+        { name: 'google_places', description: 'Location details, rating, address, opening hours, photo', fields: ['address', 'google_rating', 'google_maps_url', 'opening_hours', 'cover_image_url'] },
+      ],
+      prefill: ['shop_city', 'cover_image_url'],
+      display_in_scorecard: ['google_rating'],
+    },
   },
   seizoen: {
     label: 'Seizoen & sfeer',
@@ -165,6 +228,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Sfeervol en kort. Dit is een ode, geen review. Maximaal 350 woorden.',
+    enrichment: null,
   },
   missbaxel_bier: {
     label: "MissBaxel's bier",
@@ -187,6 +251,15 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Eerlijk en persoonlijk — ook over wat niet perfect is. Dit is geen reclamefolder.',
+    enrichment: {
+      trigger: 'beer_name',
+      sources: [
+        { name: 'internal_db', description: 'Pull from beers table if beer exists', fields: ['style', 'abv', 'flavor_profile', 'food_pairing', 'image_url', 'brewery_id'] },
+        { name: 'untappd', fields: ['untappd_score', 'untappd_url', 'check_in_count'] },
+      ],
+      prefill: ['style', 'abv', 'cover_image_url'],
+      display_in_scorecard: ['untappd_score', 'check_in_count'],
+    },
   },
   bioshop: {
     label: 'Biershop',
@@ -210,6 +283,15 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     draftInstructions:
       'Warm en concreet. De score staat apart — de tekst hoeft de cijfers niet te herhalen.',
+    enrichment: {
+      trigger: 'shop_name + shop_city',
+      sources: [
+        { name: 'google_places', description: 'Address, rating, opening hours, website, photo', fields: ['address', 'google_rating', 'google_maps_url', 'opening_hours', 'website_url', 'cover_image_url'] },
+      ],
+      prefill: ['shop_url', 'cover_image_url', 'shop_city'],
+      display_in_scorecard: ['google_rating'],
+      note: 'Show Google rating as reference next to the MissBaxel scores with label "Google: X/5"',
+    },
   },
 };
 
@@ -218,3 +300,12 @@ export const RUBRIC_KEYS = Object.keys(RUBRICS) as RubricKey[];
 export function isRubricKey(v: string | null | undefined): v is RubricKey {
   return !!v && (RUBRIC_KEYS as string[]).includes(v);
 }
+
+// Labels & formatting for fields that may appear in display_in_scorecard.
+export const EXTERNAL_FIELD_LABELS: Record<string, { label: string; max?: number; suffix?: string }> = {
+  untappd_score: { label: 'Untappd', max: 5 },
+  ratebeer_score: { label: 'RateBeer', max: 5 },
+  google_rating: { label: 'Google', max: 5 },
+  untappd_rating: { label: 'Untappd', max: 5 },
+  check_in_count: { label: 'Check-ins', suffix: ' op Untappd' },
+};
