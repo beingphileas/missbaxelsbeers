@@ -44,7 +44,7 @@ export default function BlogAssistantPanel({ title, rubric, onClose, onDraft }: 
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('blog-assistant', {
-        body: { mode: 'interview', flow, title, messages: history.filter(m => m !== INTRO) },
+        body: { mode: 'interview', rubric, title, messages: history.filter(m => m !== INTRO) },
       });
       if (error) throw error;
       const text: string = data?.content ?? '';
@@ -67,7 +67,7 @@ export default function BlogAssistantPanel({ title, rubric, onClose, onDraft }: 
     setDrafting(true);
     try {
       const { data, error } = await supabase.functions.invoke('blog-assistant', {
-        body: { mode: 'draft', flow, title, messages: history.filter(m => m !== INTRO) },
+        body: { mode: 'draft', rubric, title, messages: history.filter(m => m !== INTRO) },
       });
       if (error) throw error;
       const draft: string = (data?.content ?? '').trim();
