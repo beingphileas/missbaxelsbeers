@@ -48,14 +48,24 @@ async function tryUntappd(): Promise<any[] | null> {
   } catch { return null; }
 }
 
+const HEALTH_KEY = 'scrape-bierstekers';
+
+async function reportHealth(supabase: any, status: 'ok' | 'error', error: string | null) {
+  await supabase.from('system_health').upsert({
+    key: HEALTH_KEY,
+    last_run_at: new Date().toISOString(),
+    last_status: status,
+    last_error: error,
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
-
     const scraped = await tryUntappd();
     let inserted = 0;
     let source: 'untappd' | 'fallback' = 'fallback';
@@ -74,10 +84,12 @@ Deno.serve(async (req) => {
       inserted = count ?? rows.length;
     }
 
+    await reportHealth(supabase, 'ok', null);
     return new Response(JSON.stringify({ source, inserted }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e: any) {
+    await reportHealth(supabase, 'error', e?.message || String(e));
     return new Response(JSON.stringify({ error: e.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
