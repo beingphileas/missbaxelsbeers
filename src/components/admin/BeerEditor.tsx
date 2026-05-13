@@ -54,6 +54,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
         setBreweryId(data.brewery_id);
         setShopUrl((data as any).shop_url ?? '');
         setSource(((data as any).source ?? 'missbaxel') as any);
+        const fcAt = (data as any).fact_checked_at ?? null;
+        const fcBy = (data as any).fact_checked_by ?? null;
+        setFactCheckedAt(fcAt);
+        if (fcBy) {
+          supabase.rpc('get_user_email' as any, { _user_id: fcBy }).then(({ data: email }) => {
+            setFactCheckedByEmail((email as string | null) ?? null);
+          });
+        } else {
+          setFactCheckedByEmail(null);
+        }
       });
     }
   }, [beerId]);
