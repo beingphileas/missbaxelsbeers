@@ -85,6 +85,8 @@ export default function BierstekersArchive() {
         </div>
       </section>
 
+      <BierstekersPauseBanner />
+
       <section className="max-w-5xl mx-auto px-5 py-10">
         {loading ? (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
