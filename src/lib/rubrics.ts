@@ -18,6 +18,28 @@ export interface RubricScoreField {
   label: string;
 }
 
+export type EnrichmentTrigger =
+  | 'beer_name + brewery_name'
+  | 'beer_name'
+  | 'beer_name or brewery_name'
+  | 'brewery_name'
+  | 'location_name'
+  | 'shop_name + shop_city';
+
+export interface EnrichmentSource {
+  name: 'untappd' | 'ratebeer' | 'google_places' | 'untappd_brewery' | 'internal_db';
+  description?: string;
+  fields: string[];
+}
+
+export interface EnrichmentConfig {
+  trigger: EnrichmentTrigger;
+  sources: EnrichmentSource[];
+  prefill: string[];
+  display_in_scorecard: string[];
+  note?: string;
+}
+
 export interface RubricDef {
   label: string;
   icon: string; // lucide-react icon name
@@ -27,6 +49,7 @@ export interface RubricDef {
   wordCount: [number, number];
   interviewQuestions: string[];
   draftInstructions: string;
+  enrichment: EnrichmentConfig | null;
 }
 
 export const RUBRICS: Record<RubricKey, RubricDef> = {
