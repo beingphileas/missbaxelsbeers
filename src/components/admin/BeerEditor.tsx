@@ -198,6 +198,13 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile sticky save bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3">
+        <Button onClick={handleSave} disabled={saving} className="w-full gap-1.5 h-12 text-base">
+          <Save size={16} /> {saving ? 'Opslaan…' : 'Opslaan'}
+        </Button>
+      </div>
     </div>
   );
 }
