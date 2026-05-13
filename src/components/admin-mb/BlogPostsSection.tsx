@@ -436,7 +436,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <aside className="hidden lg:block sticky top-4 h-[calc(100vh-2rem)]">
             <BlogAssistantPanel
               title={title}
-              flow={isShopReview ? 'biershop' : 'beer'}
+              rubric={rubric || undefined}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
@@ -449,7 +449,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <DrawerContent className="h-[85vh]">
             <BlogAssistantPanel
               title={title}
-              flow={isShopReview ? 'biershop' : 'beer'}
+              rubric={rubric || undefined}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
