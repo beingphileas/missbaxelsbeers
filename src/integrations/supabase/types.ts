@@ -393,6 +393,7 @@ export type Database = {
           id: string
           image_emoji: string | null
           published_at: string | null
+          rubric: string | null
           slug: string
           status: string
           style: string | null
@@ -415,6 +416,7 @@ export type Database = {
           id?: string
           image_emoji?: string | null
           published_at?: string | null
+          rubric?: string | null
           slug: string
           status?: string
           style?: string | null
@@ -437,6 +439,7 @@ export type Database = {
           id?: string
           image_emoji?: string | null
           published_at?: string | null
+          rubric?: string | null
           slug?: string
           status?: string
           style?: string | null
@@ -671,6 +674,38 @@ export type Database = {
             columns: ["brewery_id"]
             isOneToOne: false
             referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_scores: {
+        Row: {
+          blog_post_id: string
+          created_at: string
+          id: string
+          rubric: string
+          scores: Json
+        }
+        Insert: {
+          blog_post_id: string
+          created_at?: string
+          id?: string
+          rubric: string
+          scores?: Json
+        }
+        Update: {
+          blog_post_id?: string
+          created_at?: string
+          id?: string
+          rubric?: string
+          scores?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_scores_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: true
+            referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
         ]
