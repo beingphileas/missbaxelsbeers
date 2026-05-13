@@ -76,7 +76,13 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
-    const systemBase = mode === 'interview' ? INTERVIEW_PROMPT : DRAFT_PROMPT;
+    const titleLower = (title || '').toLowerCase();
+    const autoBiershop = /\b(shop|winkel|bier bij)\b/.test(titleLower);
+    const effectiveFlow = flow === 'biershop' || autoBiershop ? 'biershop' : 'beer';
+
+    const systemBase = effectiveFlow === 'biershop'
+      ? (mode === 'interview' ? BIERSHOP_INTERVIEW_PROMPT : BIERSHOP_DRAFT_PROMPT)
+      : (mode === 'interview' ? INTERVIEW_PROMPT : DRAFT_PROMPT);
     const system = title?.trim()
       ? `${systemBase}\n\nDe titel die Marijke opgaf: "${title.trim()}"`
       : systemBase;
