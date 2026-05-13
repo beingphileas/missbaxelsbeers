@@ -99,12 +99,21 @@ async function fetchAllPosts(): Promise<any[]> {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
-  try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
 
+  const reportHealth = async (status: 'ok' | 'error', err: string | null) => {
+    await supabase.from('system_health').upsert({
+      key: 'scrape-missbaxels-blog',
+      last_run_at: new Date().toISOString(),
+      last_status: status,
+      last_error: err,
+    });
+  };
+
+  try {
     const posts = await fetchAllPosts();
     let inserted = 0, updated = 0, errors = 0;
 
@@ -122,7 +131,6 @@ Deno.serve(async (req) => {
         const date = p.date ? new Date(p.date).toISOString().slice(0, 10) : null;
         const publishedAt = p.date ? new Date(p.date).toISOString() : null;
 
-        // Featured image via _embedded
         let coverImage: string | null = null;
         const media = p._embedded?.['wp:featuredmedia']?.[0];
         if (media?.source_url) coverImage = media.source_url;
@@ -165,12 +173,14 @@ Deno.serve(async (req) => {
       }
     }
 
+    await reportHealth('ok', null);
     return new Response(
       JSON.stringify({ success: true, total: posts.length, inserted, updated, errors }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (e) {
     console.error(e);
+    await reportHealth('error', (e as any)?.message || String(e));
     return new Response(JSON.stringify({ success: false, error: String(e) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
