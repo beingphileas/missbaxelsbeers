@@ -6,7 +6,7 @@ import * as Lucide from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
-import { RUBRICS, isRubricKey, type RubricKey } from '@/lib/rubrics';
+import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
 
 type PostScores = {
   rubric: string;
