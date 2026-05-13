@@ -215,7 +215,7 @@ export default function BulkFactCheck() {
       {results.length > 0 && (
         <div className="border rounded-lg max-h-[400px] overflow-auto divide-y divide-border">
           {results.map((r, i) => (
-            <div key={i} className="px-4 py-2 flex items-center justify-between text-sm">
+            <div key={i} className="px-4 py-2 flex items-center justify-between gap-3 text-sm">
               <div className="flex items-center gap-2 min-w-0">
                 {r.ok ? (
                   <ShieldCheck size={12} className="text-success shrink-0" />
@@ -224,13 +224,26 @@ export default function BulkFactCheck() {
                 )}
                 <span className="truncate">{r.name}</span>
               </div>
-              {r.score != null && (
-                <span className={`font-bold tabular-nums shrink-0 ${
-                  r.score >= 80 ? 'text-success' : r.score >= 60 ? 'text-warning' : 'text-destructive'
-                }`}>
-                  {r.score}
-                </span>
-              )}
+              <div className="flex items-center gap-3 shrink-0">
+                {r.score != null && (
+                  <span className={`font-bold tabular-nums ${
+                    r.score >= 80 ? 'text-success' : r.score >= 60 ? 'text-warning' : 'text-destructive'
+                  }`}>
+                    {r.score}
+                  </span>
+                )}
+                {r.ok && (
+                  r.approved ? (
+                    <Badge variant="secondary" className="gap-1 text-[10px]">
+                      <CheckCircle2 size={10} /> Goedgekeurd
+                    </Badge>
+                  ) : (
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => approve(r.id, i)}>
+                      Approve
+                    </Button>
+                  )
+                )}
+              </div>
             </div>
           ))}
         </div>
