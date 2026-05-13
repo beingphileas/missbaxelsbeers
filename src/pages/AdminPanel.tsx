@@ -30,6 +30,7 @@ export default function AdminPanel() {
   const [section, setSection] = useState<SectionKey>('bieren');
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [storyOpen, setStoryOpen] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -44,14 +45,28 @@ export default function AdminPanel() {
     });
   }, [user?.id]);
 
+  const mobileFab = isAdmin ? (
+    <>
+      <button
+        onClick={() => setStoryOpen(true)}
+        aria-label="Snel verhaal"
+        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+      >
+        <Plus size={24} />
+      </button>
+      <QuickStorySheet open={storyOpen} onOpenChange={setStoryOpen} />
+    </>
+  ) : null;
+
   if (isMobile) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-8">
         <div className="max-w-sm text-center bg-card border border-border rounded-[12px] p-8">
           <ShieldAlert size={28} className="mx-auto text-muted-foreground mb-3" />
           <h1 className="font-display text-lg mb-2" style={{ fontWeight: 900 }}>Desktop vereist</h1>
-          <p className="text-[13px] text-muted-foreground">Gebruik desktop voor het beheerpaneel.</p>
+          <p className="text-[13px] text-muted-foreground">Gebruik desktop voor het beheerpaneel. Snelle posts kan je hier wel via de + knop.</p>
         </div>
+        {mobileFab}
       </div>
     );
   }
