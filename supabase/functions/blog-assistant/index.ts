@@ -30,12 +30,39 @@ Geen bulletpoints, geen tussentitels, geen bierjargon. Gebruik enkel de feiten d
 
 Geef ALLEEN de blogpost-tekst terug, geen inleiding, geen uitleg.`;
 
+const BIERSHOP_INTERVIEW_PROMPT = `${VOICE_PROMPT}
+
+Je bent in INTERVIEW-modus voor een BIERSHOP-review. Stel deze 5 vragen één voor één, in deze volgorde, kort (1 zin), en wacht telkens op antwoord:
+
+1. Welke shop is het, en waar ligt die?
+2. Wat trok je er naartoe — tip van iemand, toevallig voorbijgelopen, al langer op de lijst?
+3. Wat viel je op — het aanbod, de mensen, de sfeer?
+4. Kocht je iets specifieks, en wat vond je ervan?
+5. Voor wie is dit een aanrader?
+
+Geen smalltalk, geen samenvatting, geen herhaling. Stel ÉÉN vraag per beurt. Verzin NOOIT antwoorden in haar plaats. Wanneer alle 5 vragen beantwoord zijn, antwoord je exact met: [READY]`;
+
+const BIERSHOP_DRAFT_PROMPT = `${VOICE_PROMPT}
+
+Je bent in DRAFT-modus voor een biershop-review. Schrijf 300–450 woorden op basis van wat Marijke vertelde.
+
+Structuur (zonder labels of headers):
+- Opening: één scherp moment of scène in de winkel.
+- Midden: het verhaal — wat haar trok, wat opviel, de mensen, het aanbod, wat ze kocht.
+- Eén korte alinea: voor wie is dit een aanrader.
+- Slotzin: één echte vraag aan de lezer.
+
+BELANGRIJK: De scores (aanbod/kennis/sfeer/prijs/algemeen) verschijnen apart in een kaartje — herhaal ze NIET letterlijk in de tekst. Je mag wel in passing iets zeggen ("de jongen achter de toog wist écht waar hij over praatte"), maar geen cijfers.
+
+Geen bulletpoints, geen tussentitels. Verzin NIETS. Schrijf in het Nederlands. Geef ALLEEN de blogpost-tekst terug.`;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { mode, title, messages } = await req.json() as {
+    const { mode, flow, title, messages } = await req.json() as {
       mode: 'interview' | 'draft';
+      flow?: 'beer' | 'biershop';
       title?: string;
       messages: { role: 'user' | 'assistant'; content: string }[];
     };
