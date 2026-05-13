@@ -17,14 +17,24 @@ async function fetchText(url: string): Promise<string> {
   } catch { return ''; }
 }
 
+const HEALTH_KEY = 'scrape-restaurant';
+
+async function reportHealth(supabase: any, status: 'ok' | 'error', error: string | null) {
+  await supabase.from('system_health').upsert({
+    key: HEALTH_KEY,
+    last_run_at: new Date().toISOString(),
+    last_status: status,
+    last_error: error,
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
-
     const sources = [
       'https://www.missbaxelsbeers.com',
       'https://www.missbaxelsbeers.com/restaurant',
@@ -34,10 +44,8 @@ Deno.serve(async (req) => {
     let combined = '';
     for (const u of sources) combined += '\n' + (await fetchText(u));
 
-    // Belgian phone (+32) or 050 (Brugge)
     const phoneMatch = combined.match(/(?:\+32\s?|0)\s?(?:5\s?0|4\d{2})[\s.\-/]?\d{2}[\s.\-/]?\d{2}[\s.\-/]?\d{2}/);
     const emailMatch = combined.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    // Address: a street name + number, Brugge or 8000
     const addrMatch = combined.match(/([A-Z][a-zëéèïóàâ]+(?:straat|laan|plein|weg|wal|kaai|markt|steenweg|dreef)\s+\d+\w?)/);
 
     const update: any = {
@@ -55,10 +63,12 @@ Deno.serve(async (req) => {
     const { error } = await supabase.from('restaurant').upsert({ id: 1, ...update });
     if (error) throw error;
 
+    await reportHealth(supabase, 'ok', null);
     return new Response(JSON.stringify({ updated_fields: Object.keys(update) }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e: any) {
+    await reportHealth(supabase, 'error', e?.message || String(e));
     return new Response(JSON.stringify({ error: e.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
