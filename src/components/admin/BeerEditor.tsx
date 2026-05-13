@@ -29,6 +29,8 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
   const [breweryId, setBreweryId] = useState<string>('');
   const [shopUrl, setShopUrl] = useState('');
   const [source, setSource] = useState<'missbaxel' | 'bierstekers' | 'beide'>('missbaxel');
+  const [factCheckedAt, setFactCheckedAt] = useState<string | null>(null);
+  const [factCheckedByEmail, setFactCheckedByEmail] = useState<string | null>(null);
 
   useEffect(() => {
     // Default brewery: MissBaxel's
