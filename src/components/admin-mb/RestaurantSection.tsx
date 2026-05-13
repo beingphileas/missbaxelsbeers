@@ -16,7 +16,11 @@ interface RestaurantRow {
   email: string | null; reservation_url: string | null; opening_hours: any;
   description: string | null; story: string | null; instagram_url: string | null;
   facebook_url: string | null; google_maps_url: string | null;
+  hours_updated_at: string | null;
 }
+
+const STALE_DAYS = 60;
+const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
 
 export default function RestaurantSection() {
   const [row, setRow] = useState<RestaurantRow | null>(null);
