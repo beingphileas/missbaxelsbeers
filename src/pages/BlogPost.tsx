@@ -45,6 +45,7 @@ export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [beer, setBeer] = useState<LinkedBeer | null>(null);
+  const [shopReview, setShopReview] = useState<ShopReview | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -60,8 +61,10 @@ export default function BlogPost() {
       if (!data) {
         setNotFound(true);
         setBeer(null);
+        setShopReview(null);
       } else {
         setPost(data as any);
+        const postId = (data as any).id;
         if ((data as any).beer_id) {
           const { data: b } = await supabase
             .from('beers')
@@ -72,6 +75,12 @@ export default function BlogPost() {
         } else {
           setBeer(null);
         }
+        const { data: sr } = await supabase
+          .from('shop_reviews' as any)
+          .select('shop_name, shop_city, shop_url, score_aanbod, score_kennis, score_sfeer, score_prijs, score_overall')
+          .eq('blog_post_id', postId)
+          .maybeSingle();
+        setShopReview((sr as any) ?? null);
       }
       setLoading(false);
     })();
