@@ -126,7 +126,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
               )
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Stijl</Label>
               <Input value={style} onChange={e => setStyle(e.target.value)} placeholder="Saison" />
