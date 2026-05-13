@@ -50,6 +50,7 @@ export default function BierstekersSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Bierstekers blends" subtitle={`${rows.length} blends`} right={
         <div className="flex gap-2">
           <button onClick={scrapeUntappd} disabled={scraping} className={btnGhost}>
