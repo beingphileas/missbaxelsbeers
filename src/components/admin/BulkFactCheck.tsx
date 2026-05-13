@@ -123,11 +123,11 @@ export default function BulkFactCheck() {
           .eq('id', beer.id)
           .single();
 
-        newResults.push({ name: beer.name, score: updated?.quality_score ?? null, ok: true });
+        newResults.push({ id: beer.id, name: beer.name, score: updated?.quality_score ?? null, ok: true });
       } catch (err: any) {
         console.error(`Factcheck failed for ${beer.name}:`, err);
         errCount++;
-        newResults.push({ name: beer.name, score: null, ok: false });
+        newResults.push({ id: beer.id, name: beer.name, score: null, ok: false });
       }
 
       done++;
