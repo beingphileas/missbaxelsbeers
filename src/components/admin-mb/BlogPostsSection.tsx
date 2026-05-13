@@ -245,6 +245,13 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [externalUrl, setExternalUrl] = useState(initial?.external_url || '');
   const [emoji, setEmoji] = useState(initial?.image_emoji || '');
   const [saving, setSaving] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+  useEffect(() => {
+    const onR = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', onR);
+    return () => window.removeEventListener('resize', onR);
+  }, []);
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
