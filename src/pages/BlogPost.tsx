@@ -98,7 +98,11 @@ export default function BlogPost() {
   const RubricScoreCard = (() => {
     if (!postScores || !isRubricKey(postScores.rubric)) return null;
     const def = RUBRICS[postScores.rubric as RubricKey];
-    if (!def.scores.length) return null;
+    const external = (postScores.scores as any)?._external as
+      | Record<string, { value: any; source: string }>
+      | undefined;
+    const externalEntries = external ? Object.entries(external) : [];
+    if (!def.scores.length && externalEntries.length === 0) return null;
     const RubricIcon = (Lucide as any)[def.icon] ?? Lucide.Award;
     const accent = def.color;
     return (
@@ -114,9 +118,9 @@ export default function BlogPost() {
         </div>
         <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
           {def.scores.map((f, i) => {
-            const v = Number(postScores.scores?.[f.key]) || 0;
+            const v = Number((postScores.scores as any)?.[f.key]) || 0;
             const isLast = i === def.scores.length - 1;
-            const emphasized = isLast && def.scores.length >= 4; // visually emphasize the final/overall row
+            const emphasized = isLast && def.scores.length >= 4;
             return (
               <div
                 key={f.key}
@@ -145,6 +149,30 @@ export default function BlogPost() {
               </div>
             );
           })}
+          {externalEntries.length > 0 && (
+            <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--line)' }}>
+              <p className="text-[11px] uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Elders</p>
+              {externalEntries.map(([k, entry]) => {
+                const meta = EXTERNAL_FIELD_LABELS[k] || { label: k };
+                const url = (postScores.scores as any)?._external?.[`${k.split('_')[0]}_url`]?.value
+                  || (external?.[`${meta.label.toLowerCase()}_url`] as any)?.value;
+                const display = meta.max ? `${entry.value} / ${meta.max}` : `${entry.value}${meta.suffix || ''}`;
+                return (
+                  <div key={k} className="flex items-center justify-between py-1.5">
+                    <span style={{ color: 'var(--muted)' }}>{meta.label}</span>
+                    <span className="flex items-center gap-2 tabular-nums" style={{ color: 'var(--ink)' }}>
+                      {display}
+                      {url && (
+                        <a href={url} target="_blank" rel="noreferrer" className="text-[11px] underline" style={{ color: 'var(--muted)' }}>
+                          → link
+                        </a>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     );
