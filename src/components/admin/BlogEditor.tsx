@@ -313,15 +313,17 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
       </div>
 
       {/* Mobile bottom drawer */}
-      <Drawer open={assistantOpen} onOpenChange={setAssistantOpen}>
-        <DrawerContent className="lg:hidden h-[85vh] p-0">
-          <BlogAssistantPanel
-            title={title}
-            onClose={() => setAssistantOpen(false)}
-            onDraft={insertDraft}
-          />
-        </DrawerContent>
-      </Drawer>
+      {!isDesktop && (
+        <Drawer open={assistantOpen} onOpenChange={setAssistantOpen}>
+          <DrawerContent className="h-[85vh] p-0">
+            <BlogAssistantPanel
+              title={title}
+              onClose={() => setAssistantOpen(false)}
+              onDraft={insertDraft}
+            />
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 }
