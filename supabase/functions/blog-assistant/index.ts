@@ -165,11 +165,12 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { mode, rubric, title, messages } = await req.json() as {
+    const { mode, rubric, title, messages, enrichment } = await req.json() as {
       mode: 'interview' | 'draft';
       rubric?: string;
       title?: string;
       messages: { role: 'user' | 'assistant'; content: string }[];
+      enrichment?: Record<string, { value: any; source: string }>;
     };
 
     if (!mode || !Array.isArray(messages)) {
@@ -182,9 +183,15 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
     const systemBase = mode === 'interview' ? buildInterviewPrompt(rubric) : buildDraftPrompt(rubric);
-    const system = title?.trim()
+    let system = title?.trim()
       ? `${systemBase}\n\nDe titel die Marijke opgaf: "${title.trim()}"`
       : systemBase;
+    if (enrichment && Object.keys(enrichment).length > 0) {
+      const summary = Object.entries(enrichment)
+        .map(([k, v]) => `- ${k}: ${Array.isArray(v.value) ? v.value.join(', ') : v.value} (bron: ${v.source})`)
+        .join('\n');
+      system += `\n\nBeschikbare data voor dit bier/deze locatie:\n${summary}\n\nGebruik deze gegevens als feitelijke basis. Verzin niets wat hier niet in staat.`;
+    }
 
     const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
