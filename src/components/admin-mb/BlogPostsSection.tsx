@@ -6,6 +6,7 @@ import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDange
 import SystemHealthCard from './SystemHealthCard';
 import BlogAssistantPanel from '@/components/admin/BlogAssistantPanel';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { RUBRICS, RUBRIC_KEYS, type RubricKey, isRubricKey } from '@/lib/rubrics';
 
 
 interface PostRow {
@@ -248,16 +249,21 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
 
-  // Biershop review state
-  const [isShopReview, setIsShopReview] = useState(false);
-  const [shopName, setShopName] = useState('');
-  const [shopCity, setShopCity] = useState('');
-  const [shopUrl, setShopUrl] = useState('');
-  const [scAanbod, setScAanbod] = useState(4);
-  const [scKennis, setScKennis] = useState(4);
-  const [scSfeer, setScSfeer] = useState(4);
-  const [scPrijs, setScPrijs] = useState(4);
-  const [scOverall, setScOverall] = useState(4);
+  // Rubric + flexible scores
+  const initialRubric = isRubricKey(initial?.style_category) ? (initial!.style_category as RubricKey) : null;
+  const [rubric, setRubric] = useState<RubricKey | ''>(initialRubric || '');
+  const [scores, setScores] = useState<Record<string, number>>({});
+
+  // Auto-init scores when rubric changes (defaults to 4 if missing)
+  useEffect(() => {
+    if (!rubric) { setScores({}); return; }
+    const def = RUBRICS[rubric];
+    setScores(prev => {
+      const next: Record<string, number> = {};
+      for (const f of def.scores) next[f.key] = prev[f.key] ?? 4;
+      return next;
+    });
+  }, [rubric]);
 
   useEffect(() => {
     const onR = () => setIsDesktop(window.innerWidth >= 1024);
@@ -267,29 +273,34 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
-  // Load existing shop review when editing
+  // Load existing post_scores when editing
   useEffect(() => {
     if (!initial) return;
     (async () => {
-      const { data } = await supabase.from('shop_reviews' as any).select('*').eq('blog_post_id', initial.id).maybeSingle();
+      const { data } = await supabase
+        .from('post_scores' as any)
+        .select('rubric, scores')
+        .eq('blog_post_id', initial.id)
+        .maybeSingle();
       if (data) {
         const d: any = data;
-        setIsShopReview(true);
-        setShopName(d.shop_name || ''); setShopCity(d.shop_city || ''); setShopUrl(d.shop_url || '');
-        setScAanbod(d.score_aanbod); setScKennis(d.score_kennis);
-        setScSfeer(d.score_sfeer); setScPrijs(d.score_prijs); setScOverall(d.score_overall);
+        if (isRubricKey(d.rubric)) {
+          setRubric(d.rubric);
+          // override defaults with stored values
+          setScores(d.scores || {});
+        }
       }
     })();
   }, [initial]);
 
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
-    if (isShopReview && (!shopName.trim() || !shopCity.trim())) return toast.error('Shop naam en stad zijn verplicht voor een biershop-review');
     setSaving(true);
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
       date: date || null, style: style.trim() || null,
-      style_category: isShopReview ? 'biershop' : (styleCat || null),
+      style_category: rubric || (styleCat || null),
+      rubric: rubric || null,
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
@@ -304,18 +315,23 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       if (error || !data) { setSaving(false); return toast.error(error?.message || 'Kan post niet aanmaken'); }
       postId = data.id;
     }
-    if (isShopReview && postId) {
-      const reviewPayload: any = {
-        blog_post_id: postId,
-        shop_name: shopName.trim(), shop_city: shopCity.trim(), shop_url: shopUrl.trim() || null,
-        score_aanbod: scAanbod, score_kennis: scKennis, score_sfeer: scSfeer,
-        score_prijs: scPrijs, score_overall: scOverall,
-      };
-      const { error: rErr } = await supabase.from('shop_reviews' as any).upsert(reviewPayload, { onConflict: 'blog_post_id' });
-      if (rErr) { setSaving(false); return toast.error('Review opslaan mislukt: ' + rErr.message); }
-    } else if (!isShopReview && postId) {
-      // Cleanup if toggle was disabled
-      await supabase.from('shop_reviews' as any).delete().eq('blog_post_id', postId);
+    if (rubric && postId) {
+      const def = RUBRICS[rubric];
+      // Only persist scores when rubric defines any
+      if (def.scores.length > 0) {
+        const cleanScores: Record<string, number> = {};
+        for (const f of def.scores) cleanScores[f.key] = Number(scores[f.key]) || 0;
+        const { error: rErr } = await supabase.from('post_scores' as any).upsert(
+          { blog_post_id: postId, rubric, scores: cleanScores },
+          { onConflict: 'blog_post_id' },
+        );
+        if (rErr) { setSaving(false); return toast.error('Scores opslaan mislukt: ' + rErr.message); }
+      } else {
+        // Rubric without scores: clear any existing row
+        await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
+      }
+    } else if (!rubric && postId) {
+      await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
     }
     setSaving(false);
     toast.success(initial ? 'Opgeslagen' : 'Aangemaakt');
@@ -377,29 +393,40 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
           <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
 
-          <div className="border-t border-border pt-4">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input type="checkbox" checked={isShopReview} onChange={e => setIsShopReview(e.target.checked)} className="h-4 w-4" />
-              <span className="text-[13px] font-medium">🏪 Dit is een biershop-review</span>
-            </label>
+          <div className="border-t border-border pt-4 space-y-4">
+            <Field label="Rubriek" hint="Bepaalt scorekaart, AI-vragen en draftstructuur">
+              <select
+                className={inputCls}
+                value={rubric}
+                onChange={e => setRubric(e.target.value as RubricKey | '')}
+              >
+                <option value="">— Geen rubriek —</option>
+                {RUBRIC_KEYS.map(k => (
+                  <option key={k} value={k}>{RUBRICS[k].label}</option>
+                ))}
+              </select>
+            </Field>
 
-            {isShopReview && (
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div className="space-y-3">
-                  <Field label="Shop naam"><input className={inputCls} value={shopName} onChange={e => setShopName(e.target.value)} /></Field>
-                  <Field label="Stad"><input className={inputCls} value={shopCity} onChange={e => setShopCity(e.target.value)} /></Field>
-                  <Field label="Website (optioneel)"><input className={inputCls} value={shopUrl} onChange={e => setShopUrl(e.target.value)} placeholder="https://…" /></Field>
-                </div>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>Scores</p>
-                  <StarPicker label="Aanbod" value={scAanbod} onChange={setScAanbod} />
-                  <StarPicker label="Kennis & advies" value={scKennis} onChange={setScKennis} />
-                  <StarPicker label="Sfeer" value={scSfeer} onChange={setScSfeer} />
-                  <StarPicker label="Prijs/kwaliteit" value={scPrijs} onChange={setScPrijs} />
-                  <div className="border-t border-border mt-1 pt-1">
-                    <StarPicker label="Algemeen" value={scOverall} onChange={setScOverall} />
-                  </div>
-                </div>
+            {rubric && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                  {RUBRICS[rubric].label}
+                </p>
+                <p className="text-[12px] text-muted-foreground mb-3" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                  {RUBRICS[rubric].description} · {RUBRICS[rubric].wordCount[0]}–{RUBRICS[rubric].wordCount[1]} woorden
+                </p>
+                {RUBRICS[rubric].scores.length === 0 ? (
+                  <p className="text-[12px] text-muted-foreground italic">Deze rubriek heeft geen scores.</p>
+                ) : (
+                  RUBRICS[rubric].scores.map(f => (
+                    <StarPicker
+                      key={f.key}
+                      label={f.label}
+                      value={scores[f.key] ?? 4}
+                      onChange={(n) => setScores(s => ({ ...s, [f.key]: n }))}
+                    />
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -409,7 +436,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <aside className="hidden lg:block sticky top-4 h-[calc(100vh-2rem)]">
             <BlogAssistantPanel
               title={title}
-              flow={isShopReview ? 'biershop' : 'beer'}
+              rubric={rubric || undefined}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
@@ -422,7 +449,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <DrawerContent className="h-[85vh]">
             <BlogAssistantPanel
               title={title}
-              flow={isShopReview ? 'biershop' : 'beer'}
+              rubric={rubric || undefined}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />

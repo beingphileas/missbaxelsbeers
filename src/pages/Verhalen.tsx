@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Notebook, ShoppingBag } from 'lucide-react';
+import * as Lucide from 'lucide-react';
+import { Search, Notebook } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { RUBRICS, RUBRIC_KEYS, type RubricKey } from '@/lib/rubrics';
 
 type Post = {
   id: string;
@@ -17,28 +19,18 @@ type Post = {
   cover_image_url: string | null;
 };
 
-const FILTERS = [
-  { id: 'all', label: 'Alle' },
-  { id: 'belgisch', label: 'Belgisch' },
-  { id: 'sour', label: 'Sour & Lambic' },
-  { id: 'donker', label: 'Donker' },
-  { id: 'speciaal', label: 'Speciaal' },
-  { id: 'biershop', label: 'Biershop', icon: ShoppingBag },
-] as const;
+type Cat = 'all' | RubricKey;
 
-type Cat = typeof FILTERS[number]['id'];
+const FILTERS: { id: Cat; label: string; icon?: string }[] = [
+  { id: 'all', label: 'Alle' },
+  ...RUBRIC_KEYS.map(k => ({ id: k as Cat, label: RUBRICS[k].label, icon: RUBRICS[k].icon })),
+];
 
 const PAGE_SIZE = 12;
 
 function matchesCategory(p: Post, cat: Cat): boolean {
   if (cat === 'all') return true;
-  if (cat === 'biershop') return (p.style_category || '').toLowerCase() === 'biershop';
-  const s = `${p.style || ''} ${p.style_category || ''}`.toLowerCase();
-  if (cat === 'belgisch') return /belg|tripel|dubbel|saison|abdij|trappist/.test(s);
-  if (cat === 'sour') return /sour|lambic|lambiek|gueuze|geuze|kriek|wild|brett/.test(s);
-  if (cat === 'donker') return /stout|porter|donker|dark|bruin|imperial/.test(s);
-  if (cat === 'speciaal') return /speciaal|special|barrel|infused|experiment/.test(s);
-  return true;
+  return (p.style_category || '').toLowerCase() === cat;
 }
 
 const TOP_BG = ['var(--hop-light)', '#FAEEDA', 'var(--copper-light)'];
@@ -115,7 +107,7 @@ export default function Verhalen() {
           >
             {FILTERS.map((f) => {
               const active = cat === f.id;
-              const Icon = (f as any).icon;
+              const Icon = f.icon ? (Lucide as any)[f.icon] : null;
               return (
                 <button
                   key={f.id}

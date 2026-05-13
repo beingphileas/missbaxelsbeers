@@ -9,7 +9,7 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 
 interface Props {
   title: string;
-  flow?: 'beer' | 'biershop';
+  rubric?: string;
   onClose: () => void;
   onDraft: (markdown: string) => void;
 }
@@ -19,7 +19,7 @@ const INTRO: Msg = {
   content: 'Ik help je het verhaal opbouwen. Eerst een paar korte vragen — daarna schrijf ik de eerste versie.',
 };
 
-export default function BlogAssistantPanel({ title, flow = 'beer', onClose, onDraft }: Props) {
+export default function BlogAssistantPanel({ title, rubric, onClose, onDraft }: Props) {
   const [messages, setMessages] = useState<Msg[]>([INTRO]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,7 @@ export default function BlogAssistantPanel({ title, flow = 'beer', onClose, onDr
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('blog-assistant', {
-        body: { mode: 'interview', flow, title, messages: history.filter(m => m !== INTRO) },
+        body: { mode: 'interview', rubric, title, messages: history.filter(m => m !== INTRO) },
       });
       if (error) throw error;
       const text: string = data?.content ?? '';
@@ -67,7 +67,7 @@ export default function BlogAssistantPanel({ title, flow = 'beer', onClose, onDr
     setDrafting(true);
     try {
       const { data, error } = await supabase.functions.invoke('blog-assistant', {
-        body: { mode: 'draft', flow, title, messages: history.filter(m => m !== INTRO) },
+        body: { mode: 'draft', rubric, title, messages: history.filter(m => m !== INTRO) },
       });
       if (error) throw error;
       const draft: string = (data?.content ?? '').trim();
