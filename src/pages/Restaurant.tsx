@@ -180,6 +180,19 @@ export default function Restaurant() {
                 );
               })}
             </div>
+            {r?.google_maps_url && (
+              <p style={{ marginTop: 10, fontSize: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
+                Controleer altijd de actuele uren via{' '}
+                <a
+                  href={r.google_maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--muted)', textDecoration: 'underline' }}
+                >
+                  Google Maps
+                </a>
+              </p>
+            )}
           </div>
 
           {/* Contact */}

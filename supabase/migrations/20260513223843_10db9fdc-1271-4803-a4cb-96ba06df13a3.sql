@@ -1,0 +1,1 @@
+ALTER TABLE public.restaurant ADD COLUMN IF NOT EXISTS hours_updated_at TIMESTAMPTZ;
