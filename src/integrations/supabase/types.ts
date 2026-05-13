@@ -717,6 +717,27 @@ export type Database = {
         }
         Relationships: []
       }
+      system_health: {
+        Row: {
+          key: string
+          last_error: string | null
+          last_run_at: string
+          last_status: string
+        }
+        Insert: {
+          key: string
+          last_error?: string | null
+          last_run_at?: string
+          last_status?: string
+        }
+        Update: {
+          key?: string
+          last_error?: string | null
+          last_run_at?: string
+          last_status?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
