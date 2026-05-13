@@ -30,7 +30,7 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 }
 
 export const inputCls =
-  'w-full px-3 py-2 text-[13px] bg-card border border-border rounded-[8px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary';
+  'w-full px-3 py-2 text-base sm:text-[13px] bg-card border border-border rounded-[8px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary';
 
 export const btnPrimary =
   'inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold bg-primary text-primary-foreground rounded-full hover:bg-primary/90 disabled:opacity-50';

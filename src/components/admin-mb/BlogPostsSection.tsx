@@ -270,15 +270,15 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   }
 
   return (
-    <div>
+    <div className="pb-24 md:pb-0">
       <AdminHeader title={initial ? `Bewerken: ${initial.title}` : 'Nieuwe blogpost'} right={
-        <div className="flex gap-2">
+        <div className="hidden md:flex gap-2">
           <button onClick={onClose} className={btnGhost}><ArrowLeft size={12} /> Terug</button>
           <button onClick={save} disabled={saving} className={btnPrimary}><Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
         </div>
       } />
       <AdminCard className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Titel"><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} /></Field>
           <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
           <Field label="Datum"><input type="date" className={inputCls} value={date} onChange={e => setDate(e.target.value)} /></Field>
@@ -298,6 +298,12 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
         <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
         <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
       </AdminCard>
+
+      {/* Mobile sticky save bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2">
+        <button onClick={onClose} className={`${btnGhost} flex-1 justify-center py-3`}><ArrowLeft size={14} /> Terug</button>
+        <button onClick={save} disabled={saving} className={`${btnPrimary} flex-1 justify-center py-3`}><Save size={14} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
+      </div>
     </div>
   );
 }

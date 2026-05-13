@@ -100,13 +100,13 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
+    <div className="min-h-[calc(100vh-4rem)] bg-background pb-24 md:pb-0">
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={onClose} className="gap-1.5">
             <ArrowLeft size={16} /> Terug
           </Button>
-          <Button onClick={handleSave} disabled={saving} className="gap-1.5">
+          <Button onClick={handleSave} disabled={saving} className="hidden md:inline-flex gap-1.5">
             <Save size={14} /> Opslaan
           </Button>
         </div>
@@ -126,7 +126,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
               )
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Stijl</Label>
               <Input value={style} onChange={e => setStyle(e.target.value)} placeholder="Saison" />
@@ -152,7 +152,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
             <Label>Foodpairing</Label>
             <Input value={foodPairing} onChange={e => setFoodPairing(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Werking / herkomst</Label>
               <Select value={source} onValueChange={(v: any) => setSource(v)}>
@@ -176,7 +176,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
               <p className="text-xs text-muted-foreground mt-1">Enkel tonen indien nog te koop. Anders leeglaten.</p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:items-center">
             <div>
               <Label>Status</Label>
               <Select value={lifecycleStatus} onValueChange={(v: any) => setLifecycleStatus(v)}>
@@ -197,6 +197,13 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile sticky save bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3">
+        <Button onClick={handleSave} disabled={saving} className="w-full gap-1.5 h-12 text-base">
+          <Save size={16} /> {saving ? 'Opslaan…' : 'Opslaan'}
+        </Button>
       </div>
     </div>
   );
