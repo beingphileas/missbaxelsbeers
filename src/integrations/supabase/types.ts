@@ -63,6 +63,8 @@ export type Database = {
           created_at: string
           cross_ref_notes: string | null
           description: string | null
+          fact_checked_at: string | null
+          fact_checked_by: string | null
           factcheck_json: Json | null
           featured: boolean
           flavor_profile: string[] | null
@@ -118,6 +120,8 @@ export type Database = {
           created_at?: string
           cross_ref_notes?: string | null
           description?: string | null
+          fact_checked_at?: string | null
+          fact_checked_by?: string | null
           factcheck_json?: Json | null
           featured?: boolean
           flavor_profile?: string[] | null
@@ -173,6 +177,8 @@ export type Database = {
           created_at?: string
           cross_ref_notes?: string | null
           description?: string | null
+          fact_checked_at?: string | null
+          fact_checked_by?: string | null
           factcheck_json?: Json | null
           featured?: boolean
           flavor_profile?: string[] | null
@@ -853,6 +859,7 @@ export type Database = {
           similarity: number
         }[]
       }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

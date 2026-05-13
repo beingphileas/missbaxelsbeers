@@ -29,6 +29,8 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
   const [breweryId, setBreweryId] = useState<string>('');
   const [shopUrl, setShopUrl] = useState('');
   const [source, setSource] = useState<'missbaxel' | 'bierstekers' | 'beide'>('missbaxel');
+  const [factCheckedAt, setFactCheckedAt] = useState<string | null>(null);
+  const [factCheckedByEmail, setFactCheckedByEmail] = useState<string | null>(null);
 
   useEffect(() => {
     // Default brewery: MissBaxel's
@@ -52,6 +54,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
         setBreweryId(data.brewery_id);
         setShopUrl((data as any).shop_url ?? '');
         setSource(((data as any).source ?? 'missbaxel') as any);
+        const fcAt = (data as any).fact_checked_at ?? null;
+        const fcBy = (data as any).fact_checked_by ?? null;
+        setFactCheckedAt(fcAt);
+        if (fcBy) {
+          supabase.rpc('get_user_email' as any, { _user_id: fcBy }).then(({ data: email }) => {
+            setFactCheckedByEmail((email as string | null) ?? null);
+          });
+        } else {
+          setFactCheckedByEmail(null);
+        }
       });
     }
   }, [beerId]);
@@ -103,6 +115,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
           <div>
             <Label>Naam</Label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Totetrekkerie" />
+            {beerId && (
+              factCheckedAt ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Fact-checked op {new Date(factCheckedAt).toLocaleDateString('nl-BE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  {factCheckedByEmail ? ` door ${factCheckedByEmail}` : ''}
+                </p>
+              ) : (
+                <p className="mt-1.5 text-xs text-amber-600">Nog niet fact-checked</p>
+              )
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
