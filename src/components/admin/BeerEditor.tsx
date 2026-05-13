@@ -100,13 +100,13 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
+    <div className="min-h-[calc(100vh-4rem)] bg-background pb-24 md:pb-0">
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={onClose} className="gap-1.5">
             <ArrowLeft size={16} /> Terug
           </Button>
-          <Button onClick={handleSave} disabled={saving} className="gap-1.5">
+          <Button onClick={handleSave} disabled={saving} className="hidden md:inline-flex gap-1.5">
             <Save size={14} /> Opslaan
           </Button>
         </div>
