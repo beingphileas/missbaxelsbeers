@@ -97,7 +97,60 @@ export default function BlogPost() {
   if (notFound) return <Navigate to="/verhalen" replace />;
   if (!post) return null;
 
-  const isLongForm = !post.external_url && (post.content?.length ?? 0) > 500;
+  const isLongForm = !post.external_url && ((post.content?.length ?? 0) > 500 || !!shopReview);
+
+  const ShopScoreCard = shopReview ? (
+    <div
+      className="my-10 rounded-2xl p-5 sm:p-6"
+      style={{ background: 'var(--hop-light)', border: '1px solid var(--hop-mid, var(--line))' }}
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <Store size={18} style={{ color: 'var(--hop-dark)' }} />
+        <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 800, fontSize: 20, color: 'var(--ink)', letterSpacing: '-0.01em' }}>
+          {shopReview.shop_name}
+          <span style={{ color: 'var(--muted)', fontWeight: 500 }}> · {shopReview.shop_city}</span>
+        </h3>
+      </div>
+      <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
+        {[
+          { label: 'Aanbod', value: shopReview.score_aanbod },
+          { label: 'Kennis', value: shopReview.score_kennis },
+          { label: 'Sfeer', value: shopReview.score_sfeer },
+          { label: 'Prijs/kw.', value: shopReview.score_prijs },
+        ].map(r => (
+          <div key={r.label} className="flex items-center justify-between py-1.5">
+            <span style={{ color: 'var(--muted)' }}>{r.label}</span>
+            <span className="flex items-center gap-2">
+              <span style={{ color: 'var(--hop)', letterSpacing: 1 }}>
+                {'★'.repeat(r.value)}<span style={{ color: 'var(--line)' }}>{'★'.repeat(5 - r.value)}</span>
+              </span>
+              <span style={{ color: 'var(--muted)', fontVariantNumeric: 'tabular-nums', minWidth: 32, textAlign: 'right' }}>{r.value}/5</span>
+            </span>
+          </div>
+        ))}
+        <div className="border-t mt-2 pt-2.5 flex items-center justify-between" style={{ borderColor: 'var(--hop-mid, var(--line))' }}>
+          <span style={{ fontWeight: 700, color: 'var(--ink)' }}>Algemeen</span>
+          <span className="flex items-center gap-2">
+            <span style={{ color: 'var(--hop)', letterSpacing: 1 }}>
+              {'★'.repeat(shopReview.score_overall)}<span style={{ color: 'var(--line)' }}>{'★'.repeat(5 - shopReview.score_overall)}</span>
+            </span>
+            <span style={{ fontWeight: 700, color: 'var(--ink)', fontVariantNumeric: 'tabular-nums', minWidth: 32, textAlign: 'right' }}>{shopReview.score_overall}/5</span>
+          </span>
+        </div>
+        {shopReview.shop_url && (
+          <a
+            href={shopReview.shop_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-4 no-underline"
+            style={{ color: 'var(--hop-dark)', fontWeight: 600, fontSize: 13 }}
+          >
+            Bekijk website <ExternalLink size={12} />
+          </a>
+        )}
+      </div>
+    </div>
+  ) : null;
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
