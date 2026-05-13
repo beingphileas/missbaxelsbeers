@@ -115,6 +115,16 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
           <div>
             <Label>Naam</Label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Totetrekkerie" />
+            {beerId && (
+              factCheckedAt ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Fact-checked op {new Date(factCheckedAt).toLocaleDateString('nl-BE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  {factCheckedByEmail ? ` door ${factCheckedByEmail}` : ''}
+                </p>
+              ) : (
+                <p className="mt-1.5 text-xs text-amber-600">Nog niet fact-checked</p>
+              )
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
