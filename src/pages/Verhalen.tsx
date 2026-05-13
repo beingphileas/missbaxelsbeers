@@ -107,7 +107,7 @@ export default function Verhalen() {
           >
             {FILTERS.map((f) => {
               const active = cat === f.id;
-              const Icon = (f as any).icon;
+              const Icon = f.icon ? (Lucide as any)[f.icon] : null;
               return (
                 <button
                   key={f.id}
