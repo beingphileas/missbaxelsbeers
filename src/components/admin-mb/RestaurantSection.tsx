@@ -110,6 +110,17 @@ export default function RestaurantSection() {
         <div className="space-y-5">
           <AdminCard>
             <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Openingsuren</h3>
+
+            {(() => {
+              const stale = !row.hours_updated_at ||
+                (Date.now() - new Date(row.hours_updated_at).getTime() > STALE_MS);
+              return stale ? (
+                <div className="mb-3 px-3 py-2 rounded-[8px] bg-red-50 border border-red-300 text-red-800 text-[12px] leading-snug">
+                  ⚠️ Openingsuren mogelijk verouderd — controleer en sla opnieuw op.
+                </div>
+              ) : null;
+            })()}
+
             <div className="space-y-2">
               {DAYS.map(d => (
                 <div key={d.k} className="flex items-center gap-2">
@@ -122,6 +133,21 @@ export default function RestaurantSection() {
                   />
                 </div>
               ))}
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-border">
+              <span className="text-[11px] text-muted-foreground">
+                {row.hours_updated_at
+                  ? `Openingsuren laatst bijgewerkt op ${new Date(row.hours_updated_at).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                  : 'Openingsuren nog niet bevestigd'}
+              </span>
+              <button
+                onClick={() => update('hours_updated_at', new Date().toISOString())}
+                className={btnGhost + ' text-[11px]'}
+                title="Markeer openingsuren als gecontroleerd (vergeet niet op te slaan)"
+              >
+                Markeer als bijgewerkt
+              </button>
             </div>
           </AdminCard>
 
