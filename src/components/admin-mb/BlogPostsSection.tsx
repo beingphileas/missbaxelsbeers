@@ -245,6 +245,10 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [content, setContent] = useState(initial?.content || '');
   const [externalUrl, setExternalUrl] = useState(initial?.external_url || '');
   const [emoji, setEmoji] = useState(initial?.image_emoji || '');
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('');
+  const [abv, setAbv] = useState<string>('');
+  const [shopCity, setShopCity] = useState<string>('');
+  const [shopUrl, setShopUrl] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
@@ -253,6 +257,13 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const initialRubric = isRubricKey(initial?.style_category) ? (initial!.style_category as RubricKey) : null;
   const [rubric, setRubric] = useState<RubricKey | ''>(initialRubric || '');
   const [scores, setScores] = useState<Record<string, number>>({});
+
+  // Enrichment state
+  const [enrichLoading, setEnrichLoading] = useState(false);
+  const [enrichResult, setEnrichResult] = useState<{ fields: Record<string, { value: any; source: string }>; missing: string[] } | null>(null);
+  const [enrichBannerDismissed, setEnrichBannerDismissed] = useState(false);
+  const [enrichSources, setEnrichSources] = useState<Record<string, string>>({});
+  const enrichTimer = useRef<number | null>(null);
 
   // Auto-init scores when rubric changes (defaults to 4 if missing)
   useEffect(() => {
@@ -286,12 +297,88 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
         const d: any = data;
         if (isRubricKey(d.rubric)) {
           setRubric(d.rubric);
-          // override defaults with stored values
-          setScores(d.scores || {});
+          const s = d.scores || {};
+          setScores(s);
+          if (s._external) setEnrichResult({ fields: s._external, missing: [] });
         }
       }
+      const { data: bp } = await supabase.from('blog_posts').select('cover_image_url').eq('id', initial.id).maybeSingle();
+      if (bp?.cover_image_url) setCoverImageUrl(bp.cover_image_url);
     })();
   }, [initial]);
+
+  // Debounced enrichment
+  useEffect(() => {
+    if (!rubric) return;
+    const def = RUBRICS[rubric];
+    if (!def.enrichment) return;
+    const trig = def.enrichment.trigger;
+    const ready =
+      (trig === 'beer_name + brewery_name' && title.trim() && brewery.trim()) ||
+      (trig === 'beer_name' && title.trim()) ||
+      (trig === 'beer_name or brewery_name' && (title.trim() || brewery.trim())) ||
+      (trig === 'brewery_name' && brewery.trim()) ||
+      (trig === 'location_name' && title.trim()) ||
+      (trig === 'shop_name + shop_city' && title.trim() && shopCity.trim());
+    if (!ready) return;
+    if (enrichTimer.current) window.clearTimeout(enrichTimer.current);
+    enrichTimer.current = window.setTimeout(async () => {
+      setEnrichLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('enrich-post-context', {
+          body: {
+            rubric,
+            query: {
+              beer_name: ['proefnotitie', 'hidden_gem', 'bier_en_eten', 'missbaxel_bier'].includes(rubric) ? title : undefined,
+              brewery_name: brewery || undefined,
+              shop_name: rubric === 'bioshop' ? title : undefined,
+              shop_city: shopCity || undefined,
+              location_name: rubric === 'biertrip' ? title : undefined,
+            },
+          },
+        });
+        if (error) throw error;
+        setEnrichResult(data);
+        const f = data?.fields || {};
+        const sources: Record<string, string> = {};
+        const apply = (key: string, setter: (v: string) => void, current: string) => {
+          if (!current && f[key]?.value != null) {
+            setter(String(f[key].value));
+            sources[key] = f[key].source;
+          }
+        };
+        for (const key of def.enrichment!.prefill) {
+          if (key === 'style') apply('style', setStyle, style);
+          if (key === 'abv') apply('abv', setAbv, abv);
+          if (key === 'brewery_name') apply('brewery_name', setBrewery, brewery);
+          if (key === 'cover_image_url') apply('cover_image_url', setCoverImageUrl, coverImageUrl);
+          if (key === 'shop_city') apply('shop_city', setShopCity, shopCity);
+          if (key === 'shop_url') apply('shop_url', setShopUrl, shopUrl);
+          if (key === 'website_url') apply('website_url', setExternalUrl, externalUrl);
+        }
+        setEnrichSources(prev => ({ ...prev, ...sources }));
+      } catch (e: any) {
+        console.error('enrich error', e);
+      } finally {
+        setEnrichLoading(false);
+      }
+    }, 800);
+    return () => { if (enrichTimer.current) window.clearTimeout(enrichTimer.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rubric, title, brewery, shopCity]);
+
+  const SourceBadge = ({ field, onReject }: { field: string; onReject: () => void }) =>
+    enrichSources[field] ? (
+      <span className="inline-flex items-center gap-1 ml-2 text-[10px] text-muted-foreground bg-muted/60 rounded px-1.5 py-0.5">
+        via {enrichSources[field]}
+        <button type="button" onClick={onReject} className="hover:text-foreground" aria-label="Verwerp">×</button>
+      </span>
+    ) : null;
+
+  const rejectField = (key: string, setter: (v: string) => void) => {
+    setter('');
+    setEnrichSources(s => { const n = { ...s }; delete n[key]; return n; });
+  };
 
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
