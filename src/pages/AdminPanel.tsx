@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Download, Wine, ShieldCheck } from 'lucide-react';
+import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Download, Wine, ShieldCheck, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BeersSection from '@/components/admin-mb/BeersSection';
@@ -10,6 +10,7 @@ import RestaurantSection from '@/components/admin-mb/RestaurantSection';
 import FirecrawlImport from '@/components/admin/FirecrawlImport';
 import QuickTasting from '@/components/admin/QuickTasting';
 import BulkFactCheck from '@/components/admin/BulkFactCheck';
+import QuickStorySheet from '@/components/QuickStorySheet';
 
 type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'import' | 'tasting' | 'factcheck';
 
