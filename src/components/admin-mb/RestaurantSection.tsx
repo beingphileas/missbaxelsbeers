@@ -46,7 +46,7 @@ export default function RestaurantSection() {
       setRow((data as any) || {
         id: 1, name: "Bij Koen & Marijke in 't Nieuw Museum", address: '', city: 'Brugge',
         phone: '', email: '', reservation_url: '', opening_hours: {}, description: '', story: '',
-        instagram_url: '', facebook_url: '', google_maps_url: '',
+        instagram_url: '', facebook_url: '', google_maps_url: '', hours_updated_at: null,
       });
       setLoading(false);
     });
