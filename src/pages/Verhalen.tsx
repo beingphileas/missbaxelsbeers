@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Notebook } from 'lucide-react';
+import { Search, Notebook, ShoppingBag } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,6 +23,7 @@ const FILTERS = [
   { id: 'sour', label: 'Sour & Lambic' },
   { id: 'donker', label: 'Donker' },
   { id: 'speciaal', label: 'Speciaal' },
+  { id: 'biershop', label: 'Biershop', icon: ShoppingBag },
 ] as const;
 
 type Cat = typeof FILTERS[number]['id'];
@@ -31,6 +32,7 @@ const PAGE_SIZE = 12;
 
 function matchesCategory(p: Post, cat: Cat): boolean {
   if (cat === 'all') return true;
+  if (cat === 'biershop') return (p.style_category || '').toLowerCase() === 'biershop';
   const s = `${p.style || ''} ${p.style_category || ''}`.toLowerCase();
   if (cat === 'belgisch') return /belg|tripel|dubbel|saison|abdij|trappist/.test(s);
   if (cat === 'sour') return /sour|lambic|lambiek|gueuze|geuze|kriek|wild|brett/.test(s);
