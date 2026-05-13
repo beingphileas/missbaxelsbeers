@@ -161,6 +161,7 @@ export default function BlogPostsSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Blogposts" subtitle={`${rows.length} posts`} right={
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => e.target.files?.[0] && importCsv(e.target.files[0])} />
