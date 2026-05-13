@@ -11,6 +11,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-whispere
 
 export default function WhisperFAB() {
   const [open, setOpen] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
