@@ -68,6 +68,7 @@ export default function RestaurantSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Restaurant" subtitle="Bij Koen & Marijke" right={
         <div className="flex gap-2">
           <button onClick={scrape} disabled={scraping} className={btnGhost}>
