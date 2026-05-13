@@ -283,34 +283,69 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       <AdminHeader title={initial ? `Bewerken: ${initial.title}` : 'Nieuwe blogpost'} right={
         <div className="hidden md:flex gap-2">
           <button onClick={onClose} className={btnGhost}><ArrowLeft size={12} /> Terug</button>
+          <button
+            onClick={() => setAssistantOpen(o => !o)}
+            className={`${assistantOpen ? btnPrimary : btnGhost} relative`}
+            title="AI stelt vragen en schrijft een eerste versie"
+          >
+            <Sparkles size={12} /> Assistent
+            {!assistantOpen && (
+              <span className="absolute -top-1 -right-1 text-[9px] bg-amber-500 text-white px-1 rounded-full">AI</span>
+            )}
+          </button>
           <button onClick={save} disabled={saving} className={btnPrimary}><Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
         </div>
       } />
-      <AdminCard className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Titel"><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} /></Field>
-          <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
-          <Field label="Datum"><input type="date" className={inputCls} value={date} onChange={e => setDate(e.target.value)} /></Field>
-          <Field label="Brouwerij (naam)"><input className={inputCls} value={brewery} onChange={e => setBrewery(e.target.value)} /></Field>
-          <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
-          <Field label="Stijl-categorie">
-            <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
-              <option value="">—</option>
-              {['tripel','saison','donker','zuur','wit','speciaal'].map(c => <option key={c}>{c}</option>)}
-            </select>
-          </Field>
-          <Field label="Externe URL" hint="Link naar originele post op missbaxelsbeers.com">
-            <input className={inputCls} value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://missbaxelsbeers.com/…" />
-          </Field>
-          <Field label="Emoji (fallback)"><input className={inputCls} value={emoji} onChange={e => setEmoji(e.target.value)} placeholder="🍺" /></Field>
-        </div>
-        <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
-        <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
-      </AdminCard>
+      <div className={assistantOpen && isDesktop ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-4' : ''}>
+        <AdminCard className="space-y-4 min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Titel"><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} /></Field>
+            <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
+            <Field label="Datum"><input type="date" className={inputCls} value={date} onChange={e => setDate(e.target.value)} /></Field>
+            <Field label="Brouwerij (naam)"><input className={inputCls} value={brewery} onChange={e => setBrewery(e.target.value)} /></Field>
+            <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
+            <Field label="Stijl-categorie">
+              <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
+                <option value="">—</option>
+                {['tripel','saison','donker','zuur','wit','speciaal'].map(c => <option key={c}>{c}</option>)}
+              </select>
+            </Field>
+            <Field label="Externe URL" hint="Link naar originele post op missbaxelsbeers.com">
+              <input className={inputCls} value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://missbaxelsbeers.com/…" />
+            </Field>
+            <Field label="Emoji (fallback)"><input className={inputCls} value={emoji} onChange={e => setEmoji(e.target.value)} placeholder="🍺" /></Field>
+          </div>
+          <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
+          <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
+        </AdminCard>
+
+        {assistantOpen && isDesktop && (
+          <aside className="hidden lg:block sticky top-4 h-[calc(100vh-2rem)]">
+            <BlogAssistantPanel
+              title={title}
+              onClose={() => setAssistantOpen(false)}
+              onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
+            />
+          </aside>
+        )}
+      </div>
+
+      {assistantOpen && !isDesktop && (
+        <Drawer open={assistantOpen} onOpenChange={setAssistantOpen}>
+          <DrawerContent className="h-[85vh]">
+            <BlogAssistantPanel
+              title={title}
+              onClose={() => setAssistantOpen(false)}
+              onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
+            />
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {/* Mobile sticky save bar */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2">
         <button onClick={onClose} className={`${btnGhost} flex-1 justify-center py-3`}><ArrowLeft size={14} /> Terug</button>
+        <button onClick={() => setAssistantOpen(true)} className={`${btnGhost} flex-1 justify-center py-3`}><Sparkles size={14} /> Assistent</button>
         <button onClick={save} disabled={saving} className={`${btnPrimary} flex-1 justify-center py-3`}><Save size={14} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
       </div>
     </div>
