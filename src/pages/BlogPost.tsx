@@ -2,9 +2,20 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Store, ExternalLink } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+
+type ShopReview = {
+  shop_name: string;
+  shop_city: string;
+  shop_url: string | null;
+  score_aanbod: number;
+  score_kennis: number;
+  score_sfeer: number;
+  score_prijs: number;
+  score_overall: number;
+};
 
 type Post = {
   id: string;
