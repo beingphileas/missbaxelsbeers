@@ -376,6 +376,33 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           </div>
           <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
           <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
+
+          <div className="border-t border-border pt-4">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked={isShopReview} onChange={e => setIsShopReview(e.target.checked)} className="h-4 w-4" />
+              <span className="text-[13px] font-medium">🏪 Dit is een biershop-review</span>
+            </label>
+
+            {isShopReview && (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <Field label="Shop naam"><input className={inputCls} value={shopName} onChange={e => setShopName(e.target.value)} /></Field>
+                  <Field label="Stad"><input className={inputCls} value={shopCity} onChange={e => setShopCity(e.target.value)} /></Field>
+                  <Field label="Website (optioneel)"><input className={inputCls} value={shopUrl} onChange={e => setShopUrl(e.target.value)} placeholder="https://…" /></Field>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/30 p-3">
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>Scores</p>
+                  <StarPicker label="Aanbod" value={scAanbod} onChange={setScAanbod} />
+                  <StarPicker label="Kennis & advies" value={scKennis} onChange={setScKennis} />
+                  <StarPicker label="Sfeer" value={scSfeer} onChange={setScSfeer} />
+                  <StarPicker label="Prijs/kwaliteit" value={scPrijs} onChange={setScPrijs} />
+                  <div className="border-t border-border mt-1 pt-1">
+                    <StarPicker label="Algemeen" value={scOverall} onChange={setScOverall} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </AdminCard>
 
         {assistantOpen && isDesktop && (
