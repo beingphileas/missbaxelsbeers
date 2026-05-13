@@ -129,17 +129,29 @@ export default function WhisperFAB() {
     <>
       <AnimatePresence>
         {!open && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent text-accent-foreground shadow-[0_4px_20px_rgba(218,165,32,0.4)] hover:shadow-[0_6px_28px_rgba(218,165,32,0.55)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
-            aria-label={t('Stel een biervraag')}
+            className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
           >
-            <Sparkles size={22} />
-          </motion.button>
+            <button
+              onClick={() => setStoryOpen(true)}
+              className="w-12 h-12 rounded-full bg-charcoal/90 text-white border border-white/15 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+              aria-label={t('Snel verhaal')}
+              title={t('Snel verhaal')}
+            >
+              <PenLine size={18} />
+            </button>
+            <button
+              onClick={() => setOpen(true)}
+              className="w-14 h-14 rounded-full bg-accent text-accent-foreground shadow-[0_4px_20px_rgba(218,165,32,0.4)] hover:shadow-[0_6px_28px_rgba(218,165,32,0.55)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+              aria-label={t('Stel een biervraag')}
+            >
+              <Sparkles size={22} />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 
