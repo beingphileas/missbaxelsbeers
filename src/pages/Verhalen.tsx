@@ -115,11 +115,12 @@ export default function Verhalen() {
           >
             {FILTERS.map((f) => {
               const active = cat === f.id;
+              const Icon = (f as any).icon;
               return (
                 <button
                   key={f.id}
                   onClick={() => setCat(f.id)}
-                  className="px-3.5 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors"
+                  className="px-3.5 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors inline-flex items-center gap-1.5"
                   style={{
                     fontFamily: 'DM Sans, sans-serif',
                     background: active ? 'var(--hop-light)' : 'transparent',
@@ -127,6 +128,7 @@ export default function Verhalen() {
                     border: '1px solid ' + (active ? 'var(--hop-mid)' : 'var(--line)'),
                   }}
                 >
+                  {Icon && <Icon size={12} />}
                   {f.label}
                 </button>
               );
