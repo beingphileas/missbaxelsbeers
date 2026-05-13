@@ -176,7 +176,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
               <p className="text-xs text-muted-foreground mt-1">Enkel tonen indien nog te koop. Anders leeglaten.</p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:items-center">
             <div>
               <Label>Status</Label>
               <Select value={lifecycleStatus} onValueChange={(v: any) => setLifecycleStatus(v)}>
