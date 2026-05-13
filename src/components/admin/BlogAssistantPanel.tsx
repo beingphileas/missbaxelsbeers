@@ -9,7 +9,7 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 
 interface Props {
   title: string;
-  flow?: 'beer' | 'biershop';
+  rubric?: string;
   onClose: () => void;
   onDraft: (markdown: string) => void;
 }
@@ -19,7 +19,7 @@ const INTRO: Msg = {
   content: 'Ik help je het verhaal opbouwen. Eerst een paar korte vragen — daarna schrijf ik de eerste versie.',
 };
 
-export default function BlogAssistantPanel({ title, flow = 'beer', onClose, onDraft }: Props) {
+export default function BlogAssistantPanel({ title, rubric, onClose, onDraft }: Props) {
   const [messages, setMessages] = useState<Msg[]>([INTRO]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
