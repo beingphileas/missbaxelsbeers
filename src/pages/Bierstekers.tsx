@@ -118,6 +118,8 @@ export default function Bierstekers() {
         </div>
       </section>
 
+      <BierstekersPauseBanner />
+
       {/* SECTION 2 — HET VERHAAL */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10">
