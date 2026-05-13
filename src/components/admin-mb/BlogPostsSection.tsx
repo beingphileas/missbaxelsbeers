@@ -247,6 +247,18 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [saving, setSaving] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
+  // Biershop review state
+  const [isShopReview, setIsShopReview] = useState(false);
+  const [shopName, setShopName] = useState('');
+  const [shopCity, setShopCity] = useState('');
+  const [shopUrl, setShopUrl] = useState('');
+  const [scAanbod, setScAanbod] = useState(4);
+  const [scKennis, setScKennis] = useState(4);
+  const [scSfeer, setScSfeer] = useState(4);
+  const [scPrijs, setScPrijs] = useState(4);
+  const [scOverall, setScOverall] = useState(4);
+
   useEffect(() => {
     const onR = () => setIsDesktop(window.innerWidth >= 1024);
     window.addEventListener('resize', onR);
@@ -255,28 +267,75 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
+  // Load existing shop review when editing
+  useEffect(() => {
+    if (!initial) return;
+    (async () => {
+      const { data } = await supabase.from('shop_reviews' as any).select('*').eq('blog_post_id', initial.id).maybeSingle();
+      if (data) {
+        const d: any = data;
+        setIsShopReview(true);
+        setShopName(d.shop_name || ''); setShopCity(d.shop_city || ''); setShopUrl(d.shop_url || '');
+        setScAanbod(d.score_aanbod); setScKennis(d.score_kennis);
+        setScSfeer(d.score_sfeer); setScPrijs(d.score_prijs); setScOverall(d.score_overall);
+      }
+    })();
+  }, [initial]);
+
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
+    if (isShopReview && (!shopName.trim() || !shopCity.trim())) return toast.error('Shop naam en stad zijn verplicht voor een biershop-review');
     setSaving(true);
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
-      date: date || null, style: style.trim() || null, style_category: styleCat || null,
+      date: date || null, style: style.trim() || null,
+      style_category: isShopReview ? 'biershop' : (styleCat || null),
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
       status: 'published',
     };
+    let postId = initial?.id;
     if (initial) {
       const { error } = await supabase.from('blog_posts').update(payload).eq('id', initial.id);
       if (error) { setSaving(false); return toast.error(error.message); }
     } else {
-      const { error } = await supabase.from('blog_posts').insert(payload);
-      if (error) { setSaving(false); return toast.error(error.message); }
+      const { data, error } = await supabase.from('blog_posts').insert(payload).select('id').single();
+      if (error || !data) { setSaving(false); return toast.error(error?.message || 'Kan post niet aanmaken'); }
+      postId = data.id;
+    }
+    if (isShopReview && postId) {
+      const reviewPayload: any = {
+        blog_post_id: postId,
+        shop_name: shopName.trim(), shop_city: shopCity.trim(), shop_url: shopUrl.trim() || null,
+        score_aanbod: scAanbod, score_kennis: scKennis, score_sfeer: scSfeer,
+        score_prijs: scPrijs, score_overall: scOverall,
+      };
+      const { error: rErr } = await supabase.from('shop_reviews' as any).upsert(reviewPayload, { onConflict: 'blog_post_id' });
+      if (rErr) { setSaving(false); return toast.error('Review opslaan mislukt: ' + rErr.message); }
+    } else if (!isShopReview && postId) {
+      // Cleanup if toggle was disabled
+      await supabase.from('shop_reviews' as any).delete().eq('blog_post_id', postId);
     }
     setSaving(false);
     toast.success(initial ? 'Opgeslagen' : 'Aangemaakt');
     onSaved();
   }
+
+  const StarPicker = ({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) => (
+    <div className="flex items-center justify-between gap-3 py-1.5">
+      <span className="text-[12px] text-muted-foreground" style={{ fontFamily: 'DM Sans, sans-serif' }}>{label}</span>
+      <div className="flex gap-0.5">
+        {[1,2,3,4,5].map(n => (
+          <button type="button" key={n} onClick={() => onChange(n)}
+            className="text-lg leading-none transition-colors"
+            style={{ color: n <= value ? 'var(--hop)' : 'var(--line)' }}
+            aria-label={`${label} ${n}`}>★</button>
+        ))}
+        <span className="ml-2 text-[11px] text-muted-foreground tabular-nums w-8 text-right">{value}/5</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="pb-24 md:pb-0">
@@ -317,12 +376,40 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           </div>
           <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
           <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
+
+          <div className="border-t border-border pt-4">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked={isShopReview} onChange={e => setIsShopReview(e.target.checked)} className="h-4 w-4" />
+              <span className="text-[13px] font-medium">🏪 Dit is een biershop-review</span>
+            </label>
+
+            {isShopReview && (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <Field label="Shop naam"><input className={inputCls} value={shopName} onChange={e => setShopName(e.target.value)} /></Field>
+                  <Field label="Stad"><input className={inputCls} value={shopCity} onChange={e => setShopCity(e.target.value)} /></Field>
+                  <Field label="Website (optioneel)"><input className={inputCls} value={shopUrl} onChange={e => setShopUrl(e.target.value)} placeholder="https://…" /></Field>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/30 p-3">
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>Scores</p>
+                  <StarPicker label="Aanbod" value={scAanbod} onChange={setScAanbod} />
+                  <StarPicker label="Kennis & advies" value={scKennis} onChange={setScKennis} />
+                  <StarPicker label="Sfeer" value={scSfeer} onChange={setScSfeer} />
+                  <StarPicker label="Prijs/kwaliteit" value={scPrijs} onChange={setScPrijs} />
+                  <div className="border-t border-border mt-1 pt-1">
+                    <StarPicker label="Algemeen" value={scOverall} onChange={setScOverall} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </AdminCard>
 
         {assistantOpen && isDesktop && (
           <aside className="hidden lg:block sticky top-4 h-[calc(100vh-2rem)]">
             <BlogAssistantPanel
               title={title}
+              flow={isShopReview ? 'biershop' : 'beer'}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
@@ -335,6 +422,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <DrawerContent className="h-[85vh]">
             <BlogAssistantPanel
               title={title}
+              flow={isShopReview ? 'biershop' : 'beer'}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
