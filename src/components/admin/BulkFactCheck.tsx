@@ -35,7 +35,26 @@ export default function BulkFactCheck() {
   const [total, setTotal] = useState(0);
   const [currentBeer, setCurrentBeer] = useState('');
   const [errors, setErrors] = useState(0);
-  const [results, setResults] = useState<{ name: string; score: number | null; ok: boolean }[]>([]);
+  const [results, setResults] = useState<{ id: string; name: string; score: number | null; ok: boolean; approved?: boolean }[]>([]);
+
+  const approve = async (beerId: string, idx: number) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const uid = userData.user?.id;
+    if (!uid) {
+      toast({ title: 'Niet ingelogd', variant: 'destructive' });
+      return;
+    }
+    const { error } = await supabase
+      .from('beers')
+      .update({ fact_checked_by: uid, fact_checked_at: new Date().toISOString() })
+      .eq('id', beerId);
+    if (error) {
+      toast({ title: 'Kon niet goedkeuren', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setResults(prev => prev.map((r, i) => i === idx ? { ...r, approved: true } : r));
+    toast({ title: 'Goedgekeurd ✓' });
+  };
 
   const fetchBeers = async () => {
     setLoading(true);
