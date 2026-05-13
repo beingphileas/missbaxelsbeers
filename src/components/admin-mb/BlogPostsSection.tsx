@@ -558,6 +558,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
             <BlogAssistantPanel
               title={title}
               rubric={rubric || undefined}
+              enrichment={enrichResult?.fields}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
