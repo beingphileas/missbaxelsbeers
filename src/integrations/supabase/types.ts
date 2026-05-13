@@ -677,6 +677,7 @@ export type Database = {
           email: string | null
           facebook_url: string | null
           google_maps_url: string | null
+          hours_updated_at: string | null
           id: number
           instagram_url: string | null
           name: string | null
@@ -692,6 +693,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          hours_updated_at?: string | null
           id?: number
           instagram_url?: string | null
           name?: string | null
@@ -707,6 +709,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          hours_updated_at?: string | null
           id?: number
           instagram_url?: string | null
           name?: string | null
