@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Send } from 'lucide-react';
+import { ArrowLeft, Save, Send, Sparkles } from 'lucide-react';
 import ImageUpload, { uploadInlineImage } from './ImageUpload';
+import BlogAssistantPanel from './BlogAssistantPanel';
 
 interface BlogEditorProps {
   postId: string | null;
@@ -27,6 +29,14 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [selectedBeerIds, setSelectedBeerIds] = useState<string[]>([]);
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('draft');
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Load post if editing
   useEffect(() => {
@@ -137,15 +147,32 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     setSaving(false);
   };
 
+  const insertDraft = (markdown: string) => {
+    setContent(markdown);
+  };
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div
+        className={`mx-auto px-4 py-6 ${
+          assistantOpen ? 'max-w-[1400px] lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6' : 'max-w-4xl'
+        }`}
+      >
+        <div className="min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
           <Button variant="ghost" onClick={onClose} className="gap-1.5">
             <ArrowLeft size={16} /> Terug
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={assistantOpen ? 'default' : 'outline'}
+              onClick={() => setAssistantOpen(o => !o)}
+              className="gap-1.5"
+            >
+              <Sparkles size={14} />
+              Assistent
+            </Button>
             <Button
               variant="outline"
               onClick={() => handleSave(false)}
@@ -269,7 +296,34 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
             preview="live"
           />
         </div>
+        </div>
+
+        {/* Desktop side panel */}
+        {assistantOpen && (
+          <aside className="hidden lg:block">
+            <div className="sticky top-6 h-[calc(100vh-6rem)] border border-border rounded-lg overflow-hidden">
+              <BlogAssistantPanel
+                title={title}
+                onClose={() => setAssistantOpen(false)}
+                onDraft={insertDraft}
+              />
+            </div>
+          </aside>
+        )}
       </div>
+
+      {/* Mobile bottom drawer */}
+      {!isDesktop && (
+        <Drawer open={assistantOpen} onOpenChange={setAssistantOpen}>
+          <DrawerContent className="h-[85vh] p-0">
+            <BlogAssistantPanel
+              title={title}
+              onClose={() => setAssistantOpen(false)}
+              onDraft={insertDraft}
+            />
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 }

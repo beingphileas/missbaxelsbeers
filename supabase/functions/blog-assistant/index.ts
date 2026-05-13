@@ -1,0 +1,101 @@
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+
+const VOICE_PROMPT = `Je bent de schrijfassistent van MissBaxel's Beers. Je schrijft blogposts voor Marijke Bax — warm, direct, persoonlijk. Nooit meer dan 500 woorden. Geen bulletpoints, geen tussentitels, geen bierjargon. Eindig altijd met één echte vraag aan de lezer. Verzin NOOIT bierdetails die Marijke je niet heeft gegeven. Schrijf in het Nederlands.`;
+
+const INTERVIEW_PROMPT = `${VOICE_PROMPT}
+
+Je bent nu in INTERVIEW-modus. Stel maximaal 4 korte, concrete vragen aan Marijke om de échte details voor de blogpost te verzamelen. Stel ÉÉN vraag per beurt, kort (max 1 zin), en wacht op haar antwoord voor je de volgende stelt.
+
+Pas je vragen aan op de titel die ze opgaf. Voorbeelden van goede vragen bij een biertitel:
+- Welke brouwerij maakt dit bier?
+- Waar of wanneer dronk je het?
+- Wat verraste je eraan?
+- Wat zou je een vriend hierover zeggen?
+
+Geen smalltalk, geen herhalingen, geen samenvatting. Alleen de volgende vraag.
+
+Verzin NOOIT antwoorden in de plaats van Marijke. Als je 4 vragen hebt gesteld én beantwoord, antwoord je exact met: [READY]`;
+
+const DRAFT_PROMPT = `${VOICE_PROMPT}
+
+Je bent nu in DRAFT-modus. Schrijf de volledige blogpost (350–500 woorden) op basis van de details die Marijke gaf in het interview. 
+
+Structuur (zonder labels of headers in de output):
+- Opening: één scherp moment of scène, zonder aanloop.
+- Midden: het verhaal — het bier, de context, wat haar verraste, één concreet detail (smaak, persoon, plek).
+- Eén korte alinea met een pairing of praktische tip.
+- Slotzin: één echte vraag aan de lezer.
+
+Geen bulletpoints, geen tussentitels, geen bierjargon. Gebruik enkel de feiten die Marijke gaf — verzin NIETS. Schrijf in het Nederlands.
+
+Geef ALLEEN de blogpost-tekst terug, geen inleiding, geen uitleg.`;
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+
+  try {
+    const { mode, title, messages } = await req.json() as {
+      mode: 'interview' | 'draft';
+      title?: string;
+      messages: { role: 'user' | 'assistant'; content: string }[];
+    };
+
+    if (!mode || !Array.isArray(messages)) {
+      return new Response(JSON.stringify({ error: 'mode and messages required' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+
+    const systemBase = mode === 'interview' ? INTERVIEW_PROMPT : DRAFT_PROMPT;
+    const system = title?.trim()
+      ? `${systemBase}\n\nDe titel die Marijke opgaf: "${title.trim()}"`
+      : systemBase;
+
+    const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-pro',
+        max_tokens: 1000,
+        messages: [{ role: 'system', content: system }, ...messages],
+      }),
+    });
+
+    if (!resp.ok) {
+      if (resp.status === 429) {
+        return new Response(JSON.stringify({ error: 'Rate limit bereikt, probeer zo opnieuw.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (resp.status === 402) {
+        return new Response(JSON.stringify({ error: 'AI-credits op. Voeg credits toe in Settings → Workspace → Usage.' }), {
+          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const t = await resp.text();
+      console.error('AI gateway error', resp.status, t);
+      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const data = await resp.json();
+    const content: string = data.choices?.[0]?.message?.content ?? '';
+    const ready = mode === 'interview' && content.trim().toUpperCase().includes('[READY]');
+
+    return new Response(JSON.stringify({ content: content.replace(/\[READY\]/gi, '').trim(), ready }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    console.error('blog-assistant error', e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
