@@ -140,15 +140,32 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
     setSaving(false);
   };
 
+  const insertDraft = (markdown: string) => {
+    setContent(markdown);
+  };
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div
+        className={`mx-auto px-4 py-6 ${
+          assistantOpen ? 'max-w-[1400px] lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6' : 'max-w-4xl'
+        }`}
+      >
+        <div className="min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
           <Button variant="ghost" onClick={onClose} className="gap-1.5">
             <ArrowLeft size={16} /> Terug
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={assistantOpen ? 'default' : 'outline'}
+              onClick={() => setAssistantOpen(o => !o)}
+              className="gap-1.5"
+            >
+              <Sparkles size={14} />
+              Assistent
+            </Button>
             <Button
               variant="outline"
               onClick={() => handleSave(false)}
