@@ -236,6 +236,8 @@ export default function WhisperFAB() {
           </>
         )}
       </AnimatePresence>
+
+      <QuickStorySheet open={storyOpen} onOpenChange={setStoryOpen} />
     </>
   );
 }
