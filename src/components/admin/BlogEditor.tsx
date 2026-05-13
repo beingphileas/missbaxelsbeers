@@ -30,6 +30,13 @@ export default function BlogEditor({ postId, onClose }: BlogEditorProps) {
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('draft');
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Load post if editing
   useEffect(() => {
