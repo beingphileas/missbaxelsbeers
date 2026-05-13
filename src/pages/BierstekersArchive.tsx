@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import SEOHead from '@/components/SEOHead';
 import { useLanguage } from '@/hooks/useLanguage';
+import BierstekersPauseBanner from '@/components/BierstekersPauseBanner';
 
 type Blend = {
   id: number;
