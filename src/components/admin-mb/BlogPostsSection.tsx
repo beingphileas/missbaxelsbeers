@@ -422,6 +422,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <DrawerContent className="h-[85vh]">
             <BlogAssistantPanel
               title={title}
+              flow={isShopReview ? 'biershop' : 'beer'}
               onClose={() => setAssistantOpen(false)}
               onDraft={(md) => { setContent(md); setAssistantOpen(false); }}
             />
