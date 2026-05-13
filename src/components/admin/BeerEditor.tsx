@@ -152,7 +152,7 @@ export default function BeerEditor({ beerId, onClose }: BeerEditorProps) {
             <Label>Foodpairing</Label>
             <Input value={foodPairing} onChange={e => setFoodPairing(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Werking / herkomst</Label>
               <Select value={source} onValueChange={(v: any) => setSource(v)}>
