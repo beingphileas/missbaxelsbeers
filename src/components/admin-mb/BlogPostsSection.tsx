@@ -247,6 +247,18 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [saving, setSaving] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
+  // Biershop review state
+  const [isShopReview, setIsShopReview] = useState(false);
+  const [shopName, setShopName] = useState('');
+  const [shopCity, setShopCity] = useState('');
+  const [shopUrl, setShopUrl] = useState('');
+  const [scAanbod, setScAanbod] = useState(4);
+  const [scKennis, setScKennis] = useState(4);
+  const [scSfeer, setScSfeer] = useState(4);
+  const [scPrijs, setScPrijs] = useState(4);
+  const [scOverall, setScOverall] = useState(4);
+
   useEffect(() => {
     const onR = () => setIsDesktop(window.innerWidth >= 1024);
     window.addEventListener('resize', onR);
@@ -255,28 +267,75 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
+  // Load existing shop review when editing
+  useEffect(() => {
+    if (!initial) return;
+    (async () => {
+      const { data } = await supabase.from('shop_reviews' as any).select('*').eq('blog_post_id', initial.id).maybeSingle();
+      if (data) {
+        const d: any = data;
+        setIsShopReview(true);
+        setShopName(d.shop_name || ''); setShopCity(d.shop_city || ''); setShopUrl(d.shop_url || '');
+        setScAanbod(d.score_aanbod); setScKennis(d.score_kennis);
+        setScSfeer(d.score_sfeer); setScPrijs(d.score_prijs); setScOverall(d.score_overall);
+      }
+    })();
+  }, [initial]);
+
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
+    if (isShopReview && (!shopName.trim() || !shopCity.trim())) return toast.error('Shop naam en stad zijn verplicht voor een biershop-review');
     setSaving(true);
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
-      date: date || null, style: style.trim() || null, style_category: styleCat || null,
+      date: date || null, style: style.trim() || null,
+      style_category: isShopReview ? 'biershop' : (styleCat || null),
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
       status: 'published',
     };
+    let postId = initial?.id;
     if (initial) {
       const { error } = await supabase.from('blog_posts').update(payload).eq('id', initial.id);
       if (error) { setSaving(false); return toast.error(error.message); }
     } else {
-      const { error } = await supabase.from('blog_posts').insert(payload);
-      if (error) { setSaving(false); return toast.error(error.message); }
+      const { data, error } = await supabase.from('blog_posts').insert(payload).select('id').single();
+      if (error || !data) { setSaving(false); return toast.error(error?.message || 'Kan post niet aanmaken'); }
+      postId = data.id;
+    }
+    if (isShopReview && postId) {
+      const reviewPayload: any = {
+        blog_post_id: postId,
+        shop_name: shopName.trim(), shop_city: shopCity.trim(), shop_url: shopUrl.trim() || null,
+        score_aanbod: scAanbod, score_kennis: scKennis, score_sfeer: scSfeer,
+        score_prijs: scPrijs, score_overall: scOverall,
+      };
+      const { error: rErr } = await supabase.from('shop_reviews' as any).upsert(reviewPayload, { onConflict: 'blog_post_id' });
+      if (rErr) { setSaving(false); return toast.error('Review opslaan mislukt: ' + rErr.message); }
+    } else if (!isShopReview && postId) {
+      // Cleanup if toggle was disabled
+      await supabase.from('shop_reviews' as any).delete().eq('blog_post_id', postId);
     }
     setSaving(false);
     toast.success(initial ? 'Opgeslagen' : 'Aangemaakt');
     onSaved();
   }
+
+  const StarPicker = ({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) => (
+    <div className="flex items-center justify-between gap-3 py-1.5">
+      <span className="text-[12px] text-muted-foreground" style={{ fontFamily: 'DM Sans, sans-serif' }}>{label}</span>
+      <div className="flex gap-0.5">
+        {[1,2,3,4,5].map(n => (
+          <button type="button" key={n} onClick={() => onChange(n)}
+            className="text-lg leading-none transition-colors"
+            style={{ color: n <= value ? 'var(--hop)' : 'var(--line)' }}
+            aria-label={`${label} ${n}`}>★</button>
+        ))}
+        <span className="ml-2 text-[11px] text-muted-foreground tabular-nums w-8 text-right">{value}/5</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="pb-24 md:pb-0">
