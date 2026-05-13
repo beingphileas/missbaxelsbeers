@@ -6,6 +6,7 @@ import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDange
 import SystemHealthCard from './SystemHealthCard';
 import BlogAssistantPanel from '@/components/admin/BlogAssistantPanel';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { RUBRICS, RUBRIC_KEYS, type RubricKey, isRubricKey } from '@/lib/rubrics';
 
 
 interface PostRow {
