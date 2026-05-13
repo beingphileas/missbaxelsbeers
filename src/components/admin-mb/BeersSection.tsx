@@ -61,6 +61,7 @@ export default function BeersSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader
         title="Bieren"
         subtitle={`${rows.length} bieren in de catalogus`}
