@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save, Upload, Sparkles, Copy } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
+import SystemHealthCard from './SystemHealthCard';
 
 
 interface PostRow {
@@ -160,6 +161,7 @@ export default function BlogPostsSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Blogposts" subtitle={`${rows.length} posts`} right={
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => e.target.files?.[0] && importCsv(e.target.files[0])} />

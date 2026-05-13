@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
+import SystemHealthCard from './SystemHealthCard';
 
 interface BlendRow {
   id: number; name: string; style: string | null; style_category: string | null;
@@ -49,6 +50,7 @@ export default function BierstekersSection() {
 
   return (
     <div>
+      <SystemHealthCard />
       <AdminHeader title="Bierstekers blends" subtitle={`${rows.length} blends`} right={
         <div className="flex gap-2">
           <button onClick={scrapeUntappd} disabled={scraping} className={btnGhost}>
