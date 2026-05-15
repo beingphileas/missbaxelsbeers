@@ -62,8 +62,23 @@ export default function Bierstekers() {
           background: 'var(--copper-light)',
           borderBottom: '1px solid var(--line)',
           padding: '52px 0',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', right: 16, bottom: -16,
+            pointerEvents: 'none', userSelect: 'none',
+            fontFamily: 'Fraunces, serif', fontWeight: 900,
+            fontSize: 'clamp(60px, 12vw, 120px)',
+            color: 'var(--copper)', opacity: 0.07,
+            letterSpacing: '-0.03em', lineHeight: 1,
+          }}
+        >
+          BLEND
+        </div>
         <div className="max-w-4xl mx-auto px-5">
           <Pill color="copper">Onderdeel van het verhaal</Pill>
           <h1
@@ -163,7 +178,14 @@ export default function Bierstekers() {
               Van blend tot biermerk
             </h3>
 
-            <div className="space-y-5">
+            <div className="space-y-5" style={{ position: 'relative' }}>
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute', left: 4, top: 12, bottom: 12,
+                  width: 2, background: 'var(--line)', borderRadius: 2,
+                }}
+              />
               {[
                 { color: 'var(--copper)', text: 'Koen begint te blenden op regenachtige zondagnamiddagen' },
                 { color: 'var(--copper)', text: 'Lockdown geeft tijd, de reeks groeit door tot 18+ blends' },
@@ -179,6 +201,8 @@ export default function Bierstekers() {
                       background: item.color,
                       marginTop: 6,
                       flexShrink: 0,
+                      position: 'relative',
+                      zIndex: 1,
                     }}
                   />
                   <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)' }}>
