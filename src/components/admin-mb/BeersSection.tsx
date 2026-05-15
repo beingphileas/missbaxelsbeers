@@ -270,7 +270,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
             <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Vlaggen</h3>
             <div className="space-y-2">
               {[
-                { k: 'isCurrent', l: 'Huidig (is_current)', v: isCurrent, set: setIsCurrent },
+                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent },
                 { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured },
                 { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab },
               ].map(f => (
