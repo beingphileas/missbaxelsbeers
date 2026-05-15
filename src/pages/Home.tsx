@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
-  MapPin, Beer as BeerIcon, Heart, Users, Lightbulb, HeartHandshake,
+  MapPin, Beer as BeerIcon, Heart, Users, Lightbulb, HeartHandshake, Sparkles,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
