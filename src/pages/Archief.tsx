@@ -83,7 +83,7 @@ export default function Archief() {
           .range(0, 999),
         supabase
           .from('bierstekers_blends')
-          .select('id, name, year, style, style_category, untappd_url, untappd_score')
+          .select('id, name, year, style, style_category, untappd_url, untappd_score, label_image_url')
           .order('year', { ascending: false, nullsFirst: false })
           .order('id', { ascending: false })
           .range(0, 999),
