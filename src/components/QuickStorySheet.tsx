@@ -40,7 +40,7 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
 
   const handleSubmit = async () => {
     const title = name.trim();
-    if (!title || submitting) return;
+    if (!title || submitting || impression.trim().length < 10) return;
     setSubmitting(true);
     const today = new Date().toISOString().slice(0, 10);
     const slug = `${slugify(title) || 'verhaal'}-${Date.now()}`;
@@ -95,8 +95,11 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
               onChange={e => setImpression(e.target.value.slice(0, MAX_IMPRESSION))}
               placeholder={t('Eén zin die het bier vangt…')}
               rows={2}
-              className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 resize-none"
+            className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 resize-none"
             />
+            {impression.length > 0 && impression.trim().length < 10 && (
+              <p className="text-xs text-amber-400 mt-1.5">Min. 10 tekens</p>
+            )}
           </div>
 
           <div>
@@ -122,7 +125,7 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
 
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || submitting}
+            disabled={!name.trim() || submitting || impression.trim().length < 10}
             className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl text-base font-medium"
           >
             {submitting ? <Loader2 size={18} className="animate-spin" /> : t('Publiceer')}
