@@ -22,6 +22,7 @@ type Blend = {
   style_category: string | null;
   untappd_url: string | null;
   untappd_score: number | null;
+  label_image_url: string | null;
 };
 
 const BLOG_FILTERS = [
