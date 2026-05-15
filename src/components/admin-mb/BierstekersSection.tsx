@@ -8,7 +8,7 @@ import SystemHealthCard from './SystemHealthCard';
 interface BlendRow {
   id: number; name: string; style: string | null; style_category: string | null;
   year: number | null; description: string | null; flavor_tags: string[] | null;
-  untappd_score: number | null; untappd_url: string | null;
+  untappd_score: number | null; untappd_url: string | null; label_image_url: string | null;
 }
 
 export default function BierstekersSection() {
