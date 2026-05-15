@@ -78,6 +78,7 @@ export interface BierstekersBlend {
   flavor_tags: string[] | null;
   untappd_score: number | null;
   untappd_url: string | null;
+  label_image_url: string | null;
   created_at: string;
 }
 
