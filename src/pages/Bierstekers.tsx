@@ -165,10 +165,10 @@ export default function Bierstekers() {
 
             <div className="space-y-5">
               {[
-                { color: 'var(--copper)', period: '2019', text: 'Koen begint te blenden op regenachtige zondagnamiddagen' },
-                { color: 'var(--copper)', period: '2020–2021', text: 'Lockdown geeft tijd, de reeks groeit door tot 18+ blends' },
-                { color: 'var(--copper)', period: '2022', text: 'Restaurants weer open, Bierstekers gaat op pauze' },
-                { color: 'var(--hop)', period: '2024', text: "Het bleef kriebelen, MissBaxel's brouwt zijn eerste bieren" },
+                { color: 'var(--copper)', text: 'Koen begint te blenden op regenachtige zondagnamiddagen' },
+                { color: 'var(--copper)', text: 'Lockdown geeft tijd, de reeks groeit door tot 18+ blends' },
+                { color: 'var(--copper)', text: 'Restaurants weer open, Bierstekers gaat op pauze' },
+                { color: 'var(--hop)', text: "Het bleef kriebelen, MissBaxel's brouwt zijn eerste bieren" },
               ].map((item, i) => (
                 <div key={i} className="flex gap-3 items-start">
                   <span
@@ -181,13 +181,8 @@ export default function Bierstekers() {
                       flexShrink: 0,
                     }}
                   />
-                  <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                      {item.period}
-                    </div>
-                    <div style={{ fontSize: 14, color: 'var(--ink)', marginTop: 2 }}>
-                      {item.text}
-                    </div>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)' }}>
+                    {item.text}
                   </div>
                 </div>
               ))}
