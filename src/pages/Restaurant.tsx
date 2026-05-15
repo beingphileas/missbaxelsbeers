@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   Store, MapPin, Phone, Mail, Globe, Instagram, Facebook,
-  Utensils, ExternalLink,
+  Utensils, ExternalLink, Flame,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -101,7 +101,8 @@ export default function Restaurant() {
 
       {/* SECTION 1 — HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--copper-light)', padding: '52px 0' }}>
-        <div className="max-w-4xl mx-auto px-5">
+        <div className="max-w-4xl mx-auto px-5" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center' }}>
+          <div>
           <span
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
             style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: 'DM Sans, sans-serif' }}
@@ -142,6 +143,9 @@ export default function Restaurant() {
               </a>
             )}
           </div>
+          <div className="hidden md:flex items-center justify-center">
+            <Flame size={120} color="var(--copper)" style={{ opacity: 0.2 }} />
+          </div>
         </div>
       </section>
 
@@ -150,12 +154,15 @@ export default function Restaurant() {
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-8">
           {/* Opening hours */}
           <div>
-            <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 22, marginBottom: 16 }}>
-              Openingsuren
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Flame size={16} color="var(--copper)" />
+              <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 22 }}>
+                Openingsuren
+              </h2>
+            </div>
             <div
               style={{
-                background: '#fff', border: '1px solid var(--line)', borderRadius: 12,
+                background: 'var(--copper-light)', border: '1px solid var(--copper)', borderRadius: 12,
                 fontFamily: 'DM Sans, sans-serif',
               }}
             >
