@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Heart, Users, Beer as BeerIcon, Utensils } from 'lucide-react';
+import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 
 const Pill = ({
@@ -84,7 +84,7 @@ export default function Over() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Over — MissBaxel's Beers"
-        description="Marijke Bax over MissBaxel's Beers: een vrouwelijke stem in de Belgische bierwereld, gegroeid uit het restaurant en de Bierstekers blends."
+        description="Marijke Bax over MissBaxel's Beers — bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles."
         url="/over"
       />
 
@@ -99,9 +99,9 @@ export default function Over() {
               fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em',
             }}
           >
-            Bier proeven, verhalen{' '}
+            Bier, met{' '}
             <em style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--amber)' }}>
-              vertellen.
+              goesting.
             </em>
           </h1>
 
@@ -118,7 +118,7 @@ export default function Over() {
               color: 'var(--ink)',
             }}
           >
-            Verwacht geen hoogdravende termen of technisch gegoochel. Ik doe het op mijn manier: rechttoe, rechtaan. Wat ik proef, zet ik om in mensentaal.
+            Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
           </div>
         </div>
       </section>
@@ -131,27 +131,31 @@ export default function Over() {
               className="mb-5"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
             >
-              Wie is MissBaxel?
+              Hoe het zover kwam
             </h2>
             <div
               className="space-y-4"
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', lineHeight: 1.85 }}
             >
               <p>
-                Mijn naam is Marijke Bax. Uit de Kempen, de liefde gevolgd naar West-Vlaanderen. Samen met mijn man Koen baat ik restaurant Bij Koen &amp; Marijke in 't Nieuw Museum in Brugge uit.
+                Ik ben Marijke, getrouwd met Koen. Uit de Kempen, maar al lang thuis in Brugge. Sinds 2014 baat ik samen met Koen ons restaurant uit — eerst In 't Nieuw Museum, ondertussen Bij Koen &amp; Marijke.
               </p>
               <p>
-                De liefde voor bier groeide mee met het restaurant. Ik bouw de bierkaart uit, leer proeven en pairen — en raak steeds meer gefascineerd door de verhalen achter de fles.
+                Bier interesseerde me toen niet. Echt niet. Tot ik op een dag een Duchesse de Bourgogne proefde. Dat was het kantelmoment. Vanaf dan wou ik weten waar bier vandaan kwam, wie het maakte, waarom het smaakte zoals het smaakte.
               </p>
               <p>
-                Er zijn maar weinig vrouwen actief in de Belgische bierwereld online. Dat gaf me de extra duw. Niet als expert op een sokkel, maar als iemand die naast jou staat — met een glas in de hand.
+                Samen met Koen ben ik dan beginnen blenden — Bierstekers noemden we dat. Bestaande bieren mengen tot iets nieuws. Daar leerde ik dat ik wel degelijk een neus heb voor wat werkt. We hebben ook eens geprobeerd zelf te brouwen, met een keteltje van 20 liter op de keukentafel. Vijf brouwsels ver. Toen wisten we het: brouwen laten we beter aan brouwers over.
+              </p>
+              <p>
+                In 2021 startte ik missbaxelsbeers.com om mijn proefnotities en verhalen ergens kwijt te kunnen. Voor mijn 28ste verjaardag in 2024 (en ja, ik blijf 28, ik kies daar zelf voor) verraste Koen me met iets ongelooflijks: twee échte bieren, gemaakt naar mijn ideeën. Maria Guimauva bij Hophemel in Hasselt. Zonder Totetrekkerie bij Ruimtegist, met Bram van Brambrass aan het recept. Een jaar later kwam de MissBaxel's Tripel, opnieuw bij Ruimtegist. Nu, in 2026, ben ik bezig met een hele reeks bij Brecht van Straetebrouwerij. Het idee is simpel: bieren maken die hier op de kaart passen, en kleine brouwers tonen aan wie ze nog niet kennen.
               </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
               <Pill icon={<MapPin size={12} />}>Brugge</Pill>
-              <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwerijen</Pill>
-              <Pill color="copper" icon={<Users size={12} />}>Voor iedereen</Pill>
+              <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwers</Pill>
+              <Pill color="copper" icon={<BookOpen size={12} />}>Verhalen</Pill>
+              <Pill color="hop" icon={<Sparkles size={12} />}>Goesting</Pill>
             </div>
           </div>
 
@@ -189,10 +193,10 @@ export default function Over() {
               style={{ padding: 20, fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}
             >
               <p>
-                Sommelier én vertaler. Ik probeer de wereld van het ambachtelijk bier toegankelijk te houden — voor wie niet wekelijks een bierfestival bezoekt.
+                Ik ben geen brouwer en ook geen sommelier. Ik ben gewoon iemand die graag proeft, graag rondkijkt bij kleine brouwers, en graag vertelt wat ik daar tegenkom.
               </p>
               <p>
-                Mijn focus: kleine Belgische brouwers, eerlijke proefnotities, en bieren die ontstaan uit échte samenwerking.
+                Mijn voorkeur gaat naar Belgische brouwers van eigen formaat. Mensen die hun bier nog zelf brouwen, vullen, etiketteren. Daar zit het vakmanschap.
               </p>
             </div>
 
