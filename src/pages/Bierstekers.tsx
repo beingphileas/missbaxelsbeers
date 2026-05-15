@@ -232,7 +232,7 @@ export default function Bierstekers() {
       {/* SECTION 3 — BLENDARCHIEF */}
       <section id="archief" style={{ padding: '48px 0' }}>
         <div className="max-w-4xl mx-auto px-5">
-          <Pill color="hop">Blendarchief · 2019–2025</Pill>
+          <Pill color="hop">Blendarchief</Pill>
           <h2
             className="mt-4 mb-2"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.1 }}
@@ -247,13 +247,6 @@ export default function Bierstekers() {
 
           {years.map((year) => (
             <div key={year} className="mb-10">
-              <div
-                className="flex items-center gap-4 mb-4"
-                style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 13, color: 'var(--copper)', letterSpacing: '0.1em' }}
-              >
-                <span>{year.toUpperCase()}</span>
-                <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-              </div>
 
               <div className="space-y-2">
                 {grouped[year].map((blend, idx) => {
@@ -292,7 +285,7 @@ export default function Bierstekers() {
                           {blend.name}
                         </div>
                         <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                          {[blend.style, blend.year].filter(Boolean).join(' · ')}
+                          {blend.style}
                         </div>
                         {blend.flavor_tags && blend.flavor_tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
