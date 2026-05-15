@@ -247,13 +247,6 @@ export default function Bierstekers() {
 
           {years.map((year) => (
             <div key={year} className="mb-10">
-              <div
-                className="flex items-center gap-4 mb-4"
-                style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 13, color: 'var(--copper)', letterSpacing: '0.1em' }}
-              >
-                <span>{year.toUpperCase()}</span>
-                <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-              </div>
 
               <div className="space-y-2">
                 {grouped[year].map((blend, idx) => {
