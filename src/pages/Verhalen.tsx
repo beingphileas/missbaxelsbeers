@@ -36,32 +36,44 @@ export default function Verhalen() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [cat, setCat] = useState<Cat>('all');
+
+  // Debounce search input 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [cat, debouncedSearch]);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       const from = 0;
       const to = (page + 1) * PAGE_SIZE - 1;
-      const { data, count } = await supabase
+      let query = supabase
         .from('blog_posts')
         .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url', { count: 'exact' })
-        .order('date', { ascending: false, nullsFirst: false })
-        .range(from, to);
+        .order('date', { ascending: false, nullsFirst: false });
+
+      if (cat !== 'all') {
+        query = query.eq('style_category', cat);
+      }
+      const q = debouncedSearch.trim();
+      if (q) {
+        query = query.ilike('title', `%${q}%`);
+      }
+
+      const { data, count } = await query.range(from, to);
       setPosts((data || []) as any);
       setTotal(count || 0);
       setLoading(false);
     })();
-  }, [page]);
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return posts.filter((p) => {
-      if (!matchesCategory(p, cat)) return false;
-      if (q && !`${p.title} ${p.style || ''}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [posts, search, cat]);
+  }, [page, cat, debouncedSearch]);
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
