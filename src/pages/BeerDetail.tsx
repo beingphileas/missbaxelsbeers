@@ -66,14 +66,14 @@ export default function BeerDetail() {
       // Try slug first, then id
       let { data: b } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
         .eq('slug', id)
         .maybeSingle();
 
       if (!b) {
         const r = await supabase
           .from('beers')
-          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
           .eq('id', id)
           .maybeSingle();
         b = r.data;
@@ -265,13 +265,31 @@ export default function BeerDetail() {
               </div>
             )}
 
-            <Link
-              to="/restaurant"
-              className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
-            >
-              <Utensils size={14} /> Proef het in het restaurant
-            </Link>
+            {(beer as any).is_current === false ? (
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <span
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em]"
+                  style={{ background: '#EFEAE2', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  Uitverkocht
+                </span>
+                <Link
+                  to="/beers"
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+                  style={{ background: 'var(--ink)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  <BeerIcon size={14} /> Bekijk beschikbare bieren
+                </Link>
+              </div>
+            ) : (
+              <Link
+                to="/restaurant"
+                className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+                style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                <Utensils size={14} /> Proef het in het restaurant
+              </Link>
+            )}
           </div>
         </div>
       </section>
