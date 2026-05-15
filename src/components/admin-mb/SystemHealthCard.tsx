@@ -31,15 +31,21 @@ function formatDate(iso: string | null): string {
 export default function SystemHealthCard() {
   const [rows, setRows] = useState<Record<string, HealthRow>>({});
   const [loading, setLoading] = useState(true);
+  const [tableError, setTableError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
-      .from('system_health' as any)
+      .from('system_health')
       .select('*')
       .in('key', SCRAPERS.map(s => s.key))
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          setTableError(error.message);
+          setLoading(false);
+          return;
+        }
         const map: Record<string, HealthRow> = {};
-        for (const r of (data as any) || []) map[r.key] = r;
+        for (const r of data || []) map[r.key] = r as HealthRow;
         setRows(map);
         setLoading(false);
       });
@@ -64,6 +70,15 @@ export default function SystemHealthCard() {
         </h3>
         {loading && <span className="text-[11px] text-muted-foreground">…</span>}
       </div>
+
+      {tableError && (
+        <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-[8px] bg-yellow-50 border border-yellow-300 text-yellow-900">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+          <div className="text-[12px] leading-snug">
+            Systeemtabel niet gevonden — controleer de database migraties.
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {SCRAPERS.map(s => {
