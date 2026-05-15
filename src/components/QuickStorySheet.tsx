@@ -95,8 +95,11 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
               onChange={e => setImpression(e.target.value.slice(0, MAX_IMPRESSION))}
               placeholder={t('Eén zin die het bier vangt…')}
               rows={2}
-              className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 resize-none"
+            className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 resize-none"
             />
+            {impression.length > 0 && impression.trim().length < 10 && (
+              <p className="text-xs text-amber-400 mt-1.5">Min. 10 tekens</p>
+            )}
           </div>
 
           <div>
