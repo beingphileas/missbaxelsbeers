@@ -13,6 +13,7 @@ type FeaturedBeer = {
   name: string;
   style: string | null;
   abv: number | null;
+  image_url: string | null;
   breweryNames: string[];
 };
 
@@ -58,7 +59,7 @@ export default function Home() {
       // Featured beers (3) + their brewery names
       const { data: beers } = await supabase
         .from('beers')
-        .select('id, name, style, abv')
+        .select('id, name, style, abv, image_url')
         .eq('featured', true)
         .limit(3);
 
@@ -79,6 +80,7 @@ export default function Home() {
           name: b.name,
           style: b.style,
           abv: b.abv as number | null,
+          image_url: (b as any).image_url ?? null,
           breweryNames: (links || [])
             .filter(l => l.beer_id === b.id)
             .map(l => brewMap.get(l.brewery_id))
@@ -209,13 +211,22 @@ export default function Home() {
                 }}
               >
                 <div
-                  className="flex items-center justify-center shrink-0"
+                  className="flex items-center justify-center shrink-0 overflow-hidden"
                   style={{
                     width: 40, height: 40, borderRadius: 10,
                     background: ICON_BG[i % 3], color: ICON_COLOR[i % 3],
                   }}
                 >
-                  <BeerIcon size={18} />
+                  {b.image_url ? (
+                    <img
+                      src={b.image_url}
+                      alt={b.name}
+                      loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  ) : (
+                    <BeerIcon size={18} />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 14 }}>{b.name}</div>
