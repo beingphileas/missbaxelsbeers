@@ -63,20 +63,28 @@ export default function BierstekersSection() {
         <div className="bg-card border border-border rounded-[12px] overflow-hidden">
           <table className="w-full text-[13px]">
             <thead><tr className="border-b border-border bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-              <th className="px-4 py-2.5 font-medium">Jaar</th>
-              <th className="px-4 py-2.5 font-medium">Naam</th>
-              <th className="px-4 py-2.5 font-medium">Stijl</th>
-              <th className="px-4 py-2.5 font-medium">Untappd</th>
-              <th className="px-4 py-2.5 font-medium text-right">Acties</th>
+              <th className="px-3 py-2.5 font-medium w-14">Etiket</th>
+              <th className="px-3 py-2.5 font-medium">Jaar</th>
+              <th className="px-3 py-2.5 font-medium">Naam</th>
+              <th className="px-3 py-2.5 font-medium">Stijl</th>
+              <th className="px-3 py-2.5 font-medium">Untappd</th>
+              <th className="px-3 py-2.5 font-medium text-right">Acties</th>
             </tr></thead>
             <tbody>
               {rows.map(r => (
                 <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-2.5 tabular-nums text-muted-foreground">{r.year || '—'}</td>
-                  <td className="px-4 py-2.5 font-medium">{r.name}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '—'}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{r.untappd_score ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-right space-x-1">
+                  <td className="px-3 py-2">
+                    {r.label_image_url ? (
+                      <img src={r.label_image_url} alt={r.name} className="w-9 h-9 object-cover rounded border border-border" loading="lazy" />
+                    ) : (
+                      <div className="w-9 h-9 rounded border border-dashed border-border bg-muted/40" />
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 tabular-nums text-muted-foreground">{r.year || '—'}</td>
+                  <td className="px-3 py-2.5 font-medium">{r.name}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{r.style || '—'}</td>
+                  <td className="px-3 py-2.5 tabular-nums">{r.untappd_score ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
                   </td>
