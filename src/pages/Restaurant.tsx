@@ -92,7 +92,7 @@ export default function Restaurant() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Restaurant Bij Koen & Marijke — Brugge"
-        description={r?.description || "Het restaurant van Marijke en Koen in Brugge. Houtskoolgrill, een eigen bierkaart, en de hele MissBaxel's-reeks op tafel."}
+        description={r?.description || "Bij Koen & Marijke in Brugge: houtgestookte grill en Belgische bierkaart, op een paar minuten van de Markt. Van ribeye tot gebakken camembert, gepaird met alles van frisse ales tot Trappist."}
         url="/restaurant"
       />
       <Helmet>
