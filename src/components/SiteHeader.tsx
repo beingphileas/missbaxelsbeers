@@ -33,8 +33,9 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-[1400px] mx-auto px-5 h-14 flex items-center justify-between gap-4">
         {/* Logo — left */}
-        <Link to="/" className="flex items-center shrink-0 group" aria-label="MissBaxel's home">
-          <span className="font-display text-xl leading-none text-foreground" style={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+        <Link to="/" className="flex items-center gap-2.5 shrink-0 group" aria-label="MissBaxel's home">
+          <img src="/missbaxels-logo.png" alt="MissBaxel's" style={{ height: 36, width: 'auto', objectFit: 'contain', display: 'block' }} />
+          <span className="hidden md:inline font-display text-xl leading-none text-foreground" style={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
             Miss<span className="font-italic-accent text-primary" style={{ fontWeight: 300 }}>Baxel</span>
             <span style={{ fontWeight: 900 }}>'s</span>
           </span>
