@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Heart, Users, Beer as BeerIcon, Utensils } from 'lucide-react';
+import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 
 const Pill = ({
