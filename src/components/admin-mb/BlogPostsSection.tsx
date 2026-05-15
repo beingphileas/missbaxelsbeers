@@ -317,17 +317,6 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     })();
   }, [initial]);
 
-  // Debounced enrichment
-  useEffect(() => {
-    if (!rubric) return;
-    const def = RUBRICS[rubric];
-    if (!def.enrichment) return;
-    const trig = def.enrichment.trigger;
-    const ready =
-      (trig === 'beer_name + brewery_name' && title.trim() && brewery.trim()) ||
-      (trig === 'beer_name' && title.trim()) ||
-      (trig === 'beer_name or brewery_name' && (title.trim() || brewery.trim())) ||
-      (trig === 'brewery_name' && brewery.trim()) ||
   // Debounced enrichment — uses dedicated subjectName field, not title
   useEffect(() => {
     if (!rubric) return;
