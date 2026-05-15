@@ -232,7 +232,7 @@ export default function Bierstekers() {
       {/* SECTION 3 — BLENDARCHIEF */}
       <section id="archief" style={{ padding: '48px 0' }}>
         <div className="max-w-4xl mx-auto px-5">
-          <Pill color="hop">Blendarchief · 2019–2025</Pill>
+          <Pill color="hop">Blendarchief</Pill>
           <h2
             className="mt-4 mb-2"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.1 }}
