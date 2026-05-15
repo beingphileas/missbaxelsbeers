@@ -149,6 +149,8 @@ export default function BlogPost() {
               </div>
             );
           })}
+          {/* Elders section intentionally hidden until external score */}
+          {/* enrichment (Untappd/RateBeer) is implemented */}
           {externalEntries.length > 0 && (
             <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--line)' }}>
               <p className="text-[11px] uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Elders</p>
