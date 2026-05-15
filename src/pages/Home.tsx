@@ -318,14 +318,7 @@ export default function Home() {
               position: 'relative',
             }}
           >
-            <div
-              style={{
-                fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 72,
-                color: 'var(--hop-light)', lineHeight: 0.8, marginBottom: 8,
-              }}
-            >
-              “
-            </div>
+            <img src="/missbaxels-logo.png" alt="MissBaxel's" style={{ height: 90, width: 'auto', objectFit: 'contain', display: 'block', marginBottom: 16, opacity: 0.85 }} />
             <p
               style={{
                 fontFamily: 'Fraunces, serif', fontStyle: 'italic', fontSize: 18,
