@@ -66,14 +66,14 @@ export default function BeerDetail() {
       // Try slug first, then id
       let { data: b } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
         .eq('slug', id)
         .maybeSingle();
 
       if (!b) {
         const r = await supabase
           .from('beers')
-          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, flavor_profile, primary_flavors')
+          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
           .eq('id', id)
           .maybeSingle();
         b = r.data;
