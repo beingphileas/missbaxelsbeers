@@ -28,11 +28,6 @@ const FILTERS: { id: Cat; label: string; icon?: string }[] = [
 
 const PAGE_SIZE = 12;
 
-function matchesCategory(p: Post, cat: Cat): boolean {
-  if (cat === 'all') return true;
-  return (p.style_category || '').toLowerCase() === cat;
-}
-
 const TOP_BG = ['var(--hop-light)', '#FAEEDA', 'var(--copper-light)'];
 
 export default function Verhalen() {
