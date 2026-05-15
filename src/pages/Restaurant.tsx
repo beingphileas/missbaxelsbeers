@@ -92,7 +92,7 @@ export default function Restaurant() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Restaurant Bij Koen & Marijke — Brugge"
-        description={r?.description || "Bij Koen & Marijke in 't Nieuw Museum: een eerlijke keuken in Brugge, met de bieren van MissBaxel's op tafel."}
+        description={r?.description || "Het restaurant van Marijke en Koen in Brugge. Houtskoolgrill, een eigen bierkaart, en de hele MissBaxel's-reeks op tafel."}
         url="/restaurant"
       />
       <Helmet>
@@ -287,7 +287,7 @@ export default function Restaurant() {
               className="mb-5"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 30, lineHeight: 1.15 }}
             >
-              Een plek waar bier en eten samenleven
+              Bij ons, in Brugge
             </h2>
             <div
               style={{
@@ -296,7 +296,7 @@ export default function Restaurant() {
               }}
             >
               {r?.story ||
-                "Bij Koen & Marijke is een eerlijke buurtkeuken in Brugge, waar de bierkaart even hoog op de agenda staat als de gerechten. Het is hier dat MissBaxel's begon — aan een tafel, met een glas en een gesprek."}
+                "Ons restaurant heet vandaag Bij Koen & Marijke, maar het oude bordje 'In 't Nieuw Museum' hangt nog steeds boven de deur. Koen staat aan het houtvuur, ik aan de bierkaart. En sinds 2024 staat ook de hele MissBaxel's-reeks op tafel."}
             </div>
           </div>
 
