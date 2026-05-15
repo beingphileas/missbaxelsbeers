@@ -257,6 +257,16 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const initialRubric = isRubricKey(initial?.style_category) ? (initial!.style_category as RubricKey) : null;
   const [rubric, setRubric] = useState<RubricKey | ''>(initialRubric || '');
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [subjectName, setSubjectName] = useState<string>('');
+
+  const subjectLabel = (() => {
+    if (!rubric) return null;
+    if (['proefnotitie', 'hidden_gem', 'bier_en_eten', 'missbaxel_bier'].includes(rubric)) return 'Biernaam';
+    if (rubric === 'bioshop') return 'Shopnaam';
+    if (rubric === 'biertrip') return 'Locatie';
+    if (rubric === 'brouwerij') return 'Brouwerijnaam';
+    return null;
+  })();
 
   // Enrichment state
   const [enrichLoading, setEnrichLoading] = useState(false);
