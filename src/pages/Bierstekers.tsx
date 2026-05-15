@@ -285,7 +285,7 @@ export default function Bierstekers() {
                           {blend.name}
                         </div>
                         <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                          {[blend.style, blend.year].filter(Boolean).join(' · ')}
+                          {blend.style}
                         </div>
                         {blend.flavor_tags && blend.flavor_tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
