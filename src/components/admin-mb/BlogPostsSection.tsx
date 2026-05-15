@@ -491,7 +491,15 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
             <Field label="Stijl-categorie">
               <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
                 <option value="">—</option>
-                {['tripel','saison','donker','zuur','wit','speciaal'].map(c => <option key={c}>{c}</option>)}
+                {[
+                  'blond','tripel','dubbel','quadrupel','trappist','abdijbier',
+                  'saison','witbier','tarwebier','weizen',
+                  'pils','lager','amber','rood','bruin','donker','stout','porter',
+                  'ipa','neipa','pale ale','session ipa','double ipa',
+                  'sour','lambiek','geuze','kriek','fruitbier','oud bruin','flemish red',
+                  'barley wine','strong ale','belgian strong','barrel-aged',
+                  'alcoholvrij','low alcohol','speciaal','collab','blend'
+                ].map(c => <option key={c}>{c}</option>)}
               </select>
             </Field>
             <Field label="ABV (%)">
