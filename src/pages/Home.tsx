@@ -356,9 +356,9 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { icon: Lightbulb, title: 'Het idee', body: 'Een smaak, een herinnering, een richting. Marijke brengt het idee.' },
-              { icon: HeartHandshake, title: 'De samenwerking', body: 'Een bevriende brouwer pakt het op en mag vrij invullen.' },
-              { icon: BeerIcon, title: 'Het bier', body: 'Een uniek bier in beperkte oplage. Telkens anders, telkens echt.' },
+              { icon: Lightbulb, title: 'Het idee', body: 'Een smaak die blijft hangen. Of een gerecht zonder passend bier. Daar begint het.' },
+              { icon: HeartHandshake, title: 'De samenwerking', body: 'Een bevriende brouwer pakt het op en vult het volledig zelf in. Zijn ambacht, mijn idee.' },
+              { icon: BeerIcon, title: 'Het bier', body: 'Eén bier in beperkte oplage. Daarna iets anders, met iemand anders.' },
             ].map((s, i) => {
               const Icon = s.icon;
               return (
