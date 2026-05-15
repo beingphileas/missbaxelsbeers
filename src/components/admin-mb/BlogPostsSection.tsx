@@ -328,22 +328,36 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       (trig === 'beer_name' && title.trim()) ||
       (trig === 'beer_name or brewery_name' && (title.trim() || brewery.trim())) ||
       (trig === 'brewery_name' && brewery.trim()) ||
-      (trig === 'location_name' && title.trim()) ||
-      (trig === 'shop_name + shop_city' && title.trim() && shopCity.trim());
+  // Debounced enrichment — uses dedicated subjectName field, not title
+  useEffect(() => {
+    if (!rubric) return;
+    const def = RUBRICS[rubric];
+    if (!def.enrichment) return;
+    const subj = subjectName.trim();
+    if (subj.length < 3) return;
+    const trig = def.enrichment.trigger;
+    const ready =
+      (trig === 'beer_name + brewery_name' && brewery.trim()) ||
+      (trig === 'beer_name') ||
+      (trig === 'beer_name or brewery_name') ||
+      (trig === 'brewery_name') ||
+      (trig === 'location_name') ||
+      (trig === 'shop_name + shop_city' && shopCity.trim());
     if (!ready) return;
     if (enrichTimer.current) window.clearTimeout(enrichTimer.current);
     enrichTimer.current = window.setTimeout(async () => {
       setEnrichLoading(true);
       try {
+        const isBeerRubric = ['proefnotitie', 'hidden_gem', 'bier_en_eten', 'missbaxel_bier'].includes(rubric);
         const { data, error } = await supabase.functions.invoke('enrich-post-context', {
           body: {
             rubric,
             query: {
-              beer_name: ['proefnotitie', 'hidden_gem', 'bier_en_eten', 'missbaxel_bier'].includes(rubric) ? title : undefined,
-              brewery_name: brewery || undefined,
-              shop_name: rubric === 'bioshop' ? title : undefined,
+              beer_name: isBeerRubric ? subj : undefined,
+              brewery_name: rubric === 'brouwerij' ? subj : (brewery || undefined),
+              shop_name: rubric === 'bioshop' ? subj : undefined,
               shop_city: shopCity || undefined,
-              location_name: rubric === 'biertrip' ? title : undefined,
+              location_name: rubric === 'biertrip' ? subj : undefined,
             },
           },
         });
@@ -375,7 +389,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     }, 800);
     return () => { if (enrichTimer.current) window.clearTimeout(enrichTimer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rubric, title, brewery, shopCity]);
+  }, [rubric, subjectName, brewery, shopCity]);
 
   const SourceBadge = ({ field, onReject }: { field: string; onReject: () => void }) =>
     enrichSources[field] ? (
