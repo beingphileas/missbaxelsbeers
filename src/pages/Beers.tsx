@@ -108,6 +108,7 @@ export default function Beers() {
     return beers.filter((b) => {
       if (tab === 'current' && b.is_current === false) return false;
       if (tab === 'archive' && b.is_current !== false) return false;
+      // 'all' shows both
       if (!matchesCategory(b, cat)) return false;
       if (q) {
         const hay = `${b.name} ${b.breweries.join(' ')} ${b.style || ''}`.toLowerCase();
