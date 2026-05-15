@@ -143,6 +143,7 @@ export default function Restaurant() {
               </a>
             )}
           </div>
+          </div>
           <div className="hidden md:flex items-center justify-center">
             <Flame size={120} color="var(--copper)" style={{ opacity: 0.2 }} />
           </div>
