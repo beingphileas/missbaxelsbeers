@@ -528,6 +528,17 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
               </select>
             </Field>
 
+            {subjectLabel && (
+              <Field label={subjectLabel} hint="Wordt gebruikt om automatisch extra info op te halen (min. 3 tekens)">
+                <input
+                  className={inputCls}
+                  value={subjectName}
+                  onChange={e => setSubjectName(e.target.value)}
+                  placeholder={subjectLabel}
+                />
+              </Field>
+            )}
+
             {rubric && enrichResult && Object.keys(enrichResult.fields).length > 0 && !enrichBannerDismissed && (
               <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] flex items-start gap-2">
                 <Sparkles size={13} className="mt-0.5 text-amber-600 shrink-0" />
