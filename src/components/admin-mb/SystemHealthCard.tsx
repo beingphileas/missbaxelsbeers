@@ -71,6 +71,15 @@ export default function SystemHealthCard() {
         {loading && <span className="text-[11px] text-muted-foreground">…</span>}
       </div>
 
+      {tableError && (
+        <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-[8px] bg-yellow-50 border border-yellow-300 text-yellow-900">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+          <div className="text-[12px] leading-snug">
+            Systeemtabel niet gevonden — controleer de database migraties.
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {SCRAPERS.map(s => {
           const r = rows[s.key];
