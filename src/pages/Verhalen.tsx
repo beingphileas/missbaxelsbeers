@@ -160,7 +160,7 @@ export default function Verhalen() {
             <div className="text-center py-16" style={{ color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
               Laden…
             </div>
-          ) : filtered.length === 0 ? (
+          ) : posts.length === 0 ? (
             <div
               className="text-center py-16"
               style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}
