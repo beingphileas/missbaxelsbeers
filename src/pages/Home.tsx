@@ -136,7 +136,7 @@ export default function Home() {
       </Helmet>
 
       {/* SECTION 1 — HERO */}
-      <section style={{ borderBottom: '1px solid var(--line)' }}>
+      <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--hop-light)' }}>
         <div className="max-w-6xl mx-auto px-5 py-9 md:py-[52px] grid md:grid-cols-2 gap-10 items-center">
           <div>
             <Pill icon={<MapPin size={12} />}>Brugge · West-Vlaanderen</Pill>
@@ -235,7 +235,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 2 — STATS */}
-      <section style={{ borderBottom: '1px solid var(--line)' }}>
+      <section style={{ borderBottom: 'none', background: 'var(--ink)' }}>
         <div className="max-w-6xl mx-auto px-5 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
             { n: stats.beers, label: 'Huidige bieren' },
@@ -244,14 +244,14 @@ export default function Home() {
             { n: 2021, label: 'Sinds' },
           ].map((s) => (
             <div key={s.label} className="text-center md:text-left">
-              <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, color: 'var(--hop)', lineHeight: 1 }}>
+              <div style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, color: '#FFFFFF', lineHeight: 1 }}>
                 {s.n}
               </div>
               <div
                 className="mt-1.5"
                 style={{
                   fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 500,
-                  color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
+                  color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em',
                 }}
               >
                 {s.label}
@@ -374,20 +374,22 @@ export default function Home() {
                 >
                   <div
                     style={{
-                      fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 36,
-                      color: 'var(--line)', lineHeight: 1, marginBottom: 8,
+                      fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 600,
+                      color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase',
+                      marginBottom: 8,
                     }}
                   >
                     0{i + 1}
                   </div>
                   <div
-                    className="flex items-center justify-center mb-4"
+                    className="flex items-center justify-center"
                     style={{
-                      width: 38, height: 38, borderRadius: 10,
-                      background: ICON_BG[i], color: ICON_COLOR[i],
+                      width: 52, height: 52, borderRadius: '50%',
+                      background: 'var(--hop-light)',
+                      marginBottom: 16,
                     }}
                   >
-                    <Icon size={18} />
+                    <Icon size={24} color="var(--hop-dark)" />
                   </div>
                   <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
                     {s.title}
