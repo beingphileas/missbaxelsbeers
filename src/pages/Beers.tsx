@@ -155,8 +155,9 @@ export default function Beers() {
           {/* Tabs */}
           <div className="flex gap-2">
             {[
-              { id: 'current' as const, label: 'Huidig assortiment' },
-              { id: 'archive' as const, label: 'Archief' },
+              { id: 'all' as const, label: 'Alle' },
+              { id: 'current' as const, label: 'Beschikbaar' },
+              { id: 'archive' as const, label: 'Uitverkocht' },
             ].map((t) => {
               const active = tab === t.id;
               return (
