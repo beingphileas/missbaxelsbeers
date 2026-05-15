@@ -374,14 +374,16 @@ export default function Beers() {
                           Uitgelicht
                         </span>
                       )}
-                      {b.is_current === false && (
-                        <span
-                          className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
-                          style={{ background: '#EFEAE2', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}
-                        >
-                          Archief
-                        </span>
-                      )}
+                      <span
+                        className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                        style={{
+                          background: b.is_current === false ? '#EFEAE2' : '#E6F2E6',
+                          color: b.is_current === false ? 'var(--muted)' : '#2E6B3F',
+                          fontFamily: 'DM Sans, sans-serif',
+                        }}
+                      >
+                        {b.is_current === false ? 'Uitverkocht' : 'Beschikbaar'}
+                      </span>
                     </div>
                   </Link>
                 );
