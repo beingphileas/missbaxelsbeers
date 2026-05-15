@@ -103,7 +103,8 @@ export default function Over() {
         >
           BIER
         </div>
-        <div className="max-w-3xl mx-auto px-5">
+      <div className="max-w-5xl mx-auto px-5" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
+        <div>
           <Pill color="amber">Het verhaal</Pill>
           <h1
             className="mt-5 mb-7"
@@ -134,6 +135,14 @@ export default function Over() {
             Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
           </div>
         </div>
+
+        <img
+          src="/missbaxels-logo.png"
+          alt="MissBaxel's — Marijke Bax"
+          className="hidden md:block"
+          style={{ width: '100%', maxWidth: 340, height: 'auto', display: 'block', margin: '0 auto', opacity: 0.9 }}
+        />
+      </div>
       </section>
 
       {/* SECTION 2 — BIO + PROFILE CARD */}
