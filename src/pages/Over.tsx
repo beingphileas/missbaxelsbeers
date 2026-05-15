@@ -118,7 +118,7 @@ export default function Over() {
               color: 'var(--ink)',
             }}
           >
-            Verwacht geen hoogdravende termen of technisch gegoochel. Ik doe het op mijn manier: rechttoe, rechtaan. Wat ik proef, zet ik om in mensentaal.
+            Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
           </div>
         </div>
       </section>
