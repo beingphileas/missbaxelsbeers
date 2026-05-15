@@ -1,56 +1,21 @@
 # MissBaxel's Beers
 
 ## Wie zijn we
-MissBaxel's Beers is een Belgisch bierproject opgericht door Marijke Bax in 2021, vanuit Brugge, West-Vlaanderen. Marijke is geen brouwer — zij is de smaakmaker en ideeënontwikkelaar. Ze stapt met een biericee naar een bevriende Belgische brouwer, die vervolgens de vrije hand krijgt om het bier te ontwikkelen. Het resultaat is altijd uniek en nergens anders verkrijgbaar.
 
-## Het model
-1. Marijke ontwikkelt een biericee — gebaseerd op een smaakdroom, een seizoen of een gerecht.
-2. Een bevriende Belgische brouwer krijgt het idee en volledige creatieve vrijheid.
-3. Het bier wordt gebrouwen en verschijnt op de kaart van restaurant Bij Koen & Marijke in Brugge, en voor bierliefhebbers.
+MissBaxel's Beers is een Belgisch bierproject van Marijke Bax, vanuit Brugge in West-Vlaanderen. Het project ontstond in 2021 als persoonlijke bierblog waarop Marijke verhalen, brouwerijbezoeken en proefnotities verzamelde. Sinds 2024 verschijnen er ook eigen bieren — telkens in samenwerking met een Belgische brouwer.
 
-Dit model is goed voor drie partijen:
-- Het restaurant: unieke bieren die perfect passen bij de keuken
-- De brouwer: creatieve vrijheid en een gegarandeerd podium
-- De bierliefhebber: bieren die nergens anders bestaan
+Marijke is geen brouwer en geen klassieke biersommelier. Voor haar gaat bier over verhalen, brouwers en smaken — niet over techniek. Ze brengt een idee, een bevriende brouwer krijgt de vrije hand om er bier van te maken. Resultaat: bieren die nergens anders bestaan.
 
-## De bieren
-Elk bier op missbaxelsbeers.com is een collab tussen Marijke Bax en een of meerdere Belgische brouwers. De bieren variëren van Belgische tripels tot saisons, amber ales, stouts en zure bieren. Elk bier heeft een eigen verhaal: het idee van Marijke, hoe de brouwer het invulde, en een smaakprofiel in mensentaal.
+## Hoe het ontstond
 
-## Het restaurant: Bij Koen & Marijke in 't Nieuw Museum
-- Adres: Hooistraat 42, 8000 Brugge, België
-- Telefoon: +32 50 33 12 80
-- E-mail: hq@koen-marijke.be
-- Website: https://www.koen-marijke.be
-- Reservaties: https://eetkroeg-in-t-nieuw-museum-brugge.resos.com/booking
-- Openingsuren: maandag t/m vrijdag 18:00–23:00, zaterdag en zondag gesloten
-- Instagram: https://www.instagram.com/koenenmarijke/
-- Facebook: https://www.facebook.com/NieuwMuseum
+- 2014 — Marijke stapt in bij Koen in restaurant In 't Nieuw Museum in Brugge (later Bij Koen & Marijke). Bier is dan nog geen ding.
 
-Houtskool- en houtgestookt grillrestaurant in het hart van Brugge. Koen staat aan het vuur, Marijke staat garant voor de bierkaart en de gastvrijheid. Lokale ingrediënten, ambachtelijk vlees en de beste Belgische bieren — inclusief de volledige MissBaxel's-reeks.
+- Een Duchesse de Bourgogne is het kantelmoment — bier wordt iets om over na te denken.
 
-## Brouwers waarmee MissBaxel's samenwerkt
-- Brouwerij De Bie (Wakken/Dentergem) — ambachtelijke hoevebrouwerij sinds 1992. https://www.brouwerijdebie.be
-- Brouwerij Alvinne (Moen/Zwevegem) — pionier in zure en barrel-aged bieren met de eigen Morpheusgist. https://www.alvinne.com
-- Brouwerij Halve Maan (Brugge) — historische stadsbrouwerij sinds 1856, bekend van de Brugse Zot. https://www.halvemaan.be
-- Brouwerij Verhaeghe (Vichte) — familiebrouwerij sinds 1892, bekend van de Duchesse de Bourgogne. https://www.brouwerijverhaeghe.be
-- Brouwerij De Leite (Ruddervoorde/Oostkamp) — kleine West-Vlaamse brouwerij gespecialiseerd in saisons.
-- Brouwerij 't Verzet (Anzegem) — eigenzinnige craft brouwer, van imperial stout tot fruitige sour.
-- Struise Brouwers (Oostvleteren) — internationaal gerenommeerde craft brouwerij, bekend van Pannepot en Black Albert.
-- Brouwerij Waerloos (Waarloos/Kontich) — kleine ambachtelijke Antwerpse brouwerij.
+- Samen met Koen start ze Bierstekers: bestaande bieren blenden, geuze-stijl, vanuit het restaurant. Een eigen handschrift, een groeiende reeks blends. (Bierstekers staat momenteel op pauze — zie www.bierstekers.com.)
 
-## Bierstekers
-Bierstekers was een eerder project waarbij Marijke en Koen zelf bieren blendden. Dit project staat momenteel op pauze maar is deel van de ontstaansgeschiedenis van MissBaxel's Beers. Het volledige blendarchief is beschikbaar op missbaxelsbeers.com/archief.
+- Daarnaast een nieuwsgierig zijspoor: een thuisbrouwketel van 20L, een vijftal brouwsels lang. Conclusie: zelf brouwen is niet ons vak.
 
-## Contactinformatie
-Website: https://www.missbaxelsbeers.com
-Instagram: @missbaxelsbeers
-Locatie: Brugge, West-Vlaanderen, België
+- 2021 — missbaxelsbeers.com gaat live als bierblog.
 
-## Sitemap
-- / — Homepage met overzicht van alle rollen
-- /beers — Overzicht van alle bieren
-- /beers/[slug] — Detailpagina per bier
-- /over — Het verhaal van Marijke Bax en MissBaxel's
-- /restaurant — Restaurant Bij Koen & Marijke in Brugge
-- /verhalen — Blog en verhalen over Belgisch bier
-- /archief — Archief van de originele blog + Bierstekers blends
+- 2024 — eerste twee eigen brouwsels, een ve
