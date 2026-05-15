@@ -150,8 +150,9 @@ export default function Over() {
 
             <div className="mt-6 flex flex-wrap gap-2">
               <Pill icon={<MapPin size={12} />}>Brugge</Pill>
-              <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwerijen</Pill>
-              <Pill color="copper" icon={<Users size={12} />}>Voor iedereen</Pill>
+              <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwers</Pill>
+              <Pill color="copper" icon={<BookOpen size={12} />}>Verhalen</Pill>
+              <Pill color="hop" icon={<Sparkles size={12} />}>Goesting</Pill>
             </div>
           </div>
 
