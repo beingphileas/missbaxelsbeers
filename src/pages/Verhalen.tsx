@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as Lucide from 'lucide-react';
 import { Search, Notebook } from 'lucide-react';
@@ -28,11 +28,6 @@ const FILTERS: { id: Cat; label: string; icon?: string }[] = [
 
 const PAGE_SIZE = 12;
 
-function matchesCategory(p: Post, cat: Cat): boolean {
-  if (cat === 'all') return true;
-  return (p.style_category || '').toLowerCase() === cat;
-}
-
 const TOP_BG = ['var(--hop-light)', '#FAEEDA', 'var(--copper-light)'];
 
 export default function Verhalen() {
@@ -41,32 +36,44 @@ export default function Verhalen() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [cat, setCat] = useState<Cat>('all');
+
+  // Debounce search input 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [cat, debouncedSearch]);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       const from = 0;
       const to = (page + 1) * PAGE_SIZE - 1;
-      const { data, count } = await supabase
+      let query = supabase
         .from('blog_posts')
         .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url', { count: 'exact' })
-        .order('date', { ascending: false, nullsFirst: false })
-        .range(from, to);
+        .order('date', { ascending: false, nullsFirst: false });
+
+      if (cat !== 'all') {
+        query = query.eq('style_category', cat);
+      }
+      const q = debouncedSearch.trim();
+      if (q) {
+        query = query.ilike('title', `%${q}%`);
+      }
+
+      const { data, count } = await query.range(from, to);
       setPosts((data || []) as any);
       setTotal(count || 0);
       setLoading(false);
     })();
-  }, [page]);
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return posts.filter((p) => {
-      if (!matchesCategory(p, cat)) return false;
-      if (q && !`${p.title} ${p.style || ''}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [posts, search, cat]);
+  }, [page, cat, debouncedSearch]);
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
@@ -153,7 +160,7 @@ export default function Verhalen() {
             <div className="text-center py-16" style={{ color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
               Laden…
             </div>
-          ) : filtered.length === 0 ? (
+          ) : posts.length === 0 ? (
             <div
               className="text-center py-16"
               style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}
@@ -162,7 +169,7 @@ export default function Verhalen() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filtered.map((p, i) => {
+              {posts.map((p, i) => {
                 const dateLabel = p.date
                   ? new Date(p.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' })
                   : 'Verhaal';
