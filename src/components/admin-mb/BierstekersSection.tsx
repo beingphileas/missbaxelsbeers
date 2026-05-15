@@ -8,7 +8,7 @@ import SystemHealthCard from './SystemHealthCard';
 interface BlendRow {
   id: number; name: string; style: string | null; style_category: string | null;
   year: number | null; description: string | null; flavor_tags: string[] | null;
-  untappd_score: number | null; untappd_url: string | null;
+  untappd_score: number | null; untappd_url: string | null; label_image_url: string | null;
 }
 
 export default function BierstekersSection() {
@@ -63,20 +63,28 @@ export default function BierstekersSection() {
         <div className="bg-card border border-border rounded-[12px] overflow-hidden">
           <table className="w-full text-[13px]">
             <thead><tr className="border-b border-border bg-muted/40 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-              <th className="px-4 py-2.5 font-medium">Jaar</th>
-              <th className="px-4 py-2.5 font-medium">Naam</th>
-              <th className="px-4 py-2.5 font-medium">Stijl</th>
-              <th className="px-4 py-2.5 font-medium">Untappd</th>
-              <th className="px-4 py-2.5 font-medium text-right">Acties</th>
+              <th className="px-3 py-2.5 font-medium w-14">Etiket</th>
+              <th className="px-3 py-2.5 font-medium">Jaar</th>
+              <th className="px-3 py-2.5 font-medium">Naam</th>
+              <th className="px-3 py-2.5 font-medium">Stijl</th>
+              <th className="px-3 py-2.5 font-medium">Untappd</th>
+              <th className="px-3 py-2.5 font-medium text-right">Acties</th>
             </tr></thead>
             <tbody>
               {rows.map(r => (
                 <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-2.5 tabular-nums text-muted-foreground">{r.year || '—'}</td>
-                  <td className="px-4 py-2.5 font-medium">{r.name}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '—'}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{r.untappd_score ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-right space-x-1">
+                  <td className="px-3 py-2">
+                    {r.label_image_url ? (
+                      <img src={r.label_image_url} alt={r.name} className="w-9 h-9 object-cover rounded border border-border" loading="lazy" />
+                    ) : (
+                      <div className="w-9 h-9 rounded border border-dashed border-border bg-muted/40" />
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 tabular-nums text-muted-foreground">{r.year || '—'}</td>
+                  <td className="px-3 py-2.5 font-medium">{r.name}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{r.style || '—'}</td>
+                  <td className="px-3 py-2.5 tabular-nums">{r.untappd_score ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
                   </td>
@@ -99,7 +107,23 @@ function BlendForm({ initial, onClose, onSaved }: { initial: BlendRow | null; on
   const [tags, setTags] = useState((initial?.flavor_tags || []).join(', '));
   const [score, setScore] = useState(initial?.untappd_score?.toString() || '');
   const [url, setUrl] = useState(initial?.untappd_url || '');
+  const [labelUrl, setLabelUrl] = useState(initial?.label_image_url || '');
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  async function handleUpload(file: File) {
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `bierstekers/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const { error } = await supabase.storage.from('beer-images').upload(path, file, { contentType: file.type, upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from('beer-images').getPublicUrl(path);
+      setLabelUrl(data.publicUrl);
+      toast.success('Etiket geüpload');
+    } catch (e: any) { toast.error(e.message || 'Upload mislukt'); }
+    finally { setUploading(false); }
+  }
 
   async function save() {
     if (!name.trim()) return toast.error('Naam verplicht');
@@ -113,6 +137,7 @@ function BlendForm({ initial, onClose, onSaved }: { initial: BlendRow | null; on
       flavor_tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       untappd_score: score ? Number(score) : null,
       untappd_url: url.trim() || null,
+      label_image_url: labelUrl.trim() || null,
     };
     if (initial) {
       const { error } = await supabase.from('bierstekers_blends').update(payload).eq('id', initial.id);
@@ -135,18 +160,36 @@ function BlendForm({ initial, onClose, onSaved }: { initial: BlendRow | null; on
         </div>
       } />
       <AdminCard className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Naam"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} /></Field>
-          <Field label="Jaar"><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} /></Field>
-          <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
-          <Field label="Stijl-categorie">
-            <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
-              <option value="">—</option>
-              {['zuur','lambic','zwart','wit'].map(c => <option key={c}>{c}</option>)}
-            </select>
-          </Field>
-          <Field label="Untappd score (0-5)"><input type="number" step="0.01" className={inputCls} value={score} onChange={e => setScore(e.target.value)} /></Field>
-          <Field label="Untappd URL"><input className={inputCls} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://untappd.com/…" /></Field>
+        <div className="grid grid-cols-[120px_1fr] gap-4 items-start">
+          <div className="space-y-2">
+            <div className="aspect-square rounded-lg border border-border overflow-hidden bg-muted/40 flex items-center justify-center">
+              {labelUrl ? (
+                <img src={labelUrl} alt="Etiket" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[11px] text-muted-foreground">Geen etiket</span>
+              )}
+            </div>
+            <label className={`${btnGhost} w-full justify-center cursor-pointer`}>
+              {uploading ? 'Bezig…' : 'Upload etiket'}
+              <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Naam"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} /></Field>
+            <Field label="Jaar"><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} placeholder="2021" /></Field>
+            <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
+            <Field label="Stijl-categorie">
+              <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
+                <option value="">—</option>
+                {['sour','zuur','lambic','donker','zwart','wit'].map(c => <option key={c}>{c}</option>)}
+              </select>
+            </Field>
+            <Field label="Untappd score (0-5)"><input type="number" step="0.01" className={inputCls} value={score} onChange={e => setScore(e.target.value)} /></Field>
+            <Field label="Bierstekers / Untappd URL"><input className={inputCls} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://…" /></Field>
+            <div className="col-span-2">
+              <Field label="Etiket-afbeelding URL" hint="Of upload links via de knop"><input className={inputCls} value={labelUrl} onChange={e => setLabelUrl(e.target.value)} placeholder="https://…" /></Field>
+            </div>
+          </div>
         </div>
         <Field label="Smaak-tags" hint="Komma-gescheiden"><input className={inputCls} value={tags} onChange={e => setTags(e.target.value)} /></Field>
         <Field label="Omschrijving"><textarea rows={5} className={inputCls} value={description} onChange={e => setDescription(e.target.value)} /></Field>

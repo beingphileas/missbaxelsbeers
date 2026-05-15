@@ -268,17 +268,18 @@ export default function Bierstekers() {
                         e.currentTarget.style.transform = 'translateX(0)';
                       }}
                     >
-                      <div
-                        style={{
-                          fontFamily: 'Fraunces, serif',
-                          fontWeight: 900,
-                          fontSize: 22,
-                          color: 'var(--copper-light)',
-                          minWidth: 36,
-                        }}
-                      >
-                        {String(idx + 1).padStart(2, '0')}
-                      </div>
+                      {blend.label_image_url ? (
+                        <img src={blend.label_image_url} alt={blend.name} loading="lazy"
+                          className="shrink-0 object-cover rounded border border-border"
+                          style={{ width: 44, height: 44 }} />
+                      ) : (
+                        <div style={{
+                          fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 22,
+                          color: 'var(--copper-light)', minWidth: 44, textAlign: 'center',
+                        }}>
+                          {String(idx + 1).padStart(2, '0')}
+                        </div>
+                      )}
 
                       <div className="flex-1 min-w-0">
                         <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
