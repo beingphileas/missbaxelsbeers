@@ -89,7 +89,20 @@ export default function Over() {
       />
 
       {/* SECTION 1 — HERO */}
-      <section style={{ borderBottom: '1px solid var(--line)', padding: '52px 0' }}>
+      <section style={{ borderBottom: '1px solid var(--line)', padding: '52px 0', background: 'var(--amber-light)', position: 'relative', overflow: 'hidden' }}>
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', right: 16, bottom: -16,
+            pointerEvents: 'none', userSelect: 'none',
+            fontFamily: 'Fraunces, serif', fontWeight: 900,
+            fontSize: 'clamp(80px, 15vw, 140px)',
+            color: 'var(--amber)', opacity: 0.07,
+            letterSpacing: '-0.04em', lineHeight: 1,
+          }}
+        >
+          BIER
+        </div>
         <div className="max-w-3xl mx-auto px-5">
           <Pill color="amber">Het verhaal</Pill>
           <h1
