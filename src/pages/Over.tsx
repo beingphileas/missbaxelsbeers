@@ -131,7 +131,7 @@ export default function Over() {
               className="mb-5"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
             >
-              Wie is MissBaxel?
+              Hoe het zover kwam
             </h2>
             <div
               className="space-y-4"
