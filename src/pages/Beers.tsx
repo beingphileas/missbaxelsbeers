@@ -61,7 +61,7 @@ function iconForStyle(style: string | null) {
 export default function Beers() {
   const [beers, setBeers] = useState<BeerRow[]>([]);
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'current' | 'archive'>('current');
+  const [tab, setTab] = useState<'all' | 'current' | 'archive'>('all');
   const [cat, setCat] = useState<Cat>('all');
   const [loading, setLoading] = useState(true);
 
