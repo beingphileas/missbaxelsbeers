@@ -122,7 +122,7 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
 
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || submitting}
+            disabled={!name.trim() || submitting || impression.trim().length < 10}
             className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl text-base font-medium"
           >
             {submitting ? <Loader2 size={18} className="animate-spin" /> : t('Publiceer')}
