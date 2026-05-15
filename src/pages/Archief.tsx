@@ -371,18 +371,18 @@ export default function Archief() {
                                 e.currentTarget.style.transform = 'translateX(0)';
                               }}
                             >
-                              <span
-                                style={{
-                                  fontFamily: 'Fraunces, serif',
-                                  fontWeight: 900,
-                                  fontSize: 28,
-                                  color: 'var(--copper-light)',
-                                  minWidth: 36,
-                                  lineHeight: 1,
-                                }}
-                              >
-                                {String(idx + 1).padStart(2, '0')}
-                              </span>
+                              {b.label_image_url ? (
+                                <img src={b.label_image_url} alt={b.name} loading="lazy"
+                                  className="shrink-0 object-cover rounded border border-border"
+                                  style={{ width: 44, height: 44 }} />
+                              ) : (
+                                <span style={{
+                                  fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 22,
+                                  color: 'var(--copper-light)', minWidth: 44, textAlign: 'center', lineHeight: 1,
+                                }}>
+                                  {String(idx + 1).padStart(2, '0')}
+                                </span>
+                              )}
                               <div className="flex-1 min-w-0">
                                 <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
                                   {b.name}
