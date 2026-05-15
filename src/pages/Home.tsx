@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
-  MapPin, Beer as BeerIcon, Heart, Users, Lightbulb, HeartHandshake,
+  MapPin, Beer as BeerIcon, Heart, Users, Lightbulb, HeartHandshake, Sparkles,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -114,7 +114,7 @@ export default function Home() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="MissBaxel's Beers — Ideeën brengen, bieren laten ontstaan"
-        description="Marijke Bax stapt met een smaakdroom naar bevriende brouwers. Ontdek de bieren, het restaurant en het verhaal achter MissBaxel's."
+        description="Belgisch bierproject van Marijke Bax in Brugge. Bieren ontstaan uit ideeën van Marijke en het ambacht van bevriende Belgische brouwers. Ontdek de bieren, het restaurant en het verhaal."
         url="/"
       />
       <Helmet>
@@ -124,7 +124,7 @@ export default function Home() {
           name: "MissBaxel's Beers",
           url: 'https://www.missbaxelsbeers.com',
           logo: 'https://www.missbaxelsbeers.com/logo.png',
-          description: "MissBaxel's Beers ontwikkelt biericeeën en werkt samen met Belgische brouwers. Opgericht door Marijke Bax vanuit Brugge.",
+          description: "Belgisch bierproject van Marijke Bax in Brugge. Bieren ontstaan uit ideeën van Marijke en het ambacht van bevriende Belgische brouwers.",
           founder: { '@type': 'Person', name: 'Marijke Bax' },
           foundingDate: '2021',
           areaServed: 'BE',
@@ -147,13 +147,13 @@ export default function Home() {
                 fontSize: 'clamp(36px, 6vw, 48px)', lineHeight: 1.05, letterSpacing: '-0.02em',
               }}
             >
-              Ideeën brengen, bieren laten{' '}
+              Ik droom. Zij{' '}
               <em style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--hop)' }}>
-                ontstaan.
+                brouwen.
               </em>
             </h1>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', lineHeight: 1.7 }}>
-              Marijke Bax stapt met een smaakdroom naar bevriende brouwers. De brouwer krijgt de vrije hand. Het resultaat is iets dat je nergens anders vindt.
+              Ik kom met een idee. Een bevriende brouwer maakt er bier van. Wat eruit komt vind je nergens anders.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
@@ -280,20 +280,20 @@ export default function Home() {
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', lineHeight: 1.8 }}
             >
               <p>
-                MissBaxel's Beers heeft geen brouwerij. Wat we wel hebben, is een neus voor smaak en een netwerk van bevriende brouwers die graag iets nieuws proberen.
+                Geen eigen brouwerij. Wel een neus voor wat werkt, en brouwers die zin hebben om iets nieuws te proberen.
               </p>
               <p>
-                Marijke komt met een idee — een herinnering, een ingrediënt, een gevoel. De brouwer vertaalt het naar een recept dat hij of zij honderd procent kan staan.
+                Ik kom met een idee — een herinnering, een gerecht uit het restaurant, een smaak die blijft hangen. De brouwer maakt er zijn ding van.
               </p>
               <p>
-                Geen massaproductie. Geen formule. Telkens een bier dat alleen kon ontstaan uit die ene samenwerking.
+                Geen massaproductie. Elk bier is wat het is omdat juist die brouwer en ik samenwerkten. Daarna komt er iets anders, met iemand anders.
               </p>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
               <Pill icon={<MapPin size={12} />}>Brugge</Pill>
               <Pill color="amber" icon={<Heart size={12} />}>Kleine brouwerijen</Pill>
-              <Pill color="copper" icon={<Users size={12} />}>Voor iedereen</Pill>
+              <Pill color="copper" icon={<Sparkles size={12} />}>Goesting</Pill>
             </div>
           </div>
 
@@ -321,7 +321,7 @@ export default function Home() {
                 lineHeight: 1.5, color: 'var(--ink)', marginBottom: 20,
               }}
             >
-              Verwacht geen hoogdravende termen of technisch gegoochel. Ik doe het op mijn manier: rechttoe, rechtaan.
+              Bier gaat voor mij over wat het proeft, wie het maakt, en waar het vandaan komt. Niet over techniek.
             </p>
             <div className="flex items-center gap-3" style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
               <div
@@ -356,9 +356,9 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { icon: Lightbulb, title: 'Het idee', body: 'Een smaak, een herinnering, een richting. Marijke brengt het idee.' },
-              { icon: HeartHandshake, title: 'De samenwerking', body: 'Een bevriende brouwer pakt het op en mag vrij invullen.' },
-              { icon: BeerIcon, title: 'Het bier', body: 'Een uniek bier in beperkte oplage. Telkens anders, telkens echt.' },
+              { icon: Lightbulb, title: 'Het idee', body: 'Een smaak die blijft hangen. Of een gerecht zonder passend bier. Daar begint het.' },
+              { icon: HeartHandshake, title: 'De samenwerking', body: 'Een bevriende brouwer pakt het op en vult het volledig zelf in. Zijn ambacht, mijn idee.' },
+              { icon: BeerIcon, title: 'Het bier', body: 'Eén bier in beperkte oplage. Daarna iets anders, met iemand anders.' },
             ].map((s, i) => {
               const Icon = s.icon;
               return (
