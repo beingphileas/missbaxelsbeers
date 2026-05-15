@@ -71,3 +71,19 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## Edge Function secrets
+
+The following secrets are used by edge functions and must be configured in
+**Supabase Dashboard → Project Settings → Edge Functions → Secrets**:
+
+| Secret | Used by | Purpose |
+| --- | --- | --- |
+| `LOVABLE_API_KEY` | `blog-assistant` | Calls the Lovable AI Gateway (`ai.gateway.lovable.dev`) for AI-assisted writing (interview questions and draft generation). |
+| `GOOGLE_PLACES_API_KEY` | `enrich-post-context` | Looks up location data (address, hours, rating, photos) for shop and venue rubrics. |
+| `ANTHROPIC_API_KEY` | `fact-check`, `analyze-beer` | Powers the fact-check and beer analysis edge functions. |
+
+A copy of these variable names is also available in `.env.example` for local
+reference. The frontend `VITE_*` variables are auto-managed by Lovable Cloud
+and do not need to be set manually in production.
+
