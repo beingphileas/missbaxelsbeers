@@ -91,7 +91,7 @@ export default function Bierstekers() {
               color: 'var(--ink)',
             }}
           >
-            Bierstekers staat momenteel op pauze. Geen nieuwe blends, geen nieuwe boxes — maar het verhaal en het archief blijven hier bewaard als deel van de ontstaansgeschiedenis van MissBaxel's Beers.
+            Bierstekers staat momenteel op pauze — geen nieuwe blends, geen nieuwe boxes. Het verhaal en het archief blijven hier wel staan. Hier leerden we smaakkeuzes maken — en zonder die jaren hadden we later nooit bij echte brouwers durven aankloppen.
           </div>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -125,25 +125,25 @@ export default function Bierstekers() {
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10">
           {/* Left */}
           <div>
-            <Pill color="amber">De oorsprong</Pill>
+            <Pill color="amber">Voorgeschiedenis</Pill>
             <h2
               className="mt-4 mb-5"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
             >
-              Hoe Bierstekers MissBaxel's deed ontstaan
+              Voor er ooit een MissBaxel's-bier was
             </h2>
             <div
               className="space-y-4"
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, lineHeight: 1.85, color: 'var(--muted)' }}
             >
               <p>
-                Bierstekers begon als een zondagse hobby. Marijke en Koen blendden bieren aan de keukentafel — een beetje van dit, een scheutje van dat. Wat begon als spel, groeide al snel uit tot een eigen reeks blends met naam, stijl en karakter.
+                Het begon bij Koen. Op regenachtige zondagnamiddagen las hij over geuzeblenders — mensen die jonge en oude lambik mengen tot iets nieuws. Hij dacht: zou dat ook met andere bieren werken? Een paar maatbekers, wat lege flessen, veel gemors. Het resultaat was eigenlijk niet slecht. En ik was niet meer te houden.
               </p>
               <p>
-                De blends leerden Marijke iets cruciaals: ze had een neus voor smaak, een idee van wat ze wilde — maar de échte magie ontstond wanneer ze samenwerkte met mensen die de techniek beheersten. Dat inzicht werd de basis van MissBaxel's Beers.
+                Vanaf dat moment werd het serieuzer. We werkten in series, met een basis-bier dat we daarna in verschillende verhoudingen mengden, op kurk in fles laten hergisten. Allemaal in beperkte oplage, handmatig gevuld. Zure Pater, Roste Patrick, en later veel meer. Tijdens de lockdown groeide de reeks pas écht door.
               </p>
               <p>
-                Bierstekers is op pauze. Maar zonder Bierstekers was MissBaxel's Beers er nooit gekomen.
+                Toen de restaurants weer open mochten, ging Bierstekers op pauze — geen tijd meer. Maar het bleef kriebelen. Dat gevoel dat ik wist wat ik wilde proeven, ook al kon ik het zelf niet brouwen. Zo kwamen we in 2024 bij echte brouwers terecht. En daar begon MissBaxel's.
               </p>
             </div>
           </div>
@@ -165,9 +165,10 @@ export default function Bierstekers() {
 
             <div className="space-y-5">
               {[
-                { color: 'var(--copper)', period: '2019–2020', text: 'Eerste Bierstekers blends aan de keukentafel' },
-                { color: 'var(--copper)', period: '2020–2021', text: '22 blends, een eigen stijl, een groeiend publiek' },
-                { color: 'var(--hop)', period: '2021', text: "MissBaxel's Beers — het idee was geboren" },
+                { color: 'var(--copper)', period: '2019', text: 'Koen begint te blenden op regenachtige zondagnamiddagen' },
+                { color: 'var(--copper)', period: '2020–2021', text: 'Lockdown geeft tijd, de reeks groeit door tot 18+ blends' },
+                { color: 'var(--copper)', period: '2022', text: 'Restaurants weer open, Bierstekers gaat op pauze' },
+                { color: 'var(--hop)', period: '2024', text: "Het bleef kriebelen, MissBaxel's brouwt zijn eerste bieren" },
               ].map((item, i) => (
                 <div key={i} className="flex gap-3 items-start">
                   <span
@@ -338,13 +339,13 @@ export default function Bierstekers() {
             className="mb-4"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
-            Bierstekers sliep — MissBaxel's ontwaakte
+            Op pauze. Maar niet vergeten.
           </h2>
           <p
             className="mx-auto mb-8"
             style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', maxWidth: 480, lineHeight: 1.7 }}
           >
-            Dezelfde passie, dezelfde smaakdroom — maar nu in samenwerking met bevriende brouwers die de vrije hand krijgen.
+            Bierstekers ging over bieren mengen. MissBaxel's gaat over bieren maken — samen met brouwers die hun vak verstaan.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
