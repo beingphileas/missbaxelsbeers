@@ -99,9 +99,9 @@ export default function Over() {
               fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em',
             }}
           >
-            Bier proeven, verhalen{' '}
+            Bier, met{' '}
             <em style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--amber)' }}>
-              vertellen.
+              goesting.
             </em>
           </h1>
 
