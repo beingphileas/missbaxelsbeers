@@ -1,0 +1,1 @@
+ALTER TABLE public.bierstekers_blends ADD COLUMN IF NOT EXISTS label_image_url text;

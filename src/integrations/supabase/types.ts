@@ -238,6 +238,7 @@ export type Database = {
           description: string | null
           flavor_tags: string[] | null
           id: number
+          label_image_url: string | null
           name: string
           style: string | null
           style_category: string | null
@@ -250,6 +251,7 @@ export type Database = {
           description?: string | null
           flavor_tags?: string[] | null
           id?: number
+          label_image_url?: string | null
           name: string
           style?: string | null
           style_category?: string | null
@@ -262,6 +264,7 @@ export type Database = {
           description?: string | null
           flavor_tags?: string[] | null
           id?: number
+          label_image_url?: string | null
           name?: string
           style?: string | null
           style_category?: string | null
