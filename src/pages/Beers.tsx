@@ -61,7 +61,7 @@ function iconForStyle(style: string | null) {
 export default function Beers() {
   const [beers, setBeers] = useState<BeerRow[]>([]);
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'current' | 'archive'>('current');
+  const [tab, setTab] = useState<'all' | 'current' | 'archive'>('all');
   const [cat, setCat] = useState<Cat>('all');
   const [loading, setLoading] = useState(true);
 
@@ -108,6 +108,7 @@ export default function Beers() {
     return beers.filter((b) => {
       if (tab === 'current' && b.is_current === false) return false;
       if (tab === 'archive' && b.is_current !== false) return false;
+      // 'all' shows both
       if (!matchesCategory(b, cat)) return false;
       if (q) {
         const hay = `${b.name} ${b.breweries.join(' ')} ${b.style || ''}`.toLowerCase();
@@ -155,8 +156,9 @@ export default function Beers() {
           {/* Tabs */}
           <div className="flex gap-2">
             {[
-              { id: 'current' as const, label: 'Huidig assortiment' },
-              { id: 'archive' as const, label: 'Archief' },
+              { id: 'all' as const, label: 'Alle' },
+              { id: 'current' as const, label: 'Beschikbaar' },
+              { id: 'archive' as const, label: 'Uitverkocht' },
             ].map((t) => {
               const active = tab === t.id;
               return (
@@ -373,14 +375,16 @@ export default function Beers() {
                           Uitgelicht
                         </span>
                       )}
-                      {b.is_current === false && (
-                        <span
-                          className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
-                          style={{ background: '#EFEAE2', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}
-                        >
-                          Archief
-                        </span>
-                      )}
+                      <span
+                        className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                        style={{
+                          background: b.is_current === false ? '#EFEAE2' : '#E6F2E6',
+                          color: b.is_current === false ? 'var(--muted)' : '#2E6B3F',
+                          fontFamily: 'DM Sans, sans-serif',
+                        }}
+                      >
+                        {b.is_current === false ? 'Uitverkocht' : 'Beschikbaar'}
+                      </span>
                     </div>
                   </Link>
                 );

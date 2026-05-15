@@ -102,7 +102,7 @@ export default function BeersSection() {
                   <td className="px-4 py-2.5">
                     <button onClick={() => toggle(r.id, 'is_current', !r.is_current)}
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] ${r.is_current ? 'bg-[hsl(var(--primary-light))] text-primary' : 'border border-border text-muted-foreground'}`}>
-                      <CheckCircle2 size={11} /> {r.is_current ? 'Huidig' : 'Archief'}
+                      <CheckCircle2 size={11} /> {r.is_current ? 'Beschikbaar' : 'Uitverkocht'}
                     </button>
                   </td>
                   <td className="px-4 py-2.5">
@@ -270,7 +270,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
             <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Vlaggen</h3>
             <div className="space-y-2">
               {[
-                { k: 'isCurrent', l: 'Huidig (is_current)', v: isCurrent, set: setIsCurrent },
+                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent },
                 { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured },
                 { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab },
               ].map(f => (
