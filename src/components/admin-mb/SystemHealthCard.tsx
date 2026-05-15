@@ -31,15 +31,21 @@ function formatDate(iso: string | null): string {
 export default function SystemHealthCard() {
   const [rows, setRows] = useState<Record<string, HealthRow>>({});
   const [loading, setLoading] = useState(true);
+  const [tableError, setTableError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
-      .from('system_health' as any)
+      .from('system_health')
       .select('*')
       .in('key', SCRAPERS.map(s => s.key))
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          setTableError(error.message);
+          setLoading(false);
+          return;
+        }
         const map: Record<string, HealthRow> = {};
-        for (const r of (data as any) || []) map[r.key] = r;
+        for (const r of data || []) map[r.key] = r as HealthRow;
         setRows(map);
         setLoading(false);
       });
