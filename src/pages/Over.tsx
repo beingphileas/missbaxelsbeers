@@ -193,10 +193,10 @@ export default function Over() {
               style={{ padding: 20, fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}
             >
               <p>
-                Sommelier én vertaler. Ik probeer de wereld van het ambachtelijk bier toegankelijk te houden — voor wie niet wekelijks een bierfestival bezoekt.
+                Ik ben geen brouwer en ook geen sommelier. Ik ben gewoon iemand die graag proeft, graag rondkijkt bij kleine brouwers, en graag vertelt wat ik daar tegenkom.
               </p>
               <p>
-                Mijn focus: kleine Belgische brouwers, eerlijke proefnotities, en bieren die ontstaan uit échte samenwerking.
+                Mijn voorkeur gaat naar Belgische brouwers van eigen formaat. Mensen die hun bier nog zelf brouwen, vullen, etiketteren. Daar zit het vakmanschap.
               </p>
             </div>
 
