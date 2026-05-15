@@ -182,23 +182,9 @@ export default function Over() {
             }}
           >
             <div
-              className="flex items-center gap-3"
-              style={{ background: 'var(--hop-light)', padding: 16 }}
+              style={{ background: '#FFFFFF', padding: 20, display: 'flex', justifyContent: 'center' }}
             >
-              <div
-                className="flex items-center justify-center shrink-0"
-                style={{
-                  width: 44, height: 44, borderRadius: '50%',
-                  background: '#fff', color: 'var(--hop-dark)',
-                  fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 16,
-                }}
-              >
-                MB
-              </div>
-              <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Marijke Bax</div>
-                <div style={{ fontSize: 12, color: 'var(--hop-dark)' }}>Bij Koen &amp; Marijke · Brugge</div>
-              </div>
+              <img src="/missbaxels-logo.png" alt="Marijke Bax" style={{ height: 110, width: 'auto', objectFit: 'contain', display: 'block' }} />
             </div>
 
             <div
