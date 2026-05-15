@@ -40,7 +40,7 @@ export default function QuickStorySheet({ open, onOpenChange }: Props) {
 
   const handleSubmit = async () => {
     const title = name.trim();
-    if (!title || submitting) return;
+    if (!title || submitting || impression.trim().length < 10) return;
     setSubmitting(true);
     const today = new Date().toISOString().slice(0, 10);
     const slug = `${slugify(title) || 'verhaal'}-${Date.now()}`;
