@@ -265,13 +265,31 @@ export default function BeerDetail() {
               </div>
             )}
 
-            <Link
-              to="/restaurant"
-              className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
-            >
-              <Utensils size={14} /> Proef het in het restaurant
-            </Link>
+            {(beer as any).is_current === false ? (
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <span
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em]"
+                  style={{ background: '#EFEAE2', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  Uitverkocht
+                </span>
+                <Link
+                  to="/beers"
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+                  style={{ background: 'var(--ink)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  <BeerIcon size={14} /> Bekijk beschikbare bieren
+                </Link>
+              </div>
+            ) : (
+              <Link
+                to="/restaurant"
+                className="mt-7 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+                style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                <Utensils size={14} /> Proef het in het restaurant
+              </Link>
+            )}
           </div>
         </div>
       </section>
