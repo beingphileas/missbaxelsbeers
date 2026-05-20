@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Star, CheckCircle2, ArrowLeft, X, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, Star, CheckCircle2, ArrowLeft, X, Save, Copy, ExternalLink } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
 import ImageUploader from './ImageUploader';
 
