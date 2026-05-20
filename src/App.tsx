@@ -8,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import WhisperFAB from "@/components/WhisperFAB";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const Home = lazy(() => import("./pages/Home"));
@@ -47,8 +47,6 @@ const App = () => (
                 <Route path="/" element={<Home />} />
                 <Route path="/verhalen" element={<Verhalen />} />
                 <Route path="/verhalen/:slug" element={<BlogPost />} />
-                <Route path="/stories" element={<Navigate to="/verhalen" replace />} />
-                <Route path="/post/:slug" element={<BlogPost />} />
                 <Route path="/beers" element={<Beers />} />
                 <Route path="/beers/:id" element={<BeerDetail />} />
                 <Route path="/bierstekers" element={<Bierstekers />} />
@@ -69,7 +67,6 @@ const App = () => (
               </Routes>
             </Suspense>
             <SiteFooter />
-            <WhisperFAB />
           </BrowserRouter>
         </LanguageProvider>
       </TooltipProvider>

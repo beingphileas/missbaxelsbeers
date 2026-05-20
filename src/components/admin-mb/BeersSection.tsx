@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Star, CheckCircle2, ArrowLeft, X, Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
-import SystemHealthCard from './SystemHealthCard';
 import ImageUploader from './ImageUploader';
 
 interface BeerRow {
@@ -61,7 +60,6 @@ export default function BeersSection() {
 
   return (
     <div>
-      <SystemHealthCard />
       <AdminHeader
         title="Bieren"
         subtitle={`${rows.length} bieren in de catalogus`}

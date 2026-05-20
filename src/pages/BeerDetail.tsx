@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
-import { askMissBaxel } from '@/lib/askMissBaxel';
+
 
 type Brewery = {
   id: string;
@@ -489,58 +489,6 @@ export default function BeerDetail() {
         </section>
       )}
 
-      {/* Ask MissBaxel's CTA */}
-      <section
-        style={{
-          background: 'var(--hop-light)',
-          borderTop: '1px solid var(--line)',
-          padding: '32px 0',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-5 flex flex-col items-center text-center gap-3">
-          <div
-            className="w-11 h-11 rounded-full flex items-center justify-center"
-            style={{ background: '#fff', border: '1px solid var(--line)' }}
-          >
-            <Sparkles size={18} style={{ color: 'var(--hop)' }} />
-          </div>
-          <h3
-            style={{
-              fontFamily: 'Fraunces, serif',
-              fontWeight: 700,
-              fontSize: 'clamp(20px, 3vw, 26px)',
-              lineHeight: 1.2,
-              color: 'var(--ink)',
-            }}
-          >
-            Vragen over {beer.name}?
-          </h3>
-          <p
-            style={{
-              fontFamily: 'DM Sans, sans-serif',
-              fontSize: 14,
-              color: 'var(--muted)',
-              maxWidth: 520,
-              lineHeight: 1.6,
-            }}
-          >
-            Vraag het aan MissBaxel's — onze AI-biergids beantwoordt al je vragen over dit bier, de brouwer en perfecte combinaties.
-          </p>
-          <button
-            onClick={() => askMissBaxel(`Vertel me meer over ${beer.name}`)}
-            className="inline-flex items-center gap-1.5 mt-1 rounded-full px-5 py-2.5 transition-opacity hover:opacity-90"
-            style={{
-              background: 'var(--hop)',
-              color: '#fff',
-              fontFamily: 'DM Sans, sans-serif',
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            <Sparkles size={14} /> Stel een vraag
-          </button>
-        </div>
-      </section>
     </div>
   );
 }
