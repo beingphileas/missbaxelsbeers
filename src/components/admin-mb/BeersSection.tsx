@@ -207,6 +207,12 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
     onSaved();
   }
 
+  function duplicate() {
+    setName(name + ' (kopie)');
+    setSlug('');
+    toast.info('Maak nu een kopie aan via "Opslaan"');
+  }
+
   return (
     <div>
       <AdminHeader
@@ -214,6 +220,14 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
         right={
           <div className="flex gap-2">
             <button onClick={onClose} className={btnGhost}><ArrowLeft size={12} /> Terug</button>
+            {initial && (
+              <>
+                <a href={`/beers/${initial.slug || initial.id}`} target="_blank" rel="noopener noreferrer" className={btnGhost}>
+                  <ExternalLink size={12} /> Bekijk
+                </a>
+                <button onClick={duplicate} className={btnGhost}><Copy size={12} /> Dupliceer</button>
+              </>
+            )}
             <button onClick={save} disabled={saving} className={btnPrimary}><Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
           </div>
         }
