@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
-import SystemHealthCard from './SystemHealthCard';
+
 
 interface BlendRow {
   id: number; name: string; style: string | null; style_category: string | null;
@@ -16,19 +16,7 @@ export default function BierstekersSection() {
   const [editing, setEditing] = useState<BlendRow | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [scraping, setScraping] = useState(false);
 
-  async function scrapeUntappd() {
-    setScraping(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('scrape-bierstekers');
-      if (error) throw error;
-      toast.success(`${data.inserted} blends ingevoegd (bron: ${data.source})`);
-      load();
-    } catch (e: any) {
-      toast.error(e.message || 'Scrape mislukt');
-    } finally { setScraping(false); }
-  }
 
   async function load() {
     setLoading(true);
@@ -50,14 +38,8 @@ export default function BierstekersSection() {
 
   return (
     <div>
-      <SystemHealthCard />
       <AdminHeader title="Bierstekers blends" subtitle={`${rows.length} blends`} right={
-        <div className="flex gap-2">
-          <button onClick={scrapeUntappd} disabled={scraping} className={btnGhost}>
-            {scraping ? 'Scrapen…' : 'Scrape Untappd'}
-          </button>
-          <button onClick={() => setCreating(true)} className={btnPrimary}><Plus size={13} /> Nieuwe blend</button>
-        </div>
+        <button onClick={() => setCreating(true)} className={btnPrimary}><Plus size={13} /> Nieuwe blend</button>
       } />
       {loading ? <p className="text-muted-foreground text-sm">Laden…</p> : (
         <div className="bg-card border border-border rounded-[12px] overflow-hidden">

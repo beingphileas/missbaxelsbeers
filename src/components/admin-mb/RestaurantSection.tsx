@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost } from './ui';
-import SystemHealthCard from './SystemHealthCard';
+
 
 const DAYS = [
   { k: 'ma', l: 'Maandag' }, { k: 'di', l: 'Dinsdag' }, { k: 'wo', l: 'Woensdag' },
@@ -26,20 +26,7 @@ export default function RestaurantSection() {
   const [row, setRow] = useState<RestaurantRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [scraping, setScraping] = useState(false);
 
-  async function scrape() {
-    setScraping(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('scrape-restaurant');
-      if (error) throw error;
-      toast.success(`Bijgewerkt: ${(data.updated_fields || []).join(', ') || 'geen velden gevonden'}`);
-      const { data: fresh } = await supabase.from('restaurant').select('*').eq('id', 1).maybeSingle();
-      if (fresh) setRow(fresh as any);
-    } catch (e: any) {
-      toast.error(e.message || 'Scrape mislukt');
-    } finally { setScraping(false); }
-  }
 
   useEffect(() => {
     supabase.from('restaurant').select('*').eq('id', 1).maybeSingle().then(({ data }) => {
@@ -72,16 +59,10 @@ export default function RestaurantSection() {
 
   return (
     <div>
-      <SystemHealthCard />
       <AdminHeader title="Restaurant" subtitle="Bij Koen & Marijke" right={
-        <div className="flex gap-2">
-          <button onClick={scrape} disabled={scraping} className={btnGhost}>
-            {scraping ? 'Scrapen…' : 'Scrape restaurantinfo'}
-          </button>
-          <button onClick={save} disabled={saving} className={btnPrimary}>
-            <Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}
-          </button>
-        </div>
+        <button onClick={save} disabled={saving} className={btnPrimary}>
+          <Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}
+        </button>
       } />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
