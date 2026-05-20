@@ -127,6 +127,18 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     })();
   }, [initial]);
 
+  // Ctrl/Cmd+S = save
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (!saving) save();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
     setSaving(true);
