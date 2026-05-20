@@ -71,6 +71,7 @@ export default function Archief() {
   const [blends, setBlends] = useState<Blend[]>([]);
   const [blogCat, setBlogCat] = useState<BlogCat>('all');
   const [blendCat, setBlendCat] = useState<BlendCat>('all');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
