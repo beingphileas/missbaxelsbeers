@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Archive, Notebook, FlaskConical, ExternalLink, Star } from 'lucide-react';
+import { Archive, Notebook, FlaskConical, ExternalLink, Star, Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
