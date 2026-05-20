@@ -24,6 +24,7 @@ const Pill = ({ children, color = 'copper' }: { children: React.ReactNode; color
 
 export default function Bierstekers() {
   const [blends, setBlends] = useState<BierstekersBlend[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -40,8 +41,13 @@ export default function Bierstekers() {
     document.getElementById('archief')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const q = search.trim().toLowerCase();
+  const filteredBlends = q
+    ? blends.filter((b) => `${b.name} ${b.style || ''} ${b.year || ''}`.toLowerCase().includes(q))
+    : blends;
+
   // Group blends by year
-  const grouped = blends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
+  const grouped = filteredBlends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
     const y = b.year ? String(b.year) : 'Onbekend';
     (acc[y] ||= []).push(b);
     return acc;
