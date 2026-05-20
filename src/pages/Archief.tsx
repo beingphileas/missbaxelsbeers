@@ -193,6 +193,14 @@ export default function Archief() {
       {/* CONTENT */}
       <section style={{ padding: '24px 0 60px' }}>
         <div className="max-w-5xl mx-auto px-5">
+          <div className="flex items-center gap-2 px-3 py-2 mb-4"
+            style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 22, maxWidth: 360 }}>
+            <Search size={14} style={{ color: 'var(--muted)' }} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={tab === 'blog' ? 'Zoek verhaal…' : 'Zoek blend…'}
+              className="bg-transparent outline-none flex-1 min-w-0"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--ink)' }} />
+          </div>
           {tab === 'blog' ? (
             <>
               <style>{`.archief-pills::-webkit-scrollbar{display:none}`}</style>
