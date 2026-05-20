@@ -577,6 +577,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* SECTION 7 — FINAL RESERVATION CTA */}
+      <section style={{ background: 'var(--ink)', padding: '56px 0', textAlign: 'center' }}>
+        <div className="max-w-2xl mx-auto px-5">
+          <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(28px, 4vw, 36px)', lineHeight: 1.15, color: '#fff', marginBottom: 14 }}>
+            Klaar om ze te proeven?
+          </h2>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 28 }}>
+            Reserveer een tafel bij Koen &amp; Marijke en proef de bieren waar het allemaal samenkomt.
+          </p>
+          {restaurant?.reservation_url ? (
+            <a href={restaurant.reservation_url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>
+              Reserveer een tafel
+            </a>
+          ) : (
+            <Link to="/restaurant"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>
+              Reserveer een tafel
+            </Link>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
