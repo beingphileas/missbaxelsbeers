@@ -96,15 +96,23 @@ export default function Archief() {
     })();
   }, []);
 
-  const filteredPosts = useMemo(
-    () => posts.filter((p) => matchesBlogCat(p, blogCat)),
-    [posts, blogCat]
-  );
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return posts.filter((p) => {
+      if (!matchesBlogCat(p, blogCat)) return false;
+      if (q && !`${p.title} ${p.style || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [posts, blogCat, search]);
 
-  const filteredBlends = useMemo(
-    () => blends.filter((b) => matchesBlendCat(b, blendCat)),
-    [blends, blendCat]
-  );
+  const filteredBlends = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return blends.filter((b) => {
+      if (!matchesBlendCat(b, blendCat)) return false;
+      if (q && !`${b.name} ${b.style || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [blends, blendCat, search]);
 
   const blendsByYear = useMemo(() => {
     const map = new Map<string, Blend[]>();
