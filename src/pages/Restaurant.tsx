@@ -414,6 +414,35 @@ export default function Restaurant() {
           </a>
         </div>
       </section>
+
+      {/* SECTION 6 — VERKENNERSLINKS */}
+      <section style={{ padding: '36px 0', borderTop: '1px solid var(--line)' }}>
+        <div className="max-w-3xl mx-auto px-5 text-center">
+          <p
+            className="mb-4"
+            style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+              color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.14em',
+            }}
+          >
+            Ontdek meer
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link to="/verhalen" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+              Lees onze verhalen
+            </Link>
+            <Link to="/beers" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+              Bekijk de bieren
+            </Link>
+            <Link to="/archief" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+              Naar het archief
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
