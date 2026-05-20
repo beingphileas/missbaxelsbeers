@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Archive, Notebook, FlaskConical, ExternalLink, Star } from 'lucide-react';
+import { Archive, Notebook, FlaskConical, ExternalLink, Star, Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -71,6 +71,7 @@ export default function Archief() {
   const [blends, setBlends] = useState<Blend[]>([]);
   const [blogCat, setBlogCat] = useState<BlogCat>('all');
   const [blendCat, setBlendCat] = useState<BlendCat>('all');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -95,15 +96,23 @@ export default function Archief() {
     })();
   }, []);
 
-  const filteredPosts = useMemo(
-    () => posts.filter((p) => matchesBlogCat(p, blogCat)),
-    [posts, blogCat]
-  );
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return posts.filter((p) => {
+      if (!matchesBlogCat(p, blogCat)) return false;
+      if (q && !`${p.title} ${p.style || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [posts, blogCat, search]);
 
-  const filteredBlends = useMemo(
-    () => blends.filter((b) => matchesBlendCat(b, blendCat)),
-    [blends, blendCat]
-  );
+  const filteredBlends = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return blends.filter((b) => {
+      if (!matchesBlendCat(b, blendCat)) return false;
+      if (q && !`${b.name} ${b.style || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [blends, blendCat, search]);
 
   const blendsByYear = useMemo(() => {
     const map = new Map<string, Blend[]>();
@@ -184,6 +193,14 @@ export default function Archief() {
       {/* CONTENT */}
       <section style={{ padding: '24px 0 60px' }}>
         <div className="max-w-5xl mx-auto px-5">
+          <div className="flex items-center gap-2 px-3 py-2 mb-4"
+            style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 22, maxWidth: 360 }}>
+            <Search size={14} style={{ color: 'var(--muted)' }} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={tab === 'blog' ? 'Zoek verhaal…' : 'Zoek blend…'}
+              className="bg-transparent outline-none flex-1 min-w-0"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--ink)' }} />
+          </div>
           {tab === 'blog' ? (
             <>
               <style>{`.archief-pills::-webkit-scrollbar{display:none}`}</style>

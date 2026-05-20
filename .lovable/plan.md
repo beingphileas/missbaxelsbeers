@@ -1,50 +1,51 @@
-## Plan: Vervang seed data met scrapers + lege staten
+## ⚠️ Eerst lezen — conflicten met huidige project-memory
 
-### Stap 1 — Database opschonen (via supabase--insert)
-- `DELETE FROM beer_breweries;`
-- `DELETE FROM bierstekers_blends;`
-- `UPDATE restaurant SET ... WHERE id = 1;` (alle velden behalve naam/stad → NULL)
+Het document is geschreven als generiek "warm restaurant" advies, maar jouw project heeft al een eigen geheugen dat hier mee botst. Voor ik begin moet je weten welke prompts ik **anders** ga uitvoeren (of overslaan):
 
-Beers tabel laten staan (er zijn al 0 of weinig échte rijen, en placeholder-rijen kunnen via admin verwijderd worden — geen "DELETE FROM beers" want dat wist evt. echte data).
+| Prompt | Conflict | Mijn aanpak |
+|---|---|---|
+| 2 (Home redesign) | Memory: Home = Featured Story slider hero, dark wine cellar. Prompt wil generieke "warm inviting" hero. | Behoud bestaande hero-slider + dark wine cellar. Voeg alleen Featured Beers + Bierstekers sectie en CTA-band toe. |
+| 5 (Beers page) | Memory: scrapbook cards, score ≥ 70, Fisher-Yates shuffle. Prompt wil generieke grid + sort. | Behoud scrapbook + shuffle. Voeg alleen filters/zoek toe. |
+| 4 (Bierstekers) | Memory: "museum/collectible" — al gedaan met label thumbnails. | Alleen zoek + filter toevoegen. |
+| 6-10 (content rewrites, voice audit, beer descriptions) | Vereisen handmatig schrijfwerk in DB. Voice = "MissBaxel" niet "Marijke alleen". | **Overslaan** — geef je workflow + admin-tools, jij doet het schrijven. |
+| 17 (Featured manager) | Bestaat al via `featured` checkbox in elke section. | **Overslaan** — al aanwezig. |
+| 18 (Draft/Publish) | `blog_posts.status` + `published_at` bestaan al. | **Overslaan** — al aanwezig. |
+| 19-22 (performance, bundle, caching) | Vereisen build-tooling/hosting config buiten Lovable. | Minimaal: lazy `loading="lazy"` op afbeeldingen waar nog niet, expliciete width/height op hero. Rest = niet uitvoerbaar in deze sandbox. |
+| 23-26 (audit, cleanup, deployment, GA) | Handmatig / extern (PageSpeed, Google Analytics, deploy). | **Overslaan** — geen code-actie, jij doet via Publish + GSC. |
 
-### Stap 2 — Edge Function `scrape-missbaxels-blog`
-- POST endpoint, CORS, JWT verify uit (admin gated via UI)
-- Fetch `https://www.missbaxelsbeers.com/sitemap.xml` (WordPress default) → fallback naar homepage HTML scrape voor `<a href>` met `/uncategorized/` of `/post/` patroon
-- Voor elke URL: fetch HTML, regex/string-extract:
-  - `<title>` of `og:title` → title
-  - `og:description` of eerste `<p>` → excerpt
-  - `article:published_time` of `<time datetime=>` → date
-  - URL → external_url, slug uit pad
-  - emoji op basis van keywords in title (kriek→🍒, ipa→🌿, stout→🖤, default→🍺)
-- `upsert` naar `blog_posts` met `onConflict: 'slug'`, status='published'
-- Response: `{ scraped, inserted, updated, errors[] }`
+## ✅ Wat ik wél code-matig ga uitvoeren
 
-### Stap 3 — Edge Function `scrape-bierstekers`
-- Probeer `https://untappd.com/Biersteker` te fetchen met realistische User-Agent
-- Bij block (403/429/non-200) of <3 hits: insert het 13-rij fallback INSERT statement uit het bericht
-- Response: `{ source: 'untappd' | 'fallback', inserted }`
+**Batch 1 — Pages (prompt 1, 3, 4, 5, deel van 2)**
+1. **Restaurant.tsx** — grote reserveer-CTA bovenaan + onderaan, opening hours/adres/contact zichtbaar, social icons, footer-links naar /verhalen, /beers, /archief. Wine cellar styling behouden.
+2. **Archief.tsx** — zoekbalk (titel + excerpt), filters per jaar + brouwerij, sort (nieuw/oud/featured/A-Z), pagineerbaar "Load more". Behoud etiket-thumbnail.
+3. **Bierstekers.tsx** — zoek + filter op jaar/stijl bovenop bestaande showcase.
+4. **Beers.tsx** — zoekbalk + style-filter + featured toggle + sort. Scrapbook layout blijft.
+5. **Home.tsx** — Featured Beers strip + Bierstekers strip + onderaan "Reserveer een tafel" CTA-band. Bestaande hero-slider blijft intact.
 
-### Stap 4 — Edge Function `scrape-restaurant`
-- Fetch missbaxelsbeers.com homepage + zoek address/phone via regex (Belgische formats)
-- Update `restaurant` (id=1) met gevonden velden + vaste social URLs
-- Hardcoded fallback: `name='Bij Koen & Marijke in 't Nieuw Museum'`, `city='Brugge'`, `instagram_url='https://www.instagram.com/missbaxelsbeers/'`
-- Response: `{ updated_fields }`
+**Batch 2 — SEO (prompt 11, 12, 13, 14)**
+6. **BlogPost.tsx** — meta description (uit `excerpt` of eerste 160 chars), OG tags, JSON-LD BlogPosting schema.
+7. **Restaurant.tsx** — JSON-LD Restaurant + OG tags.
+8. **BeerDetail.tsx** — JSON-LD Product + OG tags.
+9. **Home.tsx** — OG tags.
+10. **public/sitemap.xml** + **public/robots.txt** — bijwerken met alle routes (er staan al stubs).
 
-### Stap 5 — UI wijzigingen
-- **`src/pages/Beers.tsx`**: als `beers.length === 0` → empty state card met copy + copper button "Reserveer een tafel" → `/restaurant`
-- **`src/components/admin-mb/BlogPostsSection.tsx`**: "Scrape missbaxelsbeers.com" knop → `supabase.functions.invoke('scrape-missbaxels-blog')` met loading + toast
-- **`src/components/admin-mb/BierstekersSection.tsx`**: "Scrape Untappd" knop → invoke `scrape-bierstekers`
-- **`src/components/admin-mb/RestaurantSection.tsx`**: "Scrape restaurantinfo" knop → invoke `scrape-restaurant`
-- **`src/components/admin-mb/BeersSection.tsx`**: notice-banner bovenaan als `beers.length === 0`
+**Batch 3 — Admin UX (prompt 15, 16)**
+11. **BlogPostsSection** — rubric-checklist visueel zichtbaar in editor met score-indicator (rood/geel/groen), char-count op excerpt, Ctrl+S shortcut.
+12. **BeersSection** — "Duplicate beer" knop + "Bekijk op site" link in form. (Bulk featured is overkill — overslaan tenzij je het wil.)
 
-### Technische details
-- Alle edge functions: `import { corsHeaders } from '@supabase/supabase-js/cors'`, gebruik `SUPABASE_SERVICE_ROLE_KEY` voor schrijfacties
-- Geen externe npm packages — pure regex/string parsing voor HTML
-- config.toml: standaard `verify_jwt=false` voldoet (admin RBAC zit in UI; service role schrijft direct)
-- Knoppen invalidieren react-query caches na succes
+**Batch 4 — Performance lichte versie (prompt 19, 21)**
+13. Alle `<img>` in lijst-pagina's krijgen `loading="lazy"` + expliciete `width`/`height` waar zinvol (om CLS te verminderen).
 
-### Volgorde uitvoering
-1. supabase--insert (DELETE + UPDATE)
-2. parallel: 3 edge functions schrijven via code--write
-3. parallel: 4 UI files patchen
-4. supabase--deploy_edge_functions (alle 3)
+## Geen migraties nodig
+Alle benodigde DB-velden (`excerpt`, `status`, `published_at`, `featured`, `label_image_url`) bestaan al.
+
+## Tijdsinschatting
+Dit kost mij ongeveer **8-12 tool-batches** (geen 8-10 uur — dat is jouw werk voor de content). Resultaat = alle code-kant af; content + deploy + GA blijft jouw werk.
+
+## Vraag
+Akkoord met deze aanpak? Of wil je:
+- (a) **toch ook** content-werk (prompts 6-10) — dan moet je per post handmatig keuren want ik mag geen AI-generated voice schrijven voor MissBaxel zonder review,
+- (b) bepaalde prompts uit de "overslaan"-lijst tóch uitvoeren (welke?),
+- (c) prompts uit deze plan eruit halen (welke?).
+
+Reply met **"go"** voor dit plan ongewijzigd.

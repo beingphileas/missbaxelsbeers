@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star } from 'lucide-react';
+import { Star, Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { BierstekersBlend } from '@/types';
@@ -24,6 +24,7 @@ const Pill = ({ children, color = 'copper' }: { children: React.ReactNode; color
 
 export default function Bierstekers() {
   const [blends, setBlends] = useState<BierstekersBlend[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -40,8 +41,13 @@ export default function Bierstekers() {
     document.getElementById('archief')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const q = search.trim().toLowerCase();
+  const filteredBlends = q
+    ? blends.filter((b) => `${b.name} ${b.style || ''} ${b.year || ''}`.toLowerCase().includes(q))
+    : blends;
+
   // Group blends by year
-  const grouped = blends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
+  const grouped = filteredBlends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
     const y = b.year ? String(b.year) : 'Onbekend';
     (acc[y] ||= []).push(b);
     return acc;
@@ -240,10 +246,26 @@ export default function Bierstekers() {
             Alle blends, bewaard
           </h2>
           <p
-            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', marginBottom: 32 }}
+            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', marginBottom: 18 }}
           >
             Allemaal uitverkocht. Voor altijd hier.
           </p>
+
+          <div className="flex items-center gap-2 px-3 py-2 mb-8"
+            style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 22, maxWidth: 320 }}>
+            <Search size={14} style={{ color: 'var(--muted)' }} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Zoek blend op naam, stijl of jaar…"
+              className="bg-transparent outline-none flex-1 min-w-0"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--ink)' }} />
+          </div>
+
+          {years.length === 0 && (
+            <div className="text-center py-12"
+              style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
+              Geen blends gevonden.
+            </div>
+          )}
 
           {years.map((year) => (
             <div key={year} className="mb-10">

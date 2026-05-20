@@ -127,6 +127,18 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     })();
   }, [initial]);
 
+  // Ctrl/Cmd+S = save
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (!saving) save();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
     setSaving(true);
@@ -223,7 +235,9 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           </Field>
           <Field label="Emoji (fallback)"><input className={inputCls} value={emoji} onChange={e => setEmoji(e.target.value)} placeholder="🍺" /></Field>
         </div>
-        <Field label="Excerpt"><textarea rows={2} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} /></Field>
+        <Field label="Excerpt" hint={`${excerpt.length}/160 — ideaal voor SEO en sociale media`}>
+          <textarea rows={2} maxLength={200} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} />
+        </Field>
         <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
 
         <div className="border-t border-border pt-4 space-y-4">
