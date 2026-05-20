@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Download, Wine, ShieldCheck, Plus } from 'lucide-react';
+import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Wine } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BeersSection from '@/components/admin-mb/BeersSection';
@@ -7,12 +7,8 @@ import BreweriesSection from '@/components/admin-mb/BreweriesSection';
 import BlogPostsSection from '@/components/admin-mb/BlogPostsSection';
 import BierstekersSection from '@/components/admin-mb/BierstekersSection';
 import RestaurantSection from '@/components/admin-mb/RestaurantSection';
-import FirecrawlImport from '@/components/admin/FirecrawlImport';
-import QuickTasting from '@/components/admin/QuickTasting';
-import BulkFactCheck from '@/components/admin/BulkFactCheck';
-import QuickStorySheet from '@/components/QuickStorySheet';
 
-type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'import' | 'tasting' | 'factcheck';
+type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant';
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bieren', label: 'Bieren', icon: Beer },
@@ -20,9 +16,6 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any>
   { key: 'blogposts', label: 'Blogposts', icon: Newspaper },
   { key: 'bierstekers', label: 'Bierstekers', icon: FlaskConical },
   { key: 'restaurant', label: 'Restaurant', icon: UtensilsCrossed },
-  { key: 'import', label: 'Importeren', icon: Download },
-  { key: 'tasting', label: 'Quick Tasting', icon: Wine },
-  { key: 'factcheck', label: 'Factcheck', icon: ShieldCheck },
 ];
 
 export default function AdminPanel() {
@@ -30,7 +23,6 @@ export default function AdminPanel() {
   const [section, setSection] = useState<SectionKey>('bieren');
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
-  const [storyOpen, setStoryOpen] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -45,28 +37,14 @@ export default function AdminPanel() {
     });
   }, [user?.id]);
 
-  const mobileFab = isAdmin ? (
-    <>
-      <button
-        onClick={() => setStoryOpen(true)}
-        aria-label="Snel verhaal"
-        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
-      >
-        <Plus size={24} />
-      </button>
-      <QuickStorySheet open={storyOpen} onOpenChange={setStoryOpen} />
-    </>
-  ) : null;
-
   if (isMobile) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-8">
         <div className="max-w-sm text-center bg-card border border-border rounded-[12px] p-8">
           <ShieldAlert size={28} className="mx-auto text-muted-foreground mb-3" />
           <h1 className="font-display text-lg mb-2" style={{ fontWeight: 900 }}>Desktop vereist</h1>
-          <p className="text-[13px] text-muted-foreground">Gebruik desktop voor het beheerpaneel. Snelle posts kan je hier wel via de + knop.</p>
+          <p className="text-[13px] text-muted-foreground">Gebruik desktop voor het beheerpaneel.</p>
         </div>
-        {mobileFab}
       </div>
     );
   }
@@ -118,9 +96,6 @@ export default function AdminPanel() {
           {section === 'blogposts' && <BlogPostsSection />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
-          {section === 'import' && <FirecrawlImport />}
-          {section === 'tasting' && <QuickTasting onPublished={() => {}} />}
-          {section === 'factcheck' && <BulkFactCheck />}
         </main>
       </div>
     </div>
