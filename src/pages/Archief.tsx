@@ -447,3 +447,48 @@ export default function Archief() {
     </div>
   );
 }
+
+type PagerLike = {
+  visibleCount: number;
+  totalCount: number;
+  hasMore: boolean;
+  loadMore: () => void;
+  sentinelRef: React.RefObject<HTMLDivElement>;
+};
+
+function LoadMore({ pager, label, tone }: { pager: PagerLike; label: string; tone: 'hop' | 'copper' }) {
+  const palette =
+    tone === 'hop'
+      ? { bg: 'var(--hop-light)', fg: 'var(--hop-dark)', border: 'var(--hop-mid)' }
+      : { bg: 'var(--copper-light)', fg: 'var(--copper)', border: 'var(--copper)' };
+  return (
+    <div className="mt-6">
+      {pager.hasMore && (
+        <>
+          <div ref={pager.sentinelRef} aria-hidden="true" style={{ height: 1 }} />
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={pager.loadMore}
+              className="px-5 py-2 rounded-full text-[12px] font-semibold transition-colors"
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                background: palette.bg,
+                color: palette.fg,
+                border: `1px solid ${palette.border}`,
+              }}
+            >
+              Toon meer {label} ({pager.totalCount - pager.visibleCount})
+            </button>
+          </div>
+        </>
+      )}
+      <div
+        className="text-center pt-3"
+        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)' }}
+      >
+        {pager.visibleCount} van {pager.totalCount} {label}
+      </div>
+    </div>
+  );
+}
+
