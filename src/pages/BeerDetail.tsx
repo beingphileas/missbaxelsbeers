@@ -489,6 +489,32 @@ export default function BeerDetail() {
         </section>
       )}
 
+      {/* AVAILABLE AT — beschikbaar bij ons */}
+      <section style={{ borderTop: '1px solid var(--line)', background: 'var(--hop-light)', padding: '40px 0' }}>
+        <div className="max-w-3xl mx-auto px-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5 text-center md:text-left">
+          <div>
+            <div
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full mb-3"
+              style={{ background: '#fff', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              <Utensils size={12} /> Beschikbaar bij ons
+            </div>
+            <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 800, fontSize: 24, lineHeight: 1.2, color: 'var(--ink)' }}>
+              Drink dit bier aan tafel
+            </h2>
+            <p className="mt-2" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
+              Bij Koen &amp; Marijke staat dit bier (zolang de voorraad strekt) op de kaart.
+            </p>
+          </div>
+          <Link
+            to="/restaurant"
+            className="inline-block px-6 py-3 rounded-full text-[13px] font-semibold no-underline transition-opacity hover:opacity-90 shrink-0"
+            style={{ background: '#B87333', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+          >
+            Reserveer een tafel
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

@@ -423,6 +423,34 @@ export default function Beers() {
           )}
         </div>
       </section>
+
+      {/* CLOSING CTA — proef ze bij ons */}
+      <section style={{ background: 'var(--ink)', color: '#fff', padding: '56px 0' }}>
+        <div className="max-w-3xl mx-auto px-5 text-center">
+          <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(26px, 4vw, 34px)', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+            Proef ze bij ons aan tafel
+          </h2>
+          <p className="mt-3" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'rgba(255,255,255,0.72)', maxWidth: 520, margin: '12px auto 0' }}>
+            De meeste van deze bieren staan op de kaart bij Koen &amp; Marijke. Kom langs, kies een glas, en laat het verhaal zich vertellen.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link
+              to="/restaurant"
+              className="inline-block px-6 py-3 rounded-full text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: '#B87333', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              Reserveer een tafel
+            </Link>
+            <Link
+              to="/verhalen"
+              className="inline-block px-6 py-3 rounded-full text-[13px] font-semibold no-underline transition-colors"
+              style={{ background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              Lees de verhalen
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

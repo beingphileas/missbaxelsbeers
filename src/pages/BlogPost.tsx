@@ -337,6 +337,53 @@ export default function BlogPost() {
           {RubricScoreCard}
         </article>
       )}
+
+      {/* ARTICLE CLOSING — signature + next steps */}
+      <section style={{ borderTop: '1px solid var(--line)', background: '#fff', padding: '48px 0 64px' }}>
+        <div className="max-w-3xl mx-auto px-5">
+          <div
+            className="text-center"
+            style={{ fontFamily: 'Fraunces, serif', fontStyle: 'italic', fontSize: 16, color: 'var(--muted)', lineHeight: 1.6 }}
+          >
+            — Marijke, voor MissBaxel's Beers
+          </div>
+
+          <div
+            className="mt-8 grid gap-3 sm:grid-cols-2"
+          >
+            <Link
+              to="/verhalen"
+              className="block p-5 no-underline transition-all hover:opacity-90"
+              style={{
+                background: 'var(--hop-light)', color: 'var(--hop-dark)',
+                border: '1px solid var(--hop-mid)', borderRadius: 14,
+              }}
+            >
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0.8 }}>
+                Volgende
+              </div>
+              <div className="mt-1.5" style={{ fontFamily: 'Fraunces, serif', fontSize: 19, fontWeight: 700 }}>
+                Lees meer verhalen →
+              </div>
+            </Link>
+            <Link
+              to="/restaurant"
+              className="block p-5 no-underline transition-opacity hover:opacity-90"
+              style={{
+                background: 'var(--ink)', color: '#fff',
+                borderRadius: 14,
+              }}
+            >
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', opacity: 0.65 }}>
+                Of beter
+              </div>
+              <div className="mt-1.5" style={{ fontFamily: 'Fraunces, serif', fontSize: 19, fontWeight: 700 }}>
+                Reserveer een tafel →
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
