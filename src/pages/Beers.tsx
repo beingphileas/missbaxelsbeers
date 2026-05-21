@@ -271,7 +271,7 @@ export default function Beers() {
             </div>
           ) : (
             <div className="space-y-2.5">
-              {filtered.map((b) => {
+              {visibleItems.map((b) => {
                 const Icon = iconForStyle(b.style);
                 const tags = (b.primary_flavors || b.flavor_profile || []).slice(0, 4);
                 const target = `/beers/${b.slug || b.id}`;
@@ -393,6 +393,32 @@ export default function Beers() {
                   </Link>
                 );
               })}
+
+              {hasMore && (
+                <>
+                  <div ref={sentinelRef} aria-hidden="true" style={{ height: 1 }} />
+                  <div className="flex justify-center pt-4">
+                    <button
+                      onClick={loadMore}
+                      className="px-5 py-2 rounded-full text-[12px] font-semibold transition-colors"
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        background: 'var(--hop-light)',
+                        color: 'var(--hop-dark)',
+                        border: '1px solid var(--hop-mid)',
+                      }}
+                    >
+                      Toon meer ({totalCount - visibleCount})
+                    </button>
+                  </div>
+                </>
+              )}
+              <div
+                className="text-center pt-2"
+                style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)' }}
+              >
+                {visibleCount} van {totalCount} bieren
+              </div>
             </div>
           )}
         </div>
