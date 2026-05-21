@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Archive, Notebook, FlaskConical, ExternalLink, Star, Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { useInfiniteList } from '@/hooks/useInfiniteList';
 
 type Post = {
   id: string;
