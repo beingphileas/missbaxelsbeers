@@ -5,6 +5,7 @@ import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { BierstekersBlend } from '@/types';
 import BierstekersPauseBanner from '@/components/BierstekersPauseBanner';
+import { useInfiniteList } from '@/hooks/useInfiniteList';
 
 const Pill = ({ children, color = 'copper' }: { children: React.ReactNode; color?: 'copper' | 'amber' | 'hop' }) => {
   const styles: Record<string, React.CSSProperties> = {
@@ -46,8 +47,11 @@ export default function Bierstekers() {
     ? blends.filter((b) => `${b.name} ${b.style || ''} ${b.year || ''}`.toLowerCase().includes(q))
     : blends;
 
-  // Group blends by year
-  const grouped = filteredBlends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore, sentinelRef } =
+    useInfiniteList(filteredBlends, 18, [q]);
+
+  // Group visible blends by year
+  const grouped = visibleItems.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
     const y = b.year ? String(b.year) : 'Onbekend';
     (acc[y] ||= []).push(b);
     return acc;
@@ -354,6 +358,35 @@ export default function Bierstekers() {
               </div>
             </div>
           ))}
+
+          {hasMore && (
+            <>
+              <div ref={sentinelRef} aria-hidden="true" style={{ height: 1 }} />
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={loadMore}
+                  className="px-5 py-2 rounded-full text-[12px] font-semibold transition-colors"
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    background: 'var(--copper-light)',
+                    color: 'var(--copper)',
+                    border: '1px solid var(--copper)',
+                  }}
+                >
+                  Toon meer blends ({totalCount - visibleCount})
+                </button>
+              </div>
+            </>
+          )}
+          {totalCount > 0 && (
+            <div
+              className="text-center pt-3"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)' }}
+            >
+              {visibleCount} van {totalCount} blends
+            </div>
+          )}
+
 
           <div
             className="mt-10 text-center"

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Archive, Notebook, FlaskConical, ExternalLink, Star, Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { useInfiniteList } from '@/hooks/useInfiniteList';
 
 type Post = {
   id: string;
@@ -114,15 +115,18 @@ export default function Archief() {
     });
   }, [blends, blendCat, search]);
 
+  const postsPager = useInfiniteList(filteredPosts, 24, [search, blogCat, tab]);
+  const blendsPager = useInfiniteList(filteredBlends, 30, [search, blendCat, tab]);
+
   const blendsByYear = useMemo(() => {
     const map = new Map<string, Blend[]>();
-    for (const b of filteredBlends) {
+    for (const b of blendsPager.visibleItems) {
       const k = b.year ? String(b.year) : 'Onbekend';
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(b);
     }
     return Array.from(map.entries());
-  }, [filteredBlends]);
+  }, [blendsPager.visibleItems]);
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
@@ -238,7 +242,7 @@ export default function Archief() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredPosts.map((p, i) => {
+                  {postsPager.visibleItems.map((p, i) => {
                     const dateLabel = p.date
                       ? new Date(p.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' })
                       : 'Verhaal';
@@ -298,6 +302,10 @@ export default function Archief() {
                   })}
                 </div>
               )}
+              {!loading && filteredPosts.length > 0 && (
+                <LoadMore pager={postsPager} label="verhalen" tone="hop" />
+              )}
+
             </>
           ) : (
             <>
@@ -429,6 +437,9 @@ export default function Archief() {
                   ))}
                 </div>
               )}
+              {!loading && filteredBlends.length > 0 && (
+                <LoadMore pager={blendsPager} label="blends" tone="copper" />
+              )}
             </>
           )}
         </div>
@@ -436,3 +447,48 @@ export default function Archief() {
     </div>
   );
 }
+
+type PagerLike = {
+  visibleCount: number;
+  totalCount: number;
+  hasMore: boolean;
+  loadMore: () => void;
+  sentinelRef: React.RefObject<HTMLDivElement>;
+};
+
+function LoadMore({ pager, label, tone }: { pager: PagerLike; label: string; tone: 'hop' | 'copper' }) {
+  const palette =
+    tone === 'hop'
+      ? { bg: 'var(--hop-light)', fg: 'var(--hop-dark)', border: 'var(--hop-mid)' }
+      : { bg: 'var(--copper-light)', fg: 'var(--copper)', border: 'var(--copper)' };
+  return (
+    <div className="mt-6">
+      {pager.hasMore && (
+        <>
+          <div ref={pager.sentinelRef} aria-hidden="true" style={{ height: 1 }} />
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={pager.loadMore}
+              className="px-5 py-2 rounded-full text-[12px] font-semibold transition-colors"
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                background: palette.bg,
+                color: palette.fg,
+                border: `1px solid ${palette.border}`,
+              }}
+            >
+              Toon meer {label} ({pager.totalCount - pager.visibleCount})
+            </button>
+          </div>
+        </>
+      )}
+      <div
+        className="text-center pt-3"
+        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: 'var(--muted)' }}
+      >
+        {pager.visibleCount} van {pager.totalCount} {label}
+      </div>
+    </div>
+  );
+}
+
