@@ -47,8 +47,11 @@ export default function Bierstekers() {
     ? blends.filter((b) => `${b.name} ${b.style || ''} ${b.year || ''}`.toLowerCase().includes(q))
     : blends;
 
-  // Group blends by year
-  const grouped = filteredBlends.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore, sentinelRef } =
+    useInfiniteList(filteredBlends, 18, [q]);
+
+  // Group visible blends by year
+  const grouped = visibleItems.reduce<Record<string, BierstekersBlend[]>>((acc, b) => {
     const y = b.year ? String(b.year) : 'Onbekend';
     (acc[y] ||= []).push(b);
     return acc;
