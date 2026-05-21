@@ -437,6 +437,9 @@ export default function Archief() {
                   ))}
                 </div>
               )}
+              {!loading && filteredBlends.length > 0 && (
+                <LoadMore pager={blendsPager} label="blends" tone="copper" />
+              )}
             </>
           )}
         </div>
