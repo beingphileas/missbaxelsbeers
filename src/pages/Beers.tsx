@@ -119,6 +119,9 @@ export default function Beers() {
     });
   }, [beers, search, tab, cat]);
 
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore, sentinelRef } =
+    useInfiniteList(filtered, 24, [search, tab, cat]);
+
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
