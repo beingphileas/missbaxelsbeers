@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { useInfiniteList } from '@/hooks/useInfiniteList';
 
 type BeerRow = {
   id: string;
