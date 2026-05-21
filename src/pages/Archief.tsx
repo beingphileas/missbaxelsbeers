@@ -302,6 +302,10 @@ export default function Archief() {
                   })}
                 </div>
               )}
+              {!loading && filteredPosts.length > 0 && (
+                <LoadMore pager={postsPager} label="verhalen" tone="hop" />
+              )}
+
             </>
           ) : (
             <>
