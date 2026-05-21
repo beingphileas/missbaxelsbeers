@@ -115,15 +115,18 @@ export default function Archief() {
     });
   }, [blends, blendCat, search]);
 
+  const postsPager = useInfiniteList(filteredPosts, 24, [search, blogCat, tab]);
+  const blendsPager = useInfiniteList(filteredBlends, 30, [search, blendCat, tab]);
+
   const blendsByYear = useMemo(() => {
     const map = new Map<string, Blend[]>();
-    for (const b of filteredBlends) {
+    for (const b of blendsPager.visibleItems) {
       const k = b.year ? String(b.year) : 'Onbekend';
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(b);
     }
     return Array.from(map.entries());
-  }, [filteredBlends]);
+  }, [blendsPager.visibleItems]);
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
