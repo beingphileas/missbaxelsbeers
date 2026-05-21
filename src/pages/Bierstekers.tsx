@@ -5,6 +5,7 @@ import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { BierstekersBlend } from '@/types';
 import BierstekersPauseBanner from '@/components/BierstekersPauseBanner';
+import { useInfiniteList } from '@/hooks/useInfiniteList';
 
 const Pill = ({ children, color = 'copper' }: { children: React.ReactNode; color?: 'copper' | 'amber' | 'hop' }) => {
   const styles: Record<string, React.CSSProperties> = {
