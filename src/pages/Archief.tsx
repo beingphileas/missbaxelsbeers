@@ -242,7 +242,7 @@ export default function Archief() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredPosts.map((p, i) => {
+                  {postsPager.visibleItems.map((p, i) => {
                     const dateLabel = p.date
                       ? new Date(p.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' })
                       : 'Verhaal';
