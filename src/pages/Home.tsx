@@ -256,19 +256,16 @@ export default function Home() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="hidden">
-              <span />
 
-              {/* Decorative corners */}
-              <div
-                className="absolute -top-5 -right-5 w-28 h-28 -z-10 hidden md:block"
-                style={{ borderTop: '1px solid rgba(205,127,50,0.45)', borderRight: '1px solid rgba(205,127,50,0.45)' }}
-              />
-              <div
-                className="absolute -bottom-5 -left-5 w-28 h-28 -z-10 hidden md:block"
-                style={{ borderBottom: '1px solid rgba(205,127,50,0.45)', borderLeft: '1px solid rgba(205,127,50,0.45)' }}
-              />
-            </div>
+            {/* Decorative corners */}
+            <div
+              className="absolute -top-5 -right-5 w-28 h-28 -z-10 hidden md:block"
+              style={{ borderTop: '1px solid rgba(205,127,50,0.45)', borderRight: '1px solid rgba(205,127,50,0.45)' }}
+            />
+            <div
+              className="absolute -bottom-5 -left-5 w-28 h-28 -z-10 hidden md:block"
+              style={{ borderBottom: '1px solid rgba(205,127,50,0.45)', borderLeft: '1px solid rgba(205,127,50,0.45)' }}
+            />
             {/* Overlay card */}
             <div
               className="absolute -bottom-6 -right-4 md:-right-8 p-6 hidden md:block shadow-xl max-w-[210px]"
