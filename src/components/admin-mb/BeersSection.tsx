@@ -10,6 +10,7 @@ interface BeerRow {
   abv: number | null; description: string | null; marijke_idea: string | null; brew_story: string | null;
   flavor_profile: string[] | null; pairing_suggestion: string | null; image_url: string | null; label_url: string | null;
   is_current: boolean | null; featured: boolean; is_collab: boolean | null; release_date: string | null;
+  lifecycle_status: string | null; teaser: string | null; hide_name: boolean | null;
 }
 interface BreweryRef { id: string; name: string }
 interface Link { brewery_id: string; role: string }
@@ -29,7 +30,7 @@ export default function BeersSection() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date')
+      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date,lifecycle_status,teaser,hide_name')
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) toast.error(error.message); else setRows((data as any) || []);
@@ -140,6 +141,9 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
   const [isFeatured, setIsFeatured] = useState(initial?.featured ?? false);
   const [isCollab, setIsCollab] = useState(initial?.is_collab ?? false);
   const [releaseDate, setReleaseDate] = useState(initial?.release_date || '');
+  const [lifecycle, setLifecycle] = useState<'current' | 'archive' | 'pipeline'>((initial?.lifecycle_status as any) || 'current');
+  const [teaser, setTeaser] = useState(initial?.teaser || '');
+  const [hideName, setHideName] = useState(initial?.hide_name ?? false);
 
   const [breweries, setBreweries] = useState<BreweryRef[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
@@ -173,10 +177,13 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       pairing_suggestion: pairing.trim() || null,
       image_url: imageUrl,
       label_url: labelUrl,
-      is_current: isCurrent,
+      is_current: lifecycle === 'current' ? isCurrent : false,
       featured: isFeatured,
       is_collab: isCollab,
       release_date: releaseDate || null,
+      lifecycle_status: lifecycle,
+      teaser: teaser.trim() || null,
+      hide_name: hideName,
     };
 
     let beerId = initial?.id;
@@ -279,15 +286,39 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
           </AdminCard>
 
           <AdminCard>
+            <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Status & lifecycle</h3>
+            <div className="space-y-4">
+              <Field label="Lifecycle" hint="Pipeline = nog in de maak, toont als teaser op de homepage">
+                <select className={inputCls} value={lifecycle} onChange={e => setLifecycle(e.target.value as any)}>
+                  <option value="current">Current (huidig)</option>
+                  <option value="pipeline">Pipeline (in de maak)</option>
+                  <option value="archive">Archive (uitverkocht)</option>
+                </select>
+              </Field>
+              {lifecycle === 'pipeline' && (
+                <>
+                  <Field label="Teaser-tekst" hint="Mysterieuze teaser voor de homepage (geen volledig verhaal)">
+                    <textarea rows={3} className={inputCls} value={teaser} onChange={e => setTeaser(e.target.value)} placeholder="Bv. Een donker mysterie met een knipoog naar..." />
+                  </Field>
+                  <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                    <input type="checkbox" checked={hideName} onChange={e => setHideName(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                    <span>Naam verbergen (toont als "???")</span>
+                  </label>
+                </>
+              )}
+            </div>
+          </AdminCard>
+
+          <AdminCard>
             <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Vlaggen</h3>
             <div className="space-y-2">
               {[
-                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent },
-                { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured },
-                { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab },
+                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent, disabled: lifecycle !== 'current' },
+                { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured, disabled: false },
+                { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab, disabled: false },
               ].map(f => (
-                <label key={f.k} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                  <input type="checkbox" checked={f.v} onChange={e => f.set(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                <label key={f.k} className={`flex items-center gap-2 text-[13px] cursor-pointer ${f.disabled ? 'opacity-50' : ''}`}>
+                  <input type="checkbox" disabled={f.disabled} checked={f.v} onChange={e => f.set(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
                   <span>{f.l}</span>
                 </label>
               ))}

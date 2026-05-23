@@ -69,6 +69,7 @@ export type Database = {
           featured: boolean
           flavor_profile: string[] | null
           food_pairing: string | null
+          hide_name: boolean
           id: string
           image_url: string | null
           is_collab: boolean | null
@@ -103,6 +104,7 @@ export type Database = {
           style_category: string | null
           summary: string | null
           taste_notes: string | null
+          teaser: string | null
           updated_at: string
           verification_score: number | null
           verification_status: string | null
@@ -126,6 +128,7 @@ export type Database = {
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
+          hide_name?: boolean
           id?: string
           image_url?: string | null
           is_collab?: boolean | null
@@ -160,6 +163,7 @@ export type Database = {
           style_category?: string | null
           summary?: string | null
           taste_notes?: string | null
+          teaser?: string | null
           updated_at?: string
           verification_score?: number | null
           verification_status?: string | null
@@ -183,6 +187,7 @@ export type Database = {
           featured?: boolean
           flavor_profile?: string[] | null
           food_pairing?: string | null
+          hide_name?: boolean
           id?: string
           image_url?: string | null
           is_collab?: boolean | null
@@ -217,6 +222,7 @@ export type Database = {
           style_category?: string | null
           summary?: string | null
           taste_notes?: string | null
+          teaser?: string | null
           updated_at?: string
           verification_score?: number | null
           verification_status?: string | null
