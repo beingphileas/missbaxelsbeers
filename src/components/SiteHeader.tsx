@@ -1,16 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, ArrowRight, Loader2 } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Search, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage, Lang } from '@/hooks/useLanguage';
 
 const navItems = [
-  { label: 'Bieren', path: '/beers' },
+  { label: 'Home', path: '/' },
+  { label: 'A-Z', path: '/beers' },
+  { label: 'Over mezelf', path: '/over' },
+  { label: 'Waar?', path: '/restaurant' },
   { label: 'Verhalen', path: '/verhalen' },
-  { label: 'Restaurant', path: '/restaurant' },
-  { label: 'Bierstekers archief', path: '/bierstekers' },
-  { label: 'Over', path: '/over' },
-  { label: 'Archief', path: '/archief' },
+  { label: 'Bierstekers', path: '/bierstekers' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
@@ -18,6 +18,9 @@ const LANG_OPTIONS: { value: Lang; label: string }[] = [
   { value: 'en', label: 'EN' },
   { value: 'fr', label: 'FR' },
 ];
+
+const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Nunito Sans', system-ui, sans-serif";
 
 export default function SiteHeader() {
   const { pathname } = useLocation();
@@ -27,65 +30,72 @@ export default function SiteHeader() {
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) =>
+    path === '/' ? pathname === '/' : pathname.startsWith(path);
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between gap-4">
-        {/* Logo — left */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0 group" aria-label="MissBaxel's home">
-          <img src="/missbaxels-logo.png" alt="MissBaxel's" style={{ height: 36, width: 'auto', objectFit: 'contain', display: 'block' }} />
-          <span className="hidden md:inline font-display text-xl leading-none text-foreground" style={{ fontWeight: 700, letterSpacing: '-0.01em' }}>
-            Miss<span className="font-italic-accent" style={{ fontWeight: 400, color: 'var(--copper)' }}>Baxel</span>
-            <span style={{ fontWeight: 700 }}>'s</span>
+    <header className="sticky top-0 z-50" style={{ background: '#ffffff', borderBottom: '1px solid #f0f0f0' }}>
+      <div className="max-w-[1400px] mx-auto px-6 md:px-10 h-20 flex items-center justify-between gap-6">
+        {/* Wordmark — left */}
+        <Link to="/" className="shrink-0 no-underline" aria-label="MissBaxel's Beers home" style={{ color: '#111' }}>
+          <span
+            style={{
+              fontFamily: SERIF,
+              fontWeight: 700,
+              fontSize: 22,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            MissBaxel's Beers
           </span>
         </Link>
 
-        {/* Nav — center */}
-        <nav className="hidden md:flex items-center gap-7 flex-1 justify-center">
+        {/* Nav — center/right */}
+        <nav className="hidden md:flex items-center gap-7 flex-1 justify-end">
           {navItems.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`relative text-[12px] font-bold tracking-[0.16em] uppercase transition-colors no-underline ${
-                  active
-                    ? 'text-foreground'
-                    : 'text-foreground/75 hover:text-foreground'
-                }`}
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                className="relative no-underline"
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#111',
+                  paddingBottom: 4,
+                  borderBottom: active ? '2px solid #d93025' : '2px solid transparent',
+                }}
               >
                 {t(item.label)}
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute -bottom-1.5 left-0 right-0 mx-auto"
-                    style={{ height: 2, background: 'var(--amber)', width: '60%' }}
-                  />
-                )}
               </Link>
             );
           })}
-        </nav>
 
+          {/* Search icon (placeholder) */}
+          <Link
+            to="/zoeken"
+            aria-label="Search"
+            className="no-underline inline-flex items-center"
+            style={{ color: '#111' }}
+          >
+            <Search size={16} />
+          </Link>
 
-        {/* Right — language + CTA */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
-          {/* Language pill */}
-          <div className="inline-flex items-center gap-0.5 border border-border rounded-full px-1 py-0.5 bg-card">
-            {isTranslating && <Loader2 size={11} className="animate-spin text-primary mx-1" />}
+          {/* Language */}
+          <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: '#888' }}>
+            {isTranslating && <Loader2 size={11} className="animate-spin" />}
             {LANG_OPTIONS.map((opt, i) => (
               <span key={opt.value} className="flex items-center">
-                {i > 0 && <span className="text-muted-foreground/50 text-[10px] px-0.5">·</span>}
+                {i > 0 && <span style={{ padding: '0 4px' }}>·</span>}
                 <button
                   onClick={() => setLang(opt.value)}
                   disabled={isTranslating}
-                  className={`px-2 py-0.5 text-[11px] font-medium rounded-full transition-colors ${
-                    lang === opt.value
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  style={{
+                    fontWeight: lang === opt.value ? 700 : 400,
+                    color: lang === opt.value ? '#111' : '#888',
+                  }}
                 >
                   {opt.label}
                 </button>
@@ -93,97 +103,80 @@ export default function SiteHeader() {
             ))}
           </div>
 
-          {/* Bierstekers CTA */}
-          <Link
-            to="/restaurant"
-            className="inline-flex items-center gap-1.5 bg-[var(--copper)] text-white rounded-full px-4 py-[7px] text-[12px] font-semibold hover:opacity-90 transition-opacity"
-          >
-            {t('Reserveer een tafel')}
-            <ArrowRight size={13} />
-          </Link>
-
           {/* Auth */}
           {user ? (
-            <button
-              onClick={signOut}
-              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-[11px] font-medium px-2 py-1 transition-colors"
-              aria-label={t('Uitloggen')}
-            >
-              <LogOut size={13} />
+            <button onClick={signOut} aria-label={t('Uitloggen')} style={{ color: '#888' }}>
+              <LogOut size={14} />
             </button>
           ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-[11px] font-medium px-2 py-1 transition-colors"
-              aria-label={t('Inloggen')}
-            >
-              <LogIn size={13} />
+            <Link to="/login" aria-label={t('Inloggen')} style={{ color: '#888' }}>
+              <LogIn size={14} />
             </Link>
           )}
-        </div>
+        </nav>
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-full border border-border text-foreground"
+          className="md:hidden h-9 w-9 inline-flex items-center justify-center"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
+          style={{ color: '#111' }}
         >
-          {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border bg-background px-5 py-3 space-y-1">
+        <nav className="md:hidden px-6 py-4 space-y-2" style={{ borderTop: '1px solid #f0f0f0', background: '#fff' }}>
           {navItems.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`block px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                  active
-                    ? 'bg-[hsl(var(--primary-light))] text-primary'
-                    : 'text-muted-foreground hover:bg-[hsl(var(--primary-light))] hover:text-primary'
-                }`}
+                className="block no-underline"
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: '#111',
+                  padding: '8px 0',
+                  borderBottom: active ? '2px solid #d93025' : '2px solid transparent',
+                  display: 'inline-block',
+                }}
               >
                 {t(item.label)}
               </Link>
             );
           })}
 
-          <div className="flex items-center gap-1 pt-2 mt-2 border-t border-border">
+          <div className="flex items-center gap-2 pt-3" style={{ borderTop: '1px solid #f0f0f0' }}>
             {LANG_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setLang(opt.value)}
-                className={`px-3 py-1.5 text-[11px] font-medium rounded-full transition-colors ${
-                  lang === opt.value
-                    ? 'bg-[hsl(var(--primary-light))] text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 12,
+                  fontWeight: lang === opt.value ? 700 : 400,
+                  color: lang === opt.value ? '#111' : '#888',
+                  padding: '4px 8px',
+                }}
               >
                 {opt.label}
               </button>
             ))}
+            {user ? (
+              <button onClick={signOut} className="ml-auto" style={{ color: '#888' }}>
+                <LogOut size={14} />
+              </button>
+            ) : (
+              <Link to="/login" className="ml-auto" style={{ color: '#888' }}>
+                <LogIn size={14} />
+              </Link>
+            )}
           </div>
-
-          <Link
-            to="/restaurant"
-            className="mt-3 inline-flex items-center gap-1.5 bg-[var(--copper)] text-white rounded-full px-4 py-2 text-[12px] font-semibold hover:opacity-90 transition-opacity"
-          >
-            {t('Reserveer een tafel')} <ArrowRight size={13} />
-          </Link>
-
-          {user ? (
-            <button onClick={signOut} className="block w-full text-left px-4 py-2 text-sm font-medium rounded-full text-muted-foreground hover:text-foreground">
-              {t('Uitloggen')}
-            </button>
-          ) : (
-            <Link to="/login" className="block px-4 py-2 text-sm font-medium rounded-full text-primary">
-              {t('Inloggen')}
-            </Link>
-          )}
         </nav>
       )}
     </header>
