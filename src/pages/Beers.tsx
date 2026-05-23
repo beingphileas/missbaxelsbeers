@@ -64,6 +64,7 @@ export default function Beers() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'all' | 'current' | 'archive'>('all');
   const [cat, setCat] = useState<Cat>('all');
+  const [onlyCollab, setOnlyCollab] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,6 +110,7 @@ export default function Beers() {
     return beers.filter((b) => {
       if (tab === 'current' && b.is_current === false) return false;
       if (tab === 'archive' && b.is_current !== false) return false;
+      if (onlyCollab && !b.is_collab) return false;
       // 'all' shows both
       if (!matchesCategory(b, cat)) return false;
       if (q) {
@@ -117,10 +119,10 @@ export default function Beers() {
       }
       return true;
     });
-  }, [beers, search, tab, cat]);
+  }, [beers, search, tab, cat, onlyCollab]);
 
   const { visibleItems, visibleCount, totalCount, hasMore, loadMore, sentinelRef } =
-    useInfiniteList(filtered, 24, [search, tab, cat]);
+    useInfiniteList(filtered, 24, [search, tab, cat, onlyCollab]);
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
@@ -181,6 +183,19 @@ export default function Beers() {
                 </button>
               );
             })}
+            <button
+              onClick={() => setOnlyCollab((v) => !v)}
+              className="px-4 py-1.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center gap-1.5"
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                background: onlyCollab ? 'var(--hop)' : 'transparent',
+                color: onlyCollab ? '#fff' : 'var(--muted)',
+                border: '1px solid ' + (onlyCollab ? 'var(--hop)' : 'var(--line)'),
+              }}
+              title="Toon enkel eigen MissBaxel-bieren / collabs"
+            >
+              <Sparkles size={12} /> Eigen bieren
+            </button>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center gap-3">
