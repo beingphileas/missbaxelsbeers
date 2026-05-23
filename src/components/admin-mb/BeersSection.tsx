@@ -286,15 +286,39 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
           </AdminCard>
 
           <AdminCard>
+            <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Status & lifecycle</h3>
+            <div className="space-y-4">
+              <Field label="Lifecycle" hint="Pipeline = nog in de maak, toont als teaser op de homepage">
+                <select className={inputCls} value={lifecycle} onChange={e => setLifecycle(e.target.value as any)}>
+                  <option value="current">Current (huidig)</option>
+                  <option value="pipeline">Pipeline (in de maak)</option>
+                  <option value="archive">Archive (uitverkocht)</option>
+                </select>
+              </Field>
+              {lifecycle === 'pipeline' && (
+                <>
+                  <Field label="Teaser-tekst" hint="Mysterieuze teaser voor de homepage (geen volledig verhaal)">
+                    <textarea rows={3} className={inputCls} value={teaser} onChange={e => setTeaser(e.target.value)} placeholder="Bv. Een donker mysterie met een knipoog naar..." />
+                  </Field>
+                  <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+                    <input type="checkbox" checked={hideName} onChange={e => setHideName(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                    <span>Naam verbergen (toont als "???")</span>
+                  </label>
+                </>
+              )}
+            </div>
+          </AdminCard>
+
+          <AdminCard>
             <h3 className="font-display text-[15px] mb-4" style={{ fontWeight: 700 }}>Vlaggen</h3>
             <div className="space-y-2">
               {[
-                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent },
-                { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured },
-                { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab },
+                { k: 'isCurrent', l: 'Beschikbaar (in assortiment)', v: isCurrent, set: setIsCurrent, disabled: lifecycle !== 'current' },
+                { k: 'isFeatured', l: 'Uitgelicht (featured)', v: isFeatured, set: setIsFeatured, disabled: false },
+                { k: 'isCollab', l: 'Co-creatie (is_collab)', v: isCollab, set: setIsCollab, disabled: false },
               ].map(f => (
-                <label key={f.k} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                  <input type="checkbox" checked={f.v} onChange={e => f.set(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                <label key={f.k} className={`flex items-center gap-2 text-[13px] cursor-pointer ${f.disabled ? 'opacity-50' : ''}`}>
+                  <input type="checkbox" disabled={f.disabled} checked={f.v} onChange={e => f.set(e.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
                   <span>{f.l}</span>
                 </label>
               ))}
