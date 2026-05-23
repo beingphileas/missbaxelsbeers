@@ -174,10 +174,10 @@ export default function Home() {
 
       const { data: p } = await supabase
         .from('blog_posts')
-        .select('id, slug, title, cover_image_url, date')
+        .select('id, slug, title, cover_image_url, date, excerpt, rubric')
         .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false })
-        .limit(4);
+        .limit(5);
       setPosts((p || []) as any);
       setLoading(s => ({ ...s, posts: false }));
 
