@@ -153,13 +153,13 @@ export default function Home() {
             }}
           >
             <p>
-              Ik ben Marijke. Aan tafel bij Koen, in Brugge, ontdekte ik dat bier veel meer kan zijn dan ik ooit had gedacht. Eén Duchesse de Bourgogne opende een wereld open — en sindsdien laat die me niet meer los.
+              Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
             </p>
             <p>
-              Ik breng een idee, en een bevriende brouwer maakt het waar. Zo ontstaan bieren die nergens anders bestaan, gemaakt met mensen die ik graag zie. Hier deel ik hun verhalen, mijn bieren, en het dagelijkse leven van iemand die graag proeft en laat proeven.
+              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
             </p>
             <p style={{ color: 'var(--copper)' }}>
-              Het mooiste? Dat proef je het best aan onze tafel, in Brugge.
+              Hier deel ik hun verhalen, onze bieren, en het leven van iemand die graag proeft en nog liever laat proeven.
             </p>
           </div>
           <div
