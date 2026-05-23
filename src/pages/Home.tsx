@@ -137,6 +137,47 @@ export default function Home() {
         })}</script>
       </Helmet>
 
+      {/* SECTION 0 — MARIJKES INTRO */}
+      <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream, #FBF6EC)', padding: '44px 0 36px' }}>
+        <div className="max-w-3xl mx-auto px-5">
+          <Pill color="amber" icon={<Heart size={12} />}>Welkom</Pill>
+          <div
+            className="mt-5 space-y-4"
+            style={{
+              fontFamily: 'Fraunces, serif',
+              fontSize: 'clamp(17px, 2.1vw, 20px)',
+              lineHeight: 1.65,
+              color: 'var(--ink)',
+              fontStyle: 'italic',
+              fontWeight: 400,
+            }}
+          >
+            <p>
+              Ik ben Marijke. Aan tafel bij Koen, in Brugge, ontdekte ik dat bier veel meer kan zijn dan ik ooit had gedacht. Eén Duchesse de Bourgogne opende een wereld open — en sindsdien laat die me niet meer los.
+            </p>
+            <p>
+              Ik breng een idee, en een bevriende brouwer maakt het waar. Zo ontstaan bieren die nergens anders bestaan, gemaakt met mensen die ik graag zie. Hier deel ik hun verhalen, mijn bieren, en het dagelijkse leven van iemand die graag proeft en laat proeven.
+            </p>
+            <p style={{ color: 'var(--copper)' }}>
+              Het mooiste? Dat proef je het best aan onze tafel, in Brugge.
+            </p>
+          </div>
+          <div
+            aria-hidden="true"
+            className="mt-6"
+            style={{
+              fontFamily: 'Fraunces, serif',
+              fontSize: 24,
+              color: 'var(--amber)',
+              letterSpacing: '0.4em',
+              opacity: 0.6,
+            }}
+          >
+            ❦
+          </div>
+        </div>
+      </section>
+
       {/* SECTION 1 — HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--hop-light)' }}>
         <div className="max-w-6xl mx-auto px-5 py-9 md:py-[52px] grid md:grid-cols-2 gap-10 items-center">
