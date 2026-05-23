@@ -247,13 +247,13 @@ export default function Home() {
           {/* Visual */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative z-10 aspect-[4/5] overflow-hidden shadow-2xl"
-              style={{ border: '1px solid rgba(205,127,50,0.25)' }}
+              className="relative z-10 aspect-square overflow-hidden shadow-2xl flex items-center justify-center"
+              style={{ border: '1px solid rgba(205,127,50,0.25)', background: '#f8f5f0' }}
             >
               <img
                 src={introIllustration}
                 alt="MissBaxel's Beers illustratie"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
 
