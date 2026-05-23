@@ -22,7 +22,24 @@ type PostTile = {
   title: string;
   cover_image_url: string | null;
   date: string | null;
+  excerpt: string | null;
+  rubric: string | null;
 };
+
+const RUBRIC_LABELS: Record<string, string> = {
+  proefnotitie: 'Proefnotitie',
+  brouwerij: 'Brouwerij',
+  hidden_gem: 'Hidden Gem',
+  bier_en_eten: 'Bier & Eten',
+  column: 'Column',
+  biertrip: 'Biertrip',
+  seizoen: 'Seizoen',
+  missbaxel_bier: "MissBaxel's Bier",
+  bioshop: 'Bioshop',
+};
+
+const formatDate = (d: string | null) =>
+  d ? new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
 type BrewerCard = { id: string; name: string; slug: string | null; image_url: string | null };
 
