@@ -196,31 +196,93 @@ export default function Home() {
       </Helmet>
 
       {/* ============ INTRO ============ */}
-      <section className="px-6 md:px-10 pt-20 pb-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <SectionLabel>Welkom</SectionLabel>
-          <h1
-            className="mt-6"
-            style={{
-              fontFamily: SERIF,
-              fontWeight: 600,
-              fontSize: 'clamp(32px, 4.5vw, 52px)',
-              lineHeight: 1.15,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            Ik ben Marijke. Ik brouw niet zelf —{' '}
-            <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>
-              maar ik heb ideeën.
-            </em>
-          </h1>
-          <p
-            className="mt-8 max-w-2xl mx-auto"
-            style={{ fontSize: 17, lineHeight: 1.7, color: 'rgba(107,58,42,0.85)' }}
-          >
-            En ik ken de mensen die er iets moois van maken. Hier deel ik onze bieren, hun verhalen,
-            en het leven van iemand die graag proeft en nog liever laat proeven.
-          </p>
+      <section className="px-6 md:px-10 pt-16 pb-20 lg:pt-24 lg:pb-28">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Content */}
+          <div className="lg:col-span-7 space-y-8">
+            <SectionLabel>Welkom</SectionLabel>
+            <h1
+              style={{
+                fontFamily: SERIF,
+                fontWeight: 600,
+                fontSize: 'clamp(36px, 5.2vw, 68px)',
+                lineHeight: 1.05,
+                letterSpacing: '-0.015em',
+                color: 'var(--ink)',
+              }}
+            >
+              Ik ben{' '}
+              <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>, en dit is mijn passie voor{' '}
+              <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>Belgisch bier.</em>
+            </h1>
+            <p
+              className="max-w-xl"
+              style={{
+                fontFamily: SANS,
+                fontSize: 'clamp(17px, 1.4vw, 21px)',
+                lineHeight: 1.6,
+                fontWeight: 300,
+                color: 'rgba(107,58,42,0.82)',
+              }}
+            >
+              Vanuit het historische hart van Brugge neem ik je mee op een persoonlijke ontdekkingsreis door
+              de rijke Belgische biercultuur — bieren die ontstaan uit mijn ideeën en het ambacht van
+              bevriende brouwers.
+            </p>
+            <Link
+              to="/archief"
+              className="inline-flex items-center group no-underline pb-1 transition-colors"
+              style={{
+                fontFamily: SANS, fontSize: 15, fontWeight: 600,
+                color: 'var(--ink)',
+                borderBottom: '2px solid var(--copper)',
+              }}
+            >
+              Lees de verhalen
+              <ArrowRight size={18} className="ml-3 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* Visual */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative z-10">
+              <img
+                src={introImage}
+                alt="Belgisch bier in een rustiek Brugs interieur"
+                width={800}
+                height={1000}
+                className="w-full aspect-[4/5] object-cover shadow-2xl"
+                style={{ filter: 'brightness(0.96)' }}
+              />
+              {/* Decorative corners */}
+              <div
+                className="absolute -top-5 -right-5 w-28 h-28 -z-10 hidden md:block"
+                style={{ borderTop: '1px solid rgba(205,127,50,0.45)', borderRight: '1px solid rgba(205,127,50,0.45)' }}
+              />
+              <div
+                className="absolute -bottom-5 -left-5 w-28 h-28 -z-10 hidden md:block"
+                style={{ borderBottom: '1px solid rgba(205,127,50,0.45)', borderLeft: '1px solid rgba(205,127,50,0.45)' }}
+              />
+            </div>
+            {/* Overlay card */}
+            <div
+              className="absolute -bottom-6 -right-4 md:-right-8 p-6 hidden md:block shadow-xl max-w-[210px]"
+              style={{ background: 'var(--ink)', color: '#fdfcf8' }}
+            >
+              <p
+                className="mb-2"
+                style={{
+                  fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                  letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65,
+                }}
+              >
+                Geest van Brugge
+              </p>
+              <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.3 }}>
+                Verhalen achter elk brouwsel.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
