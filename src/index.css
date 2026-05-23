@@ -6,105 +6,94 @@
 
 @layer base {
   :root {
-    /* ═══ Raw brand palette (hex tokens) ═══ */
-    --bg: #FDFAF6;
-    --bg-cream: #FFF8EE;
-    --ink: #1C1510;
-    --muted: #7A6E64;
-    --line: #E8E0D4;
-    --surface: #FFFFFF;
-    --hop: #4A7C3F;
-    --hop-light: #EAF3DE;
-    --hop-mid: #97C459;
-    --hop-dark: #27500A;
-    --amber: #BA7517;
-    --amber-light: #FAEEDA;
-    --amber-dark: #633806;
-    --copper: #993C1D;
-    --copper-light: #FAECE7;
-    --copper-dark: #712B13;
+    /* ═══ Raw brand palette — Burnt Sienna (hex tokens) ═══ */
+    --bg: #fdfcf8;
+    --bg-cream: #f9f5ed;
+    --ink: #6b3a2a;
+    --muted: #a89378;
+    --line: #ead9b8;
+    --surface: #ffffff;
+    /* "hop" var name kept for back-compat — now maps to brown family */
+    --hop: #a0522d;
+    --hop-light: #f5e4c4;
+    --hop-mid: #cd7f32;
+    --hop-dark: #6b3a2a;
+    --amber: #cd7f32;
+    --amber-light: #fdf3e0;
+    --amber-dark: #8a5a1f;
+    --copper: #a0522d;
+    --copper-light: #f5e4c4;
+    --copper-dark: #6b3a2a;
     --radius-pill: 24px;
     --radius-card: 12px;
     --radius-sm: 8px;
 
-    /* ═══ Light, airy palette ═══ */
-    /* Background  #FDFAF6 */
-    --background: 36 38% 98%;
-    /* Ink         #1C1510 */
-    --foreground: 24 28% 9%;
+    /* ═══ Burnt Sienna HSL palette ═══ */
+    --background: 45 50% 98%;
+    --foreground: 18 43% 29%;
 
-    /* Surface card #FFFFFF */
     --card: 0 0% 100%;
-    --card-foreground: 24 28% 9%;
+    --card-foreground: 18 43% 29%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 28% 9%;
+    --popover-foreground: 18 43% 29%;
 
-    /* Primary hop green #4A7C3F */
-    --primary: 111 33% 37%;
+    /* Primary — sienna #a0522d */
+    --primary: 19 57% 40%;
     --primary-foreground: 0 0% 100%;
-    /* Primary light #EAF3DE */
-    --primary-light: 88 45% 91%;
-    /* Primary mid   #97C459 */
-    --primary-mid: 86 47% 56%;
+    --primary-light: 36 67% 87%;
+    --primary-mid: 29 61% 50%;
 
-    /* Secondary amber #BA7517 / light #FAEEDA */
-    --secondary: 33 79% 41%;
+    /* Secondary — copper-amber #cd7f32 */
+    --secondary: 29 61% 50%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 38 79% 92%;
+    --secondary-light: 38 80% 88%;
 
-    /* Tertiary copper (Bierstekers) #993C1D / light #FAECE7 */
-    --tertiary: 14 68% 36%;
+    /* Tertiary — deep sienna #6b3a2a */
+    --tertiary: 18 43% 29%;
     --tertiary-foreground: 0 0% 100%;
-    --tertiary-light: 18 71% 94%;
+    --tertiary-light: 36 67% 87%;
 
-    /* Muted text #7A6E64 */
-    --muted: 36 100% 97%;
-    --muted-foreground: 28 9% 44%;
+    --muted: 40 50% 95%;
+    --muted-foreground: 24 25% 42%;
 
-    /* Accent = amber */
-    --accent: 33 79% 41%;
+    --accent: 29 61% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 111 33% 37%;
+    --success: 19 57% 40%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 14 68% 36%;
+    --destructive: 6 65% 38%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders/lines #E8E0D4 */
-    --border: 33 28% 87%;
-    --input: 33 28% 87%;
-    --ring: 111 33% 37%;
+    --border: 38 50% 82%;
+    --input: 38 50% 82%;
+    --ring: 19 57% 40%;
 
-    --radius: 0.75rem; /* 12px */
+    --radius: 0.75rem;
 
-    /* Cream sections #FFF8EE */
-    --cream: 36 100% 97%;
+    --cream: 40 50% 95%;
 
-    --sidebar-background: 36 38% 98%;
-    --sidebar-foreground: 24 28% 9%;
-    --sidebar-primary: 111 33% 37%;
+    --sidebar-background: 45 50% 98%;
+    --sidebar-foreground: 18 43% 29%;
+    --sidebar-primary: 19 57% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 36 100% 97%;
-    --sidebar-accent-foreground: 24 28% 9%;
-    --sidebar-border: 33 28% 87%;
-    --sidebar-ring: 111 33% 37%;
+    --sidebar-accent: 40 50% 95%;
+    --sidebar-accent-foreground: 18 43% 29%;
+    --sidebar-border: 38 50% 82%;
+    --sidebar-ring: 19 57% 40%;
 
-    /* Legacy aliases (kept for compatibility) */
-    --charcoal: 24 28% 9%;
-    --rust: 14 68% 36%;
-    --slate: 28 9% 44%;
+    --charcoal: 18 43% 29%;
+    --rust: 19 57% 40%;
+    --slate: 24 25% 42%;
     --parchment: 0 0% 100%;
-    --vintage-gold: 33 79% 41%;
-    --vintage-cream: 36 100% 97%;
-    --vintage-sepia: 28 9% 44%;
+    --vintage-gold: 29 61% 50%;
+    --vintage-cream: 40 50% 95%;
+    --vintage-sepia: 24 25% 42%;
 
-    /* Bierstekers sub-brand → copper */
-    --bierstekers: 14 68% 36%;
+    --bierstekers: 19 57% 40%;
     --bierstekers-foreground: 0 0% 100%;
 
-    /* No drop shadows — kept as no-ops for back-compat */
     --shadow-hard: 0 0 0 transparent;
     --shadow-card: 0 0 0 transparent;
     --shadow-scrapbook: 0 0 0 transparent;
@@ -122,27 +111,25 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
     font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Lora', Georgia, serif;
     font-weight: 700;
-    letter-spacing: -0.015em;
-    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
     color: hsl(var(--foreground));
   }
 
   .font-serif, .font-headline {
-    font-family: 'Fraunces', Georgia, serif;
-    font-optical-sizing: auto;
+    font-family: 'Lora', Georgia, serif;
   }
 
   .font-italic-accent {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Lora', Georgia, serif;
     font-style: italic;
-    font-weight: 300;
+    font-weight: 400;
   }
 }
 
