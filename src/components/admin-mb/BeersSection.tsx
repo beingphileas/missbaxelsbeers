@@ -30,7 +30,7 @@ export default function BeersSection() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date')
+      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date,lifecycle_status,teaser,hide_name')
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) toast.error(error.message); else setRows((data as any) || []);
