@@ -34,10 +34,10 @@ export default function SiteHeader() {
     path === '/' ? pathname === '/' : pathname.startsWith(path);
 
   return (
-    <header className="sticky top-0 z-50" style={{ background: '#ffffff', borderBottom: '1px solid #f0f0f0' }}>
+    <header className="sticky top-0 z-50" style={{ background: 'var(--bg)', borderBottom: '1px solid rgba(107,58,42,0.12)' }}>
       <div className="max-w-[1400px] mx-auto px-6 md:px-10 h-20 flex items-center justify-between gap-6">
         {/* Wordmark — left */}
-        <Link to="/" className="shrink-0 no-underline" aria-label="MissBaxel's Beers home" style={{ color: '#111' }}>
+        <Link to="/" className="shrink-0 no-underline" aria-label="MissBaxel's Beers home" style={{ color: 'var(--ink)' }}>
           <span
             style={{
               fontFamily: SERIF,
@@ -46,11 +46,11 @@ export default function SiteHeader() {
               letterSpacing: '-0.01em',
             }}
           >
-            MissBaxel's Beers
+            Miss<em style={{ fontStyle: 'italic', fontWeight: 600, color: 'var(--copper)' }}>Baxel</em>'s Beers
           </span>
         </Link>
 
-        {/* Nav — center/right */}
+        {/* Nav — right */}
         <nav className="hidden md:flex items-center gap-7 flex-1 justify-end">
           {navItems.map(item => {
             const active = isActive(item.path);
@@ -58,14 +58,14 @@ export default function SiteHeader() {
               <Link
                 key={item.path}
                 to={item.path}
-                className="relative no-underline"
+                className="relative no-underline transition-colors"
                 style={{
                   fontFamily: SANS,
                   fontSize: 14,
                   fontWeight: 600,
-                  color: '#111',
+                  color: active ? 'var(--ink)' : 'rgba(107,58,42,0.7)',
                   paddingBottom: 4,
-                  borderBottom: active ? '2px solid #d93025' : '2px solid transparent',
+                  borderBottom: active ? '2px solid var(--amber)' : '2px solid transparent',
                 }}
               >
                 {t(item.label)}
@@ -73,18 +73,18 @@ export default function SiteHeader() {
             );
           })}
 
-          {/* Search icon (placeholder) */}
+          {/* Search icon */}
           <Link
             to="/zoeken"
             aria-label="Search"
             className="no-underline inline-flex items-center"
-            style={{ color: '#111' }}
+            style={{ color: 'var(--ink)' }}
           >
             <Search size={16} />
           </Link>
 
           {/* Language */}
-          <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: '#888' }}>
+          <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: 'rgba(107,58,42,0.6)' }}>
             {isTranslating && <Loader2 size={11} className="animate-spin" />}
             {LANG_OPTIONS.map((opt, i) => (
               <span key={opt.value} className="flex items-center">
