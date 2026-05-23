@@ -10,6 +10,7 @@ interface BeerRow {
   abv: number | null; description: string | null; marijke_idea: string | null; brew_story: string | null;
   flavor_profile: string[] | null; pairing_suggestion: string | null; image_url: string | null; label_url: string | null;
   is_current: boolean | null; featured: boolean; is_collab: boolean | null; release_date: string | null;
+  lifecycle_status: string | null; teaser: string | null; hide_name: boolean | null;
 }
 interface BreweryRef { id: string; name: string }
 interface Link { brewery_id: string; role: string }
