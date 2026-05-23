@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { Restaurant } from '@/types';
+import introImage from '@/assets/intro-bruges-beer.jpg';
 
 type BeerTile = {
   id: string;
