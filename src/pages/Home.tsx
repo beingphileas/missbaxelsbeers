@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import type { Restaurant } from '@/types';
+import introIllustration from '@/assets/missbaxels-logo-illustration.jpg';
 
 
 type BeerTile = {
@@ -246,14 +247,17 @@ export default function Home() {
           {/* Visual */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative z-10 aspect-[4/5] flex items-center justify-center shadow-2xl"
-              style={{ background: 'var(--bg-cream)', border: '1px solid rgba(205,127,50,0.25)' }}
+              className="relative z-10 aspect-[4/5] overflow-hidden shadow-2xl"
+              style={{ border: '1px solid rgba(205,127,50,0.25)' }}
             >
               <img
-                src="/missbaxels-logo.png"
-                alt="MissBaxel's Beers logo"
-                className="max-w-[78%] max-h-[78%] object-contain"
+                src={introIllustration}
+                alt="MissBaxel's Beers illustratie"
+                className="w-full h-full object-cover"
               />
+            </div>
+            <div className="hidden">
+              <span />
 
               {/* Decorative corners */}
               <div
