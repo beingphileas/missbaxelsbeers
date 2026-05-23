@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Fraunces", "Georgia", "serif"],
-        headline: ["Fraunces", "Georgia", "serif"],
-        sans: ["DM Sans", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Fraunces", "Georgia", "serif"],
+        display: ["Lora", "Georgia", "serif"],
+        headline: ["Lora", "Georgia", "serif"],
+        sans: ["Nunito Sans", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Lora", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

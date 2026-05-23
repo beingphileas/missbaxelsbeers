@@ -177,7 +177,7 @@
 
 /* ═══ Editorial typography ═══ */
 .prose-editorial {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 1.075rem;
   line-height: 1.8;
   color: hsl(var(--foreground));
@@ -186,7 +186,7 @@
 .prose-editorial p { margin-bottom: 1.5em; }
 
 .prose-editorial > p:first-of-type::first-letter {
-  font-family: 'Fraunces', serif;
+  font-family: 'Lora', serif;
   font-size: 3.8em;
   float: left;
   line-height: 0.8;
@@ -220,7 +220,7 @@
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background: hsl(var(--cream));
 }
 
@@ -230,7 +230,7 @@
   box-shadow: none;
   background: hsl(var(--card));
   color: hsl(var(--foreground));
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
 }
 
 .leaflet-popup-tip { box-shadow: none; background: hsl(var(--card)); }
