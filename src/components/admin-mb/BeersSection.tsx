@@ -141,6 +141,9 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
   const [isFeatured, setIsFeatured] = useState(initial?.featured ?? false);
   const [isCollab, setIsCollab] = useState(initial?.is_collab ?? false);
   const [releaseDate, setReleaseDate] = useState(initial?.release_date || '');
+  const [lifecycle, setLifecycle] = useState<'current' | 'archive' | 'pipeline'>((initial?.lifecycle_status as any) || 'current');
+  const [teaser, setTeaser] = useState(initial?.teaser || '');
+  const [hideName, setHideName] = useState(initial?.hide_name ?? false);
 
   const [breweries, setBreweries] = useState<BreweryRef[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
