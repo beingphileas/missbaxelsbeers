@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils } from 'lucide-react';
+import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils, Building2 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { supabase } from '@/integrations/supabase/client';
 
 const Pill = ({
   children, color = 'hop', icon,
@@ -81,7 +83,56 @@ const WINNERS = [
   },
 ];
 
+type BrewerCard = {
+  id: string;
+  name: string;
+  slug: string | null;
+  location: string | null;
+  description: string | null;
+  beers: { id: string; slug: string | null; name: string; style: string | null }[];
+};
+
 export default function Over() {
+  const [brewers, setBrewers] = useState<BrewerCard[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      // Onze brouwers = brouwerijen die gekoppeld zijn aan een MissBaxel-collab-bier
+      const { data: collabBeers } = await supabase
+        .from('beers')
+        .select('id, slug, name, style')
+        .eq('is_collab', true);
+      const beerIds = (collabBeers || []).map((b) => b.id);
+      if (!beerIds.length) return;
+
+      const { data: links } = await supabase
+        .from('beer_breweries')
+        .select('beer_id, brewery_id')
+        .in('beer_id', beerIds);
+      const brewIds = Array.from(new Set((links || []).map((l) => l.brewery_id)));
+      if (!brewIds.length) return;
+
+      const { data: brews } = await supabase
+        .from('breweries')
+        .select('id, name, slug, location, description')
+        .in('id', brewIds);
+
+      const beerMap = new Map((collabBeers || []).map((b) => [b.id, b]));
+      const cards: BrewerCard[] = (brews || []).map((b) => ({
+        id: b.id,
+        name: b.name,
+        slug: (b as any).slug ?? null,
+        location: (b as any).location ?? null,
+        description: (b as any).description ?? null,
+        beers: (links || [])
+          .filter((l) => l.brewery_id === b.id)
+          .map((l) => beerMap.get(l.beer_id))
+          .filter(Boolean) as any[],
+      }));
+      setBrewers(cards);
+    })();
+  }, []);
+
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
@@ -89,6 +140,7 @@ export default function Over() {
         description="Marijke Bax over MissBaxel's Beers — bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles."
         url="/over"
       />
+
 
       {/* SECTION 1 — HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '52px 0', background: 'var(--amber-light)', position: 'relative', overflow: 'hidden' }}>
@@ -285,9 +337,118 @@ export default function Over() {
                 </div>
               ))}
             </div>
+
+            {/* Marijkes noot na de tijdlijn */}
+            <div
+              className="mt-9"
+              style={{
+                borderLeft: '3px solid var(--hop)',
+                background: 'var(--hop-light)',
+                borderRadius: '0 12px 12px 0',
+                padding: '16px 20px',
+                fontFamily: 'Fraunces, serif',
+                fontStyle: 'italic',
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: 'var(--ink)',
+              }}
+            >
+              En er borrelt al van alles voor wat nog komt. Welke brouwer, welk bier? Dat verklap ik nog niet — kom het binnenkort proeven aan onze tafel.
+            </div>
           </div>
         </div>
       </section>
+
+      {/* SECTION 3.5 — ONZE BROUWERS */}
+      {brewers.length > 0 && (
+        <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
+          <div className="max-w-5xl mx-auto px-5">
+            <h2
+              className="mb-2"
+              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+            >
+              Onze brouwers
+            </h2>
+            <p
+              className="mb-8"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}
+            >
+              De mensen die mijn ideeën in een ketel laten landen.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-5">
+              {brewers.map((b) => (
+                <div
+                  key={b.id}
+                  style={{
+                    background: '#fff',
+                    border: '1px solid var(--line)',
+                    borderRadius: 14,
+                    padding: 22,
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex items-center justify-center shrink-0"
+                      style={{
+                        width: 40, height: 40, borderRadius: 10,
+                        background: 'var(--hop-light)', color: 'var(--hop-dark)',
+                      }}
+                    >
+                      <Building2 size={18} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>
+                        {b.name}
+                      </h3>
+                      {b.location && (
+                        <div
+                          className="flex items-center gap-1 mt-0.5"
+                          style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)' }}
+                        >
+                          <MapPin size={11} /> {b.location}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {b.description && (
+                    <p
+                      className="mt-3"
+                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13.5, color: 'var(--ink)', lineHeight: 1.65 }}
+                    >
+                      {b.description}
+                    </p>
+                  )}
+                  {b.beers.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {b.beers.map((be) => (
+                        <Link
+                          key={be.id}
+                          to={`/beers/${be.slug || be.id}`}
+                          className="inline-flex items-center gap-1.5 no-underline transition-opacity hover:opacity-80"
+                          style={{
+                            background: 'var(--amber-light)',
+                            color: 'var(--amber-dark)',
+                            border: '1px solid var(--line)',
+                            borderRadius: 999,
+                            padding: '4px 10px',
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 12,
+                            fontWeight: 600,
+                          }}
+                        >
+                          <BeerIcon size={11} /> {be.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* SECTION 4 — DRIE WINNAARS */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
