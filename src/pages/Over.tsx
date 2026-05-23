@@ -23,37 +23,39 @@ const Pill = ({
 
 const TIMELINE = [
   {
-    period: 'Begin',
-    title: "Restaurant Bij Koen & Marijke",
-    body: 'De bierkaart werd een passie.',
-    color: 'var(--hop)',
+    period: '2014',
+    title: 'Aan tafel bij Koen',
+    body: 'Marijke stapt in bij Koen in het restaurant in Brugge. Bier is dan nog geen ding — eten en gasten staan centraal.',
+    color: 'var(--amber)',
   },
   {
-    period: '2019–2020',
-    title: 'Bierstekers',
-    body:
-      'Samen met Koen begon Marijke bieren te blenden — de Bierstekers waren geboren. Een creatieve speeltuin die alles in gang zette. Momenteel op pauze, maar het archief leeft verder.',
+    period: '2017',
+    title: 'Op dagelijkse basis',
+    body: 'Na de overname van Koens ouders werkt Marijke elke dag mee. Ze proeft, ze leert, ze ontdekt. En dan is er die ene Duchesse de Bourgogne — het besef dat bier zoveel meer kan zijn dan pils of tripel.',
+    color: 'var(--amber)',
+  },
+  {
+    period: 'De Bierstekers',
+    title: 'Blenden in geuze-stijl',
+    body: 'Samen met Koen begint Marijke bestaande bieren te blenden, vanuit het restaurant. Een eigen handschrift, een groeiende reeks. De Bierstekers staan vandaag op pauze, maar het archief leeft verder op bierstekers.com.',
     color: 'var(--copper)',
   },
   {
     period: '2021',
-    title: "MissBaxel's Beers",
-    body:
-      'De eerste bierblog, de eerste recensies, de eerste stem van een vrouw in de Belgische bierwereld online.',
+    title: 'De blog',
+    body: 'Tijdens corona gaat missbaxelsbeers.com live. Geen plan, geen strategie — gewoon nieuwsgierigheid en een manier om de tijd te vullen met waar ze van houdt: proeven en erover schrijven.',
     color: 'var(--hop)',
   },
   {
-    period: '2023+',
-    title: 'Eigen bieren',
-    body:
-      'De stap naar eigen bieren: Marijke brengt ideeën, bevriende brouwers krijgen de vrije hand.',
+    period: '2024',
+    title: 'De eerste eigen bieren',
+    body: 'Een verjaardagscadeau van Koen: de kans om bij twee favoriete brouwerijen een eigen bier te maken. Zonder Totetrekkerie en Maria Guimauva — Marijke brengt het idee, de brouwer krijgt de vrije hand.',
     color: 'var(--hop)',
   },
   {
     period: 'Nu',
-    title: 'Een bruisend ecosysteem',
-    body:
-      "Blog, eigen bieren, restaurant, collabs — MissBaxel's is een platform geworden.",
+    title: 'Een bruisend platform',
+    body: 'Eigen bieren, verhalen, samenwerkingen, het restaurant — alles grijpt in elkaar. En er borrelt al van alles voor wat komt. Welk bier, welke brouwer? Dat verklap ik nog niet.',
     color: 'var(--hop)',
   },
 ];

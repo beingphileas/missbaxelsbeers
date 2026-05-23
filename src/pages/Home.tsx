@@ -186,7 +186,7 @@ export default function Home() {
                 className="text-center py-10"
                 style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}
               >
-                Featured bieren komen binnenkort.
+                De eerste bieren zijn er. Kom ze proeven aan tafel in Brugge — of ontdek ze hier.
               </div>
             )}
             {featured.map((b, i) => (

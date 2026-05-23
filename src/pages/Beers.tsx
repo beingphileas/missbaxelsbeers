@@ -249,10 +249,10 @@ export default function Beers() {
               style={{ border: '1px dashed var(--line)', borderRadius: 12, fontFamily: 'DM Sans, sans-serif' }}
             >
               <p style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
-                Binnenkort hier
+                De bieren wonen hier
               </p>
-              <p style={{ fontSize: 14, color: 'var(--muted)', maxWidth: 440, margin: '0 auto 24px' }}>
-                De bieren worden binnenkort toegevoegd. Kom later terug of reserveer alvast een tafel in het restaurant.
+              <p style={{ fontSize: 14, color: 'var(--muted)', maxWidth: 480, margin: '0 auto 24px' }}>
+                Hier wonen de bieren — eigen brouwsels en samenwerkingen. Meer is onderweg. Reserveer ondertussen gerust een tafel in Brugge.
               </p>
               <Link
                 to="/restaurant"
