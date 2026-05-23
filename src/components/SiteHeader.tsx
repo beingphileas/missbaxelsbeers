@@ -31,35 +31,44 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-5 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-[1400px] mx-auto px-5 h-16 flex items-center justify-between gap-4">
         {/* Logo — left */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0 group" aria-label="MissBaxel's home">
           <img src="/missbaxels-logo.png" alt="MissBaxel's" style={{ height: 36, width: 'auto', objectFit: 'contain', display: 'block' }} />
-          <span className="hidden md:inline font-display text-xl leading-none text-foreground" style={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
-            Miss<span className="font-italic-accent text-primary" style={{ fontWeight: 300 }}>Baxel</span>
-            <span style={{ fontWeight: 900 }}>'s</span>
+          <span className="hidden md:inline font-display text-xl leading-none text-foreground" style={{ fontWeight: 700, letterSpacing: '-0.01em' }}>
+            Miss<span className="font-italic-accent" style={{ fontWeight: 400, color: 'var(--copper)' }}>Baxel</span>
+            <span style={{ fontWeight: 700 }}>'s</span>
           </span>
         </Link>
 
         {/* Nav — center */}
-        <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+        <nav className="hidden md:flex items-center gap-7 flex-1 justify-center">
           {navItems.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-[14px] py-[6px] text-[12px] font-medium tracking-wide rounded-full transition-colors no-underline ${
+                className={`relative text-[12px] font-bold tracking-[0.16em] uppercase transition-colors no-underline ${
                   active
-                    ? 'bg-[hsl(var(--primary-light))] text-primary'
-                    : 'text-muted-foreground hover:bg-[hsl(var(--primary-light))] hover:text-primary'
+                    ? 'text-foreground'
+                    : 'text-foreground/75 hover:text-foreground'
                 }`}
+                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
               >
                 {t(item.label)}
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-1.5 left-0 right-0 mx-auto"
+                    style={{ height: 2, background: 'var(--amber)', width: '60%' }}
+                  />
+                )}
               </Link>
             );
           })}
         </nav>
+
 
         {/* Right — language + CTA */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
