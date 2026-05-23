@@ -266,7 +266,7 @@ export default function Over() {
               className="flex flex-wrap gap-2"
               style={{ borderTop: '1px solid var(--line)', padding: 14 }}
             >
-              {['Bierblog', 'Eigen bieren', 'Sommelier', 'Restaurant'].map((tag) => (
+              {['Bierblog', 'Eigen bieren', 'Biermadam', 'Restaurant'].map((tag) => (
                 <span
                   key={tag}
                   className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
