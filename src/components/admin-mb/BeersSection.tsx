@@ -177,10 +177,13 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       pairing_suggestion: pairing.trim() || null,
       image_url: imageUrl,
       label_url: labelUrl,
-      is_current: isCurrent,
+      is_current: lifecycle === 'current' ? isCurrent : false,
       featured: isFeatured,
       is_collab: isCollab,
       release_date: releaseDate || null,
+      lifecycle_status: lifecycle,
+      teaser: teaser.trim() || null,
+      hide_name: hideName,
     };
 
     let beerId = initial?.id;
