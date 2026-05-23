@@ -22,7 +22,24 @@ type PostTile = {
   title: string;
   cover_image_url: string | null;
   date: string | null;
+  excerpt: string | null;
+  rubric: string | null;
 };
+
+const RUBRIC_LABELS: Record<string, string> = {
+  proefnotitie: 'Proefnotitie',
+  brouwerij: 'Brouwerij',
+  hidden_gem: 'Hidden Gem',
+  bier_en_eten: 'Bier & Eten',
+  column: 'Column',
+  biertrip: 'Biertrip',
+  seizoen: 'Seizoen',
+  missbaxel_bier: "MissBaxel's Bier",
+  bioshop: 'Bioshop',
+};
+
+const formatDate = (d: string | null) =>
+  d ? new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
 type BrewerCard = { id: string; name: string; slug: string | null; image_url: string | null };
 
@@ -157,10 +174,10 @@ export default function Home() {
 
       const { data: p } = await supabase
         .from('blog_posts')
-        .select('id, slug, title, cover_image_url, date')
+        .select('id, slug, title, cover_image_url, date, excerpt, rubric')
         .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false })
-        .limit(4);
+        .limit(5);
       setPosts((p || []) as any);
       setLoading(s => ({ ...s, posts: false }));
 
@@ -288,8 +305,131 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ============ VERHALEN (editorial) ============ */}
+      {!loading.posts && posts.length > 0 && (
+        <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
+          <div className="max-w-[1400px] mx-auto">
+            <SectionHeader
+              label="Het blog"
+              title="Verhalen uit het glas."
+              to="/archief"
+              ctaLabel="Alle verhalen"
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+              {/* Featured */}
+              {(() => {
+                const f = posts[0];
+                return (
+                  <Link
+                    to={`/verhalen/${f.slug}`}
+                    className="lg:col-span-7 group no-underline block"
+                    style={{ color: 'var(--ink)' }}
+                  >
+                    <div
+                      className="aspect-[4/3] overflow-hidden mb-6"
+                      style={{ background: 'var(--bg)', border: '1px solid rgba(205,127,50,0.18)' }}
+                    >
+                      {f.cover_image_url ? (
+                        <img
+                          src={f.cover_image_url}
+                          alt={f.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 96, color: 'var(--copper)' }}>
+                          {f.title.slice(0, 1)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <SectionLabel>{f.rubric ? RUBRIC_LABELS[f.rubric] || 'Verhaal' : 'Verhaal'}</SectionLabel>
+                      <span style={{ width: 18, height: 1, background: 'rgba(107,58,42,0.3)' }} />
+                      <span style={{ fontFamily: SANS, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(107,58,42,0.65)' }}>
+                        {formatDate(f.date)}
+                      </span>
+                    </div>
+                    <h3
+                      className="transition-colors group-hover:text-[color:var(--amber)]"
+                      style={{
+                        fontFamily: SERIF, fontWeight: 600,
+                        fontSize: 'clamp(28px, 3.2vw, 42px)',
+                        lineHeight: 1.15, letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {f.title}
+                    </h3>
+                    {f.excerpt && (
+                      <p className="mt-4 max-w-2xl" style={{ fontSize: 17, lineHeight: 1.65, color: 'rgba(107,58,42,0.82)', fontWeight: 300 }}>
+                        {f.excerpt}
+                      </p>
+                    )}
+                    <span
+                      className="inline-flex items-center gap-2 mt-5 pb-1"
+                      style={{
+                        fontFamily: SANS, fontSize: 12, fontWeight: 700,
+                        letterSpacing: '0.18em', textTransform: 'uppercase',
+                        color: 'var(--ink)', borderBottom: '2px solid var(--copper)',
+                      }}
+                    >
+                      Lees het verhaal <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </Link>
+                );
+              })()}
+
+              {/* Side list */}
+              <div className="lg:col-span-5 flex flex-col">
+                {posts.slice(1, 5).map((p, i) => (
+                  <Link
+                    key={p.id}
+                    to={`/verhalen/${p.slug}`}
+                    className="group no-underline grid grid-cols-[110px_1fr] gap-5 py-6"
+                    style={{
+                      color: 'var(--ink)',
+                      borderTop: i === 0 ? 'none' : '1px solid rgba(107,58,42,0.15)',
+                    }}
+                  >
+                    <div
+                      className="aspect-square overflow-hidden"
+                      style={{ background: 'var(--bg)', border: '1px solid rgba(205,127,50,0.18)' }}
+                    >
+                      {p.cover_image_url ? (
+                        <img
+                          src={p.cover_image_url}
+                          alt={p.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 36, color: 'var(--copper)' }}>
+                          {p.title.slice(0, 1)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <div style={{ fontFamily: SANS, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--copper)', marginBottom: 6 }}>
+                        {p.rubric ? RUBRIC_LABELS[p.rubric] || 'Verhaal' : 'Verhaal'}
+                      </div>
+                      <h4
+                        className="transition-colors group-hover:text-[color:var(--amber)]"
+                        style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 19, lineHeight: 1.3, letterSpacing: '-0.005em' }}
+                      >
+                        {p.title}
+                      </h4>
+                      <div style={{ fontFamily: SANS, fontSize: 12, color: 'rgba(107,58,42,0.6)', marginTop: 6 }}>
+                        {formatDate(p.date)}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ============ BIEREN ============ */}
-      <section className="px-6 md:px-10 py-16">
+      <section className="px-6 md:px-10 py-20">
         <div className="max-w-[1400px] mx-auto">
           <SectionHeader
             label="Onze bieren"
@@ -325,30 +465,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ VERHALEN ============ */}
-      {!loading.posts && posts.length > 0 && (
-        <section className="px-6 md:px-10 py-16" style={{ background: 'var(--bg-cream)' }}>
-          <div className="max-w-[1400px] mx-auto">
-            <SectionHeader
-              label="Verhalen"
-              title="Recent op het blog."
-              to="/archief"
-              ctaLabel="Alle verhalen"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
-              {posts.map(p => (
-                <PhotoTile
-                  key={p.id}
-                  to={`/verhalen/${p.slug}`}
-                  title={p.title}
-                  image={p.cover_image_url}
-                  kicker={p.date ? new Date(p.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' }) : undefined}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ============ DE BROUWERS ============ */}
       {!loading.brewers && brewers.length > 0 && (
