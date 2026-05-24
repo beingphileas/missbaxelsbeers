@@ -10,6 +10,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AgeGate from "@/components/AgeGate";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import CookieConsent from "@/components/CookieConsent";
 import { installErrorReporter } from "@/lib/errorReporter";
 
 import ProtectedRoute from "./components/ProtectedRoute";
