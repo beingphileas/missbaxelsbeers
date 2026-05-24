@@ -325,7 +325,7 @@ export default function Home() {
                 MissBaxel's Beers
               </p>
               <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.3 }}>
-                Hier deel ik hun verhalen en laat ik je proeven.
+                {t('Hier deel ik hun verhalen en laat ik je proeven.')}
               </p>
             </div>
           </div>
