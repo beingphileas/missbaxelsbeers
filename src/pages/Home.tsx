@@ -249,7 +249,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Content */}
           <div className="lg:col-span-7 space-y-8">
-            <SectionLabel>Welkom</SectionLabel>
+            <SectionLabel>{t('Welkom')}</SectionLabel>
             <h1
               style={{
                 fontFamily: SERIF,
@@ -260,7 +260,7 @@ export default function Home() {
                 color: 'var(--ink)',
               }}
             >
-              Ik ben <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
+              {t('Ik ben')} <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>. {t('Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.')}
             </h1>
             <p
               className="max-w-xl"
@@ -272,7 +272,7 @@ export default function Home() {
                 color: 'rgba(107,58,42,0.82)',
               }}
             >
-              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
+              {t('Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.')}
             </p>
             <Link
               to="/archief"
@@ -283,7 +283,7 @@ export default function Home() {
                 borderBottom: '2px solid var(--copper)',
               }}
             >
-              Lees de verhalen
+              {t('Lees de verhalen')}
               <ArrowRight size={18} className="ml-3 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
