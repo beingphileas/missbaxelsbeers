@@ -674,7 +674,7 @@ export default function Home() {
               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--copper)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ink)'; }}
             >
-              Reserveer een tafel
+              {t('Reserveer een tafel')}
             </a>
           ) : (
             <Link
