@@ -1,0 +1,1 @@
+DELETE FROM blog_posts WHERE slug IN ('chimay-150', 'mariage-parfait');
