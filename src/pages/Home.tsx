@@ -399,7 +399,7 @@ export default function Home() {
                         color: 'var(--ink)', borderBottom: '2px solid var(--copper)',
                       }}
                     >
-                      Lees het verhaal <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                      {t('Lees het verhaal')} <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                     </span>
                   </Link>
                 );
