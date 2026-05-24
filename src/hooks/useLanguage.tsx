@@ -80,19 +80,30 @@ async function fetchTranslations(texts: string[], targetLang: Lang): Promise<Rec
 const registeredStrings = new Set<string>();
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('nl');
+  const [lang, setLangState] = useState<Lang>(detectInitialLang);
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [isTranslating, setIsTranslating] = useState(false);
   const pendingRef = useRef<Set<string>>(new Set());
   const batchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Persist taalkeuze + warm cache bij eerste mount als taal ≠ nl.
+  useEffect(() => {
+    try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch { /* ignore */ }
+    if (lang !== 'nl') {
+      setTranslations(loadCache(lang));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const setLang = useCallback(async (newLang: Lang) => {
     setLangState(newLang);
+    try { localStorage.setItem(LANG_STORAGE_KEY, newLang); } catch { /* ignore */ }
 
     if (newLang === 'nl') {
       setTranslations({});
       return;
     }
+
 
     // Load cache first
     const cached = loadCache(newLang);
