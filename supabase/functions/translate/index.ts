@@ -27,6 +27,11 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       return json({ error: 'LOVABLE_API_KEY not set' }, 500);
     }
+
+    // IP-based rate limit for this public endpoint.
+    const rl = await checkRateLimit(rateLimitKey(req, null), 'translate');
+    if (!rl.ok) return rateLimitResponse(rl, corsHeaders);
+
     const body = (await req.json()) as ReqBody;
     if (!Array.isArray(body.texts) || !body.target_lang) {
       return json({ error: 'Invalid body. Expected { texts: string[], target_lang }' }, 400);
