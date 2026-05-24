@@ -647,7 +647,7 @@ export default function Home() {
       {/* ============ RESTAURANT ============ */}
       <section className="px-6 md:px-10 py-20">
         <div className="max-w-3xl mx-auto text-center">
-          <SectionLabel>Restaurant</SectionLabel>
+          <SectionLabel>{t('Restaurant')}</SectionLabel>
           <h2
             className="mt-4 mb-6"
             style={{
@@ -656,11 +656,10 @@ export default function Home() {
               lineHeight: 1.15, letterSpacing: '-0.01em',
             }}
           >
-            Proef ze aan onze tafel in <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>Brugge.</em>
+            {t('Proef ze aan onze tafel in')} <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>{t('Brugge.')}</em>
           </h2>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(107,58,42,0.8)', marginBottom: 32 }}>
-            Bij Koen &amp; Marijke staan onze bieren op de kaart — samen met een eerlijke keuken
-            die de liefde voor het ambacht deelt.
+            {t('Bij Koen & Marijke staan onze bieren op de kaart — samen met een eerlijke keuken die de liefde voor het ambacht deelt.')}
           </p>
           {restaurant?.reservation_url ? (
             <a
