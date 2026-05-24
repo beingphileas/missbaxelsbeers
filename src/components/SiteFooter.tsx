@@ -101,7 +101,8 @@ export default function SiteFooter() {
           </h3>
           <ul className="space-y-2.5">
             {[
-              { to: '/over', label: t('Het verhaal') },
+              { to: '/verhaal', label: t('Het verhaal') },
+              { to: '/over', label: t('Over mezelf') },
               { to: '/restaurant', label: t('Restaurant') },
               { to: '/bierstekers', label: t('Bierstekers') },
               { to: '/archief', label: t('Archief') },

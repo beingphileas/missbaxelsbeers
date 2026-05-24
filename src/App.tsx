@@ -31,6 +31,7 @@ const PrivacyBeleid = lazy(() => import("./pages/PrivacyBeleid"));
 const Voorwaarden = lazy(() => import("./pages/Voorwaarden"));
 const Cookiebeleid = lazy(() => import("./pages/Cookiebeleid"));
 const VerantwoordDrinken = lazy(() => import("./pages/VerantwoordDrinken"));
+const HetVerhaal = lazy(() => import("./pages/HetVerhaal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const RouteFallback = () => (
@@ -74,6 +75,7 @@ const App = () => {
                 <Route path="/algemene-voorwaarden" element={<Voorwaarden />} />
                 <Route path="/cookiebeleid" element={<Cookiebeleid />} />
                 <Route path="/verantwoord-drinken" element={<VerantwoordDrinken />} />
+                <Route path="/verhaal" element={<HetVerhaal />} />
                 <Route
                   path="/admin"
                   element={
