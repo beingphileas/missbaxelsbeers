@@ -138,6 +138,7 @@ export default function BeerDetail() {
     '@type': 'Product',
     name: beer.name,
     description: beer.description || undefined,
+    image: imgSrc || undefined,
     brand: { '@type': 'Brand', name: "MissBaxel's Beers" },
     manufacturer: brewerNames.length
       ? brewerNames.map(n => ({ '@type': 'Organization', name: n }))
@@ -154,6 +155,7 @@ export default function BeerDetail() {
       <SEOHead
         title={`${beer.name} — MissBaxel's Beers`}
         description={beer.description || `${beer.name}${beer.style ? ` · ${beer.style}` : ''} — een MissBaxel's samenwerking.`}
+        image={imgSrc || undefined}
         url={`/beers/${beer.slug || beer.id}`}
         type="article"
       />

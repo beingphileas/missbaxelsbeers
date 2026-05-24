@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://www.missbaxelsbeers.com/sitemap.xml
+Sitemap: https://atxqvdrapkvqluryjota.supabase.co/functions/v1/sitemap

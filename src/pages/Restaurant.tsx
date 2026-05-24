@@ -83,7 +83,7 @@ export default function Restaurant() {
     email: r?.email || undefined,
     url: r?.reservation_url || undefined,
     servesCuisine: 'Belgisch',
-    hasMenu: 'https://www.missbaxelsbeers.com/restaurant',
+    hasMenu: 'https://missbaxels.lovable.app/restaurant',
     openingHoursSpecification: openingHoursSpecification.length ? openingHoursSpecification : undefined,
     priceRange: '€€',
   };
