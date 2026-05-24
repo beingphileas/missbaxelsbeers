@@ -86,20 +86,28 @@ export default function HetVerhaal() {
             </em>
           </p>
 
-          {/* Body quote */}
-          <blockquote
+          {/* Body text */}
+          <div
+            className="space-y-6 mx-auto"
             style={{
               fontFamily: SERIF,
-              fontSize: 'clamp(17px, 2vw, 22px)',
-              lineHeight: 1.65,
-              fontStyle: 'italic',
-              color: 'rgba(107,58,42,0.82)',
+              fontSize: 'clamp(16px, 1.8vw, 20px)',
+              lineHeight: 1.7,
+              color: 'rgba(107,58,42,0.88)',
               maxWidth: 520,
-              margin: '0 auto',
+              fontStyle: 'italic',
             }}
           >
-            Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
-          </blockquote>
+            <p>
+              Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
+            </p>
+            <p>
+              Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
+            </p>
+            <p>
+              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
+            </p>
+          </div>
 
           {/* Signature */}
           <div
