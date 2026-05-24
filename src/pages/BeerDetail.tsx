@@ -222,7 +222,7 @@ export default function BeerDetail() {
                 className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
                 style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
               >
-                <Icon size={12} /> {beer.style}
+                <Icon size={12} /> {tBeerStyle}
               </span>
             )}
 
@@ -230,7 +230,7 @@ export default function BeerDetail() {
               className="mt-4 mb-3"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(32px, 5vw, 42px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
             >
-              {beer.name}
+              {tBeerName}
             </h1>
 
             {breweries.length > 0 && (
@@ -332,7 +332,7 @@ export default function BeerDetail() {
                 color: 'var(--ink)',
               }}
             >
-              {beer.marijke_idea}
+              {tMarijke}
             </div>
           </div>
         </section>
@@ -354,7 +354,7 @@ export default function BeerDetail() {
                 color: 'var(--muted)', lineHeight: 1.85, whiteSpace: 'pre-wrap',
               }}
             >
-              {beer.brew_story}
+              {tBrewStory}
             </div>
           </div>
         </section>
