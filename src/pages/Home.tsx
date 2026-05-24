@@ -16,6 +16,16 @@ type BeerTile = {
   label_url: string | null;
 };
 
+type PipelineBeer = {
+  id: string;
+  name: string;
+  teaser: string | null;
+  hide_name: boolean | null;
+  image_url: string | null;
+  label_url: string | null;
+  brewery_name?: string | null;
+};
+
 type PostTile = {
   id: string;
   slug: string;
