@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/hooks/useLanguage';
 import type { Restaurant } from '@/types';
 import introIllustration from '@/assets/missbaxels-logo-illustration.jpg';
 
