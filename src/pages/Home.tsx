@@ -497,7 +497,7 @@ export default function Home() {
         <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
           <div className="max-w-[1400px] mx-auto">
             <div className="mb-12 max-w-3xl">
-              <SectionLabel>In de maak</SectionLabel>
+              <SectionLabel>{t('In de maak')}</SectionLabel>
               <h2
                 className="mt-2"
                 style={{
@@ -506,7 +506,7 @@ export default function Home() {
                   lineHeight: 1.2, letterSpacing: '-0.01em',
                 }}
               >
-                En er borrelt al van alles.
+                {t('En er borrelt al van alles.')}
               </h2>
               <p
                 className="mt-4"
@@ -515,7 +515,7 @@ export default function Home() {
                   color: 'rgba(107,58,42,0.82)', fontWeight: 300,
                 }}
               >
-                Welk bier, welke brouwer? Ik verklap nog niet alles — maar hier alvast een voorproefje.
+                {t('Welk bier, welke brouwer? Ik verklap nog niet alles — maar hier alvast een voorproefje.')}
               </p>
             </div>
 
