@@ -1,0 +1,11 @@
+{
+  "updated_at": "2026-05-24T00:00:00.000Z",
+  "_comment": "Accepted security-lint findings. Regenerate with: node scripts/supabase-lint-check.mjs --update",
+  "accepted": [
+    "rls_enabled_no_policy::INFO::schema=public|table=rate_limits",
+    "anon_security_definer_function_executable::WARN::function=has_role|schema=public",
+    "anon_security_definer_function_executable::WARN::function=owns_brewery|schema=public",
+    "authenticated_security_definer_function_executable::WARN::function=has_role|schema=public",
+    "authenticated_security_definer_function_executable::WARN::function=owns_brewery|schema=public"
+  ]
+}
