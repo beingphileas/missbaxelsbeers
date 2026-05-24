@@ -42,6 +42,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <AgeGate />
             <SiteHeader />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
