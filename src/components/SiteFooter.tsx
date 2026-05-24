@@ -130,8 +130,8 @@ export default function SiteFooter() {
             <span>© {year} MissBaxel's Beers · Bij Koen &amp; Marijke · Brugge</span>
             <a href="/llms.txt" className="text-muted text-[10px] hover:underline">llms.txt</a>
           </div>
-          <div>
-            {t('Een zustermerk:')}{' '}
+          <div className="flex items-center gap-3">
+            <span>Geniet verantwoord. Alcohol is voor 18+.</span>
             <span style={{ color: 'hsl(var(--tertiary))', fontWeight: 600 }}>Bierstekers</span>
           </div>
         </div>
