@@ -27,6 +27,10 @@ const BierstekersArchive = lazy(() => import("./pages/BierstekersArchive"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const Login = lazy(() => import("./pages/Login"));
+const PrivacyBeleid = lazy(() => import("./pages/PrivacyBeleid"));
+const Voorwaarden = lazy(() => import("./pages/Voorwaarden"));
+const Cookiebeleid = lazy(() => import("./pages/Cookiebeleid"));
+const VerantwoordDrinken = lazy(() => import("./pages/VerantwoordDrinken"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const RouteFallback = () => (
@@ -66,6 +70,10 @@ const App = () => {
                 <Route path="/archief" element={<Archief />} />
                 <Route path="/restaurant" element={<Restaurant />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/privacy" element={<PrivacyBeleid />} />
+                <Route path="/algemene-voorwaarden" element={<Voorwaarden />} />
+                <Route path="/cookiebeleid" element={<Cookiebeleid />} />
+                <Route path="/verantwoord-drinken" element={<VerantwoordDrinken />} />
                 <Route
                   path="/admin"
                   element={
