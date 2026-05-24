@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -9,6 +9,8 @@ import { LanguageProvider } from "@/hooks/useLanguage";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AgeGate from "@/components/AgeGate";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
+import { installErrorReporter } from "@/lib/errorReporter";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -34,7 +36,12 @@ const RouteFallback = () => (
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    installErrorReporter();
+  }, []);
+
+  return (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -42,6 +49,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <AnalyticsTracker />
             <AgeGate />
             <SiteHeader />
             <Suspense fallback={<RouteFallback />}>
@@ -74,6 +82,7 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
-);
+  );
+};
 
 export default App;
