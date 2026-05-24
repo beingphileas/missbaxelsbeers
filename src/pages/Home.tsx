@@ -316,10 +316,10 @@ export default function Home() {
                   letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65,
                 }}
               >
-                Geest van Brugge
+                MissBaxel's Beers
               </p>
               <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.3 }}>
-                Verhalen achter elk brouwsel.
+                Hier deel ik hun verhalen en laat ik je proeven.
               </p>
             </div>
           </div>
