@@ -8,6 +8,7 @@ import {
 import SEOHead from '@/components/SEOHead';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
+import { useT } from '@/components/T';
 
 
 type Brewery = {
@@ -137,6 +138,12 @@ export default function BeerDetail() {
   const co = breweries.filter(b => b.role !== 'main' && b.role !== '' && b.role);
   const brewerNames = breweries.map(b => b.name);
   const pairing = beer.pairing_suggestion || beer.food_pairing;
+
+  // Automatische vertaling van DB-content (NL → actieve taal).
+  const tBeerName = useT(beer.name);
+  const tBeerStyle = useT(beer.style ?? '');
+  const tMarijke = useT(beer.marijke_idea ?? '');
+  const tBrewStory = useT(beer.brew_story ?? '');
 
   const jsonLd = {
     '@context': 'https://schema.org',
