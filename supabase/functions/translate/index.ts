@@ -1,5 +1,9 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
-import { requireAdmin } from '../_shared/auth.ts';
+
+// NOTE: translate is intentionally public — it powers visitor-facing i18n
+// (Dutch -> English/French) via the useLanguage hook. Gating to admin would
+// break translation for all anonymous visitors. Abuse should be controlled via
+// future rate-limiting infrastructure, not by removing the feature.
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 const MODEL = 'google/gemini-2.5-flash-lite';
@@ -19,9 +23,6 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { error: authErr } = await requireAdmin(req, corsHeaders);
-    if (authErr) return authErr;
-
     if (!LOVABLE_API_KEY) {
       return json({ error: 'LOVABLE_API_KEY not set' }, 500);
     }
