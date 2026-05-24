@@ -224,12 +224,12 @@ export default function Home() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
         title="MissBaxel's Beers — Belgisch bierproject uit Brugge"
-        description="Belgisch bierproject van Marijke Bax in Brugge. Bieren ontstaan uit ideeën van Marijke en het ambacht van bevriende Belgische brouwers."
+        description="Ik proef bier en ik schrijf op wat ik denk. Soms maak ik er zelf eentje, samen met brouwers die ik graag mag. Allemaal vanuit Brugge."
         url="/"
       />
       <Helmet>
         <meta property="og:title" content="MissBaxel's Beers — Belgisch bierproject uit Brugge" />
-        <meta property="og:description" content="Belgisch bierproject van Marijke Bax in Brugge. Bieren ontstaan uit ideeën van Marijke en het ambacht van bevriende Belgische brouwers." />
+        <meta property="og:description" content="Ik proef bier en ik schrijf op wat ik denk. Soms maak ik er zelf eentje, samen met brouwers die ik graag mag. Allemaal vanuit Brugge." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://missbaxels.lovable.app/" />
         <script type="application/ld+json">{JSON.stringify({
