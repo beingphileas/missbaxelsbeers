@@ -468,7 +468,7 @@ export default function Home() {
             </div>
           ) : beers.length === 0 ? (
             <p style={{ color: 'var(--muted-foreground)', fontSize: 14 }}>
-              Binnenkort de eerste bieren.
+              De eerste bieren zijn er. Kom ze proeven aan tafel in Brugge — of ontdek ze hier.
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
