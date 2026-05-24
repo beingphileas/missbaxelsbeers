@@ -563,7 +563,7 @@ export default function Home() {
                           padding: '6px 12px',
                         }}
                       >
-                        In de maak
+                        {t('In de maak')}
                       </span>
                     </div>
                     <h3
