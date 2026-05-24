@@ -8,6 +8,7 @@ import SEOHead from '@/components/SEOHead';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
+import { useT } from '@/components/T';
 
 type PostScores = {
   rubric: string;
