@@ -1,5 +1,10 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
+// NOTE: translate is intentionally public — it powers visitor-facing i18n
+// (Dutch -> English/French) via the useLanguage hook. Gating to admin would
+// break translation for all anonymous visitors. Abuse should be controlled via
+// future rate-limiting infrastructure, not by removing the feature.
+
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 const MODEL = 'google/gemini-2.5-flash-lite';
 

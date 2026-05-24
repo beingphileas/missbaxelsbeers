@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, MapPin, ArrowLeft,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 
 
@@ -107,6 +108,10 @@ export default function BeerDetail() {
       setLoading(false);
     })();
   }, [id]);
+
+  useEffect(() => {
+    if (beer?.id) trackEvent(ANALYTICS_EVENTS.BEER_OPEN, { id: beer.id, name: beer.name });
+  }, [beer?.id, beer?.name]);
 
   if (loading) {
     return (

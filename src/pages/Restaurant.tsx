@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, Flame,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import type { Restaurant as RestaurantRow } from '@/types';
 
@@ -126,6 +127,8 @@ export default function Restaurant() {
               href={reservationUrl}
               target="_blank"
               rel="noopener noreferrer"
+              data-testid="reservation-cta"
+              onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'hero' })}
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
               style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
             >
@@ -407,6 +410,8 @@ export default function Restaurant() {
             href={reservationUrl}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid="reservation-cta-footer"
+            onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'footer' })}
             className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
             style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
           >
