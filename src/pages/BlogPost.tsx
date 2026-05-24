@@ -243,7 +243,7 @@ export default function BlogPost() {
               className="mb-3"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(34px, 5.5vw, 52px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
             >
-              {post.title}
+              {tTitle}
             </h1>
             <p
               className="mb-2"
@@ -268,7 +268,7 @@ export default function BlogPost() {
                 color: 'var(--ink)', lineHeight: 1.75,
               }}
             >
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+              <ReactMarkdown>{tContent}</ReactMarkdown>
             </div>
             {RubricScoreCard}
           </article>
@@ -291,7 +291,7 @@ export default function BlogPost() {
                   style={{ color: 'var(--ink)' }}
                 >
                   <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 800, fontSize: 22, lineHeight: 1.15, letterSpacing: '-0.01em' }}>
-                    {beer.name}
+                    {tBeerName}
                   </h3>
                 </Link>
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)' }}>
@@ -329,7 +329,7 @@ export default function BlogPost() {
             className="mt-4 mb-3"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(30px, 5vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.02em' }}
           >
-            {post.title}
+            {tTitle}
           </h1>
           {post.style && (
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)' }}>
@@ -353,7 +353,7 @@ export default function BlogPost() {
               color: 'var(--ink)', lineHeight: 1.8,
             }}
           >
-            <ReactMarkdown>{post.content}</ReactMarkdown>
+            <ReactMarkdown>{tContent}</ReactMarkdown>
           </div>
           {RubricScoreCard}
         </article>
