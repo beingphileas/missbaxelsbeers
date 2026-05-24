@@ -165,6 +165,7 @@ const PhotoTile = ({
 );
 
 export default function Home() {
+  const { t } = useLanguage();
   const [beers, setBeers] = useState<BeerTile[]>([]);
   const [pipelineBeers, setPipelineBeers] = useState<PipelineBeer[]>([]);
   const [posts, setPosts] = useState<PostTile[]>([]);
