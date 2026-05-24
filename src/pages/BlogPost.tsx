@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import * as Lucide from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
 
@@ -81,6 +82,10 @@ export default function BlogPost() {
       setLoading(false);
     })();
   }, [slug]);
+
+  useEffect(() => {
+    if (post?.slug) trackEvent(ANALYTICS_EVENTS.STORY_OPEN, { slug: post.slug });
+  }, [post?.slug]);
 
   if (loading) {
     return (
