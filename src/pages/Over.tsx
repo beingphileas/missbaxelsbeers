@@ -27,37 +27,37 @@ const TIMELINE = [
   {
     period: '2014',
     title: 'Aan tafel bij Koen',
-    body: 'Marijke stapt in bij Koen in het restaurant in Brugge. Bier is dan nog geen ding — eten en gasten staan centraal.',
+    body: 'Ik stap in bij hubby in het restaurant in Brugge. Bier is dan nog geen ding voor mij, het draait om de gasten en het eten op tafel.',
     color: 'var(--amber)',
   },
   {
     period: '2017',
     title: 'Op dagelijkse basis',
-    body: 'Na de overname van Koens ouders werkt Marijke elke dag mee. Ze proeft, ze leert, ze ontdekt. En dan is er die ene Duchesse de Bourgogne — het besef dat bier zoveel meer kan zijn dan pils of tripel.',
+    body: 'Na de overname van hubby zijn ouders sta ik er elke dag bij. Ik proef van alles, en dan is er die ene Duchesse de Bourgogne. Dat was het moment dat ik besefte dat bier veel meer kan zijn dan pils of tripel.',
     color: 'var(--amber)',
   },
   {
     period: 'De Bierstekers',
     title: 'Blenden in geuze-stijl',
-    body: 'Samen met Koen begint Marijke bestaande bieren te blenden, vanuit het restaurant. Een eigen handschrift, een groeiende reeks. De Bierstekers staan vandaag op pauze, maar het archief leeft verder op bierstekers.com.',
+    body: 'Samen met hubby begin ik bestaande bieren te blenden, vanuit het restaurant. Een eigen handschrift dat langzaam vorm krijgt in een hele reeks. De Bierstekers staan vandaag op pauze, maar het archief leeft gewoon verder op bierstekers.com.',
     color: 'var(--copper)',
   },
   {
     period: '2021',
     title: 'De blog',
-    body: 'Tijdens corona gaat missbaxelsbeers.com live. Geen plan, geen strategie — gewoon nieuwsgierigheid en een manier om de tijd te vullen met waar ze van houdt: proeven en erover schrijven.',
+    body: 'Tijdens corona zet ik missbaxelsbeers.com online. Geen idee wat het moest worden, ik wou gewoon proeven en erover schrijven om de tijd te vullen.',
     color: 'var(--hop)',
   },
   {
     period: '2024',
     title: 'De eerste eigen bieren',
-    body: 'Een verjaardagscadeau van Koen: de kans om bij twee favoriete brouwerijen een eigen bier te maken. Zonder Totetrekkerie en Maria Guimauva — Marijke brengt het idee, de brouwer krijgt de vrije hand.',
+    body: 'Een verjaardagscadeau van hubby: bij twee van mijn favoriete brouwerijen een eigen bier maken. Zo ontstaan Zonder Totetrekkerie en Maria Guimauva. Ik breng het idee aan, de brouwer mag ermee doen wat hij wil.',
     color: 'var(--hop)',
   },
   {
     period: 'Nu',
     title: 'Een bruisend platform',
-    body: 'Eigen bieren, verhalen, samenwerkingen, het restaurant — alles grijpt in elkaar. En er borrelt al van alles voor wat komt. Welk bier, welke brouwer? Dat verklap ik nog niet.',
+    body: 'De bieren, de verhalen, het restaurant: het loopt allemaal in elkaar over. En er zit nog van alles aan te komen, maar wat en met welke brouwer, dat hou ik nog even voor mezelf.',
     color: 'var(--hop)',
   },
 ];
