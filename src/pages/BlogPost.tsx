@@ -188,7 +188,8 @@ export default function BlogPost() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title={`${post.title} — MissBaxel's Beers`}
-        description={post.excerpt || post.title}
+        description={post.excerpt || (post.content || '').replace(/[#*_>`\-]/g, '').slice(0, 160).trim() || post.title}
+        image={post.cover_image_url || undefined}
         url={`/verhalen/${post.slug}`}
         type="article"
         publishedAt={post.date || undefined}
@@ -196,12 +197,19 @@ export default function BlogPost() {
       <Helmet>
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
-          '@type': 'Article',
+          '@type': 'BlogPosting',
           headline: post.title,
           datePublished: post.date || undefined,
+          dateModified: post.date || undefined,
           author: { '@type': 'Person', name: 'Marijke Bax' },
-          publisher: { '@type': 'Organization', name: "MissBaxel's Beers" },
+          publisher: {
+            '@type': 'Organization',
+            name: "MissBaxel's Beers",
+            logo: { '@type': 'ImageObject', url: 'https://missbaxels.lovable.app/favicon.ico' },
+          },
+          image: post.cover_image_url || undefined,
           description: post.excerpt || undefined,
+          mainEntityOfPage: `https://missbaxels.lovable.app/verhalen/${post.slug}`,
         })}</script>
       </Helmet>
 

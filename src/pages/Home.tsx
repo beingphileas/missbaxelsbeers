@@ -228,9 +228,13 @@ export default function Home() {
         url="/"
       />
       <Helmet>
+        <meta property="og:title" content="MissBaxel's Beers — Belgisch bierproject uit Brugge" />
+        <meta property="og:description" content="Belgisch bierproject van Marijke Bax in Brugge. Bieren ontstaan uit ideeën van Marijke en het ambacht van bevriende Belgische brouwers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://missbaxels.lovable.app/" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org', '@type': 'Organization',
-          name: "MissBaxel's Beers", url: 'https://www.missbaxelsbeers.com',
+          name: "MissBaxel's Beers", url: 'https://missbaxels.lovable.app',
           description: "Belgisch bierproject van Marijke Bax in Brugge.",
           founder: { '@type': 'Person', name: 'Marijke Bax' },
           foundingDate: '2021', areaServed: 'BE',
