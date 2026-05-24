@@ -254,9 +254,7 @@ export default function Home() {
                 color: 'var(--ink)',
               }}
             >
-              Ik ben{' '}
-              <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>, en dit is mijn passie voor{' '}
-              <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>Belgisch bier.</em>
+              Ik ben <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
             </h1>
             <p
               className="max-w-xl"
@@ -268,9 +266,7 @@ export default function Home() {
                 color: 'rgba(107,58,42,0.82)',
               }}
             >
-              Vanuit het historische hart van Brugge neem ik je mee op een persoonlijke ontdekkingsreis door
-              de rijke Belgische biercultuur — bieren die ontstaan uit mijn ideeën en het ambacht van
-              bevriende brouwers.
+              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
             </p>
             <Link
               to="/archief"
@@ -320,10 +316,10 @@ export default function Home() {
                   letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65,
                 }}
               >
-                Geest van Brugge
+                MissBaxel's Beers
               </p>
               <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.3 }}>
-                Verhalen achter elk brouwsel.
+                Hier deel ik hun verhalen en laat ik je proeven.
               </p>
             </div>
           </div>
