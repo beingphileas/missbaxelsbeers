@@ -478,7 +478,7 @@ export default function Home() {
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
-              <PhotoTile to="/over" title="wie ben ik?" image="/missbaxels-logo.png" contain />
+              <PhotoTile to="/over" title={t('wie ben ik?')} image="/missbaxels-logo.png" contain />
               {beers.slice(0, 7).map(b => (
                 <PhotoTile
                   key={b.id}
