@@ -619,7 +619,7 @@ export default function Home() {
                 lineHeight: 1.2, color: '#fdfcf8',
               }}
             >
-              De mensen die mijn ideeën <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>waarmaken.</em>
+              {t('De mensen die mijn ideeën')} <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>{t('waarmaken.')}</em>
             </h2>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {brewers.map(b => (
