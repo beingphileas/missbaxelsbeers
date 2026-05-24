@@ -1,9 +1,10 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { checkRateLimit, rateLimitKey, rateLimitResponse } from '../_shared/rateLimit.ts';
 
 // NOTE: translate is intentionally public — it powers visitor-facing i18n
 // (Dutch -> English/French) via the useLanguage hook. Gating to admin would
-// break translation for all anonymous visitors. Abuse should be controlled via
-// future rate-limiting infrastructure, not by removing the feature.
+// break translation for all anonymous visitors. Abuse is mitigated by an
+// IP-based rate limit (30 req / 10 min) backed by the rate_limits table.
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 const MODEL = 'google/gemini-2.5-flash-lite';
