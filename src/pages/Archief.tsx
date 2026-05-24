@@ -249,9 +249,7 @@ export default function Archief() {
                     return (
                       <a
                         key={p.id}
-                        href={p.external_url || `/verhalen/${p.slug}`}
-                        target={p.external_url ? '_blank' : undefined}
-                        rel={p.external_url ? 'noopener noreferrer' : undefined}
+                        href={`/verhalen/${p.slug}`}
                         className="no-underline"
                       >
                         <article
@@ -293,7 +291,7 @@ export default function Archief() {
                               </div>
                             )}
                             <div className="mt-3 inline-flex items-center gap-1" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}>
-                              Lees de post {p.external_url && <ExternalLink size={11} />} →
+                              Lees de post →
                             </div>
                           </div>
                         </article>
