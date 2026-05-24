@@ -1,5 +1,21 @@
-import { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+
+const LANG_STORAGE_KEY = 'bw_lang';
+
+function detectInitialLang(): 'nl' | 'en' | 'fr' {
+  if (typeof window === 'undefined') return 'nl';
+  try {
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
+    if (stored === 'nl' || stored === 'en' || stored === 'fr') return stored;
+  } catch { /* ignore */ }
+  const nav = (navigator.language || 'nl').toLowerCase();
+  if (nav.startsWith('fr')) return 'fr';
+  if (nav.startsWith('nl')) return 'nl';
+  // Alles wat niet NL of FR is, krijgt EN als beste internationale fallback.
+  return 'en';
+}
+
 
 export type Lang = 'nl' | 'en' | 'fr';
 
