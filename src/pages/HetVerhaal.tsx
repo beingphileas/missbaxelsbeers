@@ -139,7 +139,7 @@ export default function HetVerhaal() {
           className="inline-flex items-center gap-2 no-underline transition-colors hover:opacity-80"
           style={{ color: 'var(--copper)' }}
         >
-          Lees het volledige verhaal
+          {t('Lees het volledige verhaal')}
           <svg
             width="14"
             height="14"
