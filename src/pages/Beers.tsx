@@ -128,7 +128,7 @@ export default function Beers() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="De bieren — MissBaxel's Beers"
-        description="Alle bieren van MissBaxel's Beers — samenwerkingen met bevriende brouwers, elk met een eigen verhaal en smaakprofiel."
+        description="Alles wat ik geproefd heb staat hier. De eigen bieren die ik met brouwers maakte, en alles wat ik onderweg tegenkwam en de moeite vond."
         url="/beers"
       />
 

@@ -79,7 +79,7 @@ export default function Verhalen() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Verhalen — MissBaxel's Beers"
-        description="Het verhaal achter elk bier, elke brouwer, elke samenwerking — in mensentaal."
+        description="Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast."
         url="/verhalen"
       />
 
@@ -99,7 +99,7 @@ export default function Verhalen() {
             Verhalen
           </h1>
           <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
-            Het verhaal achter elk bier, elke brouwer, elke samenwerking — in mensentaal.
+            Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast.
           </p>
         </div>
       </section>
