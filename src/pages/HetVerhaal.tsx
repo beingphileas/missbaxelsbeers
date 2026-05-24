@@ -1,7 +1,10 @@
 import SEOHead from '@/components/SEOHead';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const SERIF = "'Lora', Georgia, serif";
 const SANS = "'Nunito Sans', system-ui, sans-serif";
+
+
 
 export default function HetVerhaal() {
   return (
