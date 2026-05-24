@@ -103,13 +103,13 @@ export default function HetVerhaal() {
             }}
           >
             <p>
-              Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
+              {t("Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.")}
             </p>
             <p>
-              Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
+              {t('Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.')}
             </p>
             <p>
-              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
+              {t('Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.')}
             </p>
           </div>
 
