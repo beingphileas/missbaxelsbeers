@@ -86,6 +86,7 @@ const App = () => {
               </Routes>
             </Suspense>
             <SiteFooter />
+            <CookieConsent />
           </BrowserRouter>
         </LanguageProvider>
       </TooltipProvider>
