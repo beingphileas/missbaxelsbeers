@@ -95,8 +95,13 @@ Deno.serve(async (req) => {
   }
 
   // Auth guard — admin only
-  const { error: authErr } = await requireAdmin(req, corsHeaders);
+  const { user, error: authErr } = await requireAdmin(req, corsHeaders);
   if (authErr) return authErr;
+
+  // Per-admin rate limit (30 / 10 min) — Firecrawl is a paid API.
+  const rl = await checkRateLimit(rateLimitKey(req, user!.id), "verify-venue-ratings");
+  if (!rl.ok) return rateLimitResponse(rl, corsHeaders);
+
 
   const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
   if (!FIRECRAWL_API_KEY) {
