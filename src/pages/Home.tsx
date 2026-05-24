@@ -337,10 +337,10 @@ export default function Home() {
         <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
           <div className="max-w-[1400px] mx-auto">
             <SectionHeader
-              label="Het blog"
-              title="Verhalen uit het glas."
+              label={t('Het blog')}
+              title={t('Verhalen uit het glas.')}
               to="/archief"
-              ctaLabel="Alle verhalen"
+              ctaLabel={t('Alle verhalen')}
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
