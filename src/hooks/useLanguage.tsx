@@ -145,7 +145,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     registeredStrings.add(text);
 
     if (lang === 'nl') return text;
-    return translations[text] || text;
+    const cached = translations[text];
+    if (cached) return cached;
+    // Fire-and-forget: queue dynamic translation; provider state update zal re-render triggeren.
+    void translateDynamic(text);
+    return text;
   }, [lang, translations]);
 
   const translateDynamic = useCallback(async (text: string): Promise<string> => {
