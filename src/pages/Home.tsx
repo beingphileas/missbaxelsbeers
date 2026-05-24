@@ -459,10 +459,10 @@ export default function Home() {
       <section className="px-6 md:px-10 py-20">
         <div className="max-w-[1400px] mx-auto">
           <SectionHeader
-            label="Onze bieren"
-            title="Ik droom. Zij brouwen."
+            label={t('Onze bieren')}
+            title={t('Ik droom. Zij brouwen.')}
             to="/beers"
-            ctaLabel="Alle bieren"
+            ctaLabel={t('Alle bieren')}
           />
           {loading.beers ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
