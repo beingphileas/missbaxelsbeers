@@ -53,7 +53,7 @@ export default function HetVerhaal() {
               color: 'var(--ink)',
             }}
           >
-            Het verhaal
+            {t('Het verhaal')}
           </h1>
 
           {/* Decorative divider */}
@@ -78,7 +78,7 @@ export default function HetVerhaal() {
               color: 'var(--ink)',
             }}
           >
-            Bier, met{' '}
+            {t('Bier, met')}{' '}
             <em
               style={{
                 fontStyle: 'italic',
@@ -86,7 +86,7 @@ export default function HetVerhaal() {
                 color: 'var(--amber)',
               }}
             >
-              goesting.
+              {t('goesting.')}
             </em>
           </p>
 
