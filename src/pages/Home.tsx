@@ -490,6 +490,120 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ============ IN DE MAAK (PIPELINE) ============ */}
+      {pipelineBeers.length > 0 && (
+        <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
+          <div className="max-w-[1400px] mx-auto">
+            <div className="mb-12 max-w-3xl">
+              <SectionLabel>In de maak</SectionLabel>
+              <h2
+                className="mt-2"
+                style={{
+                  fontFamily: SERIF, fontWeight: 600,
+                  fontSize: 'clamp(26px, 3vw, 36px)',
+                  lineHeight: 1.2, letterSpacing: '-0.01em',
+                }}
+              >
+                En er borrelt al van alles.
+              </h2>
+              <p
+                className="mt-4"
+                style={{
+                  fontFamily: SANS, fontSize: 17, lineHeight: 1.65,
+                  color: 'rgba(107,58,42,0.82)', fontWeight: 300,
+                }}
+              >
+                Welk bier, welke brouwer? Ik verklap nog niet alles — maar hier alvast een voorproefje.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {pipelineBeers.map(pb => {
+                const displayName = pb.hide_name ? '???' : pb.name;
+                const img = pb.image_url || pb.label_url;
+                return (
+                  <div
+                    key={pb.id}
+                    style={{
+                      background: 'var(--bg)',
+                      border: '1px solid rgba(205,127,50,0.2)',
+                      padding: 20,
+                    }}
+                  >
+                    <div
+                      className="aspect-square mb-5 flex items-center justify-center overflow-hidden relative"
+                      style={{ background: 'rgba(107,58,42,0.08)' }}
+                    >
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={displayName}
+                          loading="lazy"
+                          className="w-full h-full object-contain"
+                          style={{ filter: pb.hide_name ? 'blur(14px) grayscale(0.4)' : 'none' }}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            fontFamily: SERIF, fontStyle: 'italic', fontSize: 72,
+                            color: 'rgba(107,58,42,0.25)', filter: 'blur(2px)',
+                          }}
+                        >
+                          ?
+                        </span>
+                      )}
+                      <span
+                        className="absolute top-3 left-3"
+                        style={{
+                          background: 'var(--amber)', color: 'var(--ink)',
+                          fontFamily: SANS, fontSize: 10, fontWeight: 700,
+                          letterSpacing: '0.16em', textTransform: 'uppercase',
+                          padding: '6px 12px',
+                        }}
+                      >
+                        In de maak
+                      </span>
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: SERIF, fontWeight: 600, fontSize: 22,
+                        lineHeight: 1.25, letterSpacing: '-0.005em',
+                      }}
+                    >
+                      {displayName}
+                    </h3>
+                    {pb.brewery_name && !pb.hide_name && (
+                      <div
+                        style={{
+                          fontFamily: SANS, fontSize: 11, fontWeight: 700,
+                          letterSpacing: '0.16em', textTransform: 'uppercase',
+                          color: 'var(--copper)', marginTop: 6,
+                        }}
+                      >
+                        {pb.brewery_name}
+                      </div>
+                    )}
+                    {pb.teaser && (
+                      <p
+                        className="mt-3"
+                        style={{
+                          fontFamily: SANS, fontSize: 14, lineHeight: 1.6,
+                          color: 'rgba(107,58,42,0.78)', fontStyle: 'italic',
+                        }}
+                      >
+                        {pb.teaser}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+
+
 
       {/* ============ DE BROUWERS ============ */}
       {!loading.brewers && brewers.length > 0 && (
