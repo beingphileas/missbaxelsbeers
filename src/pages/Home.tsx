@@ -165,6 +165,7 @@ const PhotoTile = ({
 
 export default function Home() {
   const [beers, setBeers] = useState<BeerTile[]>([]);
+  const [pipelineBeers, setPipelineBeers] = useState<PipelineBeer[]>([]);
   const [posts, setPosts] = useState<PostTile[]>([]);
   const [brewers, setBrewers] = useState<BrewerCard[]>([]);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -175,12 +176,26 @@ export default function Home() {
       const { data: b } = await supabase
         .from('beers')
         .select('id, slug, name, image_url, label_url, featured, created_at')
-        .neq('lifecycle_status', 'pipeline')
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(8);
       setBeers((b || []) as any);
       setLoading(s => ({ ...s, beers: false }));
+
+      const { data: pb } = await supabase
+        .from('beers')
+        .select('id, name, teaser, hide_name, image_url, label_url, brewery_id')
+        .eq('lifecycle_status', 'pipeline')
+        .order('created_at', { ascending: false });
+      if (pb && pb.length) {
+        const brewIds = Array.from(new Set(pb.map((x: any) => x.brewery_id).filter(Boolean)));
+        let nameMap: Record<string, string> = {};
+        if (brewIds.length) {
+          const { data: brs } = await supabase.from('breweries').select('id, name').in('id', brewIds);
+          (brs || []).forEach((br: any) => { nameMap[br.id] = br.name; });
+        }
+        setPipelineBeers(pb.map((x: any) => ({ ...x, brewery_name: nameMap[x.brewery_id] || null })));
+      }
 
       const { data: p } = await supabase
         .from('blog_posts')
