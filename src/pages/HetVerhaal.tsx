@@ -1,9 +1,13 @@
 import SEOHead from '@/components/SEOHead';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const SERIF = "'Lora', Georgia, serif";
 const SANS = "'Nunito Sans', system-ui, sans-serif";
 
+
+
 export default function HetVerhaal() {
+  const { t } = useLanguage();
   return (
     <div
       style={{
@@ -49,7 +53,7 @@ export default function HetVerhaal() {
               color: 'var(--ink)',
             }}
           >
-            Het verhaal
+            {t('Het verhaal')}
           </h1>
 
           {/* Decorative divider */}
@@ -74,7 +78,7 @@ export default function HetVerhaal() {
               color: 'var(--ink)',
             }}
           >
-            Bier, met{' '}
+            {t('Bier, met')}{' '}
             <em
               style={{
                 fontStyle: 'italic',
@@ -82,7 +86,7 @@ export default function HetVerhaal() {
                 color: 'var(--amber)',
               }}
             >
-              goesting.
+              {t('goesting.')}
             </em>
           </p>
 
@@ -99,13 +103,13 @@ export default function HetVerhaal() {
             }}
           >
             <p>
-              Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
+              {t("Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.")}
             </p>
             <p>
-              Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.
+              {t('Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.')}
             </p>
             <p>
-              Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.
+              {t('Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.')}
             </p>
           </div>
 
@@ -135,7 +139,7 @@ export default function HetVerhaal() {
           className="inline-flex items-center gap-2 no-underline transition-colors hover:opacity-80"
           style={{ color: 'var(--copper)' }}
         >
-          Lees het volledige verhaal
+          {t('Lees het volledige verhaal')}
           <svg
             width="14"
             height="14"
