@@ -101,6 +101,13 @@ export default function BlogPost() {
 
   const isLongForm = !post.external_url && ((post.content?.length ?? 0) > 500 || !!postScores);
 
+  // Automatische vertaling van de hoofdvelden (NL → actieve taal).
+  const tTitle = useT(post.title);
+  const tExcerpt = useT(post.excerpt ?? '');
+  const tContent = useT(post.content);
+  const tBeerName = useT(beer?.name ?? '');
+
+
   const RubricScoreCard = (() => {
     if (!postScores || !isRubricKey(postScores.rubric)) return null;
     const def = RUBRICS[postScores.rubric as RubricKey];
