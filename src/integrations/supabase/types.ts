@@ -719,6 +719,24 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       restaurant: {
         Row: {
           address: string | null
@@ -960,6 +978,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_rate_limit: {
+        Args: { p_key: string; p_window: string }
+        Returns: number
       }
       owns_brewery: {
         Args: { _brewery_id: string; _user_id: string }
