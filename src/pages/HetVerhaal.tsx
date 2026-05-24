@@ -7,6 +7,7 @@ const SANS = "'Nunito Sans', system-ui, sans-serif";
 
 
 export default function HetVerhaal() {
+  const { t } = useLanguage();
   return (
     <div
       style={{
