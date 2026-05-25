@@ -556,38 +556,6 @@ export type Database = {
         }
         Relationships: []
       }
-      post_scores: {
-        Row: {
-          blog_post_id: string
-          created_at: string
-          id: string
-          rubric: string
-          scores: Json
-        }
-        Insert: {
-          blog_post_id: string
-          created_at?: string
-          id?: string
-          rubric: string
-          scores?: Json
-        }
-        Update: {
-          blog_post_id?: string
-          created_at?: string
-          id?: string
-          rubric?: string
-          scores?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_scores_blog_post_id_fkey"
-            columns: ["blog_post_id"]
-            isOneToOne: true
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       rate_limits: {
         Row: {
           count: number
@@ -654,27 +622,6 @@ export type Database = {
           phone?: string | null
           reservation_url?: string | null
           story?: string | null
-        }
-        Relationships: []
-      }
-      system_health: {
-        Row: {
-          key: string
-          last_error: string | null
-          last_run_at: string
-          last_status: string
-        }
-        Insert: {
-          key: string
-          last_error?: string | null
-          last_run_at?: string
-          last_status?: string
-        }
-        Update: {
-          key?: string
-          last_error?: string | null
-          last_run_at?: string
-          last_status?: string
         }
         Relationships: []
       }
