@@ -49,7 +49,7 @@ export default function Restaurant() {
   }, []);
 
   const hours = (r?.opening_hours as Record<string, string> | null) || {};
-  const reservationUrl = r?.reservation_url || '#';
+  const reservationUrl = r?.reservation_url || 'https://eetkroeg-in-t-nieuw-museum-brugge.resos.com/booking';
   const mapsUrl = r?.google_maps_url || '#';
 
   // JSON-LD
