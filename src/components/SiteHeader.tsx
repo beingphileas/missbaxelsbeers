@@ -16,7 +16,6 @@ const navItems = [
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
   { value: 'nl', label: 'NL' },
   { value: 'en', label: 'EN' },
-  { value: 'fr', label: 'FR' },
 ];
 
 const SERIF = "'Lora', Georgia, serif";

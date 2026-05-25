@@ -3,21 +3,20 @@ import { toast } from 'sonner';
 
 const LANG_STORAGE_KEY = 'bw_lang';
 
-function detectInitialLang(): 'nl' | 'en' | 'fr' {
+function detectInitialLang(): 'nl' | 'en' {
   if (typeof window === 'undefined') return 'nl';
   try {
     const stored = localStorage.getItem(LANG_STORAGE_KEY);
-    if (stored === 'nl' || stored === 'en' || stored === 'fr') return stored;
+    if (stored === 'nl' || stored === 'en') return stored;
   } catch { /* ignore */ }
   const nav = (navigator.language || 'nl').toLowerCase();
-  if (nav.startsWith('fr')) return 'fr';
   if (nav.startsWith('nl')) return 'nl';
-  // Alles wat niet NL of FR is, krijgt EN als beste internationale fallback.
+  // Alles wat niet NL is, krijgt EN als beste internationale fallback.
   return 'en';
 }
 
 
-export type Lang = 'nl' | 'en' | 'fr';
+export type Lang = 'nl' | 'en';
 
 interface LanguageContextType {
   lang: Lang;

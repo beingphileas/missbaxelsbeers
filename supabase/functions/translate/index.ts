@@ -2,7 +2,7 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { checkRateLimit, rateLimitKey, rateLimitResponse } from '../_shared/rateLimit.ts';
 
 // NOTE: translate is intentionally public — it powers visitor-facing i18n
-// (Dutch -> English/French) via the useLanguage hook. Gating to admin would
+// (Dutch -> English) via the useLanguage hook. Gating to admin would
 // break translation for all anonymous visitors. Abuse is mitigated by an
 // IP-based rate limit (30 req / 10 min) backed by the rate_limits table.
 
@@ -11,13 +11,12 @@ const MODEL = 'google/gemini-2.5-flash-lite';
 
 interface ReqBody {
   texts: string[];
-  target_lang: 'nl' | 'en' | 'fr';
+  target_lang: 'nl' | 'en';
 }
 
 const LANG_NAMES: Record<string, string> = {
   nl: 'Dutch',
   en: 'English',
-  fr: 'French',
 };
 
 Deno.serve(async (req) => {
