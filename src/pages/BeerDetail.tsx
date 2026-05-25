@@ -114,6 +114,13 @@ export default function BeerDetail() {
     if (beer?.id) trackEvent(ANALYTICS_EVENTS.BEER_OPEN, { id: beer.id, name: beer.name });
   }, [beer?.id, beer?.name]);
 
+  // Automatische vertaling van DB-content (NL → actieve taal).
+  // BELANGRIJK: hooks moeten vóór early returns staan om "Rendered more hooks" te voorkomen.
+  const tBeerName = useT(beer?.name ?? '');
+  const tBeerStyle = useT(beer?.style ?? '');
+  const tMarijke = useT(beer?.marijke_idea ?? '');
+  const tBrewStory = useT(beer?.brew_story ?? '');
+
   if (loading) {
     return (
       <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
@@ -139,11 +146,7 @@ export default function BeerDetail() {
   const brewerNames = breweries.map(b => b.name);
   const pairing = beer.pairing_suggestion || beer.food_pairing;
 
-  // Automatische vertaling van DB-content (NL → actieve taal).
-  const tBeerName = useT(beer.name);
-  const tBeerStyle = useT(beer.style ?? '');
-  const tMarijke = useT(beer.marijke_idea ?? '');
-  const tBrewStory = useT(beer.brew_story ?? '');
+
 
   const jsonLd = {
     '@context': 'https://schema.org',
