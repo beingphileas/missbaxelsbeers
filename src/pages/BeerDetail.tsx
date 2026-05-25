@@ -146,7 +146,7 @@ export default function BeerDetail() {
   const brewerNames = breweries.map(b => b.name);
   const pairing = beer.pairing_suggestion || beer.food_pairing;
 
-  const tBrewStory = useT(beer.brew_story ?? '');
+
 
   const jsonLd = {
     '@context': 'https://schema.org',
