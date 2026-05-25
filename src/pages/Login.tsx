@@ -74,7 +74,7 @@ export default function Login() {
             <Lock size={20} className="text-accent" />
           </div>
           <CardTitle className="font-serif text-2xl">Inloggen</CardTitle>
-          <CardDescription>Admin of brouwerij? Log hier in.</CardDescription>
+          <CardDescription>Admin? Log hier in.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
