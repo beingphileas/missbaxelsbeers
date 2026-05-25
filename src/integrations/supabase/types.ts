@@ -352,42 +352,6 @@ export type Database = {
           },
         ]
       }
-      blog_post_venues: {
-        Row: {
-          blog_post_id: string
-          created_at: string
-          id: string
-          venue_id: string
-        }
-        Insert: {
-          blog_post_id: string
-          created_at?: string
-          id?: string
-          venue_id: string
-        }
-        Update: {
-          blog_post_id?: string
-          created_at?: string
-          id?: string
-          venue_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_post_venues_blog_post_id_fkey"
-            columns: ["blog_post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_post_venues_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_posts: {
         Row: {
           beer_id: string | null
@@ -410,7 +374,6 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
-          venue_id: string | null
         }
         Insert: {
           beer_id?: string | null
@@ -433,7 +396,6 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
-          venue_id?: string | null
         }
         Update: {
           beer_id?: string | null
@@ -456,7 +418,6 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
-          venue_id?: string | null
         }
         Relationships: [
           {
@@ -471,13 +432,6 @@ export type Database = {
             columns: ["brewery_id"]
             isOneToOne: false
             referencedRelation: "breweries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_posts_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
             referencedColumns: ["id"]
           },
         ]
@@ -789,87 +743,6 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
-        }
-        Relationships: []
-      }
-      venues: {
-        Row: {
-          address: string | null
-          cover_image_url: string | null
-          created_at: string
-          description: string | null
-          email: string | null
-          google_rating: number | null
-          google_review_count: number | null
-          google_url: string | null
-          id: string
-          is_verified: boolean
-          lat: number
-          lng: number
-          name: string
-          phone: string | null
-          province: string
-          tripadvisor_rating: number | null
-          tripadvisor_review_count: number | null
-          tripadvisor_url: string | null
-          untappd_rating: number | null
-          untappd_review_count: number | null
-          untappd_url: string | null
-          updated_at: string
-          venue_type: string
-          website_url: string | null
-        }
-        Insert: {
-          address?: string | null
-          cover_image_url?: string | null
-          created_at?: string
-          description?: string | null
-          email?: string | null
-          google_rating?: number | null
-          google_review_count?: number | null
-          google_url?: string | null
-          id?: string
-          is_verified?: boolean
-          lat: number
-          lng: number
-          name: string
-          phone?: string | null
-          province: string
-          tripadvisor_rating?: number | null
-          tripadvisor_review_count?: number | null
-          tripadvisor_url?: string | null
-          untappd_rating?: number | null
-          untappd_review_count?: number | null
-          untappd_url?: string | null
-          updated_at?: string
-          venue_type?: string
-          website_url?: string | null
-        }
-        Update: {
-          address?: string | null
-          cover_image_url?: string | null
-          created_at?: string
-          description?: string | null
-          email?: string | null
-          google_rating?: number | null
-          google_review_count?: number | null
-          google_url?: string | null
-          id?: string
-          is_verified?: boolean
-          lat?: number
-          lng?: number
-          name?: string
-          phone?: string | null
-          province?: string
-          tripadvisor_rating?: number | null
-          tripadvisor_review_count?: number | null
-          tripadvisor_url?: string | null
-          untappd_rating?: number | null
-          untappd_review_count?: number | null
-          untappd_url?: string | null
-          updated_at?: string
-          venue_type?: string
-          website_url?: string | null
         }
         Relationships: []
       }
