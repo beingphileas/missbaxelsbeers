@@ -166,7 +166,7 @@ export default function Over() {
               color: 'var(--ink)',
             }}
           >
-            Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.
+            Ik ben geen brouwer. Ik ben wel iemand die weet wat ze wil proeven.
           </div>
         </div>
 
