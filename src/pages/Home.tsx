@@ -249,7 +249,7 @@ export default function Home() {
       <section style={{ paddingTop: 80, paddingBottom: 0 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', paddingLeft: 24, paddingRight: 24 }}>
           <img
-            src="/missbaxels-logo.png"
+            src={introIllustration}
             alt="MissBaxel's Beers"
             style={{ height: 72, width: 'auto', objectFit: 'contain', marginBottom: 32, display: 'block' }}
           />
