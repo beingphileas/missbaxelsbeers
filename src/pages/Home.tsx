@@ -687,7 +687,7 @@ export default function Home() {
               {t('Aan tafel in Brugge.')}
           </h2>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(107,58,42,0.8)', marginBottom: 32 }}>
-            {t('Bij Koen & Marijke staan onze bieren op de kaart — samen met een eerlijke keuken die de liefde voor het ambacht deelt.')}
+            {t('Bij Koen & Marijke staan ze op de kaart. Kom proeven.')}
           </p>
           {restaurant?.reservation_url ? (
             <a
