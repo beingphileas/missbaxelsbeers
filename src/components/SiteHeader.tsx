@@ -48,7 +48,7 @@ export default function SiteHeader() {
         </Link>
 
         {/* Nav — right */}
-        <nav className="hidden md:flex items-center gap-7 flex-1 justify-end">
+        <nav className="hidden md:flex items-center gap-9 flex-1 justify-end">
           {navItems.map(item => {
             const active = isActive(item.path);
             return (
@@ -69,16 +69,6 @@ export default function SiteHeader() {
               </Link>
             );
           })}
-
-          {/* Search icon */}
-          <Link
-            to="/zoeken"
-            aria-label="Search"
-            className="no-underline inline-flex items-center"
-            style={{ color: 'var(--ink)' }}
-          >
-            <Search size={16} />
-          </Link>
 
           {/* Language */}
           <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: 'rgba(107,58,42,0.6)' }}>
