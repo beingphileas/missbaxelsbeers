@@ -109,18 +109,18 @@ export default function Restaurant() {
           <div>
           <span
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1"
-            style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+            style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: SANS, borderRadius: 0 }}
           >
             <Store size={12} /> Restaurant · Brugge
           </span>
           <h1
             className="mt-5 mb-4"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
+            style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
           >
             {r?.name || "Bij Koen & Marijke in 't Nieuw Museum"}
           </h1>
           {r?.description && (
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', lineHeight: 1.7 }}>
+            <p style={{ fontFamily: SANS, fontSize: 15, color: 'var(--muted)', lineHeight: 1.7 }}>
               {r.description}
             </p>
           )}
@@ -133,7 +133,7 @@ export default function Restaurant() {
               data-testid="reservation-cta"
               onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'hero' })}
               className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: SANS, borderRadius: 0 }}
             >
               <Utensils size={14} /> Reserveer een tafel
             </a>
@@ -143,7 +143,7 @@ export default function Restaurant() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline"
-                style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+                style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: SANS, borderRadius: 0 }}
               >
                 <MapPin size={14} /> Bekijk op Google Maps
               </a>
@@ -160,14 +160,14 @@ export default function Restaurant() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Flame size={16} color="var(--copper)" />
-              <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 22 }}>
+              <h2 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 22 }}>
                 Openingsuren
               </h2>
             </div>
             <div
               style={{
                 background: 'var(--copper-light)', border: '1px solid var(--copper)', borderRadius: 12,
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: SANS,
               }}
             >
               {DAYS.map(({ key, label }, i) => {
@@ -192,7 +192,7 @@ export default function Restaurant() {
               })}
             </div>
             {r?.google_maps_url && (
-              <p style={{ marginTop: 10, fontSize: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
+              <p style={{ marginTop: 10, fontSize: 12, color: 'var(--muted)', fontFamily: SANS }}>
                 Controleer altijd de actuele uren via{' '}
                 <a
                   href={r.google_maps_url}
@@ -208,14 +208,14 @@ export default function Restaurant() {
 
           {/* Contact */}
           <div>
-            <h2 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 22, marginBottom: 16 }}>
+            <h2 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 22, marginBottom: 16 }}>
               Contact
             </h2>
             <div
               className="space-y-3.5"
               style={{
                 background: '#fff', border: '1px solid var(--line)', borderRadius: 12,
-                padding: 20, fontFamily: 'DM Sans, sans-serif',
+                padding: 20, fontFamily: SANS,
               }}
             >
               {(r?.address || r?.city) && (
@@ -296,13 +296,13 @@ export default function Restaurant() {
           <div>
             <h2
               className="mb-5"
-              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 30, lineHeight: 1.15 }}
+              style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 30, lineHeight: 1.15 }}
             >
               Bij ons, in Brugge
             </h2>
             <div
               style={{
-                fontFamily: 'DM Sans, sans-serif', fontSize: 14,
+                fontFamily: SANS, fontSize: 14,
                 color: 'var(--muted)', lineHeight: 1.85, whiteSpace: 'pre-wrap',
               }}
             >
@@ -323,7 +323,7 @@ export default function Restaurant() {
             </div>
             <p
               className="mt-3 text-center"
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}
+              style={{ fontFamily: SANS, fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}
             >
               Bij Koen &amp; Marijke in 't Nieuw Museum · Brugge
             </p>
@@ -337,13 +337,13 @@ export default function Restaurant() {
           <div className="max-w-5xl mx-auto px-5">
             <h2
               className="mb-2"
-              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 30, lineHeight: 1.15 }}
+              style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 30, lineHeight: 1.15 }}
             >
               Bier &amp; eten
             </h2>
             <p
               className="mb-8"
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}
+              style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)' }}
             >
               Elk MissBaxel's bier is ook een keukeninspiratie. Dit zijn onze favoriete combinaties.
             </p>
@@ -355,13 +355,13 @@ export default function Restaurant() {
                   style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}
                 >
                   <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
+                    <h3 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
                       {p.name}
                     </h3>
                     {p.style && (
                       <span
                         className="text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-                        style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+                        style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: SANS }}
                       >
                         {p.style}
                       </span>
@@ -372,7 +372,7 @@ export default function Restaurant() {
 
                   <div className="flex items-start gap-2.5">
                     <Utensils size={15} style={{ color: 'var(--copper)', marginTop: 2, flexShrink: 0 }} />
-                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+                    <p style={{ fontFamily: SANS, fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
                       {p.pairing_suggestion}
                     </p>
                   </div>
@@ -380,7 +380,7 @@ export default function Restaurant() {
                   <Link
                     to={`/beers/${p.slug || p.id}`}
                     className="mt-4 inline-flex items-center gap-1 no-underline"
-                    style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}
+                    style={{ fontFamily: SANS, fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}
                   >
                     Proef het <ExternalLink size={11} />
                   </Link>
@@ -396,13 +396,13 @@ export default function Restaurant() {
         <div className="max-w-2xl mx-auto px-5">
           <h2
             className="mb-3"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+            style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
             Proef het aan tafel.
           </h2>
           <p
             className="mb-7 mx-auto"
-            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', maxWidth: 460 }}
+            style={{ fontFamily: SANS, fontSize: 15, color: 'var(--muted)', maxWidth: 460 }}
           >
             De bieren staan op de kaart. Koen staat aan de grill. Kom gewoon langs.
           </p>
@@ -413,7 +413,7 @@ export default function Restaurant() {
             data-testid="reservation-cta-footer"
             onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'footer' })}
             className="inline-flex items-center gap-2 px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
-            style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+            style={{ background: 'var(--copper)', color: '#fff', fontFamily: SANS, borderRadius: 0 }}
           >
             <Utensils size={15} /> Reserveer een tafel
           </a>
@@ -426,7 +426,7 @@ export default function Restaurant() {
           <p
             className="mb-4"
             style={{
-              fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+              fontFamily: SANS, fontSize: 11, fontWeight: 600,
               color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.14em',
             }}
           >
@@ -434,15 +434,15 @@ export default function Restaurant() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link to="/verhalen" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: SANS, borderRadius: 0 }}>
               Lees onze verhalen
             </Link>
             <Link to="/beers" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: SANS, borderRadius: 0 }}>
               Bekijk de bieren
             </Link>
             <Link to="/verhalen" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: SANS, borderRadius: 0 }}>
               Naar het archief
             </Link>
           </div>
