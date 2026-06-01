@@ -69,8 +69,8 @@ export default function SiteFooter() {
             {[
               { to: '/over', label: t('Over') },
               { to: '/beers', label: t('Bieren') },
-              { to: '/stories', label: t('Verhalen') },
-              { to: '/archief', label: t('Archief') },
+              { to: '/verhalen', label: t('Verhalen') },
+              { to: '/restaurant', label: t('Restaurant') },
             ].map((l) => (
               <li key={l.to}>
                 <Link
