@@ -366,6 +366,37 @@ export default function Home() {
         `}</style>
       </section>
 
+      {/* ============ BIEREN ============ */}
+      <section style={{ paddingTop: 48, paddingBottom: 64, background: 'var(--bg-cream)' }}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
+          {loading.beers ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i}>
+                  <div className="aspect-square" style={{ background: 'var(--bg-cream)' }} />
+                </div>
+              ))}
+            </div>
+          ) : beers.length === 0 ? (
+            <p style={{ color: 'var(--muted-foreground)', fontSize: 14 }}>
+              {t('De eerste bieren zijn er. Kom ze proeven aan tafel in Brugge — of ontdek ze hier.')}
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
+              <PhotoTile to="/over" title={t('wie ben ik?')} image="/missbaxels-logo.png" contain />
+              {beers.slice(0, 7).map(b => (
+                <PhotoTile
+                  key={b.id}
+                  to={`/beers/${b.slug || b.id}`}
+                  title={b.name}
+                  image={b.image_url || b.label_url}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ============ VERHALEN (editorial) ============ */}
       {!loading.posts && posts.length > 0 && (
         <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
@@ -488,37 +519,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* ============ BIEREN ============ */}
-      <section style={{ paddingTop: 48, paddingBottom: 64, background: 'var(--bg-cream)' }}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
-          {loading.beers ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i}>
-                  <div className="aspect-square" style={{ background: 'var(--bg-cream)' }} />
-                </div>
-              ))}
-            </div>
-          ) : beers.length === 0 ? (
-            <p style={{ color: 'var(--muted-foreground)', fontSize: 14 }}>
-              {t('De eerste bieren zijn er. Kom ze proeven aan tafel in Brugge — of ontdek ze hier.')}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14">
-              <PhotoTile to="/over" title={t('wie ben ik?')} image="/missbaxels-logo.png" contain />
-              {beers.slice(0, 7).map(b => (
-                <PhotoTile
-                  key={b.id}
-                  to={`/beers/${b.slug || b.id}`}
-                  title={b.name}
-                  image={b.image_url || b.label_url}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* ============ IN DE MAAK (PIPELINE) ============ */}
       {pipelineBeers.length > 0 && (
