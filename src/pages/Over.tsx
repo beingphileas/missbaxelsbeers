@@ -430,54 +430,6 @@ export default function Over() {
       )}
 
 
-      {/* SECTION 4 — DRIE WINNAARS */}
-      <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
-        <div className="max-w-5xl mx-auto px-5">
-          <h2
-            className="mb-8"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
-          >
-            Goed voor iedereen
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {WINNERS.map((w) => (
-              <div
-                key={w.title}
-                style={{
-                  background: '#fff',
-                  border: '1px solid var(--line)',
-                  borderTop: `3px solid ${w.color}`,
-                  borderRadius: 12,
-                  padding: 24,
-                }}
-              >
-                <h3
-                  style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 18, color: w.color }}
-                >
-                  {w.title}
-                </h3>
-                <div
-                  className="mt-1"
-                  style={{
-                    fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
-                    color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
-                  }}
-                >
-                  {w.subtitle}
-                </div>
-                <p
-                  className="mt-4"
-                  style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)', lineHeight: 1.6 }}
-                >
-                  {w.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* SECTION 5 — CTA */}
       <section style={{ padding: '48px 0', textAlign: 'center' }}>
         <div className="max-w-2xl mx-auto px-5">
@@ -485,20 +437,20 @@ export default function Over() {
             className="mb-7"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
-            Zin gekregen?
+            Kom proeven.
           </h2>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
               to="/beers"
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--hop)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--hop)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
             >
               <BeerIcon size={14} /> Ontdek de bieren
             </Link>
             <Link
               to="/restaurant"
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
             >
               <Utensils size={14} /> Reserveer een tafel
             </Link>
