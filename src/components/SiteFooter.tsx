@@ -101,11 +101,10 @@ export default function SiteFooter() {
           </h3>
           <ul className="space-y-2.5">
             {[
-              { to: '/verhaal', label: t('Het verhaal') },
-              { to: '/over', label: t('Over mezelf') },
-              { to: '/restaurant', label: t('Restaurant') },
               { to: '/bierstekers', label: t('Bierstekers') },
-              { to: '/archief', label: t('Archief') },
+              { to: '/verhalen', label: t('Blog') },
+              { to: '/beers', label: t('Bieren') },
+              { to: '/restaurant', label: t('Bij Koen & Marijke') },
             ].map((l) => (
               <li key={l.to}>
                 <Link
