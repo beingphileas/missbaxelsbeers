@@ -187,7 +187,7 @@ export default function Over() {
               className="mb-5"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
             >
-              Hoe het zover kwam
+              Hoe het begon
             </h2>
             <div
               className="space-y-4"
