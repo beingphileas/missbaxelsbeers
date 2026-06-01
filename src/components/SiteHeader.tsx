@@ -129,7 +129,7 @@ export default function SiteHeader() {
                   fontWeight: 600,
                   color: '#111',
                   padding: '8px 0',
-                  borderBottom: active ? '2px solid #d93025' : '2px solid transparent',
+                  borderBottom: active ? '2px solid var(--amber)' : '2px solid transparent',
                   display: 'inline-block',
                 }}
               >
