@@ -245,90 +245,38 @@ export default function Home() {
       </Helmet>
 
       {/* ============ INTRO ============ */}
-      <section className="px-6 md:px-10 pt-16 pb-20 lg:pt-24 lg:pb-28">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Content */}
-          <div className="lg:col-span-7 space-y-8">
-            <SectionLabel>{t('Welkom')}</SectionLabel>
-            <h1
-              style={{
-                fontFamily: SERIF,
-                fontWeight: 600,
-                fontSize: 'clamp(36px, 5.2vw, 68px)',
-                lineHeight: 1.05,
-                letterSpacing: '-0.015em',
-                color: 'var(--ink)',
-              }}
-            >
-              {t('Ik ben')} <em style={{ fontStyle: 'italic', fontWeight: 400 }}>Marijke</em>. {t('Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.')}
-            </h1>
-            <p
-              className="max-w-xl"
-              style={{
-                fontFamily: SANS,
-                fontSize: 'clamp(17px, 1.4vw, 21px)',
-                lineHeight: 1.6,
-                fontWeight: 300,
-                color: 'rgba(107,58,42,0.82)',
-              }}
-            >
-              {t('Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.')}
-            </p>
-            <Link
-              to="/archief"
-              className="inline-flex items-center group no-underline pb-1 transition-colors"
-              style={{
-                fontFamily: SANS, fontSize: 15, fontWeight: 600,
-                color: 'var(--ink)',
-                borderBottom: '2px solid var(--copper)',
-              }}
-            >
-              {t('Lees de verhalen')}
-              <ArrowRight size={18} className="ml-3 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-
-          {/* Visual */}
-          <div className="lg:col-span-5 relative">
-            <div
-              className="relative z-10 aspect-square overflow-hidden shadow-2xl flex items-center justify-center"
-              style={{ border: '1px solid rgba(205,127,50,0.25)', background: '#f8f5f0' }}
-            >
-              <img
-                src={introIllustration}
-                alt="MissBaxel's Beers illustratie"
-                className="w-full h-full object-contain"
-              />
-            </div>
-
-            {/* Decorative corners */}
-            <div
-              className="absolute -top-5 -right-5 w-28 h-28 -z-10 hidden md:block"
-              style={{ borderTop: '1px solid rgba(205,127,50,0.45)', borderRight: '1px solid rgba(205,127,50,0.45)' }}
-            />
-            <div
-              className="absolute -bottom-5 -left-5 w-28 h-28 -z-10 hidden md:block"
-              style={{ borderBottom: '1px solid rgba(205,127,50,0.45)', borderLeft: '1px solid rgba(205,127,50,0.45)' }}
-            />
-            {/* Overlay card */}
-            <div
-              className="absolute -bottom-6 -right-4 md:-right-8 p-6 hidden md:block shadow-xl max-w-[210px]"
-              style={{ background: 'var(--ink)', color: '#fdfcf8' }}
-            >
-              <p
-                className="mb-2"
-                style={{
-                  fontFamily: SANS, fontSize: 10, fontWeight: 700,
-                  letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65,
-                }}
-              >
-                MissBaxel's Beers
-              </p>
-              <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.3 }}>
-                {t('Hier deel ik hun verhalen en laat ik je proeven.')}
-              </p>
-            </div>
-          </div>
+      <section style={{ paddingTop: 80, paddingBottom: 0 }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', paddingLeft: 24, paddingRight: 24 }}>
+          <img
+            src="/missbaxels-logo.png"
+            alt="MissBaxel's Beers"
+            style={{ height: 72, width: 'auto', objectFit: 'contain', marginBottom: 32, display: 'block' }}
+          />
+          <p
+            style={{
+              fontFamily: SERIF,
+              fontWeight: 400,
+              fontStyle: 'italic',
+              fontSize: 'clamp(22px, 2.4vw, 32px)',
+              lineHeight: 1.5,
+              color: 'var(--ink)',
+              margin: 0,
+            }}
+          >
+            Ik kies de smaak.
+            <br />
+            Zij brouwen het.
+            <br />
+            Hubby drinkt mee.
+          </p>
+          <hr
+            style={{
+              marginTop: 48,
+              border: 0,
+              borderTop: '1px solid rgba(107,58,42,0.15)',
+              width: '100%',
+            }}
+          />
         </div>
       </section>
 
