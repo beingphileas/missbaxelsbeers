@@ -6,7 +6,7 @@ import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { Restaurant } from '@/types';
-import introIllustration from '@/assets/missbaxels-logo-illustration.jpg';
+
 
 
 type BeerTile = {
