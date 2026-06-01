@@ -1,16 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Search, Loader2 } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage, Lang } from '@/hooks/useLanguage';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'A-Z', path: '/beers' },
-  { label: 'Over mezelf', path: '/over' },
-  { label: 'Waar?', path: '/restaurant' },
+  { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/verhalen' },
-  { label: 'Bierstekers', path: '/bierstekers' },
+  { label: 'Restaurant', path: '/restaurant' },
+  { label: 'Over', path: '/over' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
@@ -50,7 +48,7 @@ export default function SiteHeader() {
         </Link>
 
         {/* Nav — right */}
-        <nav className="hidden md:flex items-center gap-7 flex-1 justify-end">
+        <nav className="hidden md:flex items-center gap-9 flex-1 justify-end">
           {navItems.map(item => {
             const active = isActive(item.path);
             return (
@@ -71,16 +69,6 @@ export default function SiteHeader() {
               </Link>
             );
           })}
-
-          {/* Search icon */}
-          <Link
-            to="/zoeken"
-            aria-label="Search"
-            className="no-underline inline-flex items-center"
-            style={{ color: 'var(--ink)' }}
-          >
-            <Search size={16} />
-          </Link>
 
           {/* Language */}
           <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: 'rgba(107,58,42,0.6)' }}>
@@ -141,7 +129,7 @@ export default function SiteHeader() {
                   fontWeight: 600,
                   color: '#111',
                   padding: '8px 0',
-                  borderBottom: active ? '2px solid #d93025' : '2px solid transparent',
+                  borderBottom: active ? '2px solid var(--amber)' : '2px solid transparent',
                   display: 'inline-block',
                 }}
               >
