@@ -10,6 +10,9 @@ import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import type { Restaurant as RestaurantRow } from '@/types';
 
+const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Nunito Sans', system-ui, sans-serif";
+
 type PairingBeer = {
   id: string;
   slug: string | null;
@@ -102,11 +105,11 @@ export default function Restaurant() {
 
       {/* SECTION 1 — HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--copper-light)', padding: '52px 0' }}>
-        <div className="max-w-4xl mx-auto px-5" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center' }}>
+        <div className="max-w-4xl mx-auto px-5" style={{ display: 'block' }}>
           <div>
           <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
-            style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: 'DM Sans, sans-serif' }}
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1"
+            style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
           >
             <Store size={12} /> Restaurant · Brugge
           </span>
@@ -129,8 +132,8 @@ export default function Restaurant() {
               rel="noopener noreferrer"
               data-testid="reservation-cta"
               onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'hero' })}
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
             >
               <Utensils size={14} /> Reserveer een tafel
             </a>
@@ -139,16 +142,13 @@ export default function Restaurant() {
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold no-underline"
-                style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline"
+                style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
               >
                 <MapPin size={14} /> Bekijk op Google Maps
               </a>
             )}
           </div>
-          </div>
-          <div className="hidden md:flex items-center justify-center">
-            <Flame size={120} color="var(--copper)" style={{ opacity: 0.2 }} />
           </div>
         </div>
       </section>
@@ -398,13 +398,13 @@ export default function Restaurant() {
             className="mb-3"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
-            Kom langs
+            Proef het aan tafel.
           </h2>
           <p
             className="mb-7 mx-auto"
             style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', maxWidth: 460 }}
           >
-            Reserveer je tafel en ontdek de bieren van MissBaxel's ter plaatse.
+            De bieren staan op de kaart. Koen staat aan de grill. Kom gewoon langs.
           </p>
           <a
             href={reservationUrl}
@@ -412,8 +412,8 @@ export default function Restaurant() {
             rel="noopener noreferrer"
             data-testid="reservation-cta-footer"
             onClick={() => trackEvent(ANALYTICS_EVENTS.RESERVATION_CTA, { location: 'footer' })}
-            className="inline-flex items-center gap-2 rounded-full px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
-            style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+            className="inline-flex items-center gap-2 px-7 py-3 text-[14px] font-semibold no-underline transition-opacity hover:opacity-90"
+            style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
           >
             <Utensils size={15} /> Reserveer een tafel
           </a>
@@ -433,16 +433,16 @@ export default function Restaurant() {
             Ontdek meer
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/verhalen" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+            <Link to="/verhalen" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
               Lees onze verhalen
             </Link>
-            <Link to="/beers" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+            <Link to="/beers" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
               Bekijk de bieren
             </Link>
-            <Link to="/archief" className="inline-flex items-center rounded-full px-4 py-2 text-[13px] font-semibold no-underline"
-              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif' }}>
+            <Link to="/verhalen" className="inline-flex items-center px-4 py-2 text-[13px] font-semibold no-underline"
+              style={{ background: 'transparent', color: 'var(--ink)', border: '1px solid var(--line)', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}>
               Naar het archief
             </Link>
           </div>
