@@ -404,14 +404,8 @@ export default function Home() {
       )}
 
       {/* ============ BIEREN ============ */}
-      <section className="px-6 md:px-10 py-20">
-        <div className="max-w-[1400px] mx-auto">
-          <SectionHeader
-            label={t('Onze bieren')}
-            title={t('Ik droom. Zij brouwen.')}
-            to="/beers"
-            ctaLabel={t('Alle bieren')}
-          />
+      <section style={{ paddingTop: 48, paddingBottom: 64 }}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
           {loading.beers ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
               {Array.from({ length: 4 }).map((_, i) => (
