@@ -490,7 +490,7 @@ export default function Home() {
       )}
 
       {/* ============ BIEREN ============ */}
-      <section style={{ paddingTop: 48, paddingBottom: 64 }}>
+      <section style={{ paddingTop: 48, paddingBottom: 64, background: 'var(--bg-cream)' }}>
         <div className="max-w-[1400px] mx-auto px-6 md:px-10">
           {loading.beers ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
