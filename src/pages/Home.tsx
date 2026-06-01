@@ -328,7 +328,7 @@ export default function Home() {
                   Bekijk de bieren
                 </Link>
                 <Link
-                  to="/archief"
+                  to="/verhalen"
                   style={{
                     color: 'var(--ink)',
                     fontFamily: SANS,
@@ -403,7 +403,7 @@ export default function Home() {
             <SectionHeader
               label={t('Het blog')}
               title={t('Wat ik proef, schrijf ik op.')}
-              to="/archief"
+              to="/verhalen"
               ctaLabel={t('Alle verhalen')}
             />
 
