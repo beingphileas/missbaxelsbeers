@@ -372,7 +372,7 @@ export default function Home() {
           <div className="max-w-[1400px] mx-auto">
             <SectionHeader
               label={t('Het blog')}
-              title={t('Verhalen uit het glas.')}
+              title={t('Wat ik proef, schrijf ik op.')}
               to="/archief"
               ctaLabel={t('Alle verhalen')}
             />
@@ -534,7 +534,7 @@ export default function Home() {
                   lineHeight: 1.2, letterSpacing: '-0.01em',
                 }}
               >
-                {t('En er borrelt al van alles.')}
+                {t('Er is meer onderweg.')}
               </h2>
               <p
                 className="mt-4"
@@ -647,7 +647,7 @@ export default function Home() {
                 lineHeight: 1.2, color: '#fdfcf8',
               }}
             >
-              {t('De mensen die mijn ideeën')} <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>{t('waarmaken.')}</em>
+              {t('De brouwers.')}
             </h2>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {brewers.map(b => (
@@ -684,10 +684,10 @@ export default function Home() {
               lineHeight: 1.15, letterSpacing: '-0.01em',
             }}
           >
-            {t('Proef ze aan onze tafel in')} <em style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--amber)' }}>{t('Brugge.')}</em>
+              {t('Aan tafel in Brugge.')}
           </h2>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(107,58,42,0.8)', marginBottom: 32 }}>
-            {t('Bij Koen & Marijke staan onze bieren op de kaart — samen met een eerlijke keuken die de liefde voor het ambacht deelt.')}
+            {t('Bij Koen & Marijke staan ze op de kaart. Kom proeven.')}
           </p>
           {restaurant?.reservation_url ? (
             <a
