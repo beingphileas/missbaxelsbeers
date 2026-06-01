@@ -127,7 +127,7 @@ export default function Beers() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title="De bieren — MissBaxel's Beers"
+        title="Bieren — MissBaxel's Beers"
         description="Alles wat ik geproefd heb staat hier. De eigen bieren die ik met brouwers maakte, en alles wat ik onderweg tegenkwam en de moeite vond."
         url="/beers"
       />
@@ -159,44 +159,7 @@ export default function Beers() {
         style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg)' }}
       >
         <div className="max-w-5xl mx-auto px-5 py-3 space-y-3">
-          {/* Tabs */}
-          <div className="flex gap-2">
-            {[
-              { id: 'all' as const, label: 'Alle' },
-              { id: 'current' as const, label: 'Beschikbaar' },
-              { id: 'archive' as const, label: 'Uitverkocht' },
-            ].map((t) => {
-              const active = tab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className="px-4 py-1.5 rounded-full text-[12px] font-semibold transition-colors"
-                  style={{
-                    fontFamily: 'DM Sans, sans-serif',
-                    background: active ? 'var(--ink)' : 'transparent',
-                    color: active ? '#fff' : 'var(--muted)',
-                    border: '1px solid ' + (active ? 'var(--ink)' : 'var(--line)'),
-                  }}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setOnlyCollab((v) => !v)}
-              className="px-4 py-1.5 rounded-full text-[12px] font-semibold transition-colors inline-flex items-center gap-1.5"
-              style={{
-                fontFamily: 'DM Sans, sans-serif',
-                background: onlyCollab ? 'var(--hop)' : 'transparent',
-                color: onlyCollab ? '#fff' : 'var(--muted)',
-                border: '1px solid ' + (onlyCollab ? 'var(--hop)' : 'var(--line)'),
-              }}
-              title="Toon enkel eigen MissBaxel-bieren / collabs"
-            >
-              <Sparkles size={12} /> Eigen bieren
-            </button>
-          </div>
+          {/* Tabs and onlyCollab toggle intentionally hidden — state preserved */}
 
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             {/* Pills */}
