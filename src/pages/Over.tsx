@@ -62,26 +62,6 @@ const TIMELINE = [
   },
 ];
 
-const _WINNERS_REMOVED = [
-  {
-    title: 'Restaurant',
-    subtitle: 'Exclusiviteit & identiteit',
-    body: 'Bieren die écht bij het gerecht passen.',
-    color: 'var(--copper)',
-  },
-  {
-    title: 'Brouwer',
-    subtitle: 'Vrijheid & zichtbaarheid',
-    body: 'Creatieve vrijheid met een gegarandeerd podium.',
-    color: 'var(--amber)',
-  },
-  {
-    title: 'Liefhebber',
-    subtitle: 'Uniciteit & beleving',
-    body: 'Bieren die je nergens anders vindt.',
-    color: 'var(--hop)',
-  },
-];
 
 type BrewerCard = {
   id: string;
