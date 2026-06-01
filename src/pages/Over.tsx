@@ -4,6 +4,9 @@ import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils, Building
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
+const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Nunito Sans', system-ui, sans-serif";
+
 const Pill = ({
   children, color = 'hop', icon,
 }: { children: React.ReactNode; color?: 'hop' | 'amber' | 'copper'; icon?: React.ReactNode }) => {
@@ -15,7 +18,7 @@ const Pill = ({
   return (
     <span
       className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
-      style={{ ...styles[color], fontFamily: 'DM Sans, sans-serif' }}
+      style={{ ...styles[color], fontFamily: SANS }}
     >
       {icon}
       {children}
@@ -129,7 +132,7 @@ export default function Over() {
           style={{
             position: 'absolute', right: 16, bottom: -16,
             pointerEvents: 'none', userSelect: 'none',
-            fontFamily: 'Fraunces, serif', fontWeight: 900,
+            fontFamily: SERIF, fontWeight: 900,
             fontSize: 'clamp(80px, 15vw, 140px)',
             color: 'var(--amber)', opacity: 0.07,
             letterSpacing: '-0.04em', lineHeight: 1,
@@ -143,7 +146,7 @@ export default function Over() {
           <h1
             className="mt-5 mb-7"
             style={{
-              fontFamily: 'Fraunces, serif', fontWeight: 900,
+              fontFamily: SERIF, fontWeight: 900,
               fontSize: 'clamp(34px, 6vw, 44px)', lineHeight: 1.05, letterSpacing: '-0.02em',
             }}
           >
@@ -159,7 +162,7 @@ export default function Over() {
               background: 'var(--amber-light)',
               borderRadius: '0 12px 12px 0',
               padding: '20px 24px',
-              fontFamily: 'Fraunces, serif',
+              fontFamily: SERIF,
               fontStyle: 'italic',
               fontSize: 17,
               lineHeight: 1.55,
@@ -185,13 +188,13 @@ export default function Over() {
           <div>
             <h2
               className="mb-5"
-              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
+              style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 28, lineHeight: 1.15 }}
             >
               Hoe het begon
             </h2>
             <div
               className="space-y-4"
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)', lineHeight: 1.85 }}
+              style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)', lineHeight: 1.85 }}
             >
               <p>
                 Ik ben Marijke, getrouwd met Koen. Uit de Kempen, maar al lang thuis in Brugge. Sinds 2014 baat ik samen met Koen ons restaurant uit — eerst In 't Nieuw Museum, ondertussen Bij Koen &amp; Marijke.
@@ -232,7 +235,7 @@ export default function Over() {
 
             <div
               className="space-y-3"
-              style={{ padding: 20, fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}
+              style={{ padding: 20, fontFamily: SANS, fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}
             >
               <p>
                 Ik ben geen brouwer en ook geen sommelier. Ik ben gewoon iemand die graag proeft, graag rondkijkt bij kleine brouwers, en graag vertelt wat ik daar tegenkom.
@@ -250,7 +253,7 @@ export default function Over() {
                 <span
                   key={tag}
                   className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
-                  style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+                  style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: SANS }}
                 >
                   {tag}
                 </span>
@@ -265,13 +268,13 @@ export default function Over() {
         <div className="max-w-3xl mx-auto px-5">
           <h2
             className="mb-3"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+            style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
             Hoe het groeide
           </h2>
           <p
             className="mb-10"
-            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}
+            style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)' }}
           >
             MissBaxel's Beers ontstond niet van de ene dag op de andere. Het groeide — stap voor stap.
           </p>
@@ -296,7 +299,7 @@ export default function Over() {
                   <div
                     className="shrink-0"
                     style={{
-                      fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 13,
+                      fontFamily: SERIF, fontWeight: 700, fontSize: 13,
                       color: item.color, minWidth: 80,
                       letterSpacing: '0.04em',
                     }}
@@ -304,12 +307,12 @@ export default function Over() {
                     {item.period}
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
+                    <div style={{ fontFamily: SANS, fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
                       {item.title}
                     </div>
                     <div
                       className="mt-1.5"
-                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)', lineHeight: 1.7 }}
+                      style={{ fontFamily: SANS, fontSize: 12, color: 'var(--muted)', lineHeight: 1.7 }}
                     >
                       {item.body}
                     </div>
@@ -326,7 +329,7 @@ export default function Over() {
                 background: 'var(--hop-light)',
                 borderRadius: '0 12px 12px 0',
                 padding: '16px 20px',
-                fontFamily: 'Fraunces, serif',
+                fontFamily: SERIF,
                 fontStyle: 'italic',
                 fontSize: 15,
                 lineHeight: 1.6,
@@ -345,13 +348,13 @@ export default function Over() {
           <div className="max-w-5xl mx-auto px-5">
             <h2
               className="mb-2"
-              style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+              style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
             >
               Onze brouwers
             </h2>
             <p
               className="mb-8"
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}
+              style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)' }}
             >
               De mensen die mijn ideeën in een ketel laten landen.
             </p>
@@ -378,13 +381,13 @@ export default function Over() {
                       <Building2 size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>
+                      <h3 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 18, color: 'var(--ink)' }}>
                         {b.name}
                       </h3>
                       {b.location && (
                         <div
                           className="flex items-center gap-1 mt-0.5"
-                          style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--muted)' }}
+                          style={{ fontFamily: SANS, fontSize: 12, color: 'var(--muted)' }}
                         >
                           <MapPin size={11} /> {b.location}
                         </div>
@@ -394,7 +397,7 @@ export default function Over() {
                   {b.description && (
                     <p
                       className="mt-3"
-                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13.5, color: 'var(--ink)', lineHeight: 1.65 }}
+                      style={{ fontFamily: SANS, fontSize: 13.5, color: 'var(--ink)', lineHeight: 1.65 }}
                     >
                       {b.description}
                     </p>
@@ -412,7 +415,7 @@ export default function Over() {
                             border: '1px solid var(--line)',
                             borderRadius: 999,
                             padding: '4px 10px',
-                            fontFamily: 'DM Sans, sans-serif',
+                            fontFamily: SANS,
                             fontSize: 12,
                             fontWeight: 600,
                           }}
@@ -435,7 +438,7 @@ export default function Over() {
         <div className="max-w-2xl mx-auto px-5">
           <h2
             className="mb-7"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
+            style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}
           >
             Kom proeven.
           </h2>
@@ -443,14 +446,14 @@ export default function Over() {
             <Link
               to="/beers"
               className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--hop)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+              style={{ background: 'var(--hop)', color: '#fff', fontFamily: SANS, borderRadius: 0 }}
             >
               <BeerIcon size={14} /> Ontdek de bieren
             </Link>
             <Link
               to="/restaurant"
               className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
-              style={{ background: 'var(--copper)', color: '#fff', fontFamily: 'DM Sans, sans-serif', borderRadius: 0 }}
+              style={{ background: 'var(--copper)', color: '#fff', fontFamily: SANS, borderRadius: 0 }}
             >
               <Utensils size={14} /> Reserveer een tafel
             </Link>
