@@ -5,12 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage, Lang } from '@/hooks/useLanguage';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'A-Z', path: '/beers' },
-  { label: 'Over mezelf', path: '/over' },
-  { label: 'Waar?', path: '/restaurant' },
+  { label: 'Bieren', path: '/beers' },
   { label: 'Verhalen', path: '/verhalen' },
-  { label: 'Bierstekers', path: '/bierstekers' },
+  { label: 'Restaurant', path: '/restaurant' },
+  { label: 'Over', path: '/over' },
 ];
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
