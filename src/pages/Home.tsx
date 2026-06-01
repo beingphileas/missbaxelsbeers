@@ -398,7 +398,7 @@ export default function Home() {
 
       {/* ============ VERHALEN (editorial) ============ */}
       {!loading.posts && posts.length > 0 && (
-        <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
+        <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg)' }}>
           <div className="max-w-[1400px] mx-auto">
             <SectionHeader
               label={t('Het blog')}
@@ -672,7 +672,7 @@ export default function Home() {
       )}
 
       {/* ============ RESTAURANT ============ */}
-      <section className="px-6 md:px-10 py-20">
+      <section className="px-6 md:px-10 py-20" style={{ background: 'var(--bg-cream)' }}>
         <div className="max-w-3xl mx-auto text-center">
           <SectionLabel>{t('Restaurant')}</SectionLabel>
           <h2
