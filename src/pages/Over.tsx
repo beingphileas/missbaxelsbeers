@@ -4,6 +4,9 @@ import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils, Building
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
+const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Nunito Sans', system-ui, sans-serif";
+
 const Pill = ({
   children, color = 'hop', icon,
 }: { children: React.ReactNode; color?: 'hop' | 'amber' | 'copper'; icon?: React.ReactNode }) => {
