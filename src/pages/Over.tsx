@@ -62,7 +62,7 @@ const TIMELINE = [
   },
 ];
 
-const WINNERS = [
+const _WINNERS_REMOVED = [
   {
     title: 'Restaurant',
     subtitle: 'Exclusiviteit & identiteit',
