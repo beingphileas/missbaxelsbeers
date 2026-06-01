@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
-import introIllustration from '@/assets/missbaxels-logo-illustration.jpg';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { Restaurant } from '@/types';
@@ -246,19 +246,14 @@ export default function Home() {
       </Helmet>
 
       {/* ============ INTRO ============ */}
-      <section style={{ paddingTop: 80, paddingBottom: 0 }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', paddingLeft: 24, paddingRight: 24 }}>
-          <img
-            src={introIllustration}
-            alt="MissBaxel's Beers"
-            style={{ height: 72, width: 'auto', objectFit: 'contain', marginBottom: 32, display: 'block' }}
-          />
+      <section style={{ paddingTop: 96, paddingBottom: 64, paddingLeft: 24, paddingRight: 24 }}>
+        <div style={{ maxWidth: 640, marginLeft: 0 }}>
           <p
             style={{
               fontFamily: SERIF,
               fontWeight: 400,
               fontStyle: 'italic',
-              fontSize: 'clamp(22px, 2.4vw, 32px)',
+              fontSize: 'clamp(28px, 3.2vw, 48px)',
               lineHeight: 1.5,
               color: 'var(--ink)',
               margin: 0,
