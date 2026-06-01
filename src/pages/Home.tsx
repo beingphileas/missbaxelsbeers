@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
-import introIllustration from '@/assets/missbaxels-logo-illustration.jpg';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { Restaurant } from '@/types';
