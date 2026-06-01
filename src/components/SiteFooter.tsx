@@ -25,7 +25,7 @@ export default function SiteFooter() {
             className="text-muted-foreground max-w-sm mb-5"
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px' }}
           >
-            {t('Ideeën brengen, bieren laten ontstaan.')}
+            {t('Ik kies de smaak. Zij brouwen het.')}
           </p>
           <div className="flex items-center gap-2">
             <a
