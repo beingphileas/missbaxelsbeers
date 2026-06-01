@@ -167,7 +167,6 @@ export default function SiteFooter() {
             </div>
             <div className="flex items-center gap-3">
               <span>Geniet, maar drink met mate. 18+.</span>
-              <span style={{ color: 'hsl(var(--tertiary))', fontWeight: 600 }}>Bierstekers</span>
             </div>
           </div>
           <div className="text-center md:text-left text-muted-foreground/80" style={{ fontSize: '10.5px' }}>
