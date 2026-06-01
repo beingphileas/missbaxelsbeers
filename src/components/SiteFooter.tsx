@@ -25,7 +25,7 @@ export default function SiteFooter() {
             className="text-muted-foreground max-w-sm mb-5"
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px' }}
           >
-            {t('Ideeën brengen, bieren laten ontstaan.')}
+            {t('Ik kies de smaak. Zij brouwen het.')}
           </p>
           <div className="flex items-center gap-2">
             <a
@@ -69,8 +69,8 @@ export default function SiteFooter() {
             {[
               { to: '/over', label: t('Over') },
               { to: '/beers', label: t('Bieren') },
-              { to: '/stories', label: t('Verhalen') },
-              { to: '/archief', label: t('Archief') },
+              { to: '/verhalen', label: t('Verhalen') },
+              { to: '/restaurant', label: t('Restaurant') },
             ].map((l) => (
               <li key={l.to}>
                 <Link
@@ -101,11 +101,10 @@ export default function SiteFooter() {
           </h3>
           <ul className="space-y-2.5">
             {[
-              { to: '/verhaal', label: t('Het verhaal') },
-              { to: '/over', label: t('Over mezelf') },
-              { to: '/restaurant', label: t('Restaurant') },
               { to: '/bierstekers', label: t('Bierstekers') },
-              { to: '/archief', label: t('Archief') },
+              { to: '/verhalen', label: t('Blog') },
+              { to: '/beers', label: t('Bieren') },
+              { to: '/restaurant', label: t('Bij Koen & Marijke') },
             ].map((l) => (
               <li key={l.to}>
                 <Link
@@ -168,7 +167,6 @@ export default function SiteFooter() {
             </div>
             <div className="flex items-center gap-3">
               <span>Geniet, maar drink met mate. 18+.</span>
-              <span style={{ color: 'hsl(var(--tertiary))', fontWeight: 600 }}>Bierstekers</span>
             </div>
           </div>
           <div className="text-center md:text-left text-muted-foreground/80" style={{ fontSize: '10.5px' }}>
