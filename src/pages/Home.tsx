@@ -246,34 +246,124 @@ export default function Home() {
       </Helmet>
 
       {/* ============ INTRO ============ */}
-      <section style={{ paddingTop: 96, paddingBottom: 64, paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ maxWidth: 640, marginLeft: 0 }}>
-          <p
-            style={{
-              fontFamily: SERIF,
-              fontWeight: 400,
-              fontStyle: 'italic',
-              fontSize: 'clamp(28px, 3.2vw, 48px)',
-              lineHeight: 1.5,
-              color: 'var(--ink)',
-              margin: 0,
-            }}
-          >
-            Ik kies de smaak.
-            <br />
-            Zij brouwen het.
-            <br />
-            Hubby drinkt mee.
-          </p>
-          <hr
-            style={{
-              marginTop: 48,
-              border: 0,
-              borderTop: '1px solid rgba(107,58,42,0.15)',
-              width: '100%',
-            }}
-          />
+      <section style={{ background: 'var(--bg-cream)', paddingTop: 0, paddingBottom: 0 }}>
+        <div className="intro-wrap" style={{ maxWidth: 1400, margin: '0 auto', padding: '72px 40px 0' }}>
+          <div className="intro-grid">
+            {/* LEFT */}
+            <div style={{ paddingRight: 48, paddingBottom: 48 }} className="intro-left">
+              <div
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--copper)',
+                  marginBottom: 28,
+                }}
+              >
+                MissBaxel's Beers
+              </div>
+              {['Ik kies de smaak.', 'Zij brouwen het.', 'Hubby drinkt mee.'].map((line) => (
+                <div
+                  key={line}
+                  style={{
+                    fontFamily: SERIF,
+                    fontStyle: 'italic',
+                    fontWeight: 400,
+                    fontSize: 'clamp(28px, 3.2vw, 42px)',
+                    lineHeight: 1.2,
+                    color: 'var(--ink)',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+
+            {/* DIVIDER */}
+            <div className="intro-divider" style={{ width: 1, background: 'rgba(107,58,42,0.15)', alignSelf: 'stretch' }} />
+
+            {/* RIGHT */}
+            <div
+              className="intro-right"
+              style={{
+                paddingLeft: 48,
+                paddingBottom: 48,
+                paddingTop: 48,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: SANS,
+                  fontSize: 14,
+                  fontWeight: 300,
+                  lineHeight: 1.8,
+                  color: 'var(--muted)',
+                  marginBottom: 28,
+                }}
+              >
+                Kleine brouwers met grote ideeën. Wij gaan naar hen toe — met een concept, een smaak, een verhaal. Zij brouwen het. En daarna proef je het aan tafel.
+              </p>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <Link
+                  to="/beers"
+                  style={{
+                    background: 'var(--ink)',
+                    color: '#fdfcf8',
+                    fontFamily: SANS,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    padding: '12px 24px',
+                    borderRadius: 0,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Bekijk de bieren
+                </Link>
+                <Link
+                  to="/archief"
+                  style={{
+                    color: 'var(--ink)',
+                    fontFamily: SANS,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    padding: '12px 0',
+                    borderRadius: 0,
+                    borderBottom: '1px solid var(--copper)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Lees de verhalen →
+                </Link>
+              </div>
+            </div>
+          </div>
+          <hr style={{ border: 0, borderTop: '1px solid rgba(107,58,42,0.2)', marginTop: 0 }} />
         </div>
+        <style>{`
+          .intro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            align-items: start;
+            gap: 0;
+          }
+          @media (max-width: 767px) {
+            .intro-wrap { padding: 40px 24px 0 !important; }
+            .intro-grid { grid-template-columns: 1fr; }
+            .intro-divider { display: none; }
+            .intro-left { padding-right: 0 !important; }
+            .intro-right { padding-left: 0 !important; padding-top: 24px !important; }
+          }
+        `}</style>
       </section>
 
       {/* ============ VERHALEN (editorial) ============ */}
@@ -400,7 +490,7 @@ export default function Home() {
       )}
 
       {/* ============ BIEREN ============ */}
-      <section style={{ paddingTop: 48, paddingBottom: 64 }}>
+      <section style={{ paddingTop: 48, paddingBottom: 64, background: 'var(--bg-cream)' }}>
         <div className="max-w-[1400px] mx-auto px-6 md:px-10">
           {loading.beers ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
