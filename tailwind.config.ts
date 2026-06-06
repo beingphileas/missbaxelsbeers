@@ -86,14 +86,14 @@ export default {
         },
       },
       borderRadius: {
-        lg: "8px",
-        md: "6px",
-        sm: "4px",
+        lg: "0px",
+        md: "0px",
+        sm: "0px",
       },
       boxShadow: {
-        brutal: "0 4px 12px hsl(30 8% 15% / 0.06), 0 1px 3px hsl(30 8% 15% / 0.04)",
-        "brutal-lg": "0 10px 30px hsl(30 8% 15% / 0.10), 0 4px 8px hsl(30 8% 15% / 0.06)",
-        "brutal-sm": "0 1px 3px hsl(30 8% 15% / 0.06)",
+        brutal: "none",
+        "brutal-lg": "none",
+        "brutal-sm": "none",
       },
       keyframes: {
         "accordion-down": {
