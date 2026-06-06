@@ -6,9 +6,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/hooks/useLanguage";
-import SiteHeader from "@/components/SiteHeader";
-import Marquee from "@/components/Marquee";
-import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import AgeGate from "@/components/AgeGate";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import CookieConsent from "@/components/CookieConsent";
@@ -59,7 +58,6 @@ const App = () => {
             <AnalyticsTracker />
             <AgeGate />
             <SiteHeader />
-            <Marquee />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Home />} />

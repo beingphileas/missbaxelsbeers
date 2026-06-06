@@ -22,59 +22,101 @@ export default function SiteHeader() {
     <header
       className="sticky top-0 z-50"
       style={{
-        background: 'rgba(250, 248, 245, 0.72)',
-        backdropFilter: 'blur(14px) saturate(140%)',
-        WebkitBackdropFilter: 'blur(14px) saturate(140%)',
-        borderBottom: '1px solid rgba(232, 224, 210, 0.6)',
+        background: 'rgba(250, 248, 245, 0.78)',
+        backdropFilter: 'blur(16px) saturate(150%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(150%)',
       }}
     >
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between">
-        {/* Logo */}
+      {/* Soft shadow instead of border */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background: 'linear-gradient(90deg, transparent, rgba(58, 42, 31, 0.08), transparent)',
+        }}
+      />
+
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between relative">
+        {/* Logo with terracotta accent */}
         <Link
           to="/"
-          className="shrink-0 no-underline"
+          className="shrink-0 no-underline group"
           aria-label="MissBaxel's Beers home"
-          style={{
-            fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
-            fontWeight: 700,
-            fontSize: 22,
-            color: '#3a2a1f',
-            letterSpacing: '-0.02em',
-          }}
         >
-          MissBaxel's Beers
+          <span
+            style={{
+              fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
+              fontWeight: 700,
+              fontSize: 22,
+              color: '#3a2a1f',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            MissBaxel's
+          </span>
+          <span
+            style={{
+              fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
+              fontWeight: 400,
+              fontSize: 22,
+              color: '#8a7868',
+              letterSpacing: '-0.02em',
+              marginLeft: 4,
+            }}
+          >
+            Beers
+          </span>
+          <span
+            className="inline-block ml-0.5 transition-transform duration-300 group-hover:scale-125"
+            style={{
+              color: '#c4663a',
+              fontSize: 22,
+              lineHeight: 1,
+            }}
+          >
+            .
+          </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-1">
           {LINKS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className="no-underline select-none rounded-full px-5 py-2"
+                className="no-underline select-none rounded-full px-5 py-2 relative"
                 style={{
                   fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
                   fontSize: 15,
                   fontWeight: 600,
                   color: active ? '#c4663a' : '#3a2a1f',
                   letterSpacing: '-0.01em',
-                  background: active ? 'rgba(196, 102, 58, 0.10)' : 'transparent',
-                  transition: 'color 180ms ease, background 180ms ease',
+                  transition: 'color 200ms ease',
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.color = '#c4663a';
-                  e.currentTarget.style.background = 'rgba(196, 102, 58, 0.10)';
                 }}
                 onMouseLeave={e => {
                   if (!active) {
                     e.currentTarget.style.color = '#3a2a1f';
-                    e.currentTarget.style.background = 'transparent';
                   }
                 }}
               >
-                {item.label}
+                {active && (
+                  <span
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background: 'rgba(196, 102, 58, 0.10)',
+                      transition: 'all 200ms ease',
+                    }}
+                  />
+                )}
+                <span className="relative z-10">{item.label}</span>
               </Link>
             );
           })}
@@ -149,10 +191,9 @@ export default function SiteHeader() {
         <nav
           className="md:hidden"
           style={{
-            background: 'rgba(250, 248, 245, 0.92)',
-            backdropFilter: 'blur(14px) saturate(140%)',
-            WebkitBackdropFilter: 'blur(14px) saturate(140%)',
-            borderTop: '1px solid rgba(232, 224, 210, 0.6)',
+            background: 'rgba(250, 248, 245, 0.95)',
+            backdropFilter: 'blur(16px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(16px) saturate(150%)',
           }}
         >
           {LINKS.map(item => {
