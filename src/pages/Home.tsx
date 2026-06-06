@@ -40,8 +40,8 @@ const RUBRIC_LABELS: Record<string, string> = {
 const formatDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-const SANS = "'Nunito Sans', system-ui, sans-serif";
-const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Inter', system-ui, sans-serif";
+const DISPLAY = "'Space Grotesk', 'Inter', system-ui, sans-serif";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -63,7 +63,7 @@ export default function Home() {
         .select('id, slug, title, cover_image_url, date, excerpt, rubric')
         .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false })
-        .limit(2);
+        .limit(3);
       setPosts((p || []) as any);
     })();
   }, []);
@@ -71,15 +71,15 @@ export default function Home() {
   const featuredBeer = beers[0];
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh', fontFamily: SANS }}>
+    <div style={{ background: '#f8f9fa', color: '#0a0a0a', minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
-        title="MissBaxel's Beers — Belgisch bierproject uit Brugge"
-        description="De kunst van het proeven, de verhalen van de brouwer. Fijne bieren ontdekken en lokaal vakmanschap steunen."
+        title="MissBaxel's Beers — Bier zonder zever"
+        description="Wij proeven, schrijven en brouwen. De beste lokale ontdekkingen en onze eigen collabs."
         url="/"
       />
       <Helmet>
-        <meta property="og:title" content="MissBaxel's Beers — Belgisch bierproject uit Brugge" />
-        <meta property="og:description" content="De kunst van het proeven, de verhalen van de brouwer." />
+        <meta property="og:title" content="MissBaxel's Beers — Bier zonder zever" />
+        <meta property="og:description" content="Wij proeven, schrijven en brouwen. De beste lokale ontdekkingen en onze eigen collabs." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://missbaxels.lovable.app/" />
       </Helmet>
@@ -87,184 +87,237 @@ export default function Home() {
       {/* ============ HERO ============ */}
       <section
         style={{
-          paddingTop: 'clamp(80px, 12vw, 160px)',
-          paddingBottom: 'clamp(80px, 12vw, 160px)',
-          paddingLeft: 24,
-          paddingRight: 24,
+          paddingTop: 'clamp(100px, 16vw, 200px)',
+          paddingBottom: 'clamp(100px, 16vw, 200px)',
+          paddingLeft: 'clamp(24px, 5vw, 80px)',
+          paddingRight: 'clamp(24px, 5vw, 80px)',
         }}
       >
-        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
-          <div
-            style={{
-              fontFamily: SANS,
-              fontSize: 12,
-              fontWeight: 500,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'hsl(var(--primary))',
-              marginBottom: 36,
-            }}
-          >
-            MissBaxel's Beers — Brugge
-          </div>
-
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h1
             style={{
-              fontFamily: SERIF,
-              fontWeight: 500,
-              fontSize: 'clamp(40px, 7vw, 92px)',
-              lineHeight: 1.05,
-              letterSpacing: '-0.02em',
-              color: 'var(--ink)',
+              fontFamily: DISPLAY,
+              fontWeight: 700,
+              fontSize: 'clamp(52px, 10vw, 140px)',
+              lineHeight: 0.9,
+              letterSpacing: '-0.05em',
+              color: '#0a0a0a',
               margin: 0,
-              maxWidth: 980,
-              marginLeft: 'auto',
-              marginRight: 'auto',
+              textWrap: 'balance',
             }}
           >
-            De kunst van het proeven,{' '}
-            <em style={{ fontStyle: 'italic', color: 'hsl(var(--primary))' }}>
-              de verhalen van de brouwer.
-            </em>
+            Bier zonder zever.
           </h1>
 
           <p
             style={{
-              marginTop: 40,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              maxWidth: 640,
+              marginTop: 'clamp(28px, 3vw, 40px)',
+              maxWidth: 560,
               fontFamily: SANS,
-              fontSize: 18,
-              fontWeight: 300,
-              lineHeight: 1.75,
-              color: 'var(--muted)',
+              fontSize: 'clamp(16px, 1.4vw, 20px)',
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: '#6b7280',
             }}
           >
-            Wij gaan op zoek naar het fijnste bier van eigen bodem en zetten lokale
-            ambachtslieden in het zonnetje. Elke fles is een ontmoeting — tussen smaak,
-            verhaal en de mensen die het brouwen.
+            Wij proeven, schrijven en brouwen. De beste lokale ontdekkingen en onze eigen collabs, rechtstreeks uit de ketels.
           </p>
 
           <div
             style={{
-              marginTop: 48,
+              marginTop: 'clamp(40px, 4vw, 56px)',
               display: 'flex',
               gap: 16,
-              justifyContent: 'center',
               flexWrap: 'wrap',
             }}
           >
             <Link
               to="/beers"
               style={{
-                background: 'hsl(var(--primary))',
-                color: 'var(--bg)',
-                fontFamily: SANS,
-                fontSize: 14,
+                background: '#0a0a0a',
+                color: '#f8f9fa',
+                fontFamily: DISPLAY,
+                fontSize: 'clamp(14px, 1.2vw, 17px)',
                 fontWeight: 600,
-                letterSpacing: '0.04em',
-                padding: '16px 32px',
-                borderRadius: 999,
+                letterSpacing: '-0.02em',
+                padding: '20px 40px',
+                borderRadius: 0,
                 textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
-                transition: 'opacity 0.2s ease',
+                gap: 10,
+                transition: 'background 0.2s ease',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.88')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#2b4cff')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#0a0a0a')}
             >
-              Ontdek de Bieren <ArrowRight size={16} />
+              Check de collabs <ArrowRight size={18} strokeWidth={2} />
             </Link>
             <Link
               to="/verhalen"
               style={{
                 background: 'transparent',
-                color: 'var(--ink)',
-                fontFamily: SANS,
-                fontSize: 14,
+                color: '#0a0a0a',
+                fontFamily: DISPLAY,
+                fontSize: 'clamp(14px, 1.2vw, 17px)',
                 fontWeight: 600,
-                letterSpacing: '0.04em',
-                padding: '16px 32px',
-                borderRadius: 999,
-                border: '1px solid hsl(var(--border))',
+                letterSpacing: '-0.02em',
+                padding: '20px 40px',
+                borderRadius: 0,
+                border: '2px solid #0a0a0a',
                 textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
-                transition: 'background 0.2s ease',
+                gap: 10,
+                transition: 'all 0.2s ease',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'hsl(var(--muted) / 0.08)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#0a0a0a';
+                e.currentTarget.style.color = '#f8f9fa';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#0a0a0a';
+              }}
             >
-              Lees de Verhalen
+              Lees de verhalen
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ============ CONTENT TEASER ============ */}
+      {/* ============ VISUAL GRID ============ */}
       {(posts.length > 0 || featuredBeer) && (
         <section
           style={{
             paddingTop: 'clamp(60px, 8vw, 100px)',
             paddingBottom: 'clamp(80px, 10vw, 140px)',
-            paddingLeft: 24,
-            paddingRight: 24,
-            borderTop: '1px solid hsl(var(--border))',
+            paddingLeft: 'clamp(24px, 5vw, 80px)',
+            paddingRight: 'clamp(24px, 5vw, 80px)',
+            borderTop: '1px solid #e5e7eb',
           }}
         >
-          <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto' }}>
             <div
               style={{
-                fontFamily: SANS,
-                fontSize: 11,
+                fontFamily: DISPLAY,
+                fontSize: 12,
                 fontWeight: 600,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'hsl(var(--primary))',
-                marginBottom: 16,
-                textAlign: 'center',
+                color: '#2b4cff',
+                marginBottom: 'clamp(48px, 6vw, 72px)',
               }}
             >
               Vers van de pers
             </div>
-            <h2
-              style={{
-                fontFamily: SERIF,
-                fontWeight: 500,
-                fontSize: 'clamp(28px, 3.5vw, 44px)',
-                lineHeight: 1.15,
-                letterSpacing: '-0.015em',
-                textAlign: 'center',
-                margin: 0,
-                marginBottom: 'clamp(48px, 6vw, 72px)',
-              }}
-            >
-              Recente verhalen & nieuwste collab
-            </h2>
 
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: 'clamp(32px, 4vw, 56px)',
+                gridTemplateColumns: 'repeat(12, 1fr)',
+                gap: 'clamp(16px, 2vw, 32px)',
               }}
             >
-              {posts.slice(0, 2).map((p) => (
+              {/* Massive beer card */}
+              {featuredBeer && (
+                <Link
+                  to={`/beers/${featuredBeer.slug || featuredBeer.id}`}
+                  className="group"
+                  style={{
+                    gridColumn: '1 / 8',
+                    textDecoration: 'none',
+                    color: '#0a0a0a',
+                    display: 'block',
+                  }}
+                >
+                  <div
+                    style={{
+                      aspectRatio: '3 / 2',
+                      overflow: 'hidden',
+                      background: '#eef0f2',
+                      marginBottom: 24,
+                    }}
+                  >
+                    {featuredBeer.image_url || featuredBeer.label_url ? (
+                      <img
+                        src={featuredBeer.image_url || featuredBeer.label_url || ''}
+                        alt={featuredBeer.name}
+                        loading="lazy"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.6s ease',
+                        }}
+                        className="group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontFamily: DISPLAY,
+                          fontSize: 'clamp(60px, 8vw, 120px)',
+                          fontWeight: 700,
+                          color: '#0a0a0a',
+                          letterSpacing: '-0.04em',
+                        }}
+                      >
+                        {featuredBeer.name.slice(0, 1)}
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: DISPLAY,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      color: '#2b4cff',
+                      marginBottom: 12,
+                    }}
+                  >
+                    Nieuwe collab
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: DISPLAY,
+                      fontWeight: 700,
+                      fontSize: 'clamp(24px, 2.5vw, 36px)',
+                      lineHeight: 1.1,
+                      letterSpacing: '-0.03em',
+                      margin: 0,
+                    }}
+                  >
+                    {featuredBeer.name}
+                  </h3>
+                </Link>
+              )}
+
+              {/* Story cards — stacked on the right */}
+              {posts.slice(0, 2).map((p, i) => (
                 <Link
                   key={p.id}
                   to={`/verhalen/${p.slug}`}
                   className="group"
-                  style={{ textDecoration: 'none', color: 'var(--ink)', display: 'block' }}
+                  style={{
+                    gridColumn: i === 0 ? '8 / 13' : '8 / 13',
+                    textDecoration: 'none',
+                    color: '#0a0a0a',
+                    display: 'block',
+                    alignSelf: i === 0 ? 'start' : 'end',
+                  }}
                 >
                   <div
                     style={{
-                      aspectRatio: '4 / 5',
+                      aspectRatio: '16 / 10',
                       overflow: 'hidden',
-                      borderRadius: 8,
-                      background: 'var(--bg-cream)',
+                      background: '#eef0f2',
                       marginBottom: 20,
                     }}
                   >
@@ -277,9 +330,9 @@ export default function Home() {
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
-                          transition: 'transform 0.7s ease',
+                          transition: 'transform 0.6s ease',
                         }}
-                        className="group-hover:scale-[1.04]"
+                        className="group-hover:scale-[1.03]"
                       />
                     ) : (
                       <div
@@ -289,10 +342,11 @@ export default function Home() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontFamily: SERIF,
-                          fontStyle: 'italic',
-                          fontSize: 80,
-                          color: 'hsl(var(--primary))',
+                          fontFamily: DISPLAY,
+                          fontSize: 'clamp(48px, 6vw, 80px)',
+                          fontWeight: 700,
+                          color: '#0a0a0a',
+                          letterSpacing: '-0.04em',
                         }}
                       >
                         {p.title.slice(0, 1)}
@@ -301,29 +355,24 @@ export default function Home() {
                   </div>
                   <div
                     style={{
-                      fontFamily: SANS,
+                      fontFamily: DISPLAY,
                       fontSize: 11,
                       fontWeight: 600,
-                      letterSpacing: '0.2em',
+                      letterSpacing: '0.1em',
                       textTransform: 'uppercase',
-                      color: 'hsl(var(--primary))',
+                      color: '#2b4cff',
                       marginBottom: 10,
                     }}
                   >
                     {p.rubric ? RUBRIC_LABELS[p.rubric] || 'Verhaal' : 'Verhaal'}
-                    {p.date && (
-                      <span style={{ color: 'var(--muted)', marginLeft: 12, fontWeight: 400, letterSpacing: '0.12em' }}>
-                        {formatDate(p.date)}
-                      </span>
-                    )}
                   </div>
                   <h3
                     style={{
-                      fontFamily: SERIF,
-                      fontWeight: 500,
-                      fontSize: 26,
-                      lineHeight: 1.25,
-                      letterSpacing: '-0.01em',
+                      fontFamily: DISPLAY,
+                      fontWeight: 700,
+                      fontSize: 'clamp(18px, 1.6vw, 24px)',
+                      lineHeight: 1.15,
+                      letterSpacing: '-0.02em',
                       margin: 0,
                     }}
                   >
@@ -332,103 +381,23 @@ export default function Home() {
                   {p.excerpt && (
                     <p
                       style={{
-                        marginTop: 12,
+                        marginTop: 10,
                         fontFamily: SANS,
-                        fontSize: 15,
-                        lineHeight: 1.65,
-                        color: 'var(--muted)',
-                        fontWeight: 300,
+                        fontSize: 14,
+                        lineHeight: 1.55,
+                        color: '#6b7280',
+                        fontWeight: 400,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
                       }}
                     >
-                      {p.excerpt.length > 120 ? p.excerpt.slice(0, 120) + '…' : p.excerpt}
+                      {p.excerpt}
                     </p>
                   )}
                 </Link>
               ))}
-
-              {featuredBeer && (
-                <Link
-                  to={`/beers/${featuredBeer.slug || featuredBeer.id}`}
-                  className="group"
-                  style={{ textDecoration: 'none', color: 'var(--ink)', display: 'block' }}
-                >
-                  <div
-                    style={{
-                      aspectRatio: '4 / 5',
-                      overflow: 'hidden',
-                      borderRadius: 8,
-                      background: 'var(--bg-cream)',
-                      marginBottom: 20,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {featuredBeer.image_url || featuredBeer.label_url ? (
-                      <img
-                        src={featuredBeer.image_url || featuredBeer.label_url || ''}
-                        alt={featuredBeer.name}
-                        loading="lazy"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transition: 'transform 0.7s ease',
-                        }}
-                        className="group-hover:scale-[1.04]"
-                      />
-                    ) : (
-                      <span
-                        style={{
-                          fontFamily: SERIF,
-                          fontStyle: 'italic',
-                          fontSize: 80,
-                          color: 'hsl(var(--primary))',
-                        }}
-                      >
-                        {featuredBeer.name.slice(0, 1)}
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: SANS,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      letterSpacing: '0.2em',
-                      textTransform: 'uppercase',
-                      color: 'hsl(var(--primary))',
-                      marginBottom: 10,
-                    }}
-                  >
-                    Nieuwe collab
-                  </div>
-                  <h3
-                    style={{
-                      fontFamily: SERIF,
-                      fontWeight: 500,
-                      fontSize: 26,
-                      lineHeight: 1.25,
-                      letterSpacing: '-0.01em',
-                      margin: 0,
-                    }}
-                  >
-                    {featuredBeer.name}
-                  </h3>
-                  <p
-                    style={{
-                      marginTop: 12,
-                      fontFamily: SANS,
-                      fontSize: 15,
-                      lineHeight: 1.65,
-                      color: 'var(--muted)',
-                      fontWeight: 300,
-                    }}
-                  >
-                    Proef het verhaal achter onze nieuwste samenwerking.
-                  </p>
-                </Link>
-              )}
             </div>
           </div>
         </section>
