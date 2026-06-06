@@ -229,7 +229,7 @@ export default function Beers() {
       {/* UITGEBRACHT */}
       <section style={{ paddingTop: 'clamp(64px, 9vw, 120px)', paddingBottom: 'clamp(80px, 11vw, 160px)' }}>
         <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)' }}>
+          <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, paddingTop: 24, paddingBottom: 8 }}>
             <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, marginBottom: 16 }}>
               /01 — Live drops
             </div>
@@ -280,9 +280,11 @@ export default function Beers() {
                       style={{
                         order: reverse ? 2 : 1,
                         background: block,
+                        backgroundImage: `repeating-linear-gradient(45deg, rgba(10,10,10,0.04) 0 1px, transparent 1px 5px)`,
                         aspectRatio: '4 / 5',
                         position: 'relative',
                         overflow: 'hidden',
+                        border: `2px solid ${INK}`,
                       }}
                     >
                       {/* drop number */}
@@ -471,7 +473,7 @@ export default function Beers() {
           }}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)' }}>
+            <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)', borderTop: `2px solid ${BG}`, borderBottom: `2px solid ${BG}`, paddingTop: 24, paddingBottom: 8 }}>
               <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: BG, opacity: 0.6, marginBottom: 16 }}>
                 /02 — Pipeline · {pipeline.length.toString().padStart(2, '0')} incoming
               </div>
