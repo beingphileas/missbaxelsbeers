@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import * as Lucide from 'lucide-react';
-import { Search, Notebook } from 'lucide-react';
+import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, RUBRIC_KEYS, type RubricKey } from '@/lib/rubrics';
+
+const SERIF = "'Lora', Georgia, serif";
+const SANS = "'Nunito Sans', system-ui, sans-serif";
 
 type Post = {
   id: string;
@@ -21,14 +23,12 @@ type Post = {
 
 type Cat = 'all' | RubricKey;
 
-const FILTERS: { id: Cat; label: string; icon?: string }[] = [
+const FILTERS: { id: Cat; label: string }[] = [
   { id: 'all', label: 'Alle' },
-  ...RUBRIC_KEYS.map(k => ({ id: k as Cat, label: RUBRICS[k].label, icon: RUBRICS[k].icon })),
+  ...RUBRIC_KEYS.map(k => ({ id: k as Cat, label: RUBRICS[k].label })),
 ];
 
 const PAGE_SIZE = 12;
-
-const TOP_BG = ['var(--hop-light)', '#FAEEDA', 'var(--copper-light)'];
 
 export default function Verhalen() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -39,13 +39,11 @@ export default function Verhalen() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [cat, setCat] = useState<Cat>('all');
 
-  // Debounce search input 300ms
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Reset page when filters change
   useEffect(() => {
     setPage(0);
   }, [cat, debouncedSearch]);
@@ -76,7 +74,7 @@ export default function Verhalen() {
   }, [page, cat, debouncedSearch]);
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
         title="Verhalen — MissBaxel's Beers"
         description="Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast."
@@ -84,168 +82,218 @@ export default function Verhalen() {
       />
 
       {/* HERO */}
-      <section style={{ borderBottom: '1px solid var(--line)', padding: '40px 0 28px' }}>
-        <div className="max-w-5xl mx-auto px-5">
-          <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
-            style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
+      <section style={{ paddingTop: 'clamp(64px, 9vw, 120px)', paddingBottom: 'clamp(40px, 5vw, 64px)' }}>
+        <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
+          <div
+            style={{
+              fontFamily: SANS,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'hsl(var(--primary))',
+              marginBottom: 24,
+            }}
           >
-            <Notebook size={12} /> Redactie
-          </span>
+            De Redactie
+          </div>
           <h1
-            className="mt-4 mb-2"
-            style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(34px, 5vw, 42px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
+            style={{
+              fontFamily: SERIF,
+              fontWeight: 500,
+              fontSize: 'clamp(40px, 6vw, 76px)',
+              lineHeight: 1.05,
+              letterSpacing: '-0.02em',
+              margin: 0,
+            }}
           >
             Verhalen
           </h1>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
-            Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast.
+          <p
+            style={{
+              marginTop: 24,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              maxWidth: 560,
+              fontFamily: SANS,
+              fontSize: 17,
+              fontWeight: 300,
+              lineHeight: 1.7,
+              color: 'var(--muted)',
+            }}
+          >
+            Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf,
+            soms over de open haard ernaast.
           </p>
         </div>
       </section>
 
       {/* FILTERS */}
-      <section style={{ borderBottom: '1px solid var(--line)' }}>
-        <div className="max-w-5xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center gap-3">
+      <section>
+        <div
+          className="max-w-6xl mx-auto px-6 md:px-10"
+          style={{ paddingTop: 8, paddingBottom: 24 }}
+        >
           <style>{`.verhalen-pills::-webkit-scrollbar{display:none}`}</style>
-          <div
-            className="verhalen-pills flex gap-2 overflow-x-auto md:flex-wrap flex-1"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {FILTERS.map((f) => {
-              const active = cat === f.id;
-              const Icon = f.icon ? (Lucide as any)[f.icon] : null;
-              return (
-                <button
-                  key={f.id}
-                  onClick={() => setCat(f.id)}
-                  className="px-3.5 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors inline-flex items-center gap-1.5"
-                  style={{
-                    fontFamily: 'DM Sans, sans-serif',
-                    background: active ? 'var(--hop-light)' : 'transparent',
-                    color: active ? 'var(--hop-dark)' : 'var(--muted)',
-                    border: '1px solid ' + (active ? 'var(--hop-mid)' : 'var(--line)'),
-                  }}
-                >
-                  {Icon && <Icon size={12} />}
-                  {f.label}
-                </button>
-              );
-            })}
-          </div>
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div
+              className="verhalen-pills flex gap-2 overflow-x-auto flex-1"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {FILTERS.map((f) => {
+                const active = cat === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setCat(f.id)}
+                    style={{
+                      fontFamily: SANS,
+                      fontSize: 13,
+                      fontWeight: active ? 600 : 400,
+                      whiteSpace: 'nowrap',
+                      padding: '8px 18px',
+                      borderRadius: 999,
+                      border: '1px solid ' + (active ? 'var(--ink)' : 'hsl(var(--border))'),
+                      background: active ? 'var(--ink)' : 'transparent',
+                      color: active ? 'var(--bg)' : 'var(--muted)',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
 
-          <div
-            className="flex items-center gap-2 px-3 py-1.5 shrink-0"
-            style={{
-              background: '#fff', border: '1px solid var(--line)',
-              borderRadius: 20, width: 280, maxWidth: '100%',
-            }}
-          >
-            <Search size={14} style={{ color: 'var(--muted)' }} />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Zoek een verhaal…"
-              className="bg-transparent outline-none flex-1 min-w-0"
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--ink)' }}
-            />
+            <div
+              className="flex items-center gap-2 shrink-0"
+              style={{
+                background: 'transparent',
+                borderBottom: '1px solid hsl(var(--border))',
+                padding: '6px 4px',
+                width: 260,
+                maxWidth: '100%',
+              }}
+            >
+              <Search size={14} style={{ color: 'var(--muted)' }} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Zoek een verhaal…"
+                className="bg-transparent outline-none flex-1 min-w-0"
+                style={{ fontFamily: SANS, fontSize: 14, color: 'var(--ink)' }}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* GRID */}
-      <section style={{ padding: '20px 0' }}>
-        <div className="max-w-5xl mx-auto px-5">
+      <section style={{ paddingTop: 32, paddingBottom: 'clamp(80px, 10vw, 140px)' }}>
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
           {loading && posts.length === 0 ? (
-            <div className="text-center py-16" style={{ color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
+            <div className="text-center py-24" style={{ color: 'var(--muted)', fontFamily: SANS, fontSize: 14 }}>
               Laden…
             </div>
           ) : posts.length === 0 ? (
             <div
-              className="text-center py-16"
-              style={{ border: '1px dashed var(--line)', borderRadius: 12, color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}
+              className="text-center py-24"
+              style={{ color: 'var(--muted)', fontFamily: SERIF, fontStyle: 'italic', fontSize: 20 }}
             >
               Geen verhalen gevonden.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {posts.map((p, i) => {
-                const dateLabel = p.date
-                  ? new Date(p.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : 'Verhaal';
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              style={{ columnGap: 40, rowGap: 64 }}
+            >
+              {posts.map((p) => {
+                const rubricLabel =
+                  p.style_category && RUBRICS[p.style_category as RubricKey]
+                    ? RUBRICS[p.style_category as RubricKey].label
+                    : 'Verhaal';
 
-                const inner = (
-                  <article
-                    className="transition-all"
-                    style={{
-                      background: '#fff',
-                      border: '1px solid var(--line)',
-                      borderRadius: 12,
-                      overflow: 'hidden',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--hop-mid)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--line)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
+                return (
+                  <Link
+                    key={p.id}
+                    to={`/verhalen/${p.slug}`}
+                    className="group block no-underline"
+                    style={{ color: 'var(--ink)' }}
                   >
-                    {p.cover_image_url ? (
-                      <div style={{ height: 160, overflow: 'hidden', background: TOP_BG[i % 3] }}>
+                    <div
+                      className="overflow-hidden"
+                      style={{
+                        aspectRatio: '4 / 5',
+                        background: 'var(--bg-cream)',
+                        borderRadius: 6,
+                        marginBottom: 22,
+                      }}
+                    >
+                      {p.cover_image_url ? (
                         <img
                           src={p.cover_image_url}
                           alt={p.title}
                           loading="lazy"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          className="w-full h-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-105"
+                          style={{ display: 'block' }}
                         />
-                      </div>
-                    ) : (
-                      <div
-                        className="flex items-center justify-center"
-                        style={{ height: 80, background: TOP_BG[i % 3], fontSize: 32 }}
-                      >
-                        {p.image_emoji || '📖'}
-                      </div>
-                    )}
-                    <div style={{ padding: 14 }}>
-                      <span
-                        className="inline-block text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-                        style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
-                      >
-                        {dateLabel}
-                      </span>
-                      <h3
-                        className="mt-2.5"
-                        style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 15, lineHeight: 1.3, color: 'var(--ink)' }}
-                      >
-                        {p.title}
-                      </h3>
-                      {p.style && (
+                      ) : (
                         <div
-                          className="mt-1.5"
-                          style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, color: 'var(--muted)' }}
+                          className="w-full h-full flex items-center justify-center transition-transform duration-[700ms] ease-out group-hover:scale-105"
+                          style={{ fontSize: 64 }}
                         >
-                          {p.style}
+                          {p.image_emoji || '📖'}
                         </div>
                       )}
-                      <div
-                        className="mt-3 inline-flex items-center gap-1"
-                        style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: 'var(--hop)' }}
-                      >
-                        Lees de post →
-                      </div>
                     </div>
-                  </article>
-                );
 
-                return (
-                  <Link key={p.id} to={`/verhalen/${p.slug}`} className="no-underline">
-                    {inner}
+                    <div
+                      style={{
+                        fontFamily: SANS,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: 'hsl(var(--primary))',
+                        marginBottom: 12,
+                      }}
+                    >
+                      {rubricLabel}
+                    </div>
+
+                    <h3
+                      className="transition-opacity group-hover:opacity-70"
+                      style={{
+                        fontFamily: SERIF,
+                        fontWeight: 500,
+                        fontSize: 'clamp(22px, 2vw, 26px)',
+                        lineHeight: 1.25,
+                        letterSpacing: '-0.01em',
+                        margin: 0,
+                      }}
+                    >
+                      {p.title}
+                    </h3>
+
+                    {p.excerpt && (
+                      <p
+                        style={{
+                          marginTop: 12,
+                          fontFamily: SANS,
+                          fontSize: 15,
+                          fontWeight: 300,
+                          lineHeight: 1.6,
+                          color: 'var(--muted)',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {p.excerpt}
+                      </p>
+                    )}
                   </Link>
                 );
               })}
@@ -253,12 +301,26 @@ export default function Verhalen() {
           )}
 
           {posts.length < total && (
-            <div className="mt-8 text-center">
+            <div className="mt-16 text-center">
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={loading}
-                className="inline-flex items-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'var(--ink)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+                style={{
+                  background: 'transparent',
+                  color: 'var(--ink)',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: 999,
+                  padding: '14px 32px',
+                  fontFamily: SANS,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: '0.04em',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.5 : 1,
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'hsl(var(--muted) / 0.08)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 {loading ? 'Laden…' : 'Meer verhalen laden'}
               </button>
