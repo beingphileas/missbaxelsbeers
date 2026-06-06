@@ -260,12 +260,12 @@
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius);
-  border: 1px solid hsl(var(--border));
-  box-shadow: none;
+  border-radius: 0;
+  border: 2px solid hsl(0 0% 4%);
+  box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
   background: hsl(var(--card));
   color: hsl(var(--foreground));
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .leaflet-popup-tip { box-shadow: none; background: hsl(var(--card)); }
