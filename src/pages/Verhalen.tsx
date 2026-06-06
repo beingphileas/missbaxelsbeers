@@ -226,14 +226,7 @@ export default function Verhalen() {
             </div>
           ) : (
             <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(1, 1fr)',
-                  gap: 'clamp(32px, 4vw, 56px)',
-                }}
-                className="md:grid-cols-2 lg:grid-cols-3"
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: 'clamp(32px, 4vw, 56px)' }}>
                 {posts.map((p) => {
                   const rubricLabel = getRubricLabel(p.style_category);
 
