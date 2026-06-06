@@ -163,17 +163,18 @@ export default function Verhalen() {
                   onClick={() => setCat(f.id)}
                   style={{
                     fontFamily: DISPLAY,
-                    fontSize: 13,
-                    fontWeight: 600,
+                    fontSize: 12,
+                    fontWeight: 700,
                     whiteSpace: 'nowrap',
                     padding: '10px 22px',
                     borderRadius: 9999,
-                    border: '1.5px solid ' + (active ? '#2b4cff' : '#e5e7eb'),
+                    border: '2px solid #0a0a0a',
                     background: active ? '#2b4cff' : 'transparent',
-                    color: active ? '#0a0a0a' : '#6b7280',
-                    transition: 'all 0.2s ease',
+                    color: '#0a0a0a',
+                    transition: 'background 0.15s ease',
                     cursor: 'pointer',
-                    letterSpacing: '-0.01em',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
                   }}
                 >
                   {f.label}
