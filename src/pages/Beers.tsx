@@ -4,14 +4,20 @@ import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 
-const DISPLAY = "'Space Grotesk', system-ui, sans-serif";
+const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
-const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
-const INK = '#0a0a0a';
-const BG = '#f8f9fa';
-const PALE = '#eeeeea';
-const ACCENT = '#2b4cff';
+const INK = '#3a2a1f';
+const BG = '#faf8f5';
+const MUTED = '#8a7868';
+const ACCENT = '#c4663a';
+const SURFACE = '#ffffff';
+const LINE = '#e8e0d2';
+const CREAM = '#f3ede3';
+
+const SHADOW_SM = '0 4px 16px -4px hsla(22, 30%, 20%, 0.08), 0 2px 6px -2px hsla(22, 30%, 20%, 0.04)';
+const SHADOW_MD = '0 10px 30px -12px hsla(22, 30%, 18%, 0.15), 0 4px 12px -4px hsla(22, 30%, 18%, 0.06)';
+const SHADOW_LIFT = '0 20px 50px -20px hsla(22, 30%, 15%, 0.22), 0 8px 20px -6px hsla(22, 30%, 18%, 0.08)';
 
 type BeerRow = {
   id: string;
@@ -57,7 +63,6 @@ function matchesCategory(b: BeerRow, cat: Cat): boolean {
   return true;
 }
 
-// Pick two short punchy sentences from flavor data
 function pullCopy(b: BeerRow): string {
   const flav = (b.primary_flavors || b.flavor_profile || []).slice(0, 4);
   if (b.teaser) return b.teaser;
@@ -65,8 +70,6 @@ function pullCopy(b: BeerRow): string {
   if (flav.length === 1) return `${flav[0]}.`;
   return 'Lokaal. Eerlijk. Geen poespas.';
 }
-
-const PALES = ['#eeeeea', '#e8ebe4', '#ece6dc', '#e6e9ee', '#efe8e2'];
 
 export default function Beers() {
   const [beers, setBeers] = useState<BeerRow[]>([]);
@@ -134,45 +137,46 @@ export default function Beers() {
     <div style={{ background: BG, color: INK, minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
         title="Bieren — MissBaxel's Beers"
-        description="De drops. Onze collabs, uitgebracht en in de maak."
+        description="Onze collabs, uitgebracht en in de maak."
         url="/beers"
       />
 
       {/* HERO */}
-      <section style={{ paddingTop: 'clamp(80px, 11vw, 160px)', paddingBottom: 'clamp(32px, 4vw, 56px)' }}>
+      <section style={{ paddingTop: 'clamp(72px, 10vw, 132px)', paddingBottom: 'clamp(32px, 4vw, 56px)' }}>
         <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: 12,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: INK,
-              marginBottom: 24,
-            }}
-          >
-            <span style={{ display: 'inline-block', width: 8, height: 8, background: ACCENT, marginRight: 10, transform: 'translateY(-1px)' }} />
-            Drop index — {released.length.toString().padStart(2, '0')} live
-          </div>
           <h1
             style={{
               fontFamily: DISPLAY,
               fontWeight: 700,
-              fontSize: 'clamp(56px, 11vw, 168px)',
-              lineHeight: 0.88,
-              letterSpacing: '-0.055em',
+              fontSize: 'clamp(40px, 6vw, 72px)',
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
               margin: 0,
-              textTransform: 'uppercase',
+              color: INK,
+              textWrap: 'balance',
             }}
           >
-            De bieren.
+            Onze bieren.
           </h1>
+          <p
+            style={{
+              marginTop: 20,
+              maxWidth: 520,
+              fontFamily: SANS,
+              fontSize: 'clamp(15px, 1.25vw, 18px)',
+              fontWeight: 400,
+              lineHeight: 1.7,
+              color: MUTED,
+            }}
+          >
+            Bieren die we met liefde en plezier brouwen. Samen met goede vrienden en nog betere brouwers.
+          </p>
         </div>
       </section>
 
       {/* FILTERS */}
-      <section>
-        <div className="max-w-7xl mx-auto px-6 md:px-10" style={{ paddingTop: 24, paddingBottom: 24, borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}` }}>
+      <section style={{ paddingBottom: 8 }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10" style={{ paddingTop: 20, paddingBottom: 20 }}>
           <style>{`.beer-pills::-webkit-scrollbar{display:none}`}</style>
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="beer-pills flex gap-2 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
@@ -183,19 +187,33 @@ export default function Beers() {
                     key={f.id}
                     onClick={() => setCat(f.id)}
                     style={{
-                      fontFamily: MONO,
-                      fontSize: 12,
-                      fontWeight: 500,
+                      fontFamily: DISPLAY,
+                      fontSize: 13,
+                      fontWeight: 600,
                       whiteSpace: 'nowrap',
-                      padding: '8px 16px',
-                      borderRadius: 999,
-                      border: `1px solid ${active ? ACCENT : INK}`,
-                      background: active ? ACCENT : 'transparent',
-                      color: active ? INK : INK,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.08em',
-                      transition: 'all 0.15s ease',
+                      padding: '9px 18px',
+                      borderRadius: 9999,
+                      border: 'none',
+                      background: active ? ACCENT : SURFACE,
+                      color: active ? '#fff' : INK,
+                      boxShadow: active
+                        ? '0 6px 18px -6px hsla(19, 56%, 50%, 0.35)'
+                        : SHADOW_SM,
+                      transition: 'all 180ms ease',
                       cursor: 'pointer',
+                      letterSpacing: '-0.01em',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.background = 'rgba(196, 102, 58, 0.10)';
+                        e.currentTarget.style.color = ACCENT;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.background = SURFACE;
+                        e.currentTarget.style.color = INK;
+                      }
                     }}
                   >
                     {f.label}
@@ -206,245 +224,285 @@ export default function Beers() {
             <div
               className="flex items-center gap-2 shrink-0"
               style={{
-                background: 'transparent',
-                borderBottom: `1px solid ${INK}`,
-                padding: '6px 4px',
+                background: SURFACE,
+                borderRadius: 9999,
+                padding: '8px 16px',
+                boxShadow: SHADOW_SM,
                 width: 260,
                 maxWidth: '100%',
               }}
             >
-              <Search size={14} style={{ color: INK }} />
+              <Search size={14} style={{ color: MUTED, flexShrink: 0 }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Zoek…"
                 className="bg-transparent outline-none flex-1 min-w-0"
-                style={{ fontFamily: MONO, fontSize: 13, color: INK }}
+                style={{ fontFamily: SANS, fontSize: 14, color: INK }}
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* UITGEBRACHT */}
-      <section style={{ paddingTop: 'clamp(64px, 9vw, 120px)', paddingBottom: 'clamp(80px, 11vw, 160px)' }}>
+      {/* UITGEBRACHTE BIEREN */}
+      <section style={{ paddingTop: 'clamp(48px, 6vw, 80px)', paddingBottom: 'clamp(64px, 9vw, 120px)' }}>
         <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, paddingTop: 24, paddingBottom: 8 }}>
-            <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, marginBottom: 16 }}>
-              /01 — Live drops
-            </div>
+          <div style={{ marginBottom: 'clamp(40px, 5vw, 72px)' }}>
             <h2
               style={{
                 fontFamily: DISPLAY,
                 fontWeight: 700,
-                fontSize: 'clamp(64px, 14vw, 220px)',
-                lineHeight: 0.85,
-                letterSpacing: '-0.06em',
+                fontSize: 'clamp(28px, 3.5vw, 44px)',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em',
                 margin: 0,
-                textTransform: 'uppercase',
+                color: INK,
               }}
             >
-              Uitgebracht
+              Uitgebrachte Bieren
             </h2>
+            <div
+              style={{
+                marginTop: 12,
+                width: 48,
+                height: 3,
+                borderRadius: 2,
+                background: ACCENT,
+              }}
+            />
           </div>
 
           {loading ? (
-            <div className="text-center py-16" style={{ fontFamily: MONO, color: INK, fontSize: 13 }}>
-              LADEN…
+            <div className="text-center py-16" style={{ color: MUTED, fontFamily: SANS, fontSize: 15 }}>
+              Laden…
             </div>
           ) : released.length === 0 ? (
-            <div className="text-center py-16" style={{ fontFamily: MONO, color: INK, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-              Geen bieren gevonden
+            <div className="text-center py-16" style={{ color: MUTED, fontFamily: DISPLAY, fontSize: 18, fontWeight: 600 }}>
+              Geen bieren gevonden.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(96px, 13vw, 180px)' }}>
-              {released.map((b, i) => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(40px, 5vw, 64px)' }}>
+              {released.map((b) => {
                 const image = b.image_url || b.label_url;
-                const reverse = i % 2 === 1;
-                const block = PALES[i % PALES.length];
                 const copy = pullCopy(b);
                 return (
                   <article
                     key={b.id}
-                    className="released-row"
                     style={{
+                      background: SURFACE,
+                      borderRadius: 20,
+                      boxShadow: SHADOW_MD,
+                      overflow: 'hidden',
                       display: 'grid',
-                      gridTemplateColumns: '5fr 7fr',
-                      gap: 'clamp(24px, 4vw, 64px)',
-                      alignItems: 'stretch',
-                      position: 'relative',
+                      gridTemplateColumns: '1fr',
+                      transition: 'box-shadow 220ms ease, transform 220ms ease',
+                    }}
+                    className="beer-card"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = SHADOW_LIFT;
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = SHADOW_MD;
+                      e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    {/* IMAGE BLOCK */}
                     <div
                       style={{
-                        order: reverse ? 2 : 1,
-                        background: block,
-                        backgroundImage: `repeating-linear-gradient(45deg, rgba(10,10,10,0.04) 0 1px, transparent 1px 5px)`,
-                        aspectRatio: '4 / 5',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        border: `2px solid ${INK}`,
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 0,
+                        alignItems: 'stretch',
                       }}
+                      className="beer-split"
                     >
-                      {/* drop number */}
+                      {/* IMAGE */}
                       <div
                         style={{
-                          position: 'absolute',
-                          top: 16,
-                          left: 16,
-                          fontFamily: MONO,
-                          fontSize: 11,
-                          letterSpacing: '0.18em',
-                          color: INK,
-                          textTransform: 'uppercase',
-                          zIndex: 2,
+                          background: CREAM,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 'clamp(24px, 3vw, 48px)',
+                          aspectRatio: '1 / 1',
+                          overflow: 'hidden',
                         }}
+                        className="beer-image-cell"
                       >
-                        № {(i + 1).toString().padStart(2, '0')} / {released.length.toString().padStart(2, '0')}
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={b.name}
+                            loading="lazy"
+                            style={{
+                              maxWidth: '100%',
+                              maxHeight: '100%',
+                              objectFit: 'contain',
+                              filter: 'drop-shadow(0 12px 24px hsla(22, 30%, 18%, 0.15))',
+                              transition: 'transform 400ms ease',
+                            }}
+                            className="beer-card-img"
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              fontFamily: DISPLAY,
+                              fontWeight: 700,
+                              fontSize: 'clamp(80px, 12vw, 160px)',
+                              color: '#d9cec0',
+                              letterSpacing: '-0.03em',
+                            }}
+                          >
+                            {b.name.slice(0, 1)}
+                          </div>
+                        )}
                       </div>
-                      {image ? (
-                        <img
-                          src={image}
-                          alt={b.name}
-                          loading="lazy"
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            padding: 'clamp(16px, 4vw, 56px)',
-                            mixBlendMode: 'multiply',
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontFamily: DISPLAY,
-                            fontWeight: 700,
-                            fontSize: 'clamp(120px, 18vw, 260px)',
-                            color: INK,
-                            letterSpacing: '-0.05em',
-                          }}
-                        >
-                          {b.name.slice(0, 1)}
-                        </div>
-                      )}
-                    </div>
 
-                    {/* TEXT BLOCK */}
-                    <div style={{ order: reverse ? 1 : 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingTop: 4 }}>
-                      <div>
+                      {/* TEXT */}
+                      <div
+                        style={{
+                          padding: 'clamp(28px, 3.5vw, 48px)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                        }}
+                        className="beer-text-cell"
+                      >
                         {b.is_collab && (
                           <div
                             style={{
-                              fontFamily: MONO,
-                              fontSize: 11,
-                              letterSpacing: '0.22em',
+                              fontFamily: SANS,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                               color: ACCENT,
-                              marginBottom: 20,
+                              marginBottom: 14,
                             }}
                           >
-                            ◆ Collab
+                            Collab
                           </div>
                         )}
+
                         <h3
                           style={{
                             fontFamily: DISPLAY,
                             fontWeight: 700,
-                            fontSize: 'clamp(48px, 7vw, 112px)',
-                            lineHeight: 0.9,
-                            letterSpacing: '-0.045em',
+                            fontSize: 'clamp(24px, 3vw, 40px)',
+                            lineHeight: 1.1,
+                            letterSpacing: '-0.02em',
                             margin: 0,
-                            textTransform: 'uppercase',
+                            color: INK,
+                            textWrap: 'pretty',
                           }}
                         >
                           {b.name}
                         </h3>
 
-                        {/* SPECS GRID */}
+                        {b.breweries.length > 0 && (
+                          <p
+                            style={{
+                              marginTop: 8,
+                              fontFamily: SANS,
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: MUTED,
+                            }}
+                          >
+                            Met {b.breweries.join(' & ')}
+                          </p>
+                        )}
+
+                        {/* Spec badges */}
                         <div
                           style={{
-                            marginTop: 'clamp(32px, 4vw, 48px)',
-                            paddingTop: 20,
-                            paddingBottom: 20,
-                            borderTop: `1px solid ${INK}`,
-                            borderBottom: `1px solid ${INK}`,
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: 16,
-                            fontFamily: MONO,
+                            marginTop: 20,
+                            display: 'flex',
+                            gap: 8,
+                            flexWrap: 'wrap',
                           }}
                         >
-                          <div>
-                            <div style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: INK, opacity: 0.5, marginBottom: 8 }}>Brouwer</div>
-                            <div style={{ fontSize: 13, color: INK, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              {b.breweries[0] || '—'}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: INK, opacity: 0.5, marginBottom: 8 }}>Stijl</div>
-                            <div style={{ fontSize: 13, color: INK, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              {b.style || '—'}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: INK, opacity: 0.5, marginBottom: 8 }}>ABV</div>
-                            <div style={{ fontSize: 13, color: INK, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              {b.abv != null ? `${Number(b.abv).toFixed(1)}%` : '—'}
-                            </div>
-                          </div>
+                          {b.style && (
+                            <span
+                              style={{
+                                fontFamily: SANS,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: ACCENT,
+                                background: 'rgba(196, 102, 58, 0.08)',
+                                padding: '6px 14px',
+                                borderRadius: 9999,
+                                letterSpacing: '-0.01em',
+                              }}
+                            >
+                              {b.style}
+                            </span>
+                          )}
+                          {b.abv != null && (
+                            <span
+                              style={{
+                                fontFamily: SANS,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: ACCENT,
+                                background: 'rgba(196, 102, 58, 0.08)',
+                                padding: '6px 14px',
+                                borderRadius: 9999,
+                                letterSpacing: '-0.01em',
+                              }}
+                            >
+                              {Number(b.abv).toFixed(1)}% ABV
+                            </span>
+                          )}
                         </div>
 
-                        {/* COPY */}
+                        {/* Copy */}
                         <p
                           style={{
-                            marginTop: 'clamp(24px, 3vw, 32px)',
+                            marginTop: 20,
                             fontFamily: SANS,
-                            fontSize: 'clamp(16px, 1.4vw, 19px)',
-                            lineHeight: 1.45,
-                            color: INK,
-                            fontWeight: 400,
-                            maxWidth: 560,
+                            fontSize: 'clamp(14px, 1.2vw, 16px)',
+                            lineHeight: 1.7,
+                            color: MUTED,
+                            maxWidth: 420,
                           }}
                         >
                           {copy}
                         </p>
-                      </div>
 
-                      {/* CTA */}
-                      <Link
-                        to={`/beers/${b.slug || b.id}`}
-                        style={{
-                          marginTop: 'clamp(32px, 4vw, 48px)',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          alignSelf: 'flex-start',
-                          padding: '18px 36px',
-                          fontFamily: MONO,
-                          fontSize: 12,
-                          fontWeight: 500,
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color: BG,
-                          background: INK,
-                          borderRadius: 0,
-                          textDecoration: 'none',
-                          transition: 'background 0.15s ease',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = ACCENT)}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = INK)}
-                      >
-                        Meer info →
-                      </Link>
+                        {/* CTA */}
+                        <Link
+                          to={`/beers/${b.slug || b.id}`}
+                          style={{
+                            marginTop: 28,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            alignSelf: 'flex-start',
+                            padding: '12px 28px',
+                            fontFamily: DISPLAY,
+                            fontSize: 14,
+                            fontWeight: 600,
+                            letterSpacing: '-0.01em',
+                            color: '#fff',
+                            background: INK,
+                            borderRadius: 9999,
+                            textDecoration: 'none',
+                            transition: 'all 200ms ease',
+                            boxShadow: '0 6px 18px -6px hsla(22, 30%, 18%, 0.25)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = ACCENT;
+                            e.currentTarget.style.boxShadow = '0 6px 18px -6px hsla(19, 56%, 50%, 0.35)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = INK;
+                            e.currentTarget.style.boxShadow = '0 6px 18px -6px hsla(22, 30%, 18%, 0.25)';
+                          }}
+                        >
+                          Meer info
+                        </Link>
+                      </div>
                     </div>
                   </article>
                 );
@@ -452,76 +510,110 @@ export default function Beers() {
             </div>
           )}
         </div>
-        <style>{`
-          @media (max-width: 767px) {
-            .released-row { grid-template-columns: 1fr !important; }
-            .released-row > div:first-child { order: 1 !important; }
-            .released-row > div:last-child { order: 2 !important; }
-          }
-        `}</style>
       </section>
 
-      {/* IN DE MAAK */}
+      <style>{`
+        @media (max-width: 767px) {
+          .beer-split { grid-template-columns: 1fr !important; }
+          .beer-image-cell { aspect-ratio: 4 / 3 !important; }
+        }
+        .beer-card:hover .beer-card-img {
+          transform: scale(1.04);
+        }
+      `}</style>
+
+      {/* WAT ZIT ER IN DE KETELS? */}
       {pipeline.length > 0 && (
         <section
           style={{
-            paddingTop: 'clamp(80px, 11vw, 160px)',
-            paddingBottom: 'clamp(96px, 13vw, 200px)',
-            background: INK,
-            color: BG,
-            borderTop: `1px solid ${INK}`,
+            paddingTop: 'clamp(64px, 8vw, 120px)',
+            paddingBottom: 'clamp(80px, 10vw, 140px)',
+            background: CREAM,
           }}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <div style={{ marginBottom: 'clamp(48px, 7vw, 96px)', borderTop: `2px solid ${BG}`, borderBottom: `2px solid ${BG}`, paddingTop: 24, paddingBottom: 8 }}>
-              <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: BG, opacity: 0.6, marginBottom: 16 }}>
-                /02 — Pipeline · {pipeline.length.toString().padStart(2, '0')} incoming
-              </div>
+            <div style={{ marginBottom: 'clamp(40px, 5vw, 72px)' }}>
               <h2
                 style={{
                   fontFamily: DISPLAY,
                   fontWeight: 700,
-                  fontSize: 'clamp(64px, 14vw, 220px)',
-                  lineHeight: 0.85,
-                  letterSpacing: '-0.06em',
+                  fontSize: 'clamp(28px, 3.5vw, 44px)',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.02em',
                   margin: 0,
-                  textTransform: 'uppercase',
-                  color: BG,
+                  color: INK,
                 }}
               >
-                In de maak
+                Wat zit er in de ketels?
               </h2>
+              <div
+                style={{
+                  marginTop: 12,
+                  width: 48,
+                  height: 3,
+                  borderRadius: 2,
+                  background: ACCENT,
+                }}
+              />
+              <p
+                style={{
+                  marginTop: 16,
+                  fontFamily: SANS,
+                  fontSize: 15,
+                  lineHeight: 1.65,
+                  color: MUTED,
+                  maxWidth: 480,
+                }}
+              >
+                Een glimp van wat er binnenkort uit de brouwketels komt rollen. Geduld is een mooi bier.
+              </p>
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid rgba(248,249,250,0.2)` }}>
-              {pipeline.map((b, i) => {
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                gap: 'clamp(16px, 2vw, 24px)',
+              }}
+            >
+              {pipeline.map((b) => {
                 const image = b.image_url || b.label_url;
                 const displayName = b.hide_name ? '████████' : b.name;
                 return (
-                  <li
+                  <div
                     key={b.id}
-                    className="pipeline-row"
                     style={{
-                      borderBottom: `1px solid rgba(248,249,250,0.2)`,
-                      padding: 'clamp(24px, 4vw, 40px) 0',
-                      display: 'grid',
-                      gridTemplateColumns: '60px 80px 1fr auto',
-                      alignItems: 'center',
-                      gap: 'clamp(16px, 3vw, 40px)',
+                      background: 'rgba(255, 255, 255, 0.55)',
+                      borderRadius: 20,
+                      padding: 'clamp(20px, 2.5vw, 28px)',
+                      boxShadow: SHADOW_SM,
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(232, 224, 210, 0.6)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 14,
+                      transition: 'transform 200ms ease, box-shadow 200ms ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = SHADOW_MD;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = SHADOW_SM;
                     }}
                   >
-                    <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.18em', color: BG, opacity: 0.5 }}>
-                      №{(i + 1).toString().padStart(2, '0')}
-                    </div>
-
-                    {/* pixelated preview */}
+                    {/* Image */}
                     <div
                       style={{
-                        width: 64,
-                        height: 64,
-                        background: 'rgba(248,249,250,0.08)',
+                        aspectRatio: '1 / 1',
+                        borderRadius: 16,
                         overflow: 'hidden',
-                        position: 'relative',
+                        background: '#ece6dc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
                     >
                       {image ? (
@@ -533,70 +625,87 @@ export default function Beers() {
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
-                            filter: 'blur(6px) contrast(1.2) grayscale(0.6)',
-                            imageRendering: 'pixelated',
-                            transform: 'scale(1.2)',
-                            opacity: 0.7,
+                            filter: 'blur(4px) contrast(1.1) saturate(0.7)',
+                            opacity: 0.5,
                           }}
                         />
                       ) : (
                         <div
                           style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: `repeating-linear-gradient(45deg, rgba(248,249,250,0.1) 0 6px, transparent 6px 12px)`,
+                            width: '100%',
+                            height: '100%',
+                            background: 'repeating-linear-gradient(45deg, rgba(58,42,31,0.06) 0 4px, transparent 4px 12px)',
                           }}
                         />
                       )}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          fontFamily: DISPLAY,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: INK,
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          opacity: 0.35,
+                        }}
+                      >
+                        Binnenkort
+                      </div>
                     </div>
 
-                    <div style={{ minWidth: 0 }}>
-                      <div
+                    {/* Text */}
+                    <div>
+                      <h4
                         style={{
                           fontFamily: DISPLAY,
                           fontWeight: 700,
-                          fontSize: 'clamp(28px, 4.5vw, 56px)',
-                          lineHeight: 0.95,
-                          letterSpacing: '-0.04em',
-                          color: BG,
-                          textTransform: 'uppercase',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
+                          fontSize: 'clamp(17px, 1.4vw, 20px)',
+                          lineHeight: 1.2,
+                          letterSpacing: '-0.01em',
+                          color: INK,
+                          margin: 0,
                         }}
                       >
                         {displayName}
-                      </div>
+                      </h4>
                       {b.breweries.length > 0 && !b.hide_name && (
-                        <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: BG, opacity: 0.55, marginTop: 6 }}>
-                          w/ {b.breweries.join(' × ')}
-                        </div>
+                        <p
+                          style={{
+                            marginTop: 6,
+                            fontFamily: SANS,
+                            fontSize: 13,
+                            fontWeight: 500,
+                            color: MUTED,
+                          }}
+                        >
+                          Met {b.breweries.join(' & ')}
+                        </p>
+                      )}
+                      {b.style && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            marginTop: 10,
+                            fontFamily: SANS,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: ACCENT,
+                            background: 'rgba(196, 102, 58, 0.08)',
+                            padding: '5px 12px',
+                            borderRadius: 9999,
+                            letterSpacing: '-0.01em',
+                          }}
+                        >
+                          {b.style}
+                        </span>
                       )}
                     </div>
-
-                    <div
-                      style={{
-                        fontFamily: MONO,
-                        fontSize: 11,
-                        letterSpacing: '0.2em',
-                        textTransform: 'uppercase',
-                        color: ACCENT,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      ● Soon
-                    </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           </div>
-          <style>{`
-            @media (max-width: 640px) {
-              .pipeline-row { grid-template-columns: 40px 48px 1fr !important; }
-              .pipeline-row > div:last-child { display: none !important; }
-            }
-          `}</style>
         </section>
       )}
     </div>
