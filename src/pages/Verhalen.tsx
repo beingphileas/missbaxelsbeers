@@ -227,15 +227,28 @@ export default function Verhalen() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: 'clamp(32px, 4vw, 56px)' }}>
-                {posts.map((p) => {
+              <style>{`
+                .verhalen-grid{display:grid;grid-template-columns:1fr;border:1px solid #0a0a0a;background:#0a0a0a;gap:1px}
+                @media(min-width:768px){.verhalen-grid{grid-template-columns:1fr 1fr}}
+                @media(min-width:1024px){.verhalen-grid{grid-template-columns:1fr 1fr 1fr}}
+                .verhalen-cell{background:#f8f9fa;padding:clamp(20px,2.5vw,32px);transition:transform .2s ease, box-shadow .2s ease;position:relative}
+                .verhalen-cell:hover{transform:translate(-4px,-4px);box-shadow:8px 8px 0 0 #0a0a0a;z-index:2}
+              `}</style>
+              <div className="verhalen-grid">
+                {posts.map((p, idx) => {
                   const rubricLabel = getRubricLabel(p.style_category);
+                  // Stickers on every 4th and 7th card
+                  const sticker =
+                    idx === 0 ? { text: 'MUST READ', rot: -8, bg: '#2b4cff' } :
+                    idx === 3 ? { text: 'NIEUW', rot: 6, bg: '#2b4cff' } :
+                    idx === 6 ? { text: 'HOT', rot: -12, bg: '#2b4cff' } :
+                    null;
 
                   return (
                     <Link
                       key={p.id}
                       to={`/verhalen/${p.slug}`}
-                      className="group"
+                      className="group verhalen-cell"
                       style={{ textDecoration: 'none', color: '#0a0a0a', display: 'block' }}
                     >
                       <div
@@ -244,6 +257,8 @@ export default function Verhalen() {
                           overflow: 'hidden',
                           background: '#eef0f2',
                           marginBottom: 20,
+                          position: 'relative',
+                          border: '1px solid #0a0a0a',
                         }}
                       >
                         {p.cover_image_url ? (
@@ -280,16 +295,48 @@ export default function Verhalen() {
                             {p.image_emoji || '◆'}
                           </div>
                         )}
+
+                        {sticker && (
+                          <div
+                            aria-hidden
+                            style={{
+                              position: 'absolute',
+                              top: -14,
+                              right: -14,
+                              width: 92,
+                              height: 92,
+                              borderRadius: '50%',
+                              background: sticker.bg,
+                              border: '2px solid #0a0a0a',
+                              boxShadow: '3px 3px 0 0 #0a0a0a',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transform: `rotate(${sticker.rot}deg)`,
+                              fontFamily: DISPLAY,
+                              fontWeight: 700,
+                              fontSize: 13,
+                              letterSpacing: '0.04em',
+                              color: '#0a0a0a',
+                              textTransform: 'uppercase',
+                              textAlign: 'center',
+                              lineHeight: 1,
+                              zIndex: 3,
+                            }}
+                          >
+                            {sticker.text}
+                          </div>
+                        )}
                       </div>
 
                       <div
                         style={{
                           fontFamily: DISPLAY,
                           fontSize: 11,
-                          fontWeight: 600,
-                          letterSpacing: '0.12em',
+                          fontWeight: 700,
+                          letterSpacing: '0.14em',
                           textTransform: 'uppercase',
-                          color: '#2b4cff',
+                          color: '#0a0a0a',
                           marginBottom: 10,
                         }}
                       >
@@ -302,8 +349,8 @@ export default function Verhalen() {
                           fontFamily: DISPLAY,
                           fontWeight: 700,
                           fontSize: 'clamp(22px, 2.2vw, 30px)',
-                          lineHeight: 1.1,
-                          letterSpacing: '-0.03em',
+                          lineHeight: 1.05,
+                          letterSpacing: '-0.035em',
                           margin: 0,
                         }}
                       >
