@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Archivo Black", "Bebas Neue", "Impact", "sans-serif"],
-        headline: ["Archivo Black", "Impact", "sans-serif"],
+        display: ["Playfair Display", "Merriweather", "Georgia", "serif"],
+        headline: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Lora", "Georgia", "serif"],
+        serif: ["Playfair Display", "Merriweather", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -86,14 +86,14 @@ export default {
         },
       },
       borderRadius: {
-        lg: "0",
-        md: "0",
-        sm: "0",
+        lg: "8px",
+        md: "6px",
+        sm: "4px",
       },
       boxShadow: {
-        brutal: "4px 4px 0 0 hsl(0 0% 4%)",
-        "brutal-lg": "8px 8px 0 0 hsl(0 0% 4%)",
-        "brutal-sm": "2px 2px 0 0 hsl(0 0% 4%)",
+        brutal: "0 4px 12px hsl(30 8% 15% / 0.06), 0 1px 3px hsl(30 8% 15% / 0.04)",
+        "brutal-lg": "0 10px 30px hsl(30 8% 15% / 0.10), 0 4px 8px hsl(30 8% 15% / 0.06)",
+        "brutal-sm": "0 1px 3px hsl(30 8% 15% / 0.06)",
       },
       keyframes: {
         "accordion-down": {
