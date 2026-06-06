@@ -1,29 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { LogIn, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useLanguage, Lang } from '@/hooks/useLanguage';
 
-const navItems = [
-  { label: 'Bieren', path: '/beers' },
-  { label: 'Verhalen', path: '/verhalen' },
-  { label: 'Restaurant', path: '/restaurant' },
-  { label: 'Over', path: '/over' },
+const DISPLAY = "'Archivo Black', 'Bebas Neue', Impact, sans-serif";
+const SANS = "'Inter', system-ui, -apple-system, sans-serif";
+
+const PILLARS = [
+  { label: 'LEES', path: '/verhalen' },
+  { label: 'PROEF', path: '/beers' },
 ];
-
-const LANG_OPTIONS: { value: Lang; label: string }[] = [
-  { value: 'nl', label: 'NL' },
-  { value: 'en', label: 'EN' },
-];
-
-const SERIF = "'Lora', Georgia, serif";
-const SANS = "'Nunito Sans', system-ui, sans-serif";
 
 export default function SiteHeader() {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { lang, setLang, t, isTranslating } = useLanguage();
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
@@ -31,92 +22,147 @@ export default function SiteHeader() {
     path === '/' ? pathname === '/' : pathname.startsWith(path);
 
   return (
-    <header className="sticky top-0 z-50" style={{ background: 'var(--bg)', borderBottom: '1px solid rgba(107,58,42,0.12)' }}>
+    <header
+      className="sticky top-0 z-50"
+      style={{
+        background: 'var(--bg)',
+        borderBottom: '2px solid hsl(0 0% 4%)',
+      }}
+    >
       <div className="max-w-[1400px] mx-auto px-6 md:px-10 h-20 flex items-center justify-between gap-6">
-        {/* Wordmark — left */}
-        <Link to="/" className="shrink-0 no-underline" aria-label="MissBaxel's Beers home" style={{ color: 'var(--ink)' }}>
+        {/* Wordmark — centered on desktop, left on mobile */}
+        <Link
+          to="/"
+          className="shrink-0 no-underline"
+          aria-label="MissBaxel's Beers home"
+          style={{ color: 'var(--ink)' }}
+        >
           <span
             style={{
-              fontFamily: SERIF,
-              fontWeight: 700,
+              fontFamily: DISPLAY,
+              fontWeight: 900,
               fontSize: 22,
               letterSpacing: '-0.01em',
+              textTransform: 'uppercase',
             }}
           >
-            Miss<em style={{ fontStyle: 'italic', fontWeight: 600, color: 'var(--copper)' }}>Baxel</em>'s Beers
+            MissBaxel's Beers
           </span>
         </Link>
 
-        {/* Nav — right */}
-        <nav className="hidden md:flex items-center gap-9 flex-1 justify-end">
-          {navItems.map(item => {
+        {/* Desktop pillars — centered-right */}
+        <nav className="hidden md:flex items-center gap-2 flex-1 justify-end">
+          {PILLARS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className="relative no-underline transition-colors"
+                className="relative no-underline select-none"
                 style={{
-                  fontFamily: SANS,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: active ? 'var(--ink)' : 'rgba(107,58,42,0.7)',
-                  paddingBottom: 4,
-                  borderBottom: active ? '2px solid var(--amber)' : '2px solid transparent',
+                  fontFamily: DISPLAY,
+                  fontSize: 36,
+                  fontWeight: 900,
+                  color: active ? 'var(--bg)' : 'var(--ink)',
+                  background: active ? 'var(--ink)' : 'transparent',
+                  padding: '4px 12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1,
+                  transition: 'all 0.08s ease',
+                }}
+                onMouseEnter={e => {
+                  if (!active) {
+                    const t = e.currentTarget;
+                    t.style.background = 'var(--ink)';
+                    t.style.color = 'var(--bg)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    const t = e.currentTarget;
+                    t.style.background = 'transparent';
+                    t.style.color = 'var(--ink)';
+                  }
                 }}
               >
-                {t(item.label)}
+                {item.label}
               </Link>
             );
           })}
 
-          {/* Language */}
-          <div className="inline-flex items-center gap-1" style={{ fontFamily: SANS, fontSize: 11, color: 'rgba(107,58,42,0.6)' }}>
-            {isTranslating && <Loader2 size={11} className="animate-spin" />}
-            {LANG_OPTIONS.map((opt, i) => (
-              <span key={opt.value} className="flex items-center">
-                {i > 0 && <span style={{ padding: '0 4px' }}>·</span>}
-                <button
-                  onClick={() => setLang(opt.value)}
-                  disabled={isTranslating}
-                  style={{
-                    fontWeight: lang === opt.value ? 700 : 400,
-                    color: lang === opt.value ? '#111' : '#888',
-                  }}
-                >
-                  {opt.label}
-                </button>
-              </span>
-            ))}
-          </div>
-
-          {/* Auth */}
+          {/* Auth — small, quiet */}
           {user ? (
-            <button onClick={signOut} aria-label={t('Uitloggen')} style={{ color: '#888' }}>
-              <LogOut size={14} />
+            <button
+              onClick={signOut}
+              aria-label="Uitloggen"
+              className="ml-4"
+              style={{ color: 'var(--ink)' }}
+            >
+              <LogOut size={16} />
             </button>
           ) : (
-            <Link to="/login" aria-label={t('Inloggen')} style={{ color: '#888' }}>
-              <LogIn size={14} />
+            <Link
+              to="/login"
+              aria-label="Inloggen"
+              className="ml-4"
+              style={{ color: 'var(--ink)' }}
+            >
+              <LogIn size={16} />
             </Link>
           )}
         </nav>
 
-        {/* Mobile toggle */}
+        {/* Mobile hamburger / pillars toggle */}
         <button
-          className="md:hidden h-9 w-9 inline-flex items-center justify-center"
+          className="md:hidden inline-flex flex-col items-center justify-center gap-1"
+          style={{ width: 40, height: 40, color: 'var(--ink)' }}
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
-          style={{ color: '#111' }}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          <span
+            style={{
+              display: 'block',
+              width: 28,
+              height: 3,
+              background: 'var(--ink)',
+              transform: mobileOpen ? 'translateY(6px) rotate(45deg)' : 'none',
+              transition: 'transform 0.15s ease',
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              width: 28,
+              height: 3,
+              background: 'var(--ink)',
+              opacity: mobileOpen ? 0 : 1,
+              transition: 'opacity 0.08s ease',
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              width: 28,
+              height: 3,
+              background: 'var(--ink)',
+              transform: mobileOpen ? 'translateY(-6px) rotate(-45deg)' : 'none',
+              transition: 'transform 0.15s ease',
+            }}
+          />
         </button>
       </div>
 
-      {/* Mobile nav */}
+      {/* Mobile nav — full brutalist */}
       {mobileOpen && (
-        <nav className="md:hidden px-6 py-4 space-y-2" style={{ borderTop: '1px solid #f0f0f0', background: '#fff' }}>
-          {navItems.map(item => {
+        <nav
+          className="md:hidden"
+          style={{
+            borderTop: '2px solid hsl(0 0% 4%)',
+            background: 'var(--bg)',
+          }}
+        >
+          {PILLARS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
@@ -124,43 +170,31 @@ export default function SiteHeader() {
                 to={item.path}
                 className="block no-underline"
                 style={{
-                  fontFamily: SANS,
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: '#111',
-                  padding: '8px 0',
-                  borderBottom: active ? '2px solid var(--amber)' : '2px solid transparent',
-                  display: 'inline-block',
+                  fontFamily: DISPLAY,
+                  fontSize: 48,
+                  fontWeight: 900,
+                  color: active ? 'var(--bg)' : 'var(--ink)',
+                  background: active ? 'var(--ink)' : 'transparent',
+                  padding: '16px 24px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1,
+                  borderBottom: '2px solid hsl(0 0% 4%)',
                 }}
               >
-                {t(item.label)}
+                {item.label}
               </Link>
             );
           })}
 
-          <div className="flex items-center gap-2 pt-3" style={{ borderTop: '1px solid #f0f0f0' }}>
-            {LANG_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => setLang(opt.value)}
-                style={{
-                  fontFamily: SANS,
-                  fontSize: 12,
-                  fontWeight: lang === opt.value ? 700 : 400,
-                  color: lang === opt.value ? '#111' : '#888',
-                  padding: '4px 8px',
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between px-6 py-4" style={{ fontFamily: SANS, fontSize: 14 }}>
             {user ? (
-              <button onClick={signOut} className="ml-auto" style={{ color: '#888' }}>
-                <LogOut size={14} />
+              <button onClick={signOut} style={{ color: 'var(--ink)' }}>
+                Uitloggen
               </button>
             ) : (
-              <Link to="/login" className="ml-auto" style={{ color: '#888' }}>
-                <LogIn size={14} />
+              <Link to="/login" style={{ color: 'var(--ink)' }}>
+                Inloggen
               </Link>
             )}
           </div>
