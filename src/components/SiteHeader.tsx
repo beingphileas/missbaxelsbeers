@@ -20,13 +20,13 @@ export default function SiteHeader() {
 
   return (
     <header
-      className="sticky top-0 z-50 backdrop-blur-md"
+      className="sticky top-0 z-50"
       style={{
-        background: 'rgba(248, 249, 250, 0.85)',
-        borderBottom: '1px solid #e5e7eb',
+        background: '#f8f9fa',
+        borderBottom: '2px solid #0a0a0a',
       }}
     >
-      <div className="max-w-[1440px] mx-auto px-8 md:px-12 lg:px-16 py-6 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between">
         {/* Logo — far left */}
         <Link
           to="/"
@@ -35,49 +35,41 @@ export default function SiteHeader() {
           style={{
             fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
             fontWeight: 700,
-            fontSize: 22,
-            color: 'var(--ink)',
+            fontSize: 20,
+            color: '#0a0a0a',
             letterSpacing: '-0.04em',
           }}
         >
           MissBaxel's Beers
         </Link>
 
-        {/* Desktop nav — far right, bold, minimal */}
-        <nav className="hidden md:flex items-center gap-10">
+        {/* Desktop nav — far right */}
+        <nav className="hidden md:flex items-center gap-8">
           {LINKS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className="relative no-underline select-none"
+                className="no-underline select-none"
                 style={{
                   fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 600,
-                  color: active ? '#2b4cff' : 'var(--ink)',
+                  color: active ? '#2b4cff' : '#0a0a0a',
                   letterSpacing: '-0.02em',
+                  textTransform: 'uppercase',
                   textDecoration: active ? 'underline' : 'none',
                   textUnderlineOffset: '4px',
                   textDecorationThickness: '2px',
                   textDecorationColor: '#2b4cff',
-                  transition: 'color 0.2s ease, text-decoration-color 0.2s ease',
+                  transition: 'color 0.15s ease',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.textDecoration = 'underline';
-                  e.currentTarget.style.textDecorationThickness = '2.5px';
-                  e.currentTarget.style.textUnderlineOffset = '5px';
-                  e.currentTarget.style.textDecorationColor = '#0a0a0a';
+                  e.currentTarget.style.color = '#2b4cff';
                 }}
                 onMouseLeave={e => {
-                  if (!active) {
-                    e.currentTarget.style.textDecoration = 'none';
-                  } else {
-                    e.currentTarget.style.textDecorationColor = '#2b4cff';
-                    e.currentTarget.style.textUnderlineOffset = '4px';
-                    e.currentTarget.style.textDecorationThickness = '2px';
-                  }
+                  if (!active) e.currentTarget.style.color = '#0a0a0a';
                 }}
               >
                 {item.label}
@@ -90,19 +82,19 @@ export default function SiteHeader() {
             <button
               onClick={signOut}
               aria-label="Uitloggen"
-              className="ml-2 opacity-50 hover:opacity-100 transition-opacity duration-200"
-              style={{ color: 'var(--ink)' }}
+              className="opacity-40 hover:opacity-100 transition-opacity duration-200"
+              style={{ color: '#0a0a0a' }}
             >
-              <LogOut size={16} strokeWidth={1.5} />
+              <LogOut size={15} strokeWidth={1.5} />
             </button>
           ) : (
             <Link
               to="/login"
               aria-label="Inloggen"
-              className="ml-2 opacity-50 hover:opacity-100 transition-opacity duration-200"
-              style={{ color: 'var(--ink)' }}
+              className="opacity-40 hover:opacity-100 transition-opacity duration-200"
+              style={{ color: '#0a0a0a' }}
             >
-              <LogIn size={16} strokeWidth={1.5} />
+              <LogIn size={15} strokeWidth={1.5} />
             </Link>
           )}
         </nav>
@@ -110,7 +102,7 @@ export default function SiteHeader() {
         {/* Mobile hamburger */}
         <button
           className="md:hidden inline-flex flex-col items-center justify-center gap-1.5"
-          style={{ width: 36, height: 36, color: 'var(--ink)' }}
+          style={{ width: 36, height: 36, color: '#0a0a0a' }}
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
         >
@@ -119,7 +111,7 @@ export default function SiteHeader() {
               display: 'block',
               width: 24,
               height: 2,
-              background: 'var(--ink)',
+              background: '#0a0a0a',
               transform: mobileOpen ? 'translateY(5.5px) rotate(45deg)' : 'none',
               transition: 'transform 0.2s ease',
             }}
@@ -129,7 +121,7 @@ export default function SiteHeader() {
               display: 'block',
               width: 24,
               height: 2,
-              background: 'var(--ink)',
+              background: '#0a0a0a',
               opacity: mobileOpen ? 0 : 1,
               transition: 'opacity 0.15s ease',
             }}
@@ -139,7 +131,7 @@ export default function SiteHeader() {
               display: 'block',
               width: 24,
               height: 2,
-              background: 'var(--ink)',
+              background: '#0a0a0a',
               transform: mobileOpen ? 'translateY(-5.5px) rotate(-45deg)' : 'none',
               transition: 'transform 0.2s ease',
             }}
@@ -147,14 +139,13 @@ export default function SiteHeader() {
         </button>
       </div>
 
-      {/* Mobile nav — minimal drawer */}
+      {/* Mobile nav */}
       {mobileOpen && (
         <nav
           className="md:hidden"
           style={{
-            borderTop: '1px solid #e5e7eb',
-            background: 'rgba(248, 249, 250, 0.95)',
-            backdropFilter: 'blur(12px)',
+            borderTop: '2px solid #0a0a0a',
+            background: '#f8f9fa',
           }}
         >
           {LINKS.map(item => {
@@ -166,11 +157,12 @@ export default function SiteHeader() {
                 className="block no-underline"
                 style={{
                   fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: 600,
-                  color: active ? '#2b4cff' : 'var(--ink)',
-                  padding: '18px 32px',
+                  color: active ? '#2b4cff' : '#0a0a0a',
+                  padding: '16px 24px',
                   letterSpacing: '-0.02em',
+                  textTransform: 'uppercase',
                   borderBottom: '1px solid #e5e7eb',
                 }}
               >
@@ -180,11 +172,11 @@ export default function SiteHeader() {
           })}
 
           <div
-            className="flex items-center px-8 py-5"
+            className="flex items-center px-6 py-4"
             style={{
               fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-              fontSize: 15,
-              color: 'var(--muted)',
+              fontSize: 14,
+              color: '#6b7280',
             }}
           >
             {user ? (
