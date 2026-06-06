@@ -221,13 +221,13 @@
 .prose-editorial p { margin-bottom: 1.5em; }
 
 .prose-editorial > p:first-of-type::first-letter {
-  font-family: 'Lora', serif;
-  font-size: 3.8em;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 4em;
   float: left;
   line-height: 0.8;
-  padding-right: 0.08em;
+  padding-right: 0.1em;
   margin-top: 0.05em;
-  color: hsl(var(--primary));
+  color: hsl(var(--tertiary));
   font-weight: 900;
 }
 
