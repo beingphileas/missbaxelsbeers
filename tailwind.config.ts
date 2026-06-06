@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Playfair Display", "Merriweather", "Georgia", "serif"],
-        headline: ["Playfair Display", "Georgia", "serif"],
+        display: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        headline: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Playfair Display", "Merriweather", "Georgia", "serif"],
+        serif: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
