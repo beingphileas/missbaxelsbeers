@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
 
-import heroPour from '@/assets/hero-pour.jpg';
+
 
 type BeerTile = {
   id: string;
@@ -77,15 +77,10 @@ export default function Home() {
           style={{
             maxWidth: 1200,
             margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: 'clamp(40px, 6vw, 80px)',
-            alignItems: 'center',
           }}
-          className="md:grid-cols-2"
         >
-          {/* Text side */}
-          <div>
+          {/* Text side — full width now */}
+          <div style={{ maxWidth: 720 }}>
             <h1
               style={{
                 fontFamily: DISPLAY,
@@ -104,7 +99,7 @@ export default function Home() {
             <p
               style={{
                 marginTop: 'clamp(20px, 2.5vw, 32px)',
-                maxWidth: 480,
+                maxWidth: 520,
                 fontFamily: SANS,
                 fontSize: 'clamp(15px, 1.25vw, 18px)',
                 fontWeight: 400,
@@ -157,27 +152,6 @@ export default function Home() {
                 Lees de Verhalen
               </Link>
             </div>
-          </div>
-
-          {/* Image side */}
-          <div
-            style={{
-              borderRadius: 28,
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-card)',
-              aspectRatio: '4 / 3',
-            }}
-          >
-            <img
-              src={heroPour}
-              alt="Craft beer wordt ingeschonken in een glas"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-              loading="eager"
-            />
           </div>
         </div>
       </section>
