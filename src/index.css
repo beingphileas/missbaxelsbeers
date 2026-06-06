@@ -7,98 +7,100 @@
 @layer base {
   :root {
     /* ═══ Raw brand palette — Burnt Sienna (hex tokens) ═══ */
-    --bg: #fdfcf8;
-    --bg-cream: #f9f5ed;
-    --ink: #6b3a2a;
-    --muted: #a89378;
-    --line: #ead9b8;
-    --surface: #ffffff;
-    /* "hop" var name kept for back-compat — now maps to brown family */
-    --hop: #a0522d;
-    --hop-light: #f5e4c4;
-    --hop-mid: #cd7f32;
-    --hop-dark: #6b3a2a;
-    --amber: #cd7f32;
-    --amber-light: #fdf3e0;
-    --amber-dark: #8a5a1f;
-    --copper: #a0522d;
-    --copper-light: #f5e4c4;
-    --copper-dark: #6b3a2a;
-    --radius-pill: 24px;
-    --radius-card: 12px;
-    --radius-sm: 8px;
+    /* ═══ Brutalist Digital Scrapbook palette ═══ */
+    --bg: #e8dfc8;
+    --bg-cream: #ddd1b3;
+    --ink: #0a0a0a;
+    --muted: #4a4a4a;
+    --line: #0a0a0a;
+    --surface: #f2ead4;
+    /* "hop" var name kept for back-compat — now maps to amber/orange family */
+    --hop: #b8651a;
+    --hop-light: #f5d9a8;
+    --hop-mid: #ff6a13;
+    --hop-dark: #0a0a0a;
+    --amber: #b8651a;
+    --amber-light: #f5d9a8;
+    --amber-dark: #6b3a0e;
+    --copper: #ff6a13;
+    --copper-light: #ffd9b8;
+    --copper-dark: #b8651a;
+    --radius-pill: 0px;
+    --radius-card: 0px;
+    --radius-sm: 0px;
 
-    /* ═══ Burnt Sienna HSL palette ═══ */
-    --background: 45 50% 98%;
-    --foreground: 18 43% 29%;
+    /* ═══ HSL palette — Brutalist ═══ */
+    --background: 42 35% 85%;
+    --foreground: 0 0% 4%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 18 43% 29%;
+    --card: 42 40% 89%;
+    --card-foreground: 0 0% 4%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 18 43% 29%;
+    --popover: 42 40% 89%;
+    --popover-foreground: 0 0% 4%;
 
-    /* Primary — sienna #a0522d */
-    --primary: 19 57% 40%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 36 67% 87%;
-    --primary-mid: 29 61% 50%;
+    /* Primary — matte black */
+    --primary: 0 0% 4%;
+    --primary-foreground: 42 35% 85%;
+    --primary-light: 42 35% 78%;
+    --primary-mid: 0 0% 20%;
 
-    /* Secondary — copper-amber #cd7f32 */
-    --secondary: 29 61% 50%;
+    /* Secondary — deep amber */
+    --secondary: 28 75% 41%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 38 80% 88%;
+    --secondary-light: 32 80% 82%;
 
-    /* Tertiary — deep sienna #6b3a2a */
-    --tertiary: 18 43% 29%;
-    --tertiary-foreground: 0 0% 100%;
-    --tertiary-light: 36 67% 87%;
+    /* Tertiary — neon orange */
+    --tertiary: 19 100% 54%;
+    --tertiary-foreground: 0 0% 4%;
+    --tertiary-light: 28 100% 86%;
 
-    --muted: 40 50% 95%;
-    --muted-foreground: 24 25% 42%;
+    --muted: 42 25% 78%;
+    --muted-foreground: 0 0% 25%;
 
-    --accent: 29 61% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 19 100% 54%;
+    --accent-foreground: 0 0% 4%;
 
-    --success: 19 57% 40%;
+    --success: 28 75% 41%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 6 65% 38%;
+    --destructive: 0 80% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 50% 82%;
-    --input: 38 50% 82%;
-    --ring: 19 57% 40%;
+    --border: 0 0% 4%;
+    --input: 0 0% 4%;
+    --ring: 19 100% 54%;
 
-    --radius: 0.75rem;
+    --radius: 0px;
 
-    --cream: 40 50% 95%;
+    --cream: 42 40% 89%;
 
-    --sidebar-background: 45 50% 98%;
-    --sidebar-foreground: 18 43% 29%;
-    --sidebar-primary: 19 57% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 50% 95%;
-    --sidebar-accent-foreground: 18 43% 29%;
-    --sidebar-border: 38 50% 82%;
-    --sidebar-ring: 19 57% 40%;
+    --sidebar-background: 42 35% 85%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 4%;
+    --sidebar-primary-foreground: 42 35% 85%;
+    --sidebar-accent: 42 40% 89%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 4%;
+    --sidebar-ring: 19 100% 54%;
 
-    --charcoal: 18 43% 29%;
-    --rust: 19 57% 40%;
-    --slate: 24 25% 42%;
-    --parchment: 0 0% 100%;
-    --vintage-gold: 29 61% 50%;
-    --vintage-cream: 40 50% 95%;
-    --vintage-sepia: 24 25% 42%;
+    --charcoal: 0 0% 4%;
+    --rust: 28 75% 41%;
+    --slate: 0 0% 25%;
+    --parchment: 42 40% 89%;
+    --vintage-gold: 28 75% 41%;
+    --vintage-cream: 42 40% 89%;
+    --vintage-sepia: 0 0% 25%;
 
-    --bierstekers: 19 57% 40%;
-    --bierstekers-foreground: 0 0% 100%;
+    --bierstekers: 19 100% 54%;
+    --bierstekers-foreground: 0 0% 4%;
 
-    --shadow-hard: 0 0 0 transparent;
-    --shadow-card: 0 0 0 transparent;
-    --shadow-scrapbook: 0 0 0 transparent;
-    --shadow-scrapbook-hover: 0 0 0 transparent;
-    --shadow-vintage: 0 0 0 transparent;
+    /* Hard offset shadows — brutalist */
+    --shadow-hard: 4px 4px 0 0 hsl(0 0% 4%);
+    --shadow-card: 6px 6px 0 0 hsl(0 0% 4%);
+    --shadow-scrapbook: 4px 4px 0 0 hsl(0 0% 4%);
+    --shadow-scrapbook-hover: 8px 8px 0 0 hsl(0 0% 4%);
+    --shadow-vintage: 4px 4px 0 0 hsl(0 0% 4%);
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -107,23 +109,31 @@
 @layer base {
   * {
     @apply border-border;
+    border-radius: 0 !important;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-weight: 400;
+    background-image:
+      radial-gradient(hsl(0 0% 4% / 0.06) 1px, transparent 1px),
+      radial-gradient(hsl(0 0% 4% / 0.04) 1px, transparent 1px);
+    background-size: 24px 24px, 48px 48px;
+    background-position: 0 0, 12px 12px;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Lora', Georgia, serif;
-    font-weight: 700;
+    font-family: 'Archivo Black', 'Bebas Neue', Impact, sans-serif;
+    font-weight: 900;
     letter-spacing: -0.01em;
+    text-transform: uppercase;
     color: hsl(var(--foreground));
   }
 
   .font-serif, .font-headline {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'Archivo Black', Impact, sans-serif;
+    text-transform: uppercase;
   }
 
   .font-italic-accent {
@@ -136,12 +146,27 @@
 @layer utilities {
   .tabular-nums { font-variant-numeric: tabular-nums; }
 
-  /* Shadows neutralized — design uses borders, not drops */
-  .shadow-hard,
-  .shadow-card,
-  .shadow-scrapbook,
-  .shadow-scrapbook-hover,
-  .shadow-vintage { box-shadow: none; }
+  /* Brutalist hard offset shadows */
+  .shadow-hard { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+  .shadow-card { box-shadow: 6px 6px 0 0 hsl(0 0% 4%); }
+  .shadow-scrapbook { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+  .shadow-scrapbook-hover { box-shadow: 8px 8px 0 0 hsl(0 0% 4%); }
+  .shadow-vintage { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+
+  /* Brutalist interactive: hard border + offset shadow, presses on hover */
+  .brutal {
+    border: 2px solid hsl(0 0% 4%);
+    box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
+    transition: transform 120ms var(--ease-smooth), box-shadow 120ms var(--ease-smooth);
+  }
+  .brutal:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0 0 hsl(0 0% 4%);
+  }
+  .brutal:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 hsl(0 0% 4%);
+  }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -149,20 +174,21 @@
   .text-balance { text-wrap: balance; }
 
   .vintage-divider {
-    background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
-    height: 1px;
+    background: hsl(0 0% 4%);
+    height: 2px;
   }
 
   .vintage-paper { background: hsl(var(--cream)); }
 
   .glass-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: 2px solid hsl(0 0% 4%);
     backdrop-filter: none;
+    box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
   }
 
   .wine-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-mid)));
+    background: hsl(var(--primary));
   }
 
   .gold-text { color: hsl(var(--secondary)); }
@@ -172,27 +198,36 @@
   .bg-secondary-light { background-color: hsl(var(--secondary-light)); }
   .bg-tertiary-light { background-color: hsl(var(--tertiary-light)); }
 
-  .rounded-pill { border-radius: 9999px; }
+  /* Brutalist override: kill all rounding */
+  .rounded-pill,
+  .rounded-full,
+  .rounded-lg,
+  .rounded-md,
+  .rounded-sm,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded { border-radius: 0 !important; }
 }
 
 /* ═══ Editorial typography ═══ */
 .prose-editorial {
-  font-family: 'Lora', Georgia, serif;
-  font-size: 1.075rem;
-  line-height: 1.8;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
   color: hsl(var(--foreground));
 }
 
 .prose-editorial p { margin-bottom: 1.5em; }
 
 .prose-editorial > p:first-of-type::first-letter {
-  font-family: 'Lora', serif;
-  font-size: 3.8em;
+  font-family: 'Archivo Black', Impact, sans-serif;
+  font-size: 4em;
   float: left;
   line-height: 0.8;
-  padding-right: 0.08em;
+  padding-right: 0.1em;
   margin-top: 0.05em;
-  color: hsl(var(--primary));
+  color: hsl(var(--tertiary));
   font-weight: 900;
 }
 
@@ -213,24 +248,24 @@
 
 .prose-editorial hr {
   border: none;
-  height: 1px;
-  background: hsl(var(--border));
+  height: 2px;
+  background: hsl(0 0% 4%);
   margin: 2.5em 0;
 }
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: hsl(var(--cream));
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius);
-  border: 1px solid hsl(var(--border));
-  box-shadow: none;
+  border-radius: 0;
+  border: 2px solid hsl(0 0% 4%);
+  box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
   background: hsl(var(--card));
   color: hsl(var(--foreground));
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .leaflet-popup-tip { box-shadow: none; background: hsl(var(--card)); }
