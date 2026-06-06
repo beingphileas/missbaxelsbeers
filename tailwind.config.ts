@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
-        headline: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        display: ["Outfit", "Inter", "system-ui", "sans-serif"],
+        headline: ["Outfit", "Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        serif: ["Outfit", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
