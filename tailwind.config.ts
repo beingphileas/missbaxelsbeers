@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Lora", "Georgia", "serif"],
-        headline: ["Lora", "Georgia", "serif"],
-        sans: ["Nunito Sans", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Archivo Black", "Bebas Neue", "Impact", "sans-serif"],
+        headline: ["Archivo Black", "Impact", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
         serif: ["Lora", "Georgia", "serif"],
       },
       colors: {
