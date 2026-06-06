@@ -19,25 +19,26 @@ export default function SiteHeader() {
     path === '/' ? pathname === '/' : pathname.startsWith(path);
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{
-        background: 'rgba(250, 248, 245, 0.78)',
-        backdropFilter: 'blur(16px) saturate(150%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(150%)',
-      }}
-    >
-      {/* Soft shadow instead of border */}
-      <div
+    <>
+      <header
+        className="fixed top-0 left-0 right-0 z-50"
         style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 1,
-          background: 'linear-gradient(90deg, transparent, rgba(58, 42, 31, 0.08), transparent)',
+          background: 'rgba(250, 248, 245, 0.85)',
+          backdropFilter: 'blur(18px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(18px) saturate(160%)',
         }}
-      />
+      >
+        {/* Soft shadow instead of border */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(58, 42, 31, 0.08), transparent)',
+          }}
+        />
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between relative">
         {/* Logo with terracotta accent */}
