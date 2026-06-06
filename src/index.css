@@ -146,12 +146,27 @@
 @layer utilities {
   .tabular-nums { font-variant-numeric: tabular-nums; }
 
-  /* Shadows neutralized — design uses borders, not drops */
-  .shadow-hard,
-  .shadow-card,
-  .shadow-scrapbook,
-  .shadow-scrapbook-hover,
-  .shadow-vintage { box-shadow: none; }
+  /* Brutalist hard offset shadows */
+  .shadow-hard { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+  .shadow-card { box-shadow: 6px 6px 0 0 hsl(0 0% 4%); }
+  .shadow-scrapbook { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+  .shadow-scrapbook-hover { box-shadow: 8px 8px 0 0 hsl(0 0% 4%); }
+  .shadow-vintage { box-shadow: 4px 4px 0 0 hsl(0 0% 4%); }
+
+  /* Brutalist interactive: hard border + offset shadow, presses on hover */
+  .brutal {
+    border: 2px solid hsl(0 0% 4%);
+    box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
+    transition: transform 120ms var(--ease-smooth), box-shadow 120ms var(--ease-smooth);
+  }
+  .brutal:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0 0 hsl(0 0% 4%);
+  }
+  .brutal:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 hsl(0 0% 4%);
+  }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -159,20 +174,21 @@
   .text-balance { text-wrap: balance; }
 
   .vintage-divider {
-    background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
-    height: 1px;
+    background: hsl(0 0% 4%);
+    height: 2px;
   }
 
   .vintage-paper { background: hsl(var(--cream)); }
 
   .glass-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: 2px solid hsl(0 0% 4%);
     backdrop-filter: none;
+    box-shadow: 4px 4px 0 0 hsl(0 0% 4%);
   }
 
   .wine-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-mid)));
+    background: hsl(var(--primary));
   }
 
   .gold-text { color: hsl(var(--secondary)); }
@@ -182,7 +198,16 @@
   .bg-secondary-light { background-color: hsl(var(--secondary-light)); }
   .bg-tertiary-light { background-color: hsl(var(--tertiary-light)); }
 
-  .rounded-pill { border-radius: 9999px; }
+  /* Brutalist override: kill all rounding */
+  .rounded-pill,
+  .rounded-full,
+  .rounded-lg,
+  .rounded-md,
+  .rounded-sm,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded { border-radius: 0 !important; }
 }
 
 /* ═══ Editorial typography ═══ */
