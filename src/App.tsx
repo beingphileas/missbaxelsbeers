@@ -59,7 +59,6 @@ const App = () => {
             <AnalyticsTracker />
             <AgeGate />
             <SiteHeader />
-            <Marquee />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Home />} />
