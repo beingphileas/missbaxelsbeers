@@ -549,7 +549,7 @@ export default function Beers() {
                     >
                       {b.hide_name ? 'Naamloos, voorlopig' : b.name}
                     </h3>
-                    {b.brewery_name_for_display() /* placeholder removed below */}
+                    
                     {b.breweries.length > 0 && !b.hide_name && (
                       <div
                         style={{
