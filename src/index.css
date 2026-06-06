@@ -212,9 +212,9 @@
 
 /* ═══ Editorial typography ═══ */
 .prose-editorial {
-  font-family: 'Lora', Georgia, serif;
-  font-size: 1.075rem;
-  line-height: 1.8;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
   color: hsl(var(--foreground));
 }
 
