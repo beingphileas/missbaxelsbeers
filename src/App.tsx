@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import SiteHeader from "@/components/SiteHeader";
+import Marquee from "@/components/Marquee";
 import SiteFooter from "@/components/SiteFooter";
 import AgeGate from "@/components/AgeGate";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
