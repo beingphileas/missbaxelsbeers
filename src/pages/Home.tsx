@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
 
-import heroPour from '@/assets/hero-pour.jpg';
+
 
 type BeerTile = {
   id: string;
