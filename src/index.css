@@ -248,14 +248,14 @@
 
 .prose-editorial hr {
   border: none;
-  height: 1px;
-  background: hsl(var(--border));
+  height: 2px;
+  background: hsl(0 0% 4%);
   margin: 2.5em 0;
 }
 
 /* Leaflet overrides */
 .leaflet-container {
-  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: hsl(var(--cream));
 }
 
