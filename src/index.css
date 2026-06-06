@@ -11,12 +11,12 @@
     --bg-cream: #eef0f2;
     --ink: #0a0a0a;
     --muted: #6b7280;
-    --line: #e5e7eb;
+    --line: #0a0a0a;
     --surface: #ffffff;
     /* electric accent — cobalt blue, used VERY sparingly */
     --accent-electric: #2b4cff;
 
-    /* back-compat tokens — all map to ink/muted/accent so legacy code stays neutral */
+    /* back-compat tokens */
     --hop: #0a0a0a;
     --hop-light: #eef0f2;
     --hop-mid: #6b7280;
@@ -41,18 +41,15 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 4%;
 
-    /* Primary — sharp ink (use this for solid buttons) */
     --primary: 0 0% 4%;
     --primary-foreground: 210 17% 98%;
     --primary-light: 0 0% 90%;
     --primary-mid: 0 0% 40%;
 
-    /* Secondary — neutral mid */
     --secondary: 220 9% 46%;
     --secondary-foreground: 210 17% 98%;
     --secondary-light: 220 14% 90%;
 
-    /* Tertiary — electric cobalt accent (use sparingly) */
     --tertiary: 230 100% 58%;
     --tertiary-foreground: 0 0% 100%;
     --tertiary-light: 230 100% 92%;
@@ -69,8 +66,9 @@
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    /* Sharp black borders for architectural feel */
+    --border: 0 0% 4%;
+    --input: 0 0% 4%;
     --ring: 230 100% 58%;
 
     --radius: 0px;
@@ -83,7 +81,7 @@
     --sidebar-primary-foreground: 210 17% 98%;
     --sidebar-accent: 220 14% 94%;
     --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 0 0% 4%;
     --sidebar-ring: 230 100% 58%;
 
     --charcoal: 0 0% 4%;
@@ -97,12 +95,14 @@
     --bierstekers: 230 100% 58%;
     --bierstekers-foreground: 0 0% 100%;
 
-    /* Flat design — zero shadows */
-    --shadow-hard: none;
-    --shadow-card: none;
-    --shadow-scrapbook: none;
-    --shadow-scrapbook-hover: none;
-    --shadow-vintage: none;
+    /* Hard offset shadows — architectural blueprint feel */
+    --shadow-hard: 6px 6px 0 0 #0a0a0a;
+    --shadow-hard-sm: 3px 3px 0 0 #0a0a0a;
+    --shadow-hard-lg: 10px 10px 0 0 #0a0a0a;
+    --shadow-card: 6px 6px 0 0 #0a0a0a;
+    --shadow-scrapbook: 6px 6px 0 0 #0a0a0a;
+    --shadow-scrapbook-hover: 10px 10px 0 0 #0a0a0a;
+    --shadow-vintage: 4px 4px 0 0 #0a0a0a;
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -113,29 +113,47 @@
     @apply border-border;
   }
 
+  html, body {
+    background-color: #f8f9fa;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-weight: 400;
-    background-color: #f8f9fa;
     color: #0a0a0a;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Subtle matte-paper grain overlay across the whole page */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 200px 200px;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
     font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.04em;
     color: hsl(var(--foreground));
     line-height: 0.95;
   }
 
-  h1 { letter-spacing: -0.045em; }
-  h2 { letter-spacing: -0.04em; }
+  h1 { letter-spacing: -0.05em; font-weight: 700; }
+  h2 { letter-spacing: -0.045em; font-weight: 700; }
 
   .font-serif, .font-headline {
     font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.04em;
   }
 
   .font-italic-accent {
@@ -148,25 +166,30 @@
 @layer utilities {
   .tabular-nums { font-variant-numeric: tabular-nums; }
 
-  /* Flat design — shadow utilities resolve to none */
-  .shadow-hard,
+  /* Hard offset shadows — blueprint look */
+  .shadow-hard { box-shadow: var(--shadow-hard); }
+  .shadow-hard-sm { box-shadow: var(--shadow-hard-sm); }
+  .shadow-hard-lg { box-shadow: var(--shadow-hard-lg); }
   .shadow-card,
-  .shadow-scrapbook,
-  .shadow-scrapbook-hover,
-  .shadow-vintage { box-shadow: none; }
+  .shadow-scrapbook { box-shadow: var(--shadow-card); }
+  .shadow-scrapbook-hover { box-shadow: var(--shadow-scrapbook-hover); }
+  .shadow-vintage { box-shadow: var(--shadow-vintage); }
 
-  /* Flat interactive — sharp border, no shadow, no lift */
+  /* Architectural interactive — solid black border + hard offset shadow */
   .brutal {
-    border: 1px solid hsl(var(--border));
-    box-shadow: none;
+    border: 2px solid #0a0a0a;
+    box-shadow: 6px 6px 0 0 #0a0a0a;
     border-radius: 0;
-    transition: border-color 200ms var(--ease-smooth), background-color 200ms var(--ease-smooth);
+    background: #ffffff;
+    transition: transform 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth);
   }
   .brutal:hover {
-    border-color: hsl(var(--foreground));
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 0 #0a0a0a;
   }
   .brutal:active {
-    border-color: hsl(var(--foreground));
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 #0a0a0a;
   }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -175,16 +198,16 @@
   .text-balance { text-wrap: balance; }
 
   .vintage-divider {
-    background: hsl(var(--border));
-    height: 1px;
+    background: #0a0a0a;
+    height: 2px;
   }
 
   .vintage-paper { background: hsl(var(--cream)); }
 
   .glass-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: none;
+    border: 2px solid #0a0a0a;
+    box-shadow: 6px 6px 0 0 #0a0a0a;
     border-radius: 0;
   }
 
@@ -240,8 +263,8 @@
 
 .prose-editorial hr {
   border: none;
-  height: 1px;
-  background: hsl(var(--border));
+  height: 2px;
+  background: #0a0a0a;
   margin: 2.5em 0;
 }
 
@@ -253,8 +276,8 @@
 
 .leaflet-popup-content-wrapper {
   border-radius: 0;
-  border: 1px solid hsl(var(--foreground));
-  box-shadow: none;
+  border: 2px solid #0a0a0a;
+  box-shadow: 4px 4px 0 0 #0a0a0a;
   background: hsl(var(--card));
   color: hsl(var(--foreground));
   font-family: 'Inter', sans-serif;

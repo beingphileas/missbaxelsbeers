@@ -91,9 +91,12 @@ export default {
         sm: "0px",
       },
       boxShadow: {
-        brutal: "none",
-        "brutal-lg": "none",
-        "brutal-sm": "none",
+        brutal: "6px 6px 0 0 #0a0a0a",
+        "brutal-lg": "10px 10px 0 0 #0a0a0a",
+        "brutal-sm": "3px 3px 0 0 #0a0a0a",
+        hard: "6px 6px 0 0 #0a0a0a",
+        "hard-sm": "3px 3px 0 0 #0a0a0a",
+        "hard-lg": "10px 10px 0 0 #0a0a0a",
       },
       keyframes: {
         "accordion-down": {
