@@ -6,100 +6,103 @@
 
 @layer base {
   :root {
-    /* ═══ Premium Modern Editorial palette ═══ */
-    --bg: #faf9f6;
-    --bg-cream: #f4f1ea;
-    --ink: #2a2724;
-    --muted: #6b6660;
-    --line: #e8e3da;
+    /* ═══ Contemporary Indie Magazine palette ═══ */
+    --bg: #f8f9fa;
+    --bg-cream: #eef0f2;
+    --ink: #0a0a0a;
+    --muted: #6b7280;
+    --line: #e5e7eb;
     --surface: #ffffff;
-    /* "hop" tokens kept for back-compat — now map to gold accent family */
-    --hop: #b8954a;
-    --hop-light: #e8d9b0;
-    --hop-mid: #a8853c;
-    --hop-dark: #8a6d2e;
-    --amber: #b8954a;
-    --amber-light: #e8d9b0;
-    --amber-dark: #8a6d2e;
-    --copper: #2f4a3a;
-    --copper-light: #c8d4cc;
-    --copper-dark: #1f3528;
-    --radius-pill: 9999px;
-    --radius-card: 6px;
-    --radius-sm: 4px;
+    /* electric accent — cobalt blue, used VERY sparingly */
+    --accent-electric: #2b4cff;
 
-    /* ═══ HSL palette — Editorial ═══ */
-    --background: 45 33% 97%;
-    --foreground: 30 8% 15%;
+    /* back-compat tokens — all map to ink/muted/accent so legacy code stays neutral */
+    --hop: #0a0a0a;
+    --hop-light: #eef0f2;
+    --hop-mid: #6b7280;
+    --hop-dark: #0a0a0a;
+    --amber: #2b4cff;
+    --amber-light: #dfe5ff;
+    --amber-dark: #1a36cc;
+    --copper: #0a0a0a;
+    --copper-light: #e5e7eb;
+    --copper-dark: #0a0a0a;
+    --radius-pill: 9999px;
+    --radius-card: 0px;
+    --radius-sm: 0px;
+
+    /* ═══ HSL palette ═══ */
+    --background: 210 17% 98%;
+    --foreground: 0 0% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 8% 15%;
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 8% 15%;
+    --popover-foreground: 0 0% 4%;
 
-    /* Primary — muted gold */
-    --primary: 41 44% 51%;
-    --primary-foreground: 45 33% 97%;
-    --primary-light: 41 55% 80%;
-    --primary-mid: 41 40% 42%;
+    /* Primary — sharp ink (use this for solid buttons) */
+    --primary: 0 0% 4%;
+    --primary-foreground: 210 17% 98%;
+    --primary-light: 0 0% 90%;
+    --primary-mid: 0 0% 40%;
 
-    /* Secondary — deep forest */
-    --secondary: 147 22% 24%;
-    --secondary-foreground: 45 33% 97%;
-    --secondary-light: 147 18% 80%;
+    /* Secondary — neutral mid */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 210 17% 98%;
+    --secondary-light: 220 14% 90%;
 
-    /* Tertiary — soft gold accent */
-    --tertiary: 41 44% 51%;
-    --tertiary-foreground: 30 8% 15%;
-    --tertiary-light: 41 55% 88%;
+    /* Tertiary — electric cobalt accent (use sparingly) */
+    --tertiary: 230 100% 58%;
+    --tertiary-foreground: 0 0% 100%;
+    --tertiary-light: 230 100% 92%;
 
-    --muted: 38 18% 92%;
-    --muted-foreground: 30 6% 42%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 9% 40%;
 
-    --accent: 41 44% 51%;
-    --accent-foreground: 30 8% 15%;
+    --accent: 230 100% 58%;
+    --accent-foreground: 0 0% 100%;
 
-    --success: 147 22% 24%;
-    --success-foreground: 45 33% 97%;
+    --success: 145 63% 32%;
+    --success-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 45%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 38 18% 88%;
-    --input: 38 18% 88%;
-    --ring: 41 44% 51%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 230 100% 58%;
 
-    --radius: 6px;
+    --radius: 0px;
 
-    --cream: 45 33% 97%;
+    --cream: 210 17% 98%;
 
-    --sidebar-background: 45 33% 97%;
-    --sidebar-foreground: 30 8% 15%;
-    --sidebar-primary: 41 44% 51%;
-    --sidebar-primary-foreground: 45 33% 97%;
-    --sidebar-accent: 38 18% 92%;
-    --sidebar-accent-foreground: 30 8% 15%;
-    --sidebar-border: 38 18% 88%;
-    --sidebar-ring: 41 44% 51%;
+    --sidebar-background: 210 17% 98%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 4%;
+    --sidebar-primary-foreground: 210 17% 98%;
+    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 230 100% 58%;
 
-    --charcoal: 30 8% 15%;
-    --rust: 41 44% 51%;
-    --slate: 30 6% 42%;
-    --parchment: 45 33% 97%;
-    --vintage-gold: 41 44% 51%;
-    --vintage-cream: 45 33% 97%;
-    --vintage-sepia: 30 6% 42%;
+    --charcoal: 0 0% 4%;
+    --rust: 230 100% 58%;
+    --slate: 220 9% 40%;
+    --parchment: 210 17% 98%;
+    --vintage-gold: 230 100% 58%;
+    --vintage-cream: 210 17% 98%;
+    --vintage-sepia: 220 9% 40%;
 
-    --bierstekers: 41 44% 51%;
-    --bierstekers-foreground: 30 8% 15%;
+    --bierstekers: 230 100% 58%;
+    --bierstekers-foreground: 0 0% 100%;
 
-    /* Subtle editorial shadows */
-    --shadow-hard: 0 1px 3px hsl(30 8% 15% / 0.06), 0 1px 2px hsl(30 8% 15% / 0.04);
-    --shadow-card: 0 4px 12px hsl(30 8% 15% / 0.06), 0 1px 3px hsl(30 8% 15% / 0.04);
-    --shadow-scrapbook: 0 2px 8px hsl(30 8% 15% / 0.05);
-    --shadow-scrapbook-hover: 0 10px 30px hsl(30 8% 15% / 0.10), 0 4px 8px hsl(30 8% 15% / 0.06);
-    --shadow-vintage: 0 2px 6px hsl(30 8% 15% / 0.05);
+    /* Flat design — zero shadows */
+    --shadow-hard: none;
+    --shadow-card: none;
+    --shadow-scrapbook: none;
+    --shadow-scrapbook-hover: none;
+    --shadow-vintage: none;
 
     --ease-smooth: cubic-bezier(0.2, 0.0, 0, 1.0);
   }
@@ -114,53 +117,56 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-weight: 400;
-    background-color: #faf9f6;
+    background-color: #f8f9fa;
+    color: #0a0a0a;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Playfair Display', 'Merriweather', Georgia, serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-weight: 700;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.035em;
     color: hsl(var(--foreground));
-    line-height: 1.15;
+    line-height: 0.95;
   }
 
+  h1 { letter-spacing: -0.045em; }
+  h2 { letter-spacing: -0.04em; }
+
   .font-serif, .font-headline {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-weight: 700;
+    letter-spacing: -0.035em;
   }
 
   .font-italic-accent {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-style: italic;
-    font-weight: 400;
+    font-weight: 500;
   }
 }
 
 @layer utilities {
   .tabular-nums { font-variant-numeric: tabular-nums; }
 
-  /* Subtle editorial shadows */
-  .shadow-hard { box-shadow: var(--shadow-hard); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .shadow-scrapbook { box-shadow: var(--shadow-scrapbook); }
-  .shadow-scrapbook-hover { box-shadow: var(--shadow-scrapbook-hover); }
-  .shadow-vintage { box-shadow: var(--shadow-vintage); }
+  /* Flat design — shadow utilities resolve to none */
+  .shadow-hard,
+  .shadow-card,
+  .shadow-scrapbook,
+  .shadow-scrapbook-hover,
+  .shadow-vintage { box-shadow: none; }
 
-  /* Editorial interactive: soft lift on hover */
+  /* Flat interactive — sharp border, no shadow, no lift */
   .brutal {
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
-    border-radius: var(--radius-card);
-    transition: transform 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth);
+    box-shadow: none;
+    border-radius: 0;
+    transition: border-color 200ms var(--ease-smooth), background-color 200ms var(--ease-smooth);
   }
   .brutal:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-scrapbook-hover);
+    border-color: hsl(var(--foreground));
   }
   .brutal:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-hard);
+    border-color: hsl(var(--foreground));
   }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -178,15 +184,15 @@
   .glass-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
-    border-radius: var(--radius-card);
+    box-shadow: none;
+    border-radius: 0;
   }
 
   .wine-gradient {
-    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary) / 0.85));
+    background: hsl(var(--foreground));
   }
 
-  .gold-text { color: hsl(var(--primary)); }
+  .gold-text { color: hsl(var(--tertiary)); }
 
   .bg-cream { background-color: hsl(var(--cream)); }
   .bg-primary-light { background-color: hsl(var(--primary-light)); }
@@ -205,30 +211,32 @@
 .prose-editorial p { margin-bottom: 1.5em; }
 
 .prose-editorial > p:first-of-type::first-letter {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
   font-size: 4.5em;
   float: left;
   line-height: 0.85;
   padding-right: 0.12em;
   margin-top: 0.05em;
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   font-weight: 700;
+  letter-spacing: -0.05em;
 }
 
 .prose-editorial a {
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: hsl(var(--primary) / 0.35);
-  transition: text-decoration-color 0.2s;
+  text-decoration-color: hsl(var(--tertiary));
+  text-decoration-thickness: 2px;
+  transition: color 0.2s;
 }
 
-.prose-editorial a:hover { text-decoration-color: hsl(var(--primary)); }
+.prose-editorial a:hover { color: hsl(var(--tertiary)); }
 
 .prose-editorial ul, .prose-editorial ol { padding-left: 1.5em; margin-bottom: 1.5em; }
 .prose-editorial li { margin-bottom: 0.5em; }
-.prose-editorial strong { font-weight: 600; color: hsl(var(--foreground)); }
-.prose-editorial em { font-style: italic; font-family: 'Playfair Display', Georgia, serif; }
+.prose-editorial strong { font-weight: 700; color: hsl(var(--foreground)); }
+.prose-editorial em { font-style: italic; }
 
 .prose-editorial hr {
   border: none;
@@ -244,9 +252,9 @@
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius-card);
-  border: 1px solid hsl(var(--border));
-  box-shadow: var(--shadow-card);
+  border-radius: 0;
+  border: 1px solid hsl(var(--foreground));
+  box-shadow: none;
   background: hsl(var(--card));
   color: hsl(var(--foreground));
   font-family: 'Inter', sans-serif;
