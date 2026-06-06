@@ -280,9 +280,11 @@ export default function Beers() {
                       style={{
                         order: reverse ? 2 : 1,
                         background: block,
+                        backgroundImage: `repeating-linear-gradient(45deg, rgba(10,10,10,0.04) 0 1px, transparent 1px 5px)`,
                         aspectRatio: '4 / 5',
                         position: 'relative',
                         overflow: 'hidden',
+                        border: `2px solid ${INK}`,
                       }}
                     >
                       {/* drop number */}
