@@ -22,54 +22,56 @@ export default function SiteHeader() {
     <header
       className="sticky top-0 z-50"
       style={{
-        background: '#f8f9fa',
-        borderBottom: '2px solid #0a0a0a',
+        background: 'rgba(250, 248, 245, 0.72)',
+        backdropFilter: 'blur(14px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(140%)',
+        borderBottom: '1px solid rgba(232, 224, 210, 0.6)',
       }}
     >
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between">
-        {/* Logo — far left */}
+        {/* Logo */}
         <Link
           to="/"
           className="shrink-0 no-underline"
           aria-label="MissBaxel's Beers home"
           style={{
-            fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
+            fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
             fontWeight: 700,
-            fontSize: 20,
-            color: '#0a0a0a',
-            letterSpacing: '-0.04em',
+            fontSize: 22,
+            color: '#3a2a1f',
+            letterSpacing: '-0.02em',
           }}
         >
           MissBaxel's Beers
         </Link>
 
-        {/* Desktop nav — far right */}
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-2">
           {LINKS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className="no-underline select-none"
+                className="no-underline select-none rounded-full px-5 py-2"
                 style={{
-                  fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-                  fontSize: 14,
+                  fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
+                  fontSize: 15,
                   fontWeight: 600,
-                  color: active ? '#2b4cff' : '#0a0a0a',
-                  letterSpacing: '-0.02em',
-                  textTransform: 'uppercase',
-                  textDecoration: active ? 'underline' : 'none',
-                  textUnderlineOffset: '4px',
-                  textDecorationThickness: '2px',
-                  textDecorationColor: '#2b4cff',
-                  transition: 'color 0.15s ease',
+                  color: active ? '#c4663a' : '#3a2a1f',
+                  letterSpacing: '-0.01em',
+                  background: active ? 'rgba(196, 102, 58, 0.10)' : 'transparent',
+                  transition: 'color 180ms ease, background 180ms ease',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.color = '#2b4cff';
+                  e.currentTarget.style.color = '#c4663a';
+                  e.currentTarget.style.background = 'rgba(196, 102, 58, 0.10)';
                 }}
                 onMouseLeave={e => {
-                  if (!active) e.currentTarget.style.color = '#0a0a0a';
+                  if (!active) {
+                    e.currentTarget.style.color = '#3a2a1f';
+                    e.currentTarget.style.background = 'transparent';
+                  }
                 }}
               >
                 {item.label}
@@ -82,58 +84,61 @@ export default function SiteHeader() {
             <button
               onClick={signOut}
               aria-label="Uitloggen"
-              className="opacity-40 hover:opacity-100 transition-opacity duration-200"
-              style={{ color: '#0a0a0a' }}
+              className="ml-2 rounded-full p-2 transition-all duration-200 hover:bg-[rgba(196,102,58,0.08)]"
+              style={{ color: '#8a7868' }}
             >
-              <LogOut size={15} strokeWidth={1.5} />
+              <LogOut size={16} strokeWidth={1.5} />
             </button>
           ) : (
             <Link
               to="/login"
               aria-label="Inloggen"
-              className="opacity-40 hover:opacity-100 transition-opacity duration-200"
-              style={{ color: '#0a0a0a' }}
+              className="ml-2 rounded-full p-2 transition-all duration-200 hover:bg-[rgba(196,102,58,0.08)]"
+              style={{ color: '#8a7868' }}
             >
-              <LogIn size={15} strokeWidth={1.5} />
+              <LogIn size={16} strokeWidth={1.5} />
             </Link>
           )}
         </nav>
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden inline-flex flex-col items-center justify-center gap-1.5"
-          style={{ width: 36, height: 36, color: '#0a0a0a' }}
+          className="md:hidden inline-flex flex-col items-center justify-center gap-1.5 rounded-full p-2 transition-colors hover:bg-[rgba(196,102,58,0.08)]"
+          style={{ width: 40, height: 40, color: '#3a2a1f' }}
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
         >
           <span
             style={{
               display: 'block',
-              width: 24,
+              width: 22,
               height: 2,
-              background: '#0a0a0a',
-              transform: mobileOpen ? 'translateY(5.5px) rotate(45deg)' : 'none',
-              transition: 'transform 0.2s ease',
+              background: '#3a2a1f',
+              borderRadius: 2,
+              transform: mobileOpen ? 'translateY(5px) rotate(45deg)' : 'none',
+              transition: 'transform 0.25s ease',
             }}
           />
           <span
             style={{
               display: 'block',
-              width: 24,
+              width: 22,
               height: 2,
-              background: '#0a0a0a',
+              background: '#3a2a1f',
+              borderRadius: 2,
               opacity: mobileOpen ? 0 : 1,
-              transition: 'opacity 0.15s ease',
+              transition: 'opacity 0.2s ease',
             }}
           />
           <span
             style={{
               display: 'block',
-              width: 24,
+              width: 22,
               height: 2,
-              background: '#0a0a0a',
-              transform: mobileOpen ? 'translateY(-5.5px) rotate(-45deg)' : 'none',
-              transition: 'transform 0.2s ease',
+              background: '#3a2a1f',
+              borderRadius: 2,
+              transform: mobileOpen ? 'translateY(-5px) rotate(-45deg)' : 'none',
+              transition: 'transform 0.25s ease',
             }}
           />
         </button>
@@ -144,8 +149,10 @@ export default function SiteHeader() {
         <nav
           className="md:hidden"
           style={{
-            borderTop: '2px solid #0a0a0a',
-            background: '#f8f9fa',
+            background: 'rgba(250, 248, 245, 0.92)',
+            backdropFilter: 'blur(14px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(14px) saturate(140%)',
+            borderTop: '1px solid rgba(232, 224, 210, 0.6)',
           }}
         >
           {LINKS.map(item => {
@@ -156,14 +163,14 @@ export default function SiteHeader() {
                 to={item.path}
                 className="block no-underline"
                 style={{
-                  fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
+                  fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
                   fontSize: 16,
                   fontWeight: 600,
-                  color: active ? '#2b4cff' : '#0a0a0a',
-                  padding: '16px 24px',
-                  letterSpacing: '-0.02em',
-                  textTransform: 'uppercase',
-                  borderBottom: '1px solid #e5e7eb',
+                  color: active ? '#c4663a' : '#3a2a1f',
+                  padding: '14px 24px',
+                  letterSpacing: '-0.01em',
+                  borderBottom: '1px solid rgba(232, 224, 210, 0.6)',
+                  background: active ? 'rgba(196, 102, 58, 0.06)' : 'transparent',
                 }}
               >
                 {item.label}
@@ -174,9 +181,9 @@ export default function SiteHeader() {
           <div
             className="flex items-center px-6 py-4"
             style={{
-              fontFamily: "'Space Grotesk', 'Inter', system-ui, sans-serif",
+              fontFamily: "'Outfit', 'Inter', system-ui, sans-serif",
               fontSize: 14,
-              color: '#6b7280',
+              color: '#8a7868',
             }}
           >
             {user ? (
