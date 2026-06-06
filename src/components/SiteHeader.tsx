@@ -3,12 +3,9 @@ import { LogIn, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
-const DISPLAY = "'Archivo Black', 'Bebas Neue', Impact, sans-serif";
-const SANS = "'Inter', system-ui, -apple-system, sans-serif";
-
-const PILLARS = [
-  { label: 'LEES', path: '/verhalen' },
-  { label: 'PROEF', path: '/beers' },
+const LINKS = [
+  { label: 'Verhalen', path: '/verhalen' },
+  { label: 'Onze Bieren', path: '/beers' },
 ];
 
 export default function SiteHeader() {
@@ -23,36 +20,32 @@ export default function SiteHeader() {
 
   return (
     <header
-      className="sticky top-0 z-50"
+      className="sticky top-0 z-50 backdrop-blur-md"
       style={{
-        background: 'var(--bg)',
-        borderBottom: '2px solid hsl(0 0% 4%)',
+        background: 'rgba(250, 249, 246, 0.85)',
+        borderBottom: '1px solid hsl(38 18% 88%)',
       }}
     >
-      <div className="max-w-[1400px] mx-auto px-6 md:px-10 h-20 flex items-center justify-between gap-6">
-        {/* Wordmark — centered on desktop, left on mobile */}
+      <div className="max-w-[1400px] mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+        {/* Wordmark — centered feel, left-aligned */}
         <Link
           to="/"
-          className="shrink-0 no-underline"
+          className="shrink-0 no-underline tracking-tight"
           aria-label="MissBaxel's Beers home"
-          style={{ color: 'var(--ink)' }}
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontWeight: 700,
+            fontSize: 20,
+            color: 'var(--ink)',
+            letterSpacing: '-0.02em',
+          }}
         >
-          <span
-            style={{
-              fontFamily: DISPLAY,
-              fontWeight: 900,
-              fontSize: 22,
-              letterSpacing: '-0.01em',
-              textTransform: 'uppercase',
-            }}
-          >
-            MissBaxel's Beers
-          </span>
+          MissBaxel's Beers
         </Link>
 
-        {/* Desktop pillars — centered-right */}
-        <nav className="hidden md:flex items-center gap-2 flex-1 justify-end">
-          {PILLARS.map(item => {
+        {/* Desktop nav — refined, minimal */}
+        <nav className="hidden md:flex items-center gap-8">
+          {LINKS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
@@ -60,30 +53,22 @@ export default function SiteHeader() {
                 to={item.path}
                 className="relative no-underline select-none"
                 style={{
-                  fontFamily: DISPLAY,
-                  fontSize: 36,
-                  fontWeight: 900,
-                  color: active ? 'var(--bg)' : 'var(--ink)',
-                  background: active ? 'var(--ink)' : 'transparent',
-                  padding: '4px 12px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1,
-                  transition: 'all 0.08s ease',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: active ? 'var(--ink)' : 'var(--muted)',
+                  letterSpacing: '0.02em',
+                  transition: 'opacity 0.2s ease',
                 }}
                 onMouseEnter={e => {
-                  if (!active) {
-                    const t = e.currentTarget;
-                    t.style.background = 'var(--ink)';
-                    t.style.color = 'var(--bg)';
-                  }
+                  e.currentTarget.style.opacity = '0.7';
+                  e.currentTarget.style.textDecoration = 'underline';
+                  e.currentTarget.style.textUnderlineOffset = '3px';
+                  e.currentTarget.style.textDecorationThickness = '1px';
                 }}
                 onMouseLeave={e => {
-                  if (!active) {
-                    const t = e.currentTarget;
-                    t.style.background = 'transparent';
-                    t.style.color = 'var(--ink)';
-                  }
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.textDecoration = 'none';
                 }}
               >
                 {item.label}
@@ -96,73 +81,74 @@ export default function SiteHeader() {
             <button
               onClick={signOut}
               aria-label="Uitloggen"
-              className="ml-4"
+              className="ml-2 opacity-60 hover:opacity-100 transition-opacity duration-200"
               style={{ color: 'var(--ink)' }}
             >
-              <LogOut size={16} />
+              <LogOut size={15} strokeWidth={1.5} />
             </button>
           ) : (
             <Link
               to="/login"
               aria-label="Inloggen"
-              className="ml-4"
+              className="ml-2 opacity-60 hover:opacity-100 transition-opacity duration-200"
               style={{ color: 'var(--ink)' }}
             >
-              <LogIn size={16} />
+              <LogIn size={15} strokeWidth={1.5} />
             </Link>
           )}
         </nav>
 
-        {/* Mobile hamburger / pillars toggle */}
+        {/* Mobile hamburger */}
         <button
-          className="md:hidden inline-flex flex-col items-center justify-center gap-1"
-          style={{ width: 40, height: 40, color: 'var(--ink)' }}
+          className="md:hidden inline-flex flex-col items-center justify-center gap-1.5"
+          style={{ width: 36, height: 36, color: 'var(--ink)' }}
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
         >
           <span
             style={{
               display: 'block',
-              width: 28,
-              height: 3,
+              width: 22,
+              height: 1.5,
               background: 'var(--ink)',
-              transform: mobileOpen ? 'translateY(6px) rotate(45deg)' : 'none',
-              transition: 'transform 0.15s ease',
+              transform: mobileOpen ? 'translateY(4.5px) rotate(45deg)' : 'none',
+              transition: 'transform 0.2s ease',
             }}
           />
           <span
             style={{
               display: 'block',
-              width: 28,
-              height: 3,
+              width: 22,
+              height: 1.5,
               background: 'var(--ink)',
               opacity: mobileOpen ? 0 : 1,
-              transition: 'opacity 0.08s ease',
+              transition: 'opacity 0.15s ease',
             }}
           />
           <span
             style={{
               display: 'block',
-              width: 28,
-              height: 3,
+              width: 22,
+              height: 1.5,
               background: 'var(--ink)',
-              transform: mobileOpen ? 'translateY(-6px) rotate(-45deg)' : 'none',
-              transition: 'transform 0.15s ease',
+              transform: mobileOpen ? 'translateY(-4.5px) rotate(-45deg)' : 'none',
+              transition: 'transform 0.2s ease',
             }}
           />
         </button>
       </div>
 
-      {/* Mobile nav — full brutalist */}
+      {/* Mobile nav — minimal drawer */}
       {mobileOpen && (
         <nav
           className="md:hidden"
           style={{
-            borderTop: '2px solid hsl(0 0% 4%)',
-            background: 'var(--bg)',
+            borderTop: '1px solid hsl(38 18% 88%)',
+            background: 'rgba(250, 249, 246, 0.95)',
+            backdropFilter: 'blur(12px)',
           }}
         >
-          {PILLARS.map(item => {
+          {LINKS.map(item => {
             const active = isActive(item.path);
             return (
               <Link
@@ -170,16 +156,13 @@ export default function SiteHeader() {
                 to={item.path}
                 className="block no-underline"
                 style={{
-                  fontFamily: DISPLAY,
-                  fontSize: 48,
-                  fontWeight: 900,
-                  color: active ? 'var(--bg)' : 'var(--ink)',
-                  background: active ? 'var(--ink)' : 'transparent',
-                  padding: '16px 24px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1,
-                  borderBottom: '2px solid hsl(0 0% 4%)',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontSize: 15,
+                  fontWeight: 400,
+                  color: active ? 'var(--ink)' : 'var(--muted)',
+                  padding: '14px 24px',
+                  letterSpacing: '0.02em',
+                  borderBottom: '1px solid hsl(38 18% 88%)',
                 }}
               >
                 {item.label}
@@ -187,13 +170,20 @@ export default function SiteHeader() {
             );
           })}
 
-          <div className="flex items-center justify-between px-6 py-4" style={{ fontFamily: SANS, fontSize: 14 }}>
+          <div
+            className="flex items-center px-6 py-4"
+            style={{
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: 14,
+              color: 'var(--muted)',
+            }}
+          >
             {user ? (
-              <button onClick={signOut} style={{ color: 'var(--ink)' }}>
+              <button onClick={signOut} className="hover:opacity-70 transition-opacity">
                 Uitloggen
               </button>
             ) : (
-              <Link to="/login" style={{ color: 'var(--ink)' }}>
+              <Link to="/login" className="hover:opacity-70 transition-opacity">
                 Inloggen
               </Link>
             )}
