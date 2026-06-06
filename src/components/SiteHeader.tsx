@@ -240,6 +240,9 @@ export default function SiteHeader() {
           </div>
         </nav>
       )}
-    </header>
+      </header>
+      {/* Spacer so content doesn't hide under fixed header */}
+      <div style={{ height: 72 }} aria-hidden="true" />
+    </>
   );
 }
