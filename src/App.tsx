@@ -20,6 +20,7 @@ const BeerDetail = lazy(() => import("./pages/BeerDetail"));
 const Over = lazy(() => import("./pages/Over"));
 const Restaurant = lazy(() => import("./pages/Restaurant"));
 const Beers = lazy(() => import("./pages/Beers"));
+const OpDeKaart = lazy(() => import("./pages/OpDeKaart"));
 const Verhalen = lazy(() => import("./pages/Verhalen"));
 const Archief = lazy(() => import("./pages/Archief"));
 const Bierstekers = lazy(() => import("./pages/Bierstekers"));
@@ -65,6 +66,7 @@ const App = () => {
                 <Route path="/verhalen/:slug" element={<BlogPost />} />
                 <Route path="/beers" element={<Beers />} />
                 <Route path="/beers/:id" element={<BeerDetail />} />
+                <Route path="/op-de-kaart" element={<OpDeKaart />} />
                 <Route path="/bierstekers" element={<Bierstekers />} />
                 <Route path="/bierstekers/archief" element={<BierstekersArchive />} />
                 <Route path="/over" element={<Over />} />
