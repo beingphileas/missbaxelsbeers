@@ -78,7 +78,12 @@ export type Database = {
           label_url: string | null
           lifecycle_status: string
           marijke_idea: string | null
+          menu_brewery: string | null
+          menu_category: string | null
+          menu_position: number | null
+          menu_volume: string | null
           name: string
+          on_pour_list: boolean
           pairing_cheese: string[] | null
           pairing_classic: string[] | null
           pairing_food: string[] | null
@@ -137,7 +142,12 @@ export type Database = {
           label_url?: string | null
           lifecycle_status?: string
           marijke_idea?: string | null
+          menu_brewery?: string | null
+          menu_category?: string | null
+          menu_position?: number | null
+          menu_volume?: string | null
           name: string
+          on_pour_list?: boolean
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
           pairing_food?: string[] | null
@@ -196,7 +206,12 @@ export type Database = {
           label_url?: string | null
           lifecycle_status?: string
           marijke_idea?: string | null
+          menu_brewery?: string | null
+          menu_category?: string | null
+          menu_position?: number | null
+          menu_volume?: string | null
           name?: string
+          on_pour_list?: boolean
           pairing_cheese?: string[] | null
           pairing_classic?: string[] | null
           pairing_food?: string[] | null
