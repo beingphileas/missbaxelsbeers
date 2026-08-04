@@ -83,6 +83,7 @@ export default function Beers() {
       const { data: bs } = await supabase
         .from('beers')
         .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, lifecycle_status, flavor_profile, primary_flavors, teaser, hide_name, image_url, label_url')
+        .eq('on_pour_list', false)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
