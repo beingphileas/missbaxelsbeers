@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,14 +42,30 @@ const FILTERS: { id: CatKey; label: string }[] = [
 
 const PAGE_SIZE = 12;
 
+const rubricFromParam = (value: string | null): CatKey =>
+  FILTERS.some((filter) => filter.id === value) ? value as CatKey : 'all';
+
 export default function Verhalen() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [cat, setCat] = useState<CatKey>('all');
+  const [cat, setCat] = useState<CatKey>(() => rubricFromParam(searchParams.get('rubriek')));
+
+  useEffect(() => {
+    setCat(rubricFromParam(searchParams.get('rubriek')));
+  }, [searchParams]);
+
+  const selectCategory = (category: CatKey) => {
+    setCat(category);
+    const next = new URLSearchParams(searchParams);
+    if (category === 'all') next.delete('rubriek');
+    else next.set('rubriek', category);
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -135,6 +151,8 @@ export default function Verhalen() {
       {/* FILTERS */}
       <section
         style={{
+          background: 'var(--bg-cream)',
+          paddingTop: 28,
           paddingLeft: 'clamp(20px, 5vw, 80px)',
           paddingRight: 'clamp(20px, 5vw, 80px)',
           paddingBottom: 28,
@@ -160,7 +178,7 @@ export default function Verhalen() {
               return (
                 <button
                   key={f.id}
-                  onClick={() => setCat(f.id)}
+                  onClick={() => selectCategory(f.id)}
                   style={{
                     fontFamily: DISPLAY,
                     fontSize: 13,

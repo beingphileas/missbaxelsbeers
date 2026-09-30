@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
-  Store, MapPin, Phone, Mail, Globe, Instagram, Facebook,
+  MapPin, Phone, Mail, Globe, Instagram, Facebook,
   Utensils, ExternalLink, Flame,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
@@ -111,7 +111,7 @@ export default function Restaurant() {
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1"
             style={{ background: 'var(--copper-light)', color: 'var(--copper)', border: '1px solid var(--copper)', fontFamily: SANS, borderRadius: 0 }}
           >
-            <Store size={12} /> Restaurant · Brugge
+            Restaurant · Brugge
           </span>
           <h1
             className="mt-5 mb-4"
@@ -292,7 +292,7 @@ export default function Restaurant() {
 
       {/* SECTION 3 — VERHAAL */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '44px 0' }}>
-        <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10 items-start">
+        <div className="max-w-3xl mx-auto px-5">
           <div>
             <h2
               className="mb-5"
@@ -309,24 +309,6 @@ export default function Restaurant() {
               {r?.story ||
                 "Ons restaurant heet vandaag Bij Koen & Marijke, maar het oude bordje 'In 't Nieuw Museum' hangt nog steeds boven de deur. We staan op een paar minuten van de Brugse Markt — een houtgestookte grill- en bierrestaurant, met smaken die uit het vuur komen.\n\nKoen staat aan de grill. Daar wordt alles gemaakt: van een perfect gegrilde ribeye tot een bubbelende gebakken camembert. Eerlijke producten, hout en vlam — meer hebben we niet nodig.\n\nIk sta aan de bierkaart. Elk bier is gekozen om naast de gerechten te passen: van frisse, lichte ales tot rijke Trappisten. En sinds 2024 staat ook de hele MissBaxel's-reeks op tafel."}
             </div>
-          </div>
-
-          <div>
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: '100%', aspectRatio: '4 / 3', borderRadius: 16,
-                border: '1px solid var(--line)', background: 'var(--copper-light)', color: 'var(--copper)',
-              }}
-            >
-              <Store size={80} />
-            </div>
-            <p
-              className="mt-3 text-center"
-              style={{ fontFamily: SANS, fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}
-            >
-              Bij Koen &amp; Marijke in 't Nieuw Museum · Brugge
-            </p>
           </div>
         </div>
       </section>

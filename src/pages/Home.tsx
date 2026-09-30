@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
@@ -17,6 +18,17 @@ type BeerTile = {
   label_url: string | null;
 };
 
+type CarouselBeer = BeerTile & {
+  brewery_id: string;
+  style: string | null;
+  lifecycle_status: string;
+  is_collab: boolean | null;
+  release_date: string | null;
+  added_at: string;
+  menu_brewery: string | null;
+  brewery_name: string | null;
+};
+
 type PostTile = {
   id: string;
   slug: string;
@@ -29,7 +41,9 @@ type PostTile = {
 
 export default function Home() {
   const [beers, setBeers] = useState<BeerTile[]>([]);
+  const [carouselBeers, setCarouselBeers] = useState<CarouselBeer[]>([]);
   const [posts, setPosts] = useState<PostTile[]>([]);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -40,6 +54,25 @@ export default function Home() {
         .order('created_at', { ascending: false })
         .limit(4);
       setBeers((b || []) as any);
+
+      const { data: carouselRows } = await supabase
+        .from('beers')
+        .select('id, slug, name, image_url, label_url, brewery_id, style, lifecycle_status, is_collab, release_date, added_at, menu_brewery')
+        .in('lifecycle_status', ['current', 'coming_soon', 'sold_out'])
+        .order('is_collab', { ascending: false })
+        .order('release_date', { ascending: false, nullsFirst: false })
+        .order('added_at', { ascending: false })
+        .limit(12);
+
+      const breweryIds = Array.from(new Set((carouselRows || []).map((beer) => beer.brewery_id)));
+      const { data: breweryRows } = breweryIds.length
+        ? await supabase.from('breweries').select('id, name').in('id', breweryIds)
+        : { data: [] as { id: string; name: string }[] };
+      const breweryNames = new Map((breweryRows || []).map((brewery) => [brewery.id, brewery.name]));
+      setCarouselBeers((carouselRows || []).map((beer) => ({
+        ...beer,
+        brewery_name: breweryNames.get(beer.brewery_id) || null,
+      })) as CarouselBeer[]);
 
       const { data: p } = await supabase
         .from('blog_posts')
@@ -155,6 +188,138 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ═══ BEER CAROUSEL ═══ */}
+      {carouselBeers.length > 0 && (
+        <section
+          aria-labelledby="home-beer-carousel-title"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            background: 'var(--bg-cream)',
+            paddingTop: 'clamp(48px, 6vw, 80px)',
+            paddingBottom: 'clamp(48px, 6vw, 80px)',
+            paddingLeft: 'clamp(20px, 5vw, 80px)',
+            paddingRight: 'clamp(20px, 5vw, 80px)',
+          }}
+        >
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div className="flex items-end justify-between gap-5" style={{ marginBottom: 28 }}>
+              <h2
+                id="home-beer-carousel-title"
+                style={{
+                  fontFamily: DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 'clamp(24px, 2.4vw, 32px)',
+                  lineHeight: 1.1,
+                  color: 'var(--ink)',
+                  margin: 0,
+                }}
+              >
+                Nu op de kaart en in de maak
+              </h2>
+              <div className="hidden md:flex gap-2 shrink-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Vorige bieren"
+                  title="Vorige bieren"
+                  onClick={() => carouselRef.current?.scrollBy({ left: -560, behavior: 'smooth' })}
+                  className="rounded-full border-border bg-surface text-foreground hover:bg-primary hover:text-primary-foreground"
+                >
+                  <ArrowLeft aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Volgende bieren"
+                  title="Volgende bieren"
+                  onClick={() => carouselRef.current?.scrollBy({ left: 560, behavior: 'smooth' })}
+                  className="rounded-full border-border bg-surface text-foreground hover:bg-primary hover:text-primary-foreground"
+                >
+                  <ArrowRight aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+
+            <div
+              ref={carouselRef}
+              className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4"
+              style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
+            >
+              {carouselBeers.map((beer) => {
+                const image = beer.image_url || beer.label_url;
+                const statusBadge = beer.lifecycle_status === 'coming_soon'
+                  ? 'Binnenkort'
+                  : beer.lifecycle_status === 'sold_out'
+                    ? 'Uitverkocht'
+                    : null;
+
+                return (
+                  <Link
+                    key={beer.id}
+                    to={`/beers/${beer.slug || beer.id}`}
+                    className="group block w-[78vw] max-w-[290px] shrink-0 snap-start overflow-hidden rounded-2xl no-underline transition-transform duration-200 hover:-translate-y-1 md:w-[280px]"
+                    style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-soft)', color: 'var(--ink)' }}
+                  >
+                    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-background p-5">
+                      {image ? (
+                        <img
+                          src={image}
+                          alt={beer.name}
+                          loading="lazy"
+                          className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <span style={{ fontFamily: DISPLAY, fontSize: 64, fontWeight: 700, color: 'var(--line)' }}>
+                          {beer.name.slice(0, 1)}
+                        </span>
+                      )}
+                      <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                        {beer.is_collab && (
+                          <span className="rounded-full bg-secondary-light px-2.5 py-1 text-[10px] font-semibold uppercase text-foreground">
+                            Samen gebrouwen
+                          </span>
+                        )}
+                        {statusBadge && (
+                          <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase text-primary-foreground">
+                            {statusBadge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ padding: 18 }}>
+                      <h3 style={{ fontFamily: DISPLAY, fontSize: 19, fontWeight: 700, lineHeight: 1.2, margin: 0 }}>
+                        {beer.name}
+                      </h3>
+                      {(beer.menu_brewery || beer.brewery_name) && (
+                        <p style={{ marginTop: 6, fontFamily: SANS, fontSize: 13, color: 'var(--muted)' }}>
+                          {beer.menu_brewery || beer.brewery_name}
+                        </p>
+                      )}
+                      {beer.style && (
+                        <p style={{ marginTop: 3, fontFamily: SANS, fontSize: 12, color: 'var(--muted)' }}>
+                          {beer.style}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+
+              <Link
+                to="/bieren"
+                className="flex min-h-[330px] w-[78vw] max-w-[290px] shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-2xl no-underline transition-colors hover:bg-primary hover:text-primary-foreground md:w-[280px]"
+                style={{ border: '1px solid var(--line)', color: 'var(--ink)', fontFamily: DISPLAY, fontWeight: 700 }}
+              >
+                Alle bieren <ArrowRight size={18} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ═══ CONTENT TEASER ═══ */}
       {(latestPosts.length > 0 || featuredBeer) && (

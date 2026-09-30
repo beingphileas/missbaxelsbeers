@@ -65,6 +65,14 @@ const TIMELINE = [
   },
 ];
 
+const CONTENT_RUBRICS = [
+  { key: 'samen_gebrouwen', title: 'Samen gebrouwen', description: 'De bieren die ik samen met mijn favoriete brouwers maak.' },
+  { key: 'tien_vragen', title: 'Tien vragen aan…', description: 'Brouwers en andere bierliefhebbers, telkens dezelfde vragen.' },
+  { key: 'geproefd', title: 'Geproefd', description: 'Wat ik drink en wat ik ervan vind, zonder moeilijke woorden.' },
+  { key: 'aan_tafel', title: 'Aan tafel', description: 'Hoe het bier het deed bij onze gasten en bij welk gerecht.' },
+  { key: 'rustig_gezegd', title: 'Rustig gezegd', description: 'Af en toe een mening, zonder te roepen.' },
+] as const;
+
 
 type BrewerCard = {
   id: string;
@@ -259,6 +267,38 @@ export default function Over() {
                 </span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2.5 — WAT JE HIER VINDT */}
+      <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream)', padding: '48px 0' }}>
+        <div className="max-w-5xl mx-auto px-5">
+          <h2 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}>
+            Wat je hier vindt
+          </h2>
+          <p
+            className="mt-4 max-w-3xl"
+            style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 18, lineHeight: 1.65, color: 'var(--muted)' }}
+          >
+            Ik geef kleine brouwers aandacht, in gewone taal, geproefd aan tafel, en ik zeg rustig wat ik ervan vind.
+          </p>
+          <div className="mt-8 grid gap-3 md:grid-cols-2">
+            {CONTENT_RUBRICS.map((rubric) => (
+              <Link
+                key={rubric.key}
+                to={`/verhalen?rubriek=${rubric.key}`}
+                className="group block rounded-xl no-underline transition-transform hover:-translate-y-0.5"
+                style={{ background: 'var(--surface)', padding: '18px 20px', boxShadow: 'var(--shadow-soft)' }}
+              >
+                <h3 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 17, color: 'var(--ink)' }}>
+                  {rubric.title}
+                </h3>
+                <p className="mt-1" style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.65, color: 'var(--muted)' }}>
+                  {rubric.description}
+                </p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
