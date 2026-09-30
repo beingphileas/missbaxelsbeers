@@ -3,12 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
-import { RUBRICS, RUBRIC_KEYS, type RubricKey, isRubricKey } from '@/lib/rubrics';
+import { EDITORIAL_RUBRICS, ROLE_LABELS } from '@/lib/editorial';
+import InterviewQuestionsPanel from './InterviewQuestionsPanel';
 
 interface PostRow {
   id: string; title: string; slug: string; date: string | null; style: string | null;
   style_category: string | null; brewery_name: string | null; excerpt: string | null;
   content: string; external_url: string | null; image_emoji: string | null;
+  rubric: string | null; person_id: string | null;
 }
 
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -23,7 +25,7 @@ export default function BlogPostsSection() {
   async function load() {
     setLoading(true);
     const { data, error } = await supabase.from('blog_posts')
-      .select('id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji')
+      .select('id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji,rubric,person_id')
       .order('date', { ascending: false, nullsFirst: false })
       .limit(1000);
     if (error) toast.error(error.message); else setRows((data as any) || []);
@@ -91,40 +93,21 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [coverImageUrl, setCoverImageUrl] = useState<string>('');
   const [saving, setSaving] = useState(false);
 
-  const initialRubric = isRubricKey(initial?.style_category) ? (initial!.style_category as RubricKey) : null;
-  const [rubric, setRubric] = useState<RubricKey | ''>(initialRubric || '');
-  const [scores, setScores] = useState<Record<string, number>>({});
-
+  const [rubric, setRubric] = useState<string>(initial?.rubric || '');
+  const [personId, setPersonId] = useState<string>(initial?.person_id || '');
+  const [people, setPeople] = useState<{ id: string; name: string; role: string }[]>([]);
   useEffect(() => {
-    if (!rubric) { setScores({}); return; }
-    const def = RUBRICS[rubric];
-    setScores(prev => {
-      const next: Record<string, number> = {};
-      for (const f of def.scores) next[f.key] = prev[f.key] ?? 4;
-      return next;
-    });
-  }, [rubric]);
+    (supabase as any).from('people').select('id,name,role').order('name').then(({ data }: any) => setPeople(data || []));
+  }, []);
+  const person = people.find(p => p.id === personId);
+  const showQuestions = rubric === 'tien_vragen' && !!person;
 
   useEffect(() => { if (!initial && title && !slug) setSlug(slugify(title)); }, [title]);
 
   useEffect(() => {
     if (!initial) return;
-    (async () => {
-      const { data } = await supabase
-        .from('post_scores' as any)
-        .select('rubric, scores')
-        .eq('blog_post_id', initial.id)
-        .maybeSingle();
-      if (data) {
-        const d: any = data;
-        if (isRubricKey(d.rubric)) {
-          setRubric(d.rubric);
-          setScores(d.scores || {});
-        }
-      }
-      const { data: bp } = await supabase.from('blog_posts').select('cover_image_url').eq('id', initial.id).maybeSingle();
-      if (bp?.cover_image_url) setCoverImageUrl(bp.cover_image_url);
-    })();
+    supabase.from('blog_posts').select('cover_image_url').eq('id', initial.id).maybeSingle()
+      .then(({ data: bp }) => { if (bp?.cover_image_url) setCoverImageUrl(bp.cover_image_url); });
   }, [initial]);
 
   // Ctrl/Cmd+S = save
@@ -145,58 +128,26 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
       date: date || null, style: style.trim() || null,
-      style_category: rubric || (styleCat || null),
+      style_category: styleCat || null,
       rubric: rubric || null,
+      person_id: rubric === 'tien_vragen' ? (personId || null) : null,
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
       cover_image_url: coverImageUrl.trim() || null,
       status: 'published',
     };
-    let postId = initial?.id;
     if (initial) {
       const { error } = await supabase.from('blog_posts').update(payload).eq('id', initial.id);
       if (error) { setSaving(false); return toast.error(error.message); }
     } else {
       const { data, error } = await supabase.from('blog_posts').insert(payload).select('id').single();
       if (error || !data) { setSaving(false); return toast.error(error?.message || 'Kan post niet aanmaken'); }
-      postId = data.id;
-    }
-    if (rubric && postId) {
-      const def = RUBRICS[rubric];
-      if (def.scores.length > 0) {
-        const cleanScores: Record<string, any> = {};
-        for (const f of def.scores) cleanScores[f.key] = Number(scores[f.key]) || 0;
-        const { error: rErr } = await supabase.from('post_scores' as any).upsert(
-          { blog_post_id: postId, rubric, scores: cleanScores },
-          { onConflict: 'blog_post_id' },
-        );
-        if (rErr) { setSaving(false); return toast.error('Scores opslaan mislukt: ' + rErr.message); }
-      } else {
-        await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
-      }
-    } else if (!rubric && postId) {
-      await supabase.from('post_scores' as any).delete().eq('blog_post_id', postId);
     }
     setSaving(false);
     toast.success(initial ? 'Opgeslagen' : 'Aangemaakt');
     onSaved();
   }
-
-  const StarPicker = ({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) => (
-    <div className="flex items-center justify-between gap-3 py-1.5">
-      <span className="text-[12px] text-muted-foreground" style={{ fontFamily: 'DM Sans, sans-serif' }}>{label}</span>
-      <div className="flex gap-0.5">
-        {[1,2,3,4,5].map(n => (
-          <button type="button" key={n} onClick={() => onChange(n)}
-            className="text-lg leading-none transition-colors"
-            style={{ color: n <= value ? 'var(--hop)' : 'var(--line)' }}
-            aria-label={`${label} ${n}`}>★</button>
-        ))}
-        <span className="ml-2 text-[11px] text-muted-foreground tabular-nums w-8 text-right">{value}/5</span>
-      </div>
-    </div>
-  );
 
   return (
     <div className="pb-24 md:pb-0">
@@ -206,6 +157,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <button onClick={save} disabled={saving} className={btnPrimary}><Save size={12} /> {saving ? 'Opslaan…' : 'Opslaan'}</button>
         </div>
       } />
+      <div className={showQuestions ? "grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5 items-start" : ""}>
       <AdminCard className="space-y-4 min-w-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Titel"><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} /></Field>
@@ -240,44 +192,25 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
         </Field>
         <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
 
-        <div className="border-t border-border pt-4 space-y-4">
-          <Field label="Rubriek" hint="Bepaalt de scorekaart">
-            <select
-              className={inputCls}
-              value={rubric}
-              onChange={e => setRubric(e.target.value as RubricKey | '')}
-            >
+        <div className="border-t border-border pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Rubriek">
+            <select className={inputCls} value={rubric} onChange={e => setRubric(e.target.value)}>
               <option value="">— Geen rubriek —</option>
-              {RUBRIC_KEYS.map(k => (
-                <option key={k} value={k}>{RUBRICS[k].label}</option>
-              ))}
+              {EDITORIAL_RUBRICS.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
             </select>
           </Field>
-
-          {rubric && (
-            <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                {RUBRICS[rubric].label}
-              </p>
-              <p className="text-[12px] text-muted-foreground mb-3" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                {RUBRICS[rubric].description} · {RUBRICS[rubric].wordCount[0]}–{RUBRICS[rubric].wordCount[1]} woorden
-              </p>
-              {RUBRICS[rubric].scores.length === 0 ? (
-                <p className="text-[12px] text-muted-foreground italic">Deze rubriek heeft geen scores.</p>
-              ) : (
-                RUBRICS[rubric].scores.map(f => (
-                  <StarPicker
-                    key={f.key}
-                    label={f.label}
-                    value={scores[f.key] ?? 4}
-                    onChange={(n) => setScores(s => ({ ...s, [f.key]: n }))}
-                  />
-                ))
-              )}
-            </div>
+          {rubric === 'tien_vragen' && (
+            <Field label="Persoon">
+              <select className={inputCls} value={personId} onChange={e => setPersonId(e.target.value)}>
+                <option value="">—</option>
+                {people.map(p => <option key={p.id} value={p.id}>{p.name} ({ROLE_LABELS[p.role] || p.role})</option>)}
+              </select>
+            </Field>
           )}
         </div>
       </AdminCard>
+      {showQuestions && <div className="lg:sticky lg:top-24"><InterviewQuestionsPanel role={person!.role} /></div>}
+      </div>
 
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2">
         <button onClick={onClose} className={`${btnGhost} flex-1 justify-center py-3`}><ArrowLeft size={14} /> Terug</button>
