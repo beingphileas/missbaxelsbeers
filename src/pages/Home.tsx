@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
