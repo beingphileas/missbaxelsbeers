@@ -327,6 +327,7 @@ export default function Home() {
           style={{
             position: 'relative',
             zIndex: 1,
+            paddingTop: 'clamp(48px, 6vw, 80px)',
             paddingLeft: 'clamp(20px, 5vw, 80px)',
             paddingRight: 'clamp(20px, 5vw, 80px)',
             paddingBottom: 'clamp(64px, 8vw, 120px)',
