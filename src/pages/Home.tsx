@@ -41,6 +41,7 @@ type PostTile = {
 };
 
 export default function Home() {
+  const { lang } = useLanguage();
   const [beers, setBeers] = useState<BeerTile[]>([]);
   const [carouselBeers, setCarouselBeers] = useState<CarouselBeer[]>([]);
   const [posts, setPosts] = useState<PostTile[]>([]);
