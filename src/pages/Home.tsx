@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -40,6 +41,7 @@ type PostTile = {
 };
 
 export default function Home() {
+  const { lang } = useLanguage();
   const [beers, setBeers] = useState<BeerTile[]>([]);
   const [carouselBeers, setCarouselBeers] = useState<CarouselBeer[]>([]);
   const [posts, setPosts] = useState<PostTile[]>([]);
@@ -112,78 +114,109 @@ export default function Home() {
             margin: '0 auto',
           }}
         >
-          {/* Text side — full width now */}
-          <div style={{ maxWidth: 720 }}>
-            <h1
-              style={{
-                fontFamily: DISPLAY,
-                fontWeight: 700,
-                fontSize: 'clamp(40px, 6vw, 72px)',
-                lineHeight: 1.05,
-                letterSpacing: '-0.03em',
-                color: '#3a2a1f',
-                margin: 0,
-                textWrap: 'balance',
-              }}
-            >
-              Welkom in onze bierwereld.
-            </h1>
-
-            <p
-              style={{
-                marginTop: 'clamp(20px, 2.5vw, 32px)',
-                maxWidth: 520,
-                fontFamily: SANS,
-                fontSize: 'clamp(15px, 1.25vw, 18px)',
-                fontWeight: 400,
-                lineHeight: 1.7,
-                color: '#5a4638',
-              }}
-            >
-              Lees mee over onze ontdekkingen, de brouwers achter de ketels en proef onze eigen collabs.
-            </p>
-
-            <div
-              style={{
-                marginTop: 'clamp(32px, 3.5vw, 48px)',
-                display: 'flex',
-                gap: 14,
-                flexWrap: 'wrap',
-              }}
-            >
-              <Link
-                to="/beers"
-                className="inline-flex items-center gap-2.5 rounded-full transition-all duration-200 hover:shadow-lift"
+          {/* Two-column typographic split */}
+          <div
+            className="flex flex-col md:flex-row md:items-center"
+            style={{ gap: 'clamp(28px, 3vw, 48px)' }}
+          >
+            {/* Left: three italic Lora lines */}
+            <div className="shrink-0 md:flex-1">
+              <h1
                 style={{
-                  background: '#c4663a',
-                  color: '#fff',
-                  fontFamily: DISPLAY,
-                  fontSize: 'clamp(14px, 1.1vw, 16px)',
-                  fontWeight: 600,
+                  fontFamily: "'Lora', Georgia, serif",
+                  fontStyle: 'italic',
+                  fontWeight: 500,
+                  fontSize: 'clamp(32px, 4.2vw, 54px)',
+                  lineHeight: 1.25,
                   letterSpacing: '-0.01em',
-                  padding: '16px 32px',
-                  textDecoration: 'none',
-                  boxShadow: '0 8px 24px -8px hsla(19, 56%, 50%, 0.35)',
-                }}
-              >
-                Onze Bieren <ArrowRight size={17} strokeWidth={2.2} />
-              </Link>
-              <Link
-                to="/verhalen"
-                className="inline-flex items-center gap-2.5 rounded-full transition-all duration-200 hover:shadow-card"
-                style={{
-                  background: '#f3ede3',
                   color: '#3a2a1f',
-                  fontFamily: DISPLAY,
-                  fontSize: 'clamp(14px, 1.1vw, 16px)',
-                  fontWeight: 600,
-                  letterSpacing: '-0.01em',
-                  padding: '16px 32px',
-                  textDecoration: 'none',
+                  margin: 0,
                 }}
               >
-                Lees de Verhalen
-              </Link>
+                {lang === 'en' ? (
+                  <>
+                    I pick the flavour.
+                    <br />
+                    They brew it.
+                    <br />
+                    Hubby drinks along.
+                  </>
+                ) : (
+                  <>
+                    Ik kies de smaak.
+                    <br />
+                    Zij brouwen het.
+                    <br />
+                    Hubby drinkt mee.
+                  </>
+                )}
+              </h1>
+            </div>
+
+            {/* Divider: short horizontal rule on mobile, vertical rule on desktop */}
+            <div
+              aria-hidden="true"
+              className="h-px w-16 md:h-40 md:w-px md:self-stretch"
+              style={{ background: 'var(--line)' }}
+            />
+
+            {/* Right: existing paragraph + CTAs */}
+            <div className="md:flex-1">
+              <p
+                style={{
+                  maxWidth: 520,
+                  fontFamily: SANS,
+                  fontSize: 'clamp(15px, 1.25vw, 18px)',
+                  fontWeight: 400,
+                  lineHeight: 1.7,
+                  color: '#5a4638',
+                }}
+              >
+                Lees mee over onze ontdekkingen, de brouwers achter de ketels en proef onze eigen collabs.
+              </p>
+
+              <div
+                style={{
+                  marginTop: 'clamp(32px, 3.5vw, 48px)',
+                  display: 'flex',
+                  gap: 14,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <Link
+                  to="/beers"
+                  className="inline-flex items-center gap-2.5 rounded-full transition-all duration-200 hover:shadow-lift"
+                  style={{
+                    background: '#c4663a',
+                    color: '#fff',
+                    fontFamily: DISPLAY,
+                    fontSize: 'clamp(14px, 1.1vw, 16px)',
+                    fontWeight: 600,
+                    letterSpacing: '-0.01em',
+                    padding: '16px 32px',
+                    textDecoration: 'none',
+                    boxShadow: '0 8px 24px -8px hsla(19, 56%, 50%, 0.35)',
+                  }}
+                >
+                  Onze Bieren <ArrowRight size={17} strokeWidth={2.2} />
+                </Link>
+                <Link
+                  to="/verhalen"
+                  className="inline-flex items-center gap-2.5 rounded-full transition-all duration-200 hover:shadow-card"
+                  style={{
+                    background: '#f3ede3',
+                    color: '#3a2a1f',
+                    fontFamily: DISPLAY,
+                    fontSize: 'clamp(14px, 1.1vw, 16px)',
+                    fontWeight: 600,
+                    letterSpacing: '-0.01em',
+                    padding: '16px 32px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Lees de Verhalen
+                </Link>
+              </div>
             </div>
           </div>
         </div>
