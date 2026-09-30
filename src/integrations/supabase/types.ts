@@ -380,6 +380,7 @@ export type Database = {
           external_url: string | null
           id: string
           image_emoji: string | null
+          person_id: string | null
           published_at: string | null
           rubric: string | null
           slug: string
@@ -402,6 +403,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           image_emoji?: string | null
+          person_id?: string | null
           published_at?: string | null
           rubric?: string | null
           slug: string
@@ -424,6 +426,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           image_emoji?: string | null
+          person_id?: string | null
           published_at?: string | null
           rubric?: string | null
           slug?: string
@@ -447,6 +450,13 @@ export type Database = {
             columns: ["brewery_id"]
             isOneToOne: false
             referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
             referencedColumns: ["id"]
           },
         ]
@@ -570,6 +580,80 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      interview_questions: {
+        Row: {
+          id: string
+          is_core: boolean
+          position: number
+          question_en: string | null
+          question_nl: string
+          role: string
+        }
+        Insert: {
+          id?: string
+          is_core?: boolean
+          position: number
+          question_en?: string | null
+          question_nl: string
+          role: string
+        }
+        Update: {
+          id?: string
+          is_core?: boolean
+          position?: number
+          question_en?: string | null
+          question_nl?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      people: {
+        Row: {
+          bio: string | null
+          brewery_id: string | null
+          created_at: string | null
+          id: string
+          location: string | null
+          name: string
+          photo_url: string | null
+          role: string
+          slug: string
+          website_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          brewery_id?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          photo_url?: string | null
+          role?: string
+          slug: string
+          website_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          brewery_id?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          photo_url?: string | null
+          role?: string
+          slug?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limits: {
         Row: {
@@ -702,12 +786,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -731,11 +815,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -756,11 +840,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -781,11 +865,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -798,11 +882,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

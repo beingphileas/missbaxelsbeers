@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Wine } from 'lucide-react';
+import { Beer, Building2, Newspaper, FlaskConical, UtensilsCrossed, ShieldAlert, Wine, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import BeersSection from '@/components/admin-mb/BeersSection';
@@ -7,13 +7,15 @@ import BreweriesSection from '@/components/admin-mb/BreweriesSection';
 import BlogPostsSection from '@/components/admin-mb/BlogPostsSection';
 import BierstekersSection from '@/components/admin-mb/BierstekersSection';
 import RestaurantSection from '@/components/admin-mb/RestaurantSection';
+import PeopleSection from '@/components/admin-mb/PeopleSection';
 
-type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant';
+type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'mensen';
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bieren', label: 'Bieren', icon: Beer },
   { key: 'brouwerijen', label: 'Brouwerijen', icon: Building2 },
   { key: 'blogposts', label: 'Blogposts', icon: Newspaper },
+  { key: 'mensen', label: 'Mensen', icon: Users },
   { key: 'bierstekers', label: 'Bierstekers', icon: FlaskConical },
   { key: 'restaurant', label: 'Restaurant', icon: UtensilsCrossed },
 ];
@@ -96,6 +98,7 @@ export default function AdminPanel() {
           {section === 'blogposts' && <BlogPostsSection />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
+          {section === 'mensen' && <PeopleSection />}
         </main>
       </div>
     </div>

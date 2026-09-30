@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
-import { RUBRICS, type RubricKey } from '@/lib/rubrics';
+import { EDITORIAL_RUBRICS, rubricLabel } from '@/lib/editorial';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -30,17 +30,14 @@ type Post = {
   external_url: string | null;
   image_emoji: string | null;
   cover_image_url: string | null;
+  rubric: string | null;
 };
 
-type CatKey = 'all' | 'smaak' | 'geschiedenis' | 'ontdek' | 'winkels' | 'algemeen';
+type CatKey = 'all' | typeof EDITORIAL_RUBRICS[number]['key'];
 
-const FILTERS: { id: CatKey; label: string; keys: string[] }[] = [
-  { id: 'all', label: 'Alle', keys: [] },
-  { id: 'smaak', label: 'Smaak', keys: ['proefnotitie', 'bier_en_eten', 'seizoen'] },
-  { id: 'geschiedenis', label: 'Geschiedenis', keys: ['brouwerij', 'biertrip'] },
-  { id: 'ontdek', label: 'Ontdek je plekje', keys: ['hidden_gem'] },
-  { id: 'winkels', label: 'Winkels', keys: ['bioshop'] },
-  { id: 'algemeen', label: 'Algemeen', keys: ['column', 'missbaxel_bier'] },
+const FILTERS: { id: CatKey; label: string }[] = [
+  { id: 'all', label: 'Alles' },
+  ...EDITORIAL_RUBRICS.map(r => ({ id: r.key as CatKey, label: r.label })),
 ];
 
 const PAGE_SIZE = 12;
@@ -70,13 +67,10 @@ export default function Verhalen() {
       const to = (page + 1) * PAGE_SIZE - 1;
       let query = supabase
         .from('blog_posts')
-        .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url', { count: 'exact' })
+        .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url, rubric', { count: 'exact' })
         .order('date', { ascending: false, nullsFirst: false });
 
-      const filterDef = FILTERS.find((f) => f.id === cat);
-      if (cat !== 'all' && filterDef && filterDef.keys.length > 0) {
-        query = query.in('style_category', filterDef.keys);
-      }
+      if (cat !== 'all') query = query.eq('rubric', cat);
 
       const q = debouncedSearch.trim();
       if (q) {
@@ -89,11 +83,6 @@ export default function Verhalen() {
       setLoading(false);
     })();
   }, [page, cat, debouncedSearch]);
-
-  const getRubricLabel = (key: string | null) => {
-    if (!key) return 'Verhaal';
-    return RUBRICS[key as RubricKey]?.label || 'Verhaal';
-  };
 
   return (
     <div style={{ background: BG, color: INK, minHeight: '100vh', fontFamily: SANS }}>
@@ -262,7 +251,7 @@ export default function Verhalen() {
                 }}
               >
                 {posts.map((p) => {
-                  const rubricLabel = getRubricLabel(p.style_category);
+                  const rubricText = rubricLabel(p.rubric) || 'Verhaal';
                   return (
                     <Link
                       key={p.id}
@@ -344,7 +333,7 @@ export default function Verhalen() {
                             marginBottom: 10,
                           }}
                         >
-                          {rubricLabel}
+                          {rubricText}
                         </div>
 
                         <h3

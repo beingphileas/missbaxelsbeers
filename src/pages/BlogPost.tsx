@@ -9,6 +9,9 @@ import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
 import { useT } from '@/components/T';
+import { ROLE_LABELS } from '@/lib/editorial';
+
+type Person = { id: string; name: string; role: string; photo_url: string | null; brewery_id: string | null; brewery?: { name: string; website_url: string | null } | null };
 
 type PostScores = {
   rubric: string;
@@ -44,6 +47,7 @@ export default function BlogPost() {
   const [post, setPost] = useState<Post | null>(null);
   const [beer, setBeer] = useState<LinkedBeer | null>(null);
   const [postScores, setPostScores] = useState<PostScores | null>(null);
+  const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -72,6 +76,19 @@ export default function BlogPost() {
           setBeer((b as any) ?? null);
         } else {
           setBeer(null);
+        }
+        const pid = (data as any).person_id;
+        if (pid) {
+          const { data: pe } = await (supabase as any).from('people')
+            .select('id, name, role, photo_url, brewery_id').eq('id', pid).maybeSingle();
+          let brewery = null;
+          if (pe?.brewery_id) {
+            const { data: br } = await supabase.from('breweries').select('name, website_url').eq('id', pe.brewery_id).maybeSingle();
+            brewery = br ?? null;
+          }
+          setPerson(pe ? { ...pe, brewery } : null);
+        } else {
+          setPerson(null);
         }
         const { data: ps } = await supabase
           .from('post_scores' as any)
@@ -107,6 +124,27 @@ export default function BlogPost() {
   const tContent = useT(post.content);
   const tBeerName = useT(beer?.name ?? '');
 
+
+  const PersonCard = person ? (
+    <div className="mt-8 flex items-center gap-4 rounded-2xl p-4" style={{ background: 'var(--hop-light)', border: '1px solid var(--line)' }}>
+      {person.photo_url ? (
+        <img src={person.photo_url} alt={person.name} loading="lazy" className="w-14 h-14 rounded-full object-cover shrink-0" />
+      ) : (
+        <div className="w-14 h-14 rounded-full shrink-0" style={{ background: 'var(--line)' }} />
+      )}
+      <div className="min-w-0">
+        <p className="font-semibold" style={{ color: 'var(--ink)' }}>{person.name}</p>
+        <p className="text-[13px]" style={{ color: 'var(--muted)' }}>
+          {ROLE_LABELS[person.role] || person.role}
+          {person.brewery && (
+            <> · {person.brewery.website_url
+              ? <a href={person.brewery.website_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{person.brewery.name}</a>
+              : person.brewery.name}</>
+          )}
+        </p>
+      </div>
+    </div>
+  ) : null;
 
   const RubricScoreCard = (() => {
     if (!postScores || !isRubricKey(postScores.rubric)) return null;
@@ -261,6 +299,7 @@ export default function BlogPost() {
               />
             )}
 
+            {PersonCard}
             <div
               className="mt-8 prose prose-neutral max-w-none"
               style={{
@@ -346,6 +385,7 @@ export default function BlogPost() {
             />
           )}
 
+          {PersonCard}
           <div
             className="mt-8 prose prose-neutral max-w-none"
             style={{
