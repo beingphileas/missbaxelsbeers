@@ -152,7 +152,7 @@ function PersonForm({ initial, breweries, onClose, onSaved }: {
           </AdminCard>
         </div>
         <AdminCard>
-          <ImageUploader bucket="blog-images" value={photo} onChange={setPhoto} label="Foto" />
+          <ImageUploader bucket="brewery-images" value={photo} onChange={setPhoto} label="Foto" />
         </AdminCard>
       </div>
     </div>

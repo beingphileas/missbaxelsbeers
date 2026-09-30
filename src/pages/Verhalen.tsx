@@ -251,7 +251,7 @@ export default function Verhalen() {
                 }}
               >
                 {posts.map((p) => {
-                  const rubricLabel = rubricLabel(p.rubric) || 'Verhaal';
+                  const rubricText = rubricLabel(p.rubric) || 'Verhaal';
                   return (
                     <Link
                       key={p.id}
@@ -333,7 +333,7 @@ export default function Verhalen() {
                             marginBottom: 10,
                           }}
                         >
-                          {rubricLabel}
+                          {rubricText}
                         </div>
 
                         <h3
