@@ -37,6 +37,7 @@ type BeerRow = {
   breweries: string[];
   image_url: string | null;
   label_url: string | null;
+  release_date: string | null;
 };
 
 const STYLE_FILTERS = [
@@ -82,7 +83,7 @@ export default function Beers() {
       setLoading(true);
       const { data: bs } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, lifecycle_status, flavor_profile, primary_flavors, teaser, hide_name, image_url, label_url')
+        .select('id, slug, name, style, style_category, abv, is_current, is_collab, featured, lifecycle_status, flavor_profile, primary_flavors, teaser, hide_name, image_url, label_url, release_date')
         .eq('on_pour_list', false)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
@@ -129,6 +130,18 @@ export default function Beers() {
       });
   }, [beers, cat, search]);
 
+  const collabs = useMemo(() =>
+    beers
+      .filter(b => b.is_collab && b.lifecycle_status !== 'archive')
+      .sort((a, b) => {
+        if (!a.release_date && !b.release_date) return 0;
+        if (!a.release_date) return 1;
+        if (!b.release_date) return -1;
+        return b.release_date.localeCompare(a.release_date);
+      }),
+    [beers]
+  );
+
   const pipeline = useMemo(
     () => beers.filter(b => b.lifecycle_status === 'pipeline'),
     [beers]
@@ -141,6 +154,40 @@ export default function Beers() {
         description="Onze collabs, uitgebracht en in de maak."
         url="/beers"
       />
+
+      {/* SAMEN GEBROUWEN */}
+      {collabs.length > 0 && (
+        <section style={{ paddingTop: 'clamp(48px, 6vw, 80px)' }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-10">
+            <h2 style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 'clamp(26px, 3vw, 36px)', letterSpacing: '-0.02em', margin: 0, color: INK }}>
+              Samen gebrouwen
+            </h2>
+            <div className="flex gap-5 overflow-x-auto pb-4 mt-6" style={{ scrollbarWidth: 'none' }}>
+              {collabs.map(b => {
+                const badge = b.lifecycle_status === 'coming_soon' ? 'Binnenkort' : b.lifecycle_status === 'sold_out' ? 'Uitverkocht' : null;
+                const img = b.label_url || b.image_url;
+                return (
+                  <Link key={b.id} to={`/beers/${b.slug || b.id}`} className="shrink-0 w-[240px] block"
+                    style={{ background: SURFACE, borderRadius: 20, boxShadow: SHADOW_SM, overflow: 'hidden' }}>
+                    <div className="relative" style={{ aspectRatio: '4 / 5', background: CREAM }}>
+                      {img && <img src={img} alt={b.name} loading="lazy" className="w-full h-full object-cover" />}
+                      {badge && (
+                        <span className="absolute top-3 left-3" style={{ background: ACCENT, color: '#fff', fontFamily: DISPLAY, fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 9999 }}>
+                          {badge}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ padding: 16 }}>
+                      <p style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 18, color: INK, margin: 0 }}>{b.hide_name ? '???' : b.name}</p>
+                      {b.breweries.length > 0 && <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>{b.breweries.join(' × ')}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* HERO */}
       <section style={{ paddingTop: 'clamp(72px, 10vw, 132px)', paddingBottom: 'clamp(32px, 4vw, 56px)' }}>

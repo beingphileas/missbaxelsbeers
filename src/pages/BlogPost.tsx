@@ -11,7 +11,7 @@ import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/l
 import { useT } from '@/components/T';
 import { ROLE_LABELS } from '@/lib/editorial';
 
-type Person = { id: string; name: string; role: string; photo_url: string | null; brewery_id: string | null; brewery?: { name: string; slug: string | null } | null };
+type Person = { id: string; name: string; role: string; photo_url: string | null; brewery_id: string | null; brewery?: { name: string; website_url: string | null } | null };
 
 type PostScores = {
   rubric: string;
@@ -83,7 +83,7 @@ export default function BlogPost() {
             .select('id, name, role, photo_url, brewery_id').eq('id', pid).maybeSingle();
           let brewery = null;
           if (pe?.brewery_id) {
-            const { data: br } = await supabase.from('breweries').select('name, slug').eq('id', pe.brewery_id).maybeSingle();
+            const { data: br } = await supabase.from('breweries').select('name, website_url').eq('id', pe.brewery_id).maybeSingle();
             brewery = br ?? null;
           }
           setPerson(pe ? { ...pe, brewery } : null);
@@ -137,7 +137,9 @@ export default function BlogPost() {
         <p className="text-[13px]" style={{ color: 'var(--muted)' }}>
           {ROLE_LABELS[person.role] || person.role}
           {person.brewery && (
-            <> · <Link to={person.brewery.slug ? `/brouwerij/${person.brewery.slug}` : `/brouwerij/${person.brewery_id}`} className="underline underline-offset-2">{person.brewery.name}</Link></>
+            <> · {person.brewery.website_url
+              ? <a href={person.brewery.website_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{person.brewery.name}</a>
+              : person.brewery.name}</>
           )}
         </p>
       </div>
