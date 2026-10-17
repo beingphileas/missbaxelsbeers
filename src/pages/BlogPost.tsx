@@ -105,6 +105,13 @@ export default function BlogPost() {
     if (post?.slug) trackEvent(ANALYTICS_EVENTS.STORY_OPEN, { slug: post.slug });
   }, [post?.slug]);
 
+  // Automatische vertaling van de hoofdvelden (NL → actieve taal).
+  // Hooks moeten vóór elke vroege return staan.
+  const tTitle = useT(post?.title ?? '');
+  const tExcerpt = useT(post?.excerpt ?? '');
+  const tContent = useT(post?.content ?? '');
+  const tBeerName = useT(beer?.name ?? '');
+
   if (loading) {
     return (
       <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
@@ -117,12 +124,6 @@ export default function BlogPost() {
   if (!post) return null;
 
   const isLongForm = !post.external_url && ((post.content?.length ?? 0) > 500 || !!postScores);
-
-  // Automatische vertaling van de hoofdvelden (NL → actieve taal).
-  const tTitle = useT(post.title);
-  const tExcerpt = useT(post.excerpt ?? '');
-  const tContent = useT(post.content);
-  const tBeerName = useT(beer?.name ?? '');
 
 
   const PersonCard = person ? (
