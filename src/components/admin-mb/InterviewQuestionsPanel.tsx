@@ -67,15 +67,15 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
           ))}
         </ol>
       )}
-      {openSlots.map(pos => (
-        <div key={pos} className="flex gap-2 items-center">
-          <span className="text-muted-foreground tabular-nums w-5 text-[13px]">{pos}.</span>
-          <input className={inputCls} placeholder={`Vraag ${pos}`} value={extra[pos] || ''}
-            onChange={e => setExtra(x => ({ ...x, [pos]: e.target.value }))}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExtra(pos); } }} />
-          <button type="button" onClick={() => addExtra(pos)} className={btnPrimary}>Voeg toe</button>
+      {qs && qs.length > 0 && (
+        <div className="flex gap-2 items-center">
+          <span className="text-muted-foreground tabular-nums w-5 text-[13px]">{nextPos}.</span>
+          <input className={inputCls} placeholder={`Vraag ${nextPos}`} value={extra[nextPos] || ''}
+            onChange={e => setExtra(x => ({ ...x, [nextPos]: e.target.value }))}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExtra(nextPos); } }} />
+          <button type="button" onClick={() => addExtra(nextPos)} className={btnPrimary}>Voeg toe</button>
         </div>
-      ))}
+      )}
       <p className="text-[13px] italic pt-2 border-t border-border">{INTERVIEW_CLOSING_LINE}</p>
     </div>
   );
