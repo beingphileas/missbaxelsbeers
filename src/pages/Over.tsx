@@ -67,7 +67,7 @@ const TIMELINE = [
 
 const CONTENT_RUBRICS = [
   { key: 'samen_gebrouwen', title: 'Samen gebrouwen', description: 'De bieren die ik samen met mijn favoriete brouwers maak.' },
-  { key: 'tien_vragen', title: 'Tien vragen aan…', description: 'Brouwers en andere bierliefhebbers, telkens dezelfde vragen.' },
+  { key: 'tien_vragen', title: 'Aan de toog met…', description: 'Brouwers en andere bierliefhebbers, telkens dezelfde vragen, zoals aan de toog.' },
   { key: 'geproefd', title: 'Geproefd', description: 'Wat ik drink en wat ik ervan vind, zonder moeilijke woorden.' },
   { key: 'aan_tafel', title: 'Aan tafel', description: 'Hoe het bier het deed bij onze gasten en bij welk gerecht.' },
   { key: 'rustig_gezegd', title: 'Rustig gezegd', description: 'Af en toe een mening, zonder te roepen.' },

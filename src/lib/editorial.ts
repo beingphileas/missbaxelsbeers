@@ -1,6 +1,6 @@
 // Editorial rubrics (blog_posts.rubric) and people roles (people.role).
 export const EDITORIAL_RUBRICS = [
-  { key: 'tien_vragen', label: 'Tien vragen aan…' },
+  { key: 'tien_vragen', label: 'Aan de toog met…' },
   { key: 'geproefd', label: 'Geproefd' },
   { key: 'aan_tafel', label: 'Aan tafel' },
   { key: 'rustig_gezegd', label: 'Rustig gezegd' },

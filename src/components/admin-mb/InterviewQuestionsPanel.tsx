@@ -24,7 +24,7 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
     const { data: core, error } = await db.from('interview_questions').select('question_nl,position')
       .eq('role', 'brewer').eq('is_core', true).order('position');
     if (error || !core?.length) { setBusy(false); return toast.error(error?.message || 'Geen kernvragen gevonden'); }
-    const rows = core.slice(0, 6).map((c: any, i: number) => ({ role, position: i + 1, is_core: true, question_nl: c.question_nl }));
+    const rows = core.map((c: any, i: number) => ({ role, position: i + 1, is_core: true, question_nl: c.question_nl }));
     const { error: e2 } = await db.from('interview_questions').insert(rows);
     setBusy(false);
     if (e2) return toast.error(e2.message);
@@ -41,7 +41,12 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
   }
 
   const taken = new Set((qs || []).map(q => q.position));
-  const openSlots = qs && qs.length > 0 ? [7, 8, 9, 10].filter(p => !taken.has(p)) : [];
+  // Volgende vrije positie, volledig dynamisch — geen vast aantal vragen verondersteld.
+  const nextPos = (() => {
+    let p = 1;
+    while (taken.has(p)) p += 1;
+    return p;
+  })();
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
@@ -62,15 +67,15 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
           ))}
         </ol>
       )}
-      {openSlots.map(pos => (
-        <div key={pos} className="flex gap-2 items-center">
-          <span className="text-muted-foreground tabular-nums w-5 text-[13px]">{pos}.</span>
-          <input className={inputCls} placeholder={`Vraag ${pos}`} value={extra[pos] || ''}
-            onChange={e => setExtra(x => ({ ...x, [pos]: e.target.value }))}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExtra(pos); } }} />
-          <button type="button" onClick={() => addExtra(pos)} className={btnPrimary}>Voeg toe</button>
+      {qs && qs.length > 0 && (
+        <div className="flex gap-2 items-center">
+          <span className="text-muted-foreground tabular-nums w-5 text-[13px]">{nextPos}.</span>
+          <input className={inputCls} placeholder={`Vraag ${nextPos}`} value={extra[nextPos] || ''}
+            onChange={e => setExtra(x => ({ ...x, [nextPos]: e.target.value }))}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addExtra(nextPos); } }} />
+          <button type="button" onClick={() => addExtra(nextPos)} className={btnPrimary}>Voeg toe</button>
         </div>
-      ))}
+      )}
       <p className="text-[13px] italic pt-2 border-t border-border">{INTERVIEW_CLOSING_LINE}</p>
     </div>
   );
