@@ -24,7 +24,7 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
     const { data: core, error } = await db.from('interview_questions').select('question_nl,position')
       .eq('role', 'brewer').eq('is_core', true).order('position');
     if (error || !core?.length) { setBusy(false); return toast.error(error?.message || 'Geen kernvragen gevonden'); }
-    const rows = core.slice(0, 6).map((c: any, i: number) => ({ role, position: i + 1, is_core: true, question_nl: c.question_nl }));
+    const rows = core.map((c: any, i: number) => ({ role, position: i + 1, is_core: true, question_nl: c.question_nl }));
     const { error: e2 } = await db.from('interview_questions').insert(rows);
     setBusy(false);
     if (e2) return toast.error(e2.message);
@@ -41,7 +41,12 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
   }
 
   const taken = new Set((qs || []).map(q => q.position));
-  const openSlots = qs && qs.length > 0 ? [7, 8, 9, 10].filter(p => !taken.has(p)) : [];
+  // Volgende vrije positie, volledig dynamisch — geen vast aantal vragen verondersteld.
+  const nextPos = (() => {
+    let p = 1;
+    while (taken.has(p)) p += 1;
+    return p;
+  })();
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
