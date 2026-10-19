@@ -8,6 +8,13 @@
       "when": 1792390465203,
       "tag": "0000_add_beer_visual_and_aroma_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792395342250,
+      "tag": "0001_blog_posts_english_version",
+      "breakpoints": true
     }
   ]
 }
