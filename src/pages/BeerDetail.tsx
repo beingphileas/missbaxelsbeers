@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, MapPin, ArrowLeft,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/T';
@@ -136,14 +137,7 @@ export default function BeerDetail() {
     );
   }
 
-  if (notFound || !beer) {
-    return (
-      <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', fontFamily: 'DM Sans, sans-serif' }}>
-        <p style={{ color: 'var(--muted)' }}>Bier niet gevonden.</p>
-        <Link to="/beers" style={{ color: 'var(--hop)', fontWeight: 600 }}>← Terug naar de bieren</Link>
-      </div>
-    );
-  }
+  if (notFound || !beer) return <NotFound />;
 
   if (beer.slug && id !== beer.slug) return <Navigate to={`/beers/${beer.slug}`} replace />;
 
@@ -158,22 +152,31 @@ export default function BeerDetail() {
 
 
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: beer.name,
-    description: beer.description || undefined,
-    image: imgSrc || undefined,
-    brand: { '@type': 'Brand', name: "MissBaxel's Beers" },
-    manufacturer: brewerNames.length
-      ? brewerNames.map(n => ({ '@type': 'Organization', name: n }))
-      : undefined,
-    additionalProperty: [
-      beer.abv != null && { '@type': 'PropertyValue', name: 'Alcoholpercentage', value: `${beer.abv}% vol` },
-      beer.style && { '@type': 'PropertyValue', name: 'Bierstijl', value: beer.style },
-      tags.length && { '@type': 'PropertyValue', name: 'Smaaktags', value: tags.join(', ') },
-    ].filter(Boolean),
-  };
+  const beerUrl = `https://missbaxels.lovable.app/beers/${beer.slug || beer.id}`;
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      name: beer.name,
+      url: beerUrl,
+      description: beer.description || undefined,
+      image: imgSrc || undefined,
+      genre: beer.style || undefined,
+      keywords: tags.length ? tags.join(', ') : undefined,
+      creator: brewerNames.length
+        ? brewerNames.map(n => ({ '@type': 'Organization', name: n }))
+        : { '@type': 'Organization', name: "MissBaxel's Beers" },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://missbaxels.lovable.app/' },
+        { '@type': 'ListItem', position: 2, name: 'Bieren', item: 'https://missbaxels.lovable.app/beers' },
+        { '@type': 'ListItem', position: 3, name: beer.name, item: beerUrl },
+      ],
+    },
+  ];
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>

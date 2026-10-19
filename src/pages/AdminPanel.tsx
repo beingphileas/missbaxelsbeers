@@ -92,14 +92,14 @@ export default function AdminPanel() {
           </nav>
         </aside>
 
-        <main>
+        <div>
           {section === 'bieren' && <BeersSection />}
           {section === 'brouwerijen' && <BreweriesSection />}
           {section === 'blogposts' && <BlogPostsSection />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
           {section === 'mensen' && <PeopleSection />}
-        </main>
+        </div>
       </div>
     </div>
   );

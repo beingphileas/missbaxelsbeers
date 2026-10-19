@@ -25,7 +25,7 @@ export default function HetVerhaal() {
       />
 
       {/* Main content area — vertically centered */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 md:px-10 py-24 md:py-32">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 md:px-10 py-24 md:py-32">
         <div className="max-w-2xl w-full text-center">
           {/* Kicker */}
           <span
@@ -127,7 +127,7 @@ export default function HetVerhaal() {
             — Marijke Bax
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Bottom link to full story */}
       <div
