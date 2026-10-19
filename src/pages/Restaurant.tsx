@@ -33,6 +33,15 @@ const DAYS: { key: string; label: string }[] = [
 
 const isClosed = (v: string) => /gesloten|closed|—|^-$/i.test(v.trim());
 
+// '050 33 12 80' -> '+3250331280'; keeps an already-international number as-is.
+const toTelHref = (phone: string) => {
+  const digits = phone.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) return `tel:${digits}`;
+  if (digits.startsWith('00')) return `tel:+${digits.slice(2)}`;
+  if (digits.startsWith('0')) return `tel:+32${digits.slice(1)}`;
+  return `tel:${digits}`;
+};
+
 export default function Restaurant() {
   const [r, setR] = useState<RestaurantRow | null>(null);
   const [pairings, setPairings] = useState<PairingBeer[]>([]);
