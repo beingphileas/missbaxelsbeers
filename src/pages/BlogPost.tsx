@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
 import { useT } from '@/components/T';
 import { ROLE_LABELS, rubricLabel } from '@/lib/editorial';
+import { normalizeMarkdownEmphasis } from '@/lib/markdown';
+import { useLanguage } from '@/hooks/useLanguage';
 
 type Person = { id: string; name: string; role: string; photo_url: string | null; brewery_id: string | null; brewery?: { name: string; website_url: string | null } | null };
 
@@ -32,6 +34,9 @@ type Post = {
   cover_image_url: string | null;
   beer_id: string | null;
   rubric: string | null;
+  title_en?: string | null;
+  excerpt_en?: string | null;
+  content_en?: string | null;
 };
 
 type LinkedBeer = {
@@ -43,8 +48,12 @@ type LinkedBeer = {
   slug: string | null;
 };
 
-export default function BlogPost() {
+const SITE = 'https://missbaxels.lovable.app';
+
+export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en' }) {
   const { slug } = useParams<{ slug: string }>();
+  const { lang, setLang } = useLanguage();
+  const isEn = routeLang === 'en';
   const [post, setPost] = useState<Post | null>(null);
   const [beer, setBeer] = useState<LinkedBeer | null>(null);
   const [postScores, setPostScores] = useState<PostScores | null>(null);
@@ -113,6 +122,10 @@ export default function BlogPost() {
   const tContent = useT(post?.content ?? '');
   const tBeerName = useT(beer?.name ?? '');
 
+  useEffect(() => {
+    if (isEn && post?.content_en && lang !== 'en') setLang('en');
+  }, [isEn, post?.content_en, lang, setLang]);
+
   if (loading) {
     return (
       <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 40, textAlign: 'center', color: 'var(--muted)', fontFamily: 'DM Sans, sans-serif' }}>
@@ -123,6 +136,27 @@ export default function BlogPost() {
 
   if (notFound) return <Navigate to="/verhalen" replace />;
   if (!post) return null;
+  const hasEn = Boolean(post.content_en?.trim());
+  if (isEn && !hasEn) return <Navigate to={`/verhalen/${post.slug}`} replace />;
+
+  const nlPath = `/verhalen/${post.slug}`;
+  const enPath = `/en/verhalen/${post.slug}`;
+  const shownTitle = isEn ? (post.title_en?.trim() || tTitle) : tTitle;
+  const shownContent = normalizeMarkdownEmphasis(isEn ? (post.content_en || '') : tContent);
+  const plain = (t: string) => t.replace(/[#*_>`!\[\]()]/g, '').replace(/\s+/g, ' ').slice(0, 160).trim();
+  const seoTitle = isEn ? (post.title_en?.trim() || post.title) : post.title;
+  const seoDescription = isEn
+    ? (post.excerpt_en?.trim() || plain(post.content_en || '') || seoTitle)
+    : (post.excerpt || plain(post.content || '') || post.title);
+
+  const LangSwitch = hasEn ? (
+    <div className="mt-3 inline-flex gap-1 text-[12px] font-semibold" style={{ fontFamily: 'DM Sans, sans-serif' }} aria-label="Taal">
+      <Link to={nlPath} onClick={() => setLang('nl')} hrefLang="nl-BE" className="px-2.5 py-1 rounded-full no-underline"
+        style={!isEn ? { background: 'var(--ink)', color: 'var(--bg)' } : { color: 'var(--muted)', border: '1px solid var(--line)' }}>NL</Link>
+      <Link to={enPath} onClick={() => setLang('en')} hrefLang="en" className="px-2.5 py-1 rounded-full no-underline"
+        style={isEn ? { background: 'var(--ink)', color: 'var(--bg)' } : { color: 'var(--muted)', border: '1px solid var(--line)' }}>EN</Link>
+    </div>
+  ) : null;
 
   const isLongForm = !post.external_url && ((post.content?.length ?? 0) > 500 || !!postScores);
 
@@ -240,18 +274,23 @@ export default function BlogPost() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title={`${post.title} — MissBaxel's Beers`}
-        description={post.excerpt || (post.content || '').replace(/[#*_>`\-]/g, '').slice(0, 160).trim() || post.title}
+        title={seoTitle}
+        description={seoDescription}
         image={post.cover_image_url || undefined}
-        url={`/verhalen/${post.slug}`}
+        url={isEn ? enPath : nlPath}
         type="article"
         publishedAt={post.date || undefined}
       />
       <Helmet>
+        <html lang={isEn ? 'en' : 'nl-BE'} />
+        <link rel="alternate" hrefLang="nl-BE" href={`${SITE}${nlPath}`} />
+        {hasEn && <link rel="alternate" hrefLang="en" href={`${SITE}${enPath}`} />}
+        <link rel="alternate" hrefLang="x-default" href={`${SITE}${nlPath}`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'BlogPosting',
-          headline: post.title,
+          headline: seoTitle,
+          inLanguage: isEn ? 'en' : 'nl-BE',
           datePublished: post.date || undefined,
           dateModified: post.date || undefined,
           author: { '@type': 'Person', name: 'Marijke Bax' },
@@ -261,8 +300,8 @@ export default function BlogPost() {
             logo: { '@type': 'ImageObject', url: 'https://missbaxels.lovable.app/favicon.ico' },
           },
           image: post.cover_image_url || undefined,
-          description: post.excerpt || undefined,
-          mainEntityOfPage: `https://missbaxels.lovable.app/verhalen/${post.slug}`,
+          description: seoDescription,
+          mainEntityOfPage: `${SITE}${isEn ? enPath : nlPath}`,
         })}</script>
       </Helmet>
 
@@ -283,8 +322,9 @@ export default function BlogPost() {
               className="mb-3"
               style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(34px, 5.5vw, 52px)', lineHeight: 1.05, letterSpacing: '-0.02em' }}
             >
-              {tTitle}
+              {shownTitle}
             </h1>
+            {LangSwitch}
             <p
               className="mb-2"
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em' }}
@@ -309,7 +349,7 @@ export default function BlogPost() {
                 color: 'var(--ink)', lineHeight: 1.75,
               }}
             >
-              <ReactMarkdown>{tContent}</ReactMarkdown>
+              <ReactMarkdown>{shownContent}</ReactMarkdown>
             </div>
             {RubricScoreCard}
           </article>
@@ -370,8 +410,9 @@ export default function BlogPost() {
             className="mt-4 mb-3"
             style={{ fontFamily: 'Fraunces, serif', fontWeight: 900, fontSize: 'clamp(30px, 5vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.02em' }}
           >
-            {tTitle}
+            {shownTitle}
           </h1>
+          {LangSwitch}
           {post.style && (
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)' }}>
               {post.style}
@@ -395,7 +436,7 @@ export default function BlogPost() {
               color: 'var(--ink)', lineHeight: 1.8,
             }}
           >
-            <ReactMarkdown>{tContent}</ReactMarkdown>
+            <ReactMarkdown>{shownContent}</ReactMarkdown>
           </div>
           {RubricScoreCard}
         </article>

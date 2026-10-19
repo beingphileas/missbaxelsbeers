@@ -379,10 +379,13 @@ export type Database = {
           brewery_id: string | null
           brewery_name: string | null
           content: string
+          content_en: string | null
+          content_original: string | null
           cover_image_url: string | null
           created_at: string
           date: string | null
           excerpt: string | null
+          excerpt_en: string | null
           external_url: string | null
           id: string
           image_emoji: string | null
@@ -395,6 +398,7 @@ export type Database = {
           style_category: string | null
           tags: string[] | null
           title: string
+          title_en: string | null
           updated_at: string
         }
         Insert: {
@@ -402,10 +406,13 @@ export type Database = {
           brewery_id?: string | null
           brewery_name?: string | null
           content: string
+          content_en?: string | null
+          content_original?: string | null
           cover_image_url?: string | null
           created_at?: string
           date?: string | null
           excerpt?: string | null
+          excerpt_en?: string | null
           external_url?: string | null
           id?: string
           image_emoji?: string | null
@@ -418,6 +425,7 @@ export type Database = {
           style_category?: string | null
           tags?: string[] | null
           title: string
+          title_en?: string | null
           updated_at?: string
         }
         Update: {
@@ -425,10 +433,13 @@ export type Database = {
           brewery_id?: string | null
           brewery_name?: string | null
           content?: string
+          content_en?: string | null
+          content_original?: string | null
           cover_image_url?: string | null
           created_at?: string
           date?: string | null
           excerpt?: string | null
+          excerpt_en?: string | null
           external_url?: string | null
           id?: string
           image_emoji?: string | null
@@ -441,6 +452,7 @@ export type Database = {
           style_category?: string | null
           tags?: string[] | null
           title?: string
+          title_en?: string | null
           updated_at?: string
         }
         Relationships: [

@@ -11,6 +11,7 @@ interface PostRow {
   style_category: string | null; brewery_name: string | null; excerpt: string | null;
   content: string; external_url: string | null; image_emoji: string | null;
   rubric: string | null; person_id: string | null;
+  title_en?: string | null; excerpt_en?: string | null; content_en?: string | null;
 }
 
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -25,7 +26,7 @@ export default function BlogPostsSection() {
   async function load() {
     setLoading(true);
     const { data, error } = await supabase.from('blog_posts')
-      .select('id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji,rubric,person_id')
+      .select('id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji,rubric,person_id,title_en,excerpt_en,content_en')
       .order('date', { ascending: false, nullsFirst: false })
       .limit(1000);
     if (error) toast.error(error.message); else setRows((data as any) || []);
@@ -88,6 +89,9 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
   const [brewery, setBrewery] = useState(initial?.brewery_name || '');
   const [excerpt, setExcerpt] = useState(initial?.excerpt || '');
   const [content, setContent] = useState(initial?.content || '');
+  const [titleEn, setTitleEn] = useState(initial?.title_en || '');
+  const [excerptEn, setExcerptEn] = useState(initial?.excerpt_en || '');
+  const [contentEn, setContentEn] = useState(initial?.content_en || '');
   const [externalUrl, setExternalUrl] = useState(initial?.external_url || '');
   const [emoji, setEmoji] = useState(initial?.image_emoji || '');
   const [coverImageUrl, setCoverImageUrl] = useState<string>('');
@@ -134,6 +138,9 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       brewery_name: brewery.trim() || null, excerpt: excerpt.trim() || null,
       content: content || excerpt || title, external_url: externalUrl.trim() || null,
       image_emoji: emoji.trim() || null,
+      title_en: titleEn.trim() || null,
+      excerpt_en: excerptEn.trim() || null,
+      content_en: contentEn.trim() || null,
       cover_image_url: coverImageUrl.trim() || null,
       status: 'published',
     };
@@ -191,6 +198,13 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <textarea rows={2} maxLength={200} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} />
         </Field>
         <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
+
+        <div className="border-t border-border pt-4 space-y-4">
+          <p className="text-sm font-semibold">Engelse versie</p>
+          <Field label="Titel (EN)" hint="Leeg = Nederlandse titel"><input className={inputCls} value={titleEn} onChange={e => setTitleEn(e.target.value)} /></Field>
+          <Field label="Korte omschrijving (EN)"><textarea rows={2} maxLength={200} className={inputCls} value={excerptEn} onChange={e => setExcerptEn(e.target.value)} /></Field>
+          <Field label="Tekst (EN, markdown)" hint="Leeg = geen Engelse versie"><textarea rows={8} className={inputCls} value={contentEn} onChange={e => setContentEn(e.target.value)} /></Field>
+        </div>
 
         <div className="border-t border-border pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Rubriek">
