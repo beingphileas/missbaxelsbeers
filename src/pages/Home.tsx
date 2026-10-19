@@ -5,6 +5,7 @@ import SEOHead from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/hooks/useLanguage';
+import { rubricLabel } from '@/lib/editorial';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -482,7 +483,7 @@ export default function Home() {
                     )}
                   </div>
                   <div style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
-                    {p.rubric && (
+                    {rubricLabel(p.rubric) && (
                       <div
                         style={{
                           fontFamily: SANS,
@@ -494,7 +495,7 @@ export default function Home() {
                           marginBottom: 8,
                         }}
                       >
-                        {p.rubric}
+                        {rubricLabel(p.rubric)}
                       </div>
                     )}
                     <h3
