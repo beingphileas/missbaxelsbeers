@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { HOME_TITLE } from '@/lib/seo-routes';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -93,7 +94,8 @@ export default function Home() {
   return (
     <div style={{ position: 'relative', overflow: 'hidden', background: '#faf8f5' }}>
       <SEOHead
-        title="MissBaxel's Beers — Welkom in onze bierwereld"
+        title="MissBaxel's Beers"
+        fullTitle={HOME_TITLE}
         description="Lees mee over onze ontdekkingen, de brouwers achter de ketels en proef onze eigen collabs."
         url="/"
       />

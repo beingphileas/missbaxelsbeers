@@ -120,7 +120,7 @@ export default function Verhalen() {
   return (
     <div style={{ background: BG, color: INK, minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
-        title="Verhalen — MissBaxel's Beers"
+        title="Verhalen"
         description="Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast."
         url="/verhalen"
       />

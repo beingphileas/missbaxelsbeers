@@ -51,7 +51,7 @@ export default function BierstekersArchive() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Bierstekers Archief — Uitverkochte selecties"
+        title="Bierstekers archief"
         description="Het volledige archief van bieren die de Bierstekers ooit selecteerden."
         url="/bierstekers/archief"
       />

@@ -178,7 +178,7 @@ export default function BeerDetail() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title={`${beer.name} — MissBaxel's Beers`}
+        title={beer.name}
         description={beer.description || `${beer.name}${beer.style ? ` · ${beer.style}` : ''} — een MissBaxel's samenwerking.`}
         image={imgSrc || undefined}
         url={`/beers/${beer.slug || beer.id}`}

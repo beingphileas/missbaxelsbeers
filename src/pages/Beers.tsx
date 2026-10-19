@@ -146,7 +146,7 @@ export default function Beers() {
   return (
     <div style={{ background: BG, color: INK, minHeight: '100vh', fontFamily: SANS }}>
       <SEOHead
-        title="Bieren — MissBaxel's Beers"
+        title="Bieren"
         description="Onze collabs, uitgebracht en in de maak."
         url="/beers"
       />

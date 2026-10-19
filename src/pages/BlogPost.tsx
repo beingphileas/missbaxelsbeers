@@ -278,6 +278,7 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
         description={seoDescription}
         image={post.cover_image_url || undefined}
         url={isEn ? enPath : nlPath}
+        locale={isEn ? 'en' : 'nl_BE'}
         type="article"
         publishedAt={post.date || undefined}
       />

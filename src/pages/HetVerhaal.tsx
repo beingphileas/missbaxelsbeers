@@ -19,7 +19,7 @@ export default function HetVerhaal() {
       }}
     >
       <SEOHead
-        title="Het verhaal — MissBaxel's Beers"
+        title="Het verhaal"
         description="Bier, met goesting. Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje."
         url="/verhaal"
       />

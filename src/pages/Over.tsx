@@ -128,7 +128,7 @@ export default function Over() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title="Over — MissBaxel's Beers"
+        title="Over"
         description="Marijke Bax over MissBaxel's Beers — bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles."
         url="/over"
       />
