@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Heart, BookOpen, Sparkles, Beer as BeerIcon, Utensils, Building2 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { rubricLabel } from '@/lib/editorial';
 
 const SERIF = "'Lora', Georgia, serif";
 const SANS = "'Nunito Sans', system-ui, sans-serif";
@@ -66,11 +67,11 @@ const TIMELINE = [
 ];
 
 const CONTENT_RUBRICS = [
-  { key: 'samen_gebrouwen', title: 'Samen gebrouwen', description: 'De bieren die ik samen met mijn favoriete brouwers maak.' },
-  { key: 'tien_vragen', title: 'Aan de toog met…', description: 'Brouwers en andere bierliefhebbers, telkens dezelfde vragen, zoals aan de toog.' },
-  { key: 'geproefd', title: 'Geproefd', description: 'Wat ik drink en wat ik ervan vind, zonder moeilijke woorden.' },
-  { key: 'aan_tafel', title: 'Aan tafel', description: 'Hoe het bier het deed bij onze gasten en bij welk gerecht.' },
-  { key: 'rustig_gezegd', title: 'Rustig gezegd', description: 'Af en toe een mening, zonder te roepen.' },
+  { key: 'samen_gebrouwen', description: 'De bieren die ik samen met mijn favoriete brouwers maak.' },
+  { key: 'tien_vragen', description: 'Brouwers en andere bierliefhebbers, telkens dezelfde vragen, zoals aan de toog.' },
+  { key: 'geproefd', description: 'Wat ik drink en wat ik ervan vind, zonder moeilijke woorden.' },
+  { key: 'aan_tafel', description: 'Hoe het bier het deed bij onze gasten en bij welk gerecht.' },
+  { key: 'rustig_gezegd', description: 'Af en toe een mening, zonder te roepen.' },
 ] as const;
 
 
@@ -292,7 +293,7 @@ export default function Over() {
                 style={{ background: 'var(--surface)', padding: '18px 20px', boxShadow: 'var(--shadow-soft)' }}
               >
                 <h3 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 17, color: 'var(--ink)' }}>
-                  {rubric.title}
+                  {rubricLabel(rubric.key)}
                 </h3>
                 <p className="mt-1" style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.65, color: 'var(--muted)' }}>
                   {rubric.description}

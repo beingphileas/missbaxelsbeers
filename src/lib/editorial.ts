@@ -10,7 +10,7 @@ export const EDITORIAL_RUBRICS = [
 export type EditorialRubric = typeof EDITORIAL_RUBRICS[number]['key'];
 
 export const rubricLabel = (k: string | null | undefined) =>
-  EDITORIAL_RUBRICS.find(r => r.key === k)?.label ?? null;
+  EDITORIAL_RUBRICS.find(r => r.key === k?.trim().toLowerCase())?.label ?? null;
 
 export const ROLE_LABELS: Record<string, string> = {
   brewer: 'Brouwer',

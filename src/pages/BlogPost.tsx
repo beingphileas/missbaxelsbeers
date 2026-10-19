@@ -9,7 +9,7 @@ import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
 import { useT } from '@/components/T';
-import { ROLE_LABELS } from '@/lib/editorial';
+import { ROLE_LABELS, rubricLabel } from '@/lib/editorial';
 
 type Person = { id: string; name: string; role: string; photo_url: string | null; brewery_id: string | null; brewery?: { name: string; website_url: string | null } | null };
 
@@ -31,6 +31,7 @@ type Post = {
   image_emoji: string | null;
   cover_image_url: string | null;
   beer_id: string | null;
+  rubric: string | null;
 };
 
 type LinkedBeer = {
@@ -288,7 +289,7 @@ export default function BlogPost() {
               className="mb-2"
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em' }}
             >
-              {[dateLabel, post.style_category || post.style].filter(Boolean).join(' · ')}
+              {[dateLabel, rubricLabel(post.rubric), post.style_category || post.style].filter(Boolean).join(' · ')}
             </p>
 
             {post.cover_image_url && (
@@ -357,12 +358,12 @@ export default function BlogPost() {
         </div>
       ) : (
         <article className="max-w-3xl mx-auto px-5 py-8">
-          {dateLabel && (
+          {(dateLabel || rubricLabel(post.rubric)) && (
             <span
               className="inline-block text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full"
               style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
             >
-              {dateLabel}
+              {[dateLabel, rubricLabel(post.rubric)].filter(Boolean).join(' · ')}
             </span>
           )}
           <h1
