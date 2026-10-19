@@ -68,7 +68,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     interviewQuestions: [
       'Welk bier is het, en waar dronk je het?',
       'Wat verwachtte je, en wat verraste je?',
-      'Hoe smaakte het — in je eigen woorden, niet technisch?',
+      'Hoe smaakte het, in je eigen woorden, niet technisch?',
       'Voor wie is dit een aanrader?',
     ],
     draftInstructions:
@@ -127,7 +127,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     ],
     wordCount: [250, 400],
     interviewQuestions: [
-      'Wat is het — bier, brouwerij of plek?',
+      'Wat is het, bier, brouwerij of plek?',
       'Hoe vond je het?',
       'Waarom verdient het meer aandacht?',
       'Waar kan je het vinden?',
@@ -139,7 +139,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
       sources: [{ name: 'untappd', fields: ['untappd_score', 'untappd_url', 'check_in_count'] }],
       prefill: ['style', 'abv'],
       display_in_scorecard: ['untappd_score', 'check_in_count'],
-      note: 'Low check-in count confirms hidden gem status — show as a badge: "X check-ins op Untappd"',
+      note: 'Low check-in count confirms hidden gem status, show as a badge: "X check-ins op Untappd"',
     },
   },
   bier_en_eten: {
@@ -156,7 +156,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     interviewQuestions: [
       'Welk bier en welk gerecht?',
       'Hoe kwam je op de combinatie?',
-      'Wat maakte het werken — of juist niet?',
+      'Wat maakte het werken, of juist niet?',
       'Hoe makkelijk is het thuis na te maken?',
     ],
     draftInstructions:
@@ -176,7 +176,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     scores: [],
     wordCount: [300, 500],
     interviewQuestions: [
-      'Waar gaat de column over — wat irriteert, verrast of inspireert je?',
+      'Waar gaat de column over, wat irriteert, verrast of inspireert je?',
       'Wat is je standpunt in één zin?',
       'Wat wil je dat de lezer denkt of doet na het lezen?',
     ],
@@ -250,7 +250,7 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
       'Wat moet de lezer weten voor ze het proberen?',
     ],
     draftInstructions:
-      'Eerlijk en persoonlijk — ook over wat niet perfect is. Dit is geen reclamefolder.',
+      'Eerlijk en persoonlijk, ook over wat niet perfect is. Dit is geen reclamefolder.',
     enrichment: {
       trigger: 'beer_name',
       sources: [
@@ -277,12 +277,12 @@ export const RUBRICS: Record<RubricKey, RubricDef> = {
     interviewQuestions: [
       'Welke shop, en waar?',
       'Wat trok je er naartoe?',
-      'Wat viel je op — aanbod, mensen, sfeer?',
+      'Wat viel je op, aanbod, mensen, sfeer?',
       'Kocht je iets specifieks?',
       'Voor wie is dit een aanrader?',
     ],
     draftInstructions:
-      'Warm en concreet. De score staat apart — de tekst hoeft de cijfers niet te herhalen.',
+      'Warm en concreet. De score staat apart, de tekst hoeft de cijfers niet te herhalen.',
     enrichment: {
       trigger: 'shop_name + shop_city',
       sources: [

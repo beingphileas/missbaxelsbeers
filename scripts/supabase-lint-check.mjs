@@ -78,9 +78,9 @@ if (novel.length) {
   console.error("\nNew findings not in baseline:");
   for (const n of novel) console.error(`  - ${n}`);
   console.error(
-    "\nFix them, or — if intentional — run `node scripts/supabase-lint-check.mjs --update` and commit the baseline.",
+    "\nFix them, or, if intentional, run `node scripts/supabase-lint-check.mjs --update` and commit the baseline.",
   );
 }
 
 if (errors.length || novel.length) process.exit(1);
-console.log("OK — no new security findings.");
+console.log("OK, no new security findings.");

@@ -113,7 +113,7 @@ export default function Restaurant() {
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      {/* SECTION 1 — HERO */}
+      {/* SECTION 1, HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--copper-light)', padding: '52px 0' }}>
         <div className="max-w-4xl mx-auto px-5" style={{ display: 'block' }}>
           <div>
@@ -163,7 +163,7 @@ export default function Restaurant() {
         </div>
       </section>
 
-      {/* SECTION 2 — PRAKTISCH */}
+      {/* SECTION 2, PRAKTISCH */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '44px 0' }}>
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-8">
           {/* Opening hours */}
@@ -341,7 +341,7 @@ export default function Restaurant() {
         </div>
       </section>
 
-      {/* SECTION 3 — VERHAAL */}
+      {/* SECTION 3, VERHAAL */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '44px 0' }}>
         <div className="max-w-3xl mx-auto px-5">
           <div>
@@ -358,13 +358,13 @@ export default function Restaurant() {
               }}
             >
               {r?.story ||
-                "Ons restaurant heet vandaag Bij Koen & Marijke, maar het oude bordje 'In 't Nieuw Museum' hangt nog steeds boven de deur. We staan op een paar minuten van de Brugse Markt — een houtgestookte grill- en bierrestaurant, met smaken die uit het vuur komen.\n\nKoen staat aan de grill. Daar wordt alles gemaakt: van een perfect gegrilde ribeye tot een bubbelende gebakken camembert. Eerlijke producten, hout en vlam — meer hebben we niet nodig.\n\nIk sta aan de bierkaart. Elk bier is gekozen om naast de gerechten te passen: van frisse, lichte ales tot rijke Trappisten. En sinds 2024 staat ook de hele MissBaxel's-reeks op tafel."}
+                "Ons restaurant heet vandaag Bij Koen & Marijke, maar het oude bordje 'In 't Nieuw Museum' hangt nog steeds boven de deur. We staan op een paar minuten van de Brugse Markt, een houtgestookte grill- en bierrestaurant, met smaken die uit het vuur komen.\n\nKoen staat aan de grill. Daar wordt alles gemaakt: van een perfect gegrilde ribeye tot een bubbelende gebakken camembert. Eerlijke producten, hout en vlam, meer hebben we niet nodig.\n\nIk sta aan de bierkaart. Elk bier is gekozen om naast de gerechten te passen: van frisse, lichte ales tot rijke Trappisten. En sinds 2024 staat ook de hele MissBaxel's-reeks op tafel."}
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4 — PAIRINGS */}
+      {/* SECTION 4, PAIRINGS */}
       {pairings.length > 0 && (
         <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream)', padding: '44px 0' }}>
           <div className="max-w-5xl mx-auto px-5">
@@ -424,7 +424,7 @@ export default function Restaurant() {
         </section>
       )}
 
-      {/* SECTION 5 — RESERVATIE CTA */}
+      {/* SECTION 5, RESERVATIE CTA */}
       <section style={{ background: 'var(--copper-light)', padding: '48px 0', textAlign: 'center' }}>
         <div className="max-w-2xl mx-auto px-5">
           <h2
@@ -453,7 +453,7 @@ export default function Restaurant() {
         </div>
       </section>
 
-      {/* SECTION 6 — VERKENNERSLINKS */}
+      {/* SECTION 6, VERKENNERSLINKS */}
       <section style={{ padding: '36px 0', borderTop: '1px solid var(--line)' }}>
         <div className="max-w-3xl mx-auto px-5 text-center">
           <p

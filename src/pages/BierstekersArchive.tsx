@@ -70,7 +70,7 @@ export default function BierstekersArchive() {
           </div>
           <h1 className="font-display text-3xl md:text-5xl mb-3">{t('Het Archief')}</h1>
           <p className="text-muted-foreground max-w-2xl font-serif italic leading-relaxed">
-            {t('Elk bier dat de Bierstekers ooit verkozen, samengebracht. Allemaal uitverkocht — maar het verhaal blijft.')}
+            {t('Elk bier dat de Bierstekers ooit verkozen, samengebracht. Allemaal uitverkocht, maar het verhaal blijft.')}
           </p>
 
           <div className="relative mt-6 max-w-md">
@@ -123,7 +123,7 @@ export default function BierstekersArchive() {
                       className="group block bg-card border border-border/60 [box-shadow:var(--shadow-scrapbook)] hover:[box-shadow:var(--shadow-scrapbook-hover)] hover:-translate-y-0.5 transition-all duration-300 p-4 h-full"
                     >
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-bierstekers text-[9px] font-bold uppercase tracking-wider">{b.style || '—'}</span>
+                        <span className="text-bierstekers text-[9px] font-bold uppercase tracking-wider">{b.style || '-'}</span>
                         <Badge variant="outline" className="border-bierstekers/40 text-bierstekers text-[9px]">
                           {t('Uitverkocht')}
                         </Badge>

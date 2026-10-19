@@ -123,7 +123,7 @@ export default function SiteHeader() {
             );
           })}
 
-          {/* Auth — small, quiet */}
+          {/* Auth, small, quiet */}
           {user ? (
             <button
               onClick={signOut}

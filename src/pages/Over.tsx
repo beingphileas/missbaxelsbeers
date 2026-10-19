@@ -129,12 +129,12 @@ export default function Over() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Over"
-        description="Marijke Bax over MissBaxel's Beers — bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles."
+        description="Marijke Bax over MissBaxel's Beers, bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles."
         url="/over"
       />
 
 
-      {/* SECTION 1 — HERO */}
+      {/* SECTION 1, HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '52px 0', background: 'var(--amber-light)', position: 'relative', overflow: 'hidden' }}>
         <div
           aria-hidden="true"
@@ -184,14 +184,14 @@ export default function Over() {
 
         <img
           src="/missbaxels-logo.png"
-          alt="MissBaxel's — Marijke Bax"
+          alt="MissBaxel's: Marijke Bax"
           className="hidden md:block"
           style={{ width: '100%', maxWidth: 340, height: 'auto', display: 'block', margin: '0 auto', opacity: 0.9 }}
         />
       </div>
       </section>
 
-      {/* SECTION 2 — BIO + PROFILE CARD */}
+      {/* SECTION 2, BIO + PROFILE CARD */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
         <div className="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-10 items-start">
           <div>
@@ -206,13 +206,13 @@ export default function Over() {
               style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)', lineHeight: 1.85 }}
             >
               <p>
-                Ik ben Marijke, getrouwd met Koen. Uit de Kempen, maar al lang thuis in Brugge. Sinds 2014 baat ik samen met Koen ons restaurant uit — eerst In 't Nieuw Museum, ondertussen Bij Koen &amp; Marijke.
+                Ik ben Marijke, getrouwd met Koen. Uit de Kempen, maar al lang thuis in Brugge. Sinds 2014 baat ik samen met Koen ons restaurant uit, eerst In 't Nieuw Museum, ondertussen Bij Koen &amp; Marijke.
               </p>
               <p>
                 Bier interesseerde me toen niet. Echt niet. Tot ik op een dag een Duchesse de Bourgogne proefde. Dat was het kantelmoment. Vanaf dan wou ik weten waar bier vandaan kwam, wie het maakte, waarom het smaakte zoals het smaakte.
               </p>
               <p>
-                Samen met Koen ben ik dan beginnen blenden — Bierstekers noemden we dat. Bestaande bieren mengen tot iets nieuws. Daar leerde ik dat ik wel degelijk een neus heb voor wat werkt. We hebben ook eens geprobeerd zelf te brouwen, met een keteltje van 20 liter op de keukentafel. Vijf brouwsels ver. Toen wisten we het: brouwen laten we beter aan brouwers over.
+                Samen met Koen ben ik dan beginnen blenden, Bierstekers noemden we dat. Bestaande bieren mengen tot iets nieuws. Daar leerde ik dat ik wel degelijk een neus heb voor wat werkt. We hebben ook eens geprobeerd zelf te brouwen, met een keteltje van 20 liter op de keukentafel. Vijf brouwsels ver. Toen wisten we het: brouwen laten we beter aan brouwers over.
               </p>
               <p>
                 In 2021 startte ik missbaxelsbeers.com om mijn proefnotities en verhalen ergens kwijt te kunnen. Voor mijn 28ste verjaardag in 2024 (en ja, ik blijf 28, ik kies daar zelf voor) verraste Koen me met iets ongelooflijks: twee échte bieren, gemaakt naar mijn ideeën. Maria Guimauva bij Hophemel in Hasselt. Zonder Totetrekkerie bij Ruimtegist, met Bram van Brambrass aan het recept. Een jaar later kwam de MissBaxel's Tripel, opnieuw bij Ruimtegist. Nu, in 2026, ben ik bezig met een hele reeks bij Brecht van Straetebrouwerij. Het idee is simpel: bieren maken die hier op de kaart passen, en kleine brouwers tonen aan wie ze nog niet kennen.
@@ -272,7 +272,7 @@ export default function Over() {
         </div>
       </section>
 
-      {/* SECTION 2.5 — WAT JE HIER VINDT */}
+      {/* SECTION 2.5, WAT JE HIER VINDT */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream)', padding: '48px 0' }}>
         <div className="max-w-5xl mx-auto px-5">
           <h2 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15 }}>
@@ -304,7 +304,7 @@ export default function Over() {
         </div>
       </section>
 
-      {/* SECTION 3 — TIMELINE */}
+      {/* SECTION 3, TIMELINE */}
       <section style={{ borderBottom: '1px solid var(--line)', background: 'var(--bg-cream)', padding: '48px 0' }}>
         <div className="max-w-3xl mx-auto px-5">
           <h2
@@ -317,7 +317,7 @@ export default function Over() {
             className="mb-10"
             style={{ fontFamily: SANS, fontSize: 14, color: 'var(--muted)' }}
           >
-            MissBaxel's Beers ontstond niet van de ene dag op de andere. Het groeide — stap voor stap.
+            MissBaxel's Beers ontstond niet van de ene dag op de andere. Het groeide, stap voor stap.
           </p>
 
           <div style={{ position: 'relative', paddingLeft: 24 }}>
@@ -377,13 +377,13 @@ export default function Over() {
                 color: 'var(--ink)',
               }}
             >
-              En er borrelt al van alles voor wat nog komt. Welke brouwer, welk bier? Dat verklap ik nog niet — kom het binnenkort proeven aan onze tafel.
+              En er borrelt al van alles voor wat nog komt. Welke brouwer, welk bier? Dat verklap ik nog niet, kom het binnenkort proeven aan onze tafel.
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3.5 — ONZE BROUWERS */}
+      {/* SECTION 3.5, ONZE BROUWERS */}
       {brewers.length > 0 && (
         <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
           <div className="max-w-5xl mx-auto px-5">
@@ -474,7 +474,7 @@ export default function Over() {
       )}
 
 
-      {/* SECTION 5 — CTA */}
+      {/* SECTION 5, CTA */}
       <section style={{ padding: '48px 0', textAlign: 'center' }}>
         <div className="max-w-2xl mx-auto px-5">
           <h2

@@ -14,7 +14,7 @@
     --muted: #8a7868;
     --line: #e8e0d2;
     --surface: #ffffff;
-    /* primary accent — terracotta / burnt amber */
+    /* primary accent, terracotta / burnt amber */
     --accent-electric: #c4663a;
     --accent-warm: #d98a4a;
 
@@ -97,7 +97,7 @@
     --bierstekers: 19 56% 50%;
     --bierstekers-foreground: 36 33% 98%;
 
-    /* Soft, diffused shadows — cozy floating cards */
+    /* Soft, diffused shadows, cozy floating cards */
     --shadow-soft: 0 4px 16px -4px hsla(22, 30%, 20%, 0.08), 0 2px 6px -2px hsla(22, 30%, 20%, 0.04);
     --shadow-card: 0 10px 30px -12px hsla(22, 30%, 18%, 0.15), 0 4px 12px -4px hsla(22, 30%, 18%, 0.06);
     --shadow-lift: 0 20px 50px -20px hsla(22, 30%, 15%, 0.22), 0 8px 20px -6px hsla(22, 30%, 18%, 0.08);
@@ -169,7 +169,7 @@
   .shadow-scrapbook-hover { box-shadow: var(--shadow-lift); }
   .shadow-vintage { box-shadow: var(--shadow-soft); }
 
-  /* Cozy interactive — soft surface that floats on hover */
+  /* Cozy interactive, soft surface that floats on hover */
   .brutal {
     border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);

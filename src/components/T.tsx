@@ -3,8 +3,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 /**
  * Hook die dynamische tekst (bv. uit de database) automatisch vertaalt naar de
- * actieve taal. Retourneert eerst de originele NL-tekst en daarna — zodra de
- * vertaling binnen is — de vertaalde versie. Gebruikt de gedeelde
+ * actieve taal. Retourneert eerst de originele NL-tekst en daarna, zodra de
+ * vertaling binnen is, de vertaalde versie. Gebruikt de gedeelde
  * `translateDynamic` batch + localStorage-cache uit `useLanguage`, dus elke
  * unieke string wordt maar één keer ooit vertaald.
  */
@@ -38,7 +38,7 @@ export function useT(text: string | null | undefined): string {
 
 /**
  * Wrapper-component: rendert kindtekst (string of children) en vertaalt
- * automatisch. Voor langere DB-velden — gebruik <T>{post.title}</T>.
+ * automatisch. Voor langere DB-velden, gebruik <T>{post.title}</T>.
  */
 export function T({ children, as }: { children: ReactNode; as?: 'span' | 'div' | 'p' }) {
   const text = typeof children === 'string' ? children : String(children ?? '');

@@ -41,7 +41,7 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
   }
 
   const taken = new Set((qs || []).map(q => q.position));
-  // Volgende vrije positie, volledig dynamisch — geen vast aantal vragen verondersteld.
+  // Volgende vrije positie, volledig dynamisch, geen vast aantal vragen verondersteld.
   const nextPos = (() => {
     let p = 1;
     while (taken.has(p)) p += 1;
@@ -51,7 +51,7 @@ export default function InterviewQuestionsPanel({ role }: { role: string }) {
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-        Vragenset — {ROLE_LABELS[role] || role}
+        Vragenset: {ROLE_LABELS[role] || role}
       </p>
       {qs === null ? <p className="text-[12px] text-muted-foreground">Laden…</p> : qs.length === 0 ? (
         <button type="button" onClick={createSet} disabled={busy} className={btnPrimary}>

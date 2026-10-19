@@ -444,14 +444,14 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
         </article>
       )}
 
-      {/* ARTICLE CLOSING — signature + next steps */}
+      {/* ARTICLE CLOSING, signature + next steps */}
       <section style={{ borderTop: '1px solid var(--line)', background: '#fff', padding: '48px 0 64px' }}>
         <div className="max-w-3xl mx-auto px-5">
           <div
             className="text-center"
             style={{ fontFamily: 'Fraunces, serif', fontStyle: 'italic', fontSize: 16, color: 'var(--muted)', lineHeight: 1.6 }}
           >
-            — Marijke, voor MissBaxel's Beers
+            Marijke, voor MissBaxel's Beers
           </div>
 
           <div

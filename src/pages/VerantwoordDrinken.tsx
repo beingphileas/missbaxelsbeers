@@ -35,7 +35,7 @@ export default function VerantwoordDrinken() {
           <strong>Combineer niet met medicatie</strong> zonder advies van je arts of apotheker.
         </li>
         <li>
-          <strong>Drink water tussendoor</strong> en eet erbij — het maakt het genot beter én
+          <strong>Drink water tussendoor</strong> en eet erbij, het maakt het genot beter én
           veiliger.
         </li>
       </ul>

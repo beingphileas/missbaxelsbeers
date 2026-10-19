@@ -24,7 +24,7 @@ export default function HetVerhaal() {
         url="/verhaal"
       />
 
-      {/* Main content area — vertically centered */}
+      {/* Main content area, vertically centered */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 md:px-10 py-24 md:py-32">
         <div className="max-w-2xl w-full text-center">
           {/* Kicker */}
@@ -106,7 +106,7 @@ export default function HetVerhaal() {
               {t("Geen sommelierspraat, geen hoogdravend gedoe. Ik proef, ik vraag, ik vertel. Dat is het zo'n beetje.")}
             </p>
             <p>
-              {t('Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht — en dat ik het niet voor mezelf kon houden.')}
+              {t('Ik ben Marijke. Ergens onderweg ontdekte ik dat bier veel meer is dan ik dacht, en dat ik het niet voor mezelf kon houden.')}
             </p>
             <p>
               {t('Ik brouw niet zelf. Maar ik heb ideeën, en ik ken de mensen die er iets moois van kunnen maken. Kleine brouwers met grote passie, die je misschien nog niet kent. Die verdienen een podium.')}
@@ -124,7 +124,7 @@ export default function HetVerhaal() {
               letterSpacing: '0.04em',
             }}
           >
-            — Marijke Bax
+            Marijke Bax
           </div>
         </div>
       </div>

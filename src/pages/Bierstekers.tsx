@@ -62,11 +62,11 @@ export default function Bierstekers() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Bierstekers"
-        description="Bierstekers was het blendproject van Marijke en Koen Bax. 22 blends, een eigen stijl — en de inspiratie voor MissBaxel's Beers. Momenteel op pauze, het archief blijft bewaard."
+        description="Bierstekers was het blendproject van Marijke en Koen Bax. 22 blends, een eigen stijl, en de inspiratie voor MissBaxel's Beers. Momenteel op pauze, het archief blijft bewaard."
         url="/bierstekers"
       />
 
-      {/* SECTION 1 — HERO */}
+      {/* SECTION 1, HERO */}
       <section
         style={{
           background: 'var(--copper-light)',
@@ -116,7 +116,7 @@ export default function Bierstekers() {
               color: 'var(--ink)',
             }}
           >
-            Bierstekers staat momenteel op pauze — geen nieuwe blends, geen nieuwe boxes. Het verhaal en het archief blijven hier wel staan. Hier leerden we smaakkeuzes maken — en zonder die jaren hadden we later nooit bij echte brouwers durven aankloppen.
+            Bierstekers staat momenteel op pauze, geen nieuwe blends, geen nieuwe boxes. Het verhaal en het archief blijven hier wel staan. Hier leerden we smaakkeuzes maken, en zonder die jaren hadden we later nooit bij echte brouwers durven aankloppen.
           </div>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -145,7 +145,7 @@ export default function Bierstekers() {
 
       <BierstekersPauseBanner />
 
-      {/* SECTION 2 — HET VERHAAL */}
+      {/* SECTION 2, HET VERHAAL */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '48px 0' }}>
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10">
           {/* Left */}
@@ -162,18 +162,18 @@ export default function Bierstekers() {
               style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, lineHeight: 1.85, color: 'var(--muted)' }}
             >
               <p>
-                Het begon bij Koen. Op regenachtige zondagnamiddagen las hij over geuzeblenders — mensen die jonge en oude lambik mengen tot iets nieuws. Hij dacht: zou dat ook met andere bieren werken? Een paar maatbekers, wat lege flessen, veel gemors. Het resultaat was eigenlijk niet slecht. En ik was niet meer te houden.
+                Het begon bij Koen. Op regenachtige zondagnamiddagen las hij over geuzeblenders, mensen die jonge en oude lambik mengen tot iets nieuws. Hij dacht: zou dat ook met andere bieren werken? Een paar maatbekers, wat lege flessen, veel gemors. Het resultaat was eigenlijk niet slecht. En ik was niet meer te houden.
               </p>
               <p>
                 Vanaf dat moment werd het serieuzer. We werkten in series, met een basis-bier dat we daarna in verschillende verhoudingen mengden, op kurk in fles laten hergisten. Allemaal in beperkte oplage, handmatig gevuld. Zure Pater, Roste Patrick, en later veel meer. Tijdens de lockdown groeide de reeks pas écht door.
               </p>
               <p>
-                Toen de restaurants weer open mochten, ging Bierstekers op pauze — geen tijd meer. Maar het bleef kriebelen. Dat gevoel dat ik wist wat ik wilde proeven, ook al kon ik het zelf niet brouwen. Zo kwamen we in 2024 bij echte brouwers terecht. En daar begon MissBaxel's.
+                Toen de restaurants weer open mochten, ging Bierstekers op pauze, geen tijd meer. Maar het bleef kriebelen. Dat gevoel dat ik wist wat ik wilde proeven, ook al kon ik het zelf niet brouwen. Zo kwamen we in 2024 bij echte brouwers terecht. En daar begon MissBaxel's.
               </p>
             </div>
           </div>
 
-          {/* Right — timeline */}
+          {/* Right, timeline */}
           <div
             style={{
               background: '#FFFFFF',
@@ -239,7 +239,7 @@ export default function Bierstekers() {
         </div>
       </section>
 
-      {/* SECTION 3 — BLENDARCHIEF */}
+      {/* SECTION 3, BLENDARCHIEF */}
       <section id="archief" style={{ padding: '48px 0' }}>
         <div className="max-w-4xl mx-auto px-5">
           <Pill color="hop">Blendarchief</Pill>
@@ -400,7 +400,7 @@ export default function Bierstekers() {
         </div>
       </section>
 
-      {/* SECTION 4 — BRUG NAAR MISSBAXEL'S */}
+      {/* SECTION 4, BRUG NAAR MISSBAXEL'S */}
       <section style={{ background: 'var(--bg-cream)', padding: '48px 0', textAlign: 'center' }}>
         <div className="max-w-2xl mx-auto px-5">
           <h2
@@ -413,7 +413,7 @@ export default function Bierstekers() {
             className="mx-auto mb-8"
             style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--muted)', maxWidth: 480, lineHeight: 1.7 }}
           >
-            Bierstekers ging over bieren mengen. MissBaxel's gaat over bieren maken — samen met brouwers die hun vak verstaan.
+            Bierstekers ging over bieren mengen. MissBaxel's gaat over bieren maken, samen met brouwers die hun vak verstaan.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
