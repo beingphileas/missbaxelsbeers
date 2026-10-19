@@ -171,7 +171,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
     const payload: any = {
       name: name.trim(),
       slug: slug.trim() || slugify(name),
-      style: style.trim() || null,
+      style: style.trim(),
       style_category: styleCat || null,
       abv: abv ? Number(abv) : null,
       description: description.trim() || null,
