@@ -291,6 +291,13 @@ export default function Restaurant() {
                 </div>
               )}
             </div>
+
+            <iframe
+              title="Kaart: Hooistraat 42, 8000 Brugge"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=3.2150%2C51.2040%2C3.2350%2C51.2140&layer=mapnik&marker=51.2090%2C3.2250"
+              style={{ width: '100%', height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16 }}
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
