@@ -61,7 +61,7 @@ export default function Bierstekers() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title="Bierstekers — de oorsprong van MissBaxel's Beers"
+        title="Bierstekers"
         description="Bierstekers was het blendproject van Marijke en Koen Bax. 22 blends, een eigen stijl — en de inspiratie voor MissBaxel's Beers. Momenteel op pauze, het archief blijft bewaard."
         url="/bierstekers"
       />

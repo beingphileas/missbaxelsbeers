@@ -59,6 +59,7 @@ const App = () => {
             <AnalyticsTracker />
             <AgeGate />
             <SiteHeader />
+            <main id="main">
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -91,6 +92,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </main>
             <SiteFooter />
             <CookieConsent />
           </BrowserRouter>

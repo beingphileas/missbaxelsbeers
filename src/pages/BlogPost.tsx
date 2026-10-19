@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import * as Lucide from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { RUBRICS, isRubricKey, EXTERNAL_FIELD_LABELS, type RubricKey } from '@/lib/rubrics';
@@ -134,7 +135,7 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
     );
   }
 
-  if (notFound) return <Navigate to="/verhalen" replace />;
+  if (notFound) return <NotFound />;
   if (!post) return null;
   const hasEn = Boolean(post.content_en?.trim());
   if (isEn && !hasEn) return <Navigate to={`/verhalen/${post.slug}`} replace />;
@@ -278,6 +279,7 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
         description={seoDescription}
         image={post.cover_image_url || undefined}
         url={isEn ? enPath : nlPath}
+        locale={isEn ? 'en' : 'nl_BE'}
         type="article"
         publishedAt={post.date || undefined}
       />

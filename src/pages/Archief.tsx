@@ -131,7 +131,7 @@ export default function Archief() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title="Archief — MissBaxel's Beers"
+        title="Archief"
         description="De originele blogposts van missbaxelsbeers.com én alle Bierstekers blends — voor altijd hier."
         url="/archief"
       />
