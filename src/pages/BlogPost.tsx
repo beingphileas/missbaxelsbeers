@@ -274,7 +274,7 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
-        title={`${seoTitle} | MissBaxel's Beers`}
+        title={seoTitle}
         description={seoDescription}
         image={post.cover_image_url || undefined}
         url={isEn ? enPath : nlPath}
