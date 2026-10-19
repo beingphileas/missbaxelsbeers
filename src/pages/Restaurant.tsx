@@ -301,12 +301,41 @@ export default function Restaurant() {
               )}
             </div>
 
-            <iframe
-              title="Kaart: Hooistraat 42, 8000 Brugge"
-              src={'https://maps.google.com/maps?q=Hooistraat%2042%2C%208000%20Brugge&output=embed'}
-              style={{ width: '100%', height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16 }}
-              loading="lazy"
-            />
+            {showMap ? (
+              <iframe
+                title="Kaart: Hooistraat 42, 8000 Brugge"
+                src={'https://maps.google.com/maps?q=Hooistraat%2042%2C%208000%20Brugge&output=embed'}
+                style={{ width: '100%', height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16 }}
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="flex flex-col items-center justify-center text-center gap-3 px-6"
+                style={{ height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16, background: 'var(--hop-light)' }}
+              >
+                <p className="font-semibold" style={{ color: 'var(--ink)' }}>Hooistraat 42, 8000 Brugge</p>
+                <p className="text-[13px]" style={{ color: 'var(--muted)' }}>
+                  De kaart komt van Google Maps. Google kan daarbij cookies plaatsen.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowMap(true)}
+                  className="px-4 py-2 rounded-full text-[13px] font-semibold"
+                  style={{ background: 'var(--ink)', color: 'var(--bg)' }}
+                >
+                  Toon kaart
+                </button>
+              </div>
+            )}
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Hooistraat%2042%2C%208000%20Brugge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 text-[13px] underline underline-offset-2"
+              style={{ color: 'var(--muted)' }}
+            >
+              Open in Google Maps
+            </a>
           </div>
         </div>
       </section>

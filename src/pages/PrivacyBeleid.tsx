@@ -77,7 +77,7 @@ export default function PrivacyBeleid() {
           reserveringsgegevens.
         </li>
         <li>
-          <strong>Nieuwsbrief:</strong> <P>NIEUWSBRIEFTOOL</P> voor het versturen van e-mails.
+          <strong>Nieuwsbrief:</strong> voor de nieuwsbrief gebruiken we een externe e-maildienst. Zodra die gekozen is, vermelden we hier welke.
         </li>
         <li>
           <strong>Statistieken:</strong> een cookieloze analytics-tool die geen persoonlijke

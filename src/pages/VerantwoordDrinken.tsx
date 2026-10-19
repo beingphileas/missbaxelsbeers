@@ -46,11 +46,12 @@ export default function VerantwoordDrinken() {
         om iemand in je omgeving? Praat erover. Je hoeft het niet alleen te doen.
       </p>
       <p>
-        Neem contact op met <P>HULPLIJN INDIEN GEWENST</P>, of bezoek{' '}
+        Neem contact op met De DrugLijn, telefoon{' '}
+        <a href="tel:+3278151020">078 15 10 20</a>, of bezoek{' '}
         <a href="https://www.druglijn.be" target="_blank" rel="noopener noreferrer">
           druglijn.be
         </a>{' '}
-        (gratis en anoniem, 078 15 10 20) voor advies en doorverwijzing.
+        (gratis en anoniem) voor advies en doorverwijzing.
       </p>
 
       <p style={{ marginTop: '2rem', fontStyle: 'italic', color: 'hsl(var(--muted-foreground))' }}>
