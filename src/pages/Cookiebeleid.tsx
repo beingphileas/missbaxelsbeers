@@ -10,8 +10,9 @@ export default function Cookiebeleid() {
     >
       <p>
         Deze website gebruikt browseropslag om je taalkeuze, leeftijdsbevestiging en
-        eventuele aanmeldsessie te onthouden. Op de restaurantpagina laden we een kaart van
-        Google Maps. Google kan daarbij eigen cookies gebruiken.
+        eventuele aanmeldsessie te onthouden. Op de restaurantpagina kan je een kaart van
+        Google Maps tonen. Die kaart laadt pas nadat je op "Toon kaart" klikt; Google kan
+        daarbij eigen cookies gebruiken. We onthouden die keuze niet.
       </p>
       <p>
         De site heeft geen webshop, winkelmandje of online betaalproces.
@@ -40,7 +41,7 @@ export default function Cookiebeleid() {
       <h3>Marketing- of trackingcookies</h3>
       <p>
         De eigen applicatiecode plaatst geen marketing- of trackingcookies.
-        De ingebedde kaart van Google Maps maakt wel verbinding met Google.
+        De kaart van Google Maps maakt pas verbinding met Google nadat je op "Toon kaart" klikt.
       </p>
 
       <h2>Hoe beheer je cookies in je browser?</h2>
