@@ -243,7 +243,7 @@ export default function Restaurant() {
               {(r as any)?.phone && (
                 <div className="flex items-center gap-3" style={{ fontSize: 13 }}>
                   <Phone size={16} style={{ color: 'var(--copper)', flexShrink: 0 }} />
-                  <a href={`tel:${(r as any).phone === '050 33 12 80' ? '+3250331280' : (r as any).phone}`} style={{ color: 'var(--ink)' }} className="no-underline">
+                  <a href={toTelHref((r as any).phone)} style={{ color: 'var(--ink)' }} className="no-underline">
                     {(r as any).phone}
                   </a>
                 </div>
