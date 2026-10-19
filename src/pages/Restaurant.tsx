@@ -218,6 +218,11 @@ export default function Restaurant() {
                 padding: 20, fontFamily: SANS,
               }}
             >
+              {r?.name && (
+                <p style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 15, color: 'var(--ink)', margin: 0 }}>
+                  {r.name}
+                </p>
+              )}
               {(r?.address || r?.city) && (
                 <div className="flex items-start gap-3" style={{ fontSize: 13 }}>
                   <MapPin size={16} style={{ color: 'var(--copper)', marginTop: 1, flexShrink: 0 }} />
