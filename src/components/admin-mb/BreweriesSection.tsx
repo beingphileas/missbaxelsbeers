@@ -57,8 +57,8 @@ export default function BreweriesSection() {
               {rows.map(r => (
                 <tr key={r.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-2.5 font-medium">{r.name}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.location || '—'}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.region || r.province || '—'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.location || '-'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.region || r.province || '-'}</td>
                   <td className="px-4 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
@@ -98,7 +98,7 @@ function BreweryForm({ initial, onClose, onSaved }: { initial: BreweryRow | null
       const { error } = await supabase.from('breweries').update(payload).eq('id', initial.id);
       if (error) { setSaving(false); return toast.error(error.message); }
     } else {
-      // Legacy NOT NULL columns: type, province, lat, lng — set safe defaults.
+      // Legacy NOT NULL columns: type, province, lat, lng, set safe defaults.
       const { error } = await supabase.from('breweries').insert({
         ...payload, type: 'microbrewery', province: region.trim() || 'Onbekend', lat: 0, lng: 0,
       });

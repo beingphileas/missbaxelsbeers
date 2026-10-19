@@ -132,7 +132,7 @@ export default function Archief() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title="Archief"
-        description="De originele blogposts van missbaxelsbeers.com én alle Bierstekers blends — voor altijd hier."
+        description="De originele blogposts van missbaxelsbeers.com én alle Bierstekers blends, voor altijd hier."
         url="/archief"
       />
 
@@ -152,7 +152,7 @@ export default function Archief() {
             Alles bewaard
           </h1>
           <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
-            De originele blogposts van missbaxelsbeers.com én alle Bierstekers blends — voor altijd hier.
+            De originele blogposts van missbaxelsbeers.com én alle Bierstekers blends, voor altijd hier.
           </p>
         </div>
       </section>

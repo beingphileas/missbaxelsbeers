@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import * as Lucide from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { SITE_URL } from '@/lib/seo-routes';
 import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,7 +50,7 @@ type LinkedBeer = {
   slug: string | null;
 };
 
-const SITE = 'https://missbaxels.lovable.app';
+const SITE = SITE_URL;
 
 export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en' }) {
   const { slug } = useParams<{ slug: string }>();
@@ -299,7 +300,7 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
           publisher: {
             '@type': 'Organization',
             name: "MissBaxel's Beers",
-            logo: { '@type': 'ImageObject', url: 'https://missbaxels.lovable.app/favicon.ico' },
+            logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.ico` },
           },
           image: post.cover_image_url || undefined,
           description: seoDescription,
@@ -444,14 +445,14 @@ export default function BlogPost({ routeLang = 'nl' }: { routeLang?: 'nl' | 'en'
         </article>
       )}
 
-      {/* ARTICLE CLOSING — signature + next steps */}
+      {/* ARTICLE CLOSING, signature + next steps */}
       <section style={{ borderTop: '1px solid var(--line)', background: '#fff', padding: '48px 0 64px' }}>
         <div className="max-w-3xl mx-auto px-5">
           <div
             className="text-center"
             style={{ fontFamily: 'Fraunces, serif', fontStyle: 'italic', fontSize: 16, color: 'var(--muted)', lineHeight: 1.6 }}
           >
-            — Marijke, voor MissBaxel's Beers
+            Marijke, voor MissBaxel's Beers
           </div>
 
           <div

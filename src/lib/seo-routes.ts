@@ -1,5 +1,6 @@
 /** Shared SEO helpers, used by the app (SEOHead) and the build-time prerender. */
-export const SITE_URL = 'https://missbaxels.lovable.app';
+/** Canonical public domain. Change here only. */
+export const SITE_URL = 'https://missbaxelsbeers.com';
 export const BRAND = "MissBaxel's Beers";
 export const HOME_TITLE = `${BRAND} | Ideeën brengen, bieren laten ontstaan`;
 
@@ -20,9 +21,9 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: '/beers', name: 'Bieren', description: 'Onze collabs, uitgebracht en in de maak.' },
   { path: '/verhalen', name: 'Verhalen', description: 'Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast.' },
   { path: '/op-de-kaart', name: 'Op de kaart', description: 'Onze volledige bierkaart: de bieren die we schenken bij Koen & Marijke, geordend op stemming.' },
-  { path: '/over', name: 'Over', description: "Marijke Bax over MissBaxel's Beers — bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles." },
+  { path: '/over', name: 'Over', description: "Marijke Bax over MissBaxel's Beers, bierliefhebster uit Brugge, samenwerking met kleine Belgische brouwers, verhalen achter de fles." },
   { path: '/restaurant', name: 'Restaurant Bij Koen & Marijke', description: 'Bij Koen & Marijke in Brugge: houtgestookte grill en Belgische bierkaart, op een paar minuten van de Markt. Van ribeye tot gebakken camembert, gepaird met alles van frisse ales tot Trappist.' },
-  { path: '/bierstekers', name: 'Bierstekers', description: "Bierstekers was het blendproject van Marijke en Koen Bax. 22 blends, een eigen stijl — en de inspiratie voor MissBaxel's Beers. Momenteel op pauze, het archief blijft bewaard." },
+  { path: '/bierstekers', name: 'Bierstekers', description: "Bierstekers was het blendproject van Marijke en Koen Bax. 22 blends, een eigen stijl, en de inspiratie voor MissBaxel's Beers. Momenteel op pauze, het archief blijft bewaard." },
   { path: '/privacy', name: 'Privacybeleid', description: "Hoe MissBaxel's Beers omgaat met je persoonsgegevens in overeenstemming met de AVG/GDPR." },
   { path: '/algemene-voorwaarden', name: 'Algemene voorwaarden', description: "Algemene voorwaarden voor het gebruik van de website van MissBaxel's Beers." },
   { path: '/cookiebeleid', name: 'Cookiebeleid', description: "Welke cookies de site van MissBaxel's Beers gebruikt en hoe je ze beheert." },

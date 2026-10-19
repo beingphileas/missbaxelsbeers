@@ -62,10 +62,10 @@ export default function BierstekersSection() {
                       <div className="w-9 h-9 rounded border border-dashed border-border bg-muted/40" />
                     )}
                   </td>
-                  <td className="px-3 py-2.5 tabular-nums text-muted-foreground">{r.year || '—'}</td>
+                  <td className="px-3 py-2.5 tabular-nums text-muted-foreground">{r.year || '-'}</td>
                   <td className="px-3 py-2.5 font-medium">{r.name}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{r.style || '—'}</td>
-                  <td className="px-3 py-2.5 tabular-nums">{r.untappd_score ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{r.style || '-'}</td>
+                  <td className="px-3 py-2.5 tabular-nums">{r.untappd_score ?? '-'}</td>
                   <td className="px-3 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
@@ -162,7 +162,7 @@ function BlendForm({ initial, onClose, onSaved }: { initial: BlendRow | null; on
             <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
             <Field label="Stijl-categorie">
               <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
-                <option value="">—</option>
+                <option value="">-</option>
                 {['sour','zuur','lambic','donker','zwart','wit'].map(c => <option key={c}>{c}</option>)}
               </select>
             </Field>

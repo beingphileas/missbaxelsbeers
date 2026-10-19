@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, MapPin, ArrowLeft,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { SITE_URL } from '@/lib/seo-routes';
 import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
@@ -152,7 +153,7 @@ export default function BeerDetail() {
 
 
 
-  const beerUrl = `https://missbaxels.lovable.app/beers/${beer.slug || beer.id}`;
+  const beerUrl = `${SITE_URL}/beers/${beer.slug || beer.id}`;
   const jsonLd = [
     {
       '@context': 'https://schema.org',
@@ -171,8 +172,8 @@ export default function BeerDetail() {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://missbaxels.lovable.app/' },
-        { '@type': 'ListItem', position: 2, name: 'Bieren', item: 'https://missbaxels.lovable.app/beers' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: 'Bieren', item: `${SITE_URL}/beers` },
         { '@type': 'ListItem', position: 3, name: beer.name, item: beerUrl },
       ],
     },
@@ -182,7 +183,7 @@ export default function BeerDetail() {
     <div style={{ background: 'var(--bg)', color: 'var(--ink)', minHeight: '100vh' }}>
       <SEOHead
         title={beer.name}
-        description={beer.description || `${beer.name}${beer.style ? ` · ${beer.style}` : ''} — een MissBaxel's samenwerking.`}
+        description={beer.description || `${beer.name}${beer.style ? ` · ${beer.style}` : ''}, een MissBaxel's samenwerking.`}
         image={imgSrc || undefined}
         url={`/beers/${beer.slug || beer.id}`}
         type="article"
@@ -205,7 +206,7 @@ export default function BeerDetail() {
       {/* HERO */}
       <section style={{ borderBottom: '1px solid var(--line)', padding: '32px 0 48px' }}>
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-10 items-start">
-          {/* Image — order on desktop left, mobile below */}
+          {/* Image, order on desktop left, mobile below */}
           <div className="order-2 md:order-1">
             {imgSrc ? (
               <img
@@ -481,7 +482,7 @@ export default function BeerDetail() {
         </section>
       )}
 
-      {/* AVAILABLE AT — beschikbaar bij ons */}
+      {/* AVAILABLE AT, beschikbaar bij ons */}
       <section style={{ borderTop: '1px solid var(--line)', background: 'var(--hop-light)', padding: '40px 0' }}>
         <div className="max-w-3xl mx-auto px-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5 text-center md:text-left">
           <div>

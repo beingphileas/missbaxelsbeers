@@ -1,4 +1,4 @@
-// Shared admin UI primitives — light, minimal, hop-accent.
+// Shared admin UI primitives, light, minimal, hop-accent.
 import { ReactNode } from 'react';
 
 export function AdminHeader({ title, subtitle, right }: { title: string; subtitle?: string; right?: ReactNode }) {

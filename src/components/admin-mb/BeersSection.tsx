@@ -75,7 +75,7 @@ export default function BeersSection() {
       {!loading && rows.length === 0 && (
         <div className="mb-4 p-4 bg-[hsl(var(--primary-light))] border border-[hsl(var(--primary))]/20 rounded-[12px]">
           <p className="text-[13px] text-foreground">
-            <strong>Nog geen bieren toegevoegd.</strong> Voeg de MissBaxel's bieren hier handmatig toe — inclusief brouwer, beschrijving, Marijke's idee en smaakprofiel.
+            <strong>Nog geen bieren toegevoegd.</strong> Voeg de MissBaxel's bieren hier handmatig toe, inclusief brouwer, beschrijving, Marijke's idee en smaakprofiel.
           </p>
         </div>
       )}
@@ -97,8 +97,8 @@ export default function BeersSection() {
               {rows.map(r => (
                 <tr key={r.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-2.5 font-medium">{r.name}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '—'}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{r.abv != null ? `${r.abv}%` : '—'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '-'}</td>
+                  <td className="px-4 py-2.5 tabular-nums">{r.abv != null ? `${r.abv}%` : '-'}</td>
                   <td className="px-4 py-2.5">
                     <button onClick={() => toggle(r.id, 'is_current', !r.is_current)}
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] ${r.is_current ? 'bg-[hsl(var(--primary-light))] text-primary' : 'border border-border text-muted-foreground'}`}>
@@ -198,7 +198,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       const { error } = await supabase.from('beers').update(payload).eq('id', initial.id);
       if (error) { setSaving(false); return toast.error(error.message); }
     } else {
-      // Need a brewery_id for the legacy NOT NULL column — pick first link or any brewery
+      // Need a brewery_id for the legacy NOT NULL column, pick first link or any brewery
       const fallbackBrewery = links[0]?.brewery_id || breweries[0]?.id;
       if (!fallbackBrewery) { setSaving(false); return toast.error('Voeg eerst een brouwerij toe'); }
       const { data, error } = await supabase.from('beers').insert({ ...payload, brewery_id: fallbackBrewery }).select('id').single();
@@ -257,7 +257,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
               <Field label="Stijl (vrij tekst)"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} placeholder="Tripel, Saison …" /></Field>
               <Field label="Stijl-categorie">
                 <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
-                  <option value="">—</option>
+                  <option value="">-</option>
                   {STYLE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </Field>
@@ -373,7 +373,7 @@ function BrewerySelector({ breweries, links, onChange }: { breweries: BreweryRef
       </div>
       <div className="flex gap-2 pt-2 border-t border-border">
         <select value={pick} onChange={e => setPick(e.target.value)} className={inputCls + ' flex-1'}>
-          <option value="">— Kies brouwerij —</option>
+          <option value="">- Kies brouwerij -</option>
           {breweries.filter(b => !links.some(l => l.brewery_id === b.id)).map(b => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}

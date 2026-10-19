@@ -62,10 +62,10 @@ export default function BlogPostsSection() {
             <tbody>
               {rows.map(r => (
                 <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-2.5 text-muted-foreground tabular-nums text-[12px]">{r.date || '—'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground tabular-nums text-[12px]">{r.date || '-'}</td>
                   <td className="px-4 py-2.5 font-medium">{r.title}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.brewery_name || '—'}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '—'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.brewery_name || '-'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.style || '-'}</td>
                   <td className="px-4 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
@@ -174,7 +174,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           <Field label="Stijl"><input className={inputCls} value={style} onChange={e => setStyle(e.target.value)} /></Field>
           <Field label="Stijl-categorie">
             <select className={inputCls} value={styleCat} onChange={e => setStyleCat(e.target.value)}>
-              <option value="">—</option>
+              <option value="">-</option>
               {[
                 'blond','tripel','dubbel','quadrupel','trappist','abdijbier',
                 'saison','witbier','tarwebier','weizen',
@@ -194,7 +194,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           </Field>
           <Field label="Emoji (fallback)"><input className={inputCls} value={emoji} onChange={e => setEmoji(e.target.value)} placeholder="🍺" /></Field>
         </div>
-        <Field label="Excerpt" hint={`${excerpt.length}/160 — ideaal voor SEO en sociale media`}>
+        <Field label="Excerpt" hint={`${excerpt.length}/160, ideaal voor SEO en sociale media`}>
           <textarea rows={2} maxLength={200} className={inputCls} value={excerpt} onChange={e => setExcerpt(e.target.value)} />
         </Field>
         <Field label="Content (markdown)"><textarea rows={10} className={inputCls} value={content} onChange={e => setContent(e.target.value)} /></Field>
@@ -209,14 +209,14 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
         <div className="border-t border-border pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Rubriek">
             <select className={inputCls} value={rubric} onChange={e => setRubric(e.target.value)}>
-              <option value="">— Geen rubriek —</option>
+              <option value="">Geen rubriek</option>
               {EDITORIAL_RUBRICS.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
             </select>
           </Field>
           {rubric === 'tien_vragen' && (
             <Field label="Persoon">
               <select className={inputCls} value={personId} onChange={e => setPersonId(e.target.value)}>
-                <option value="">—</option>
+                <option value="">-</option>
                 {people.map(p => <option key={p.id} value={p.id}>{p.name} ({ROLE_LABELS[p.role] || p.role})</option>)}
               </select>
             </Field>

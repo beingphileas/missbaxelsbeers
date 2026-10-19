@@ -8,7 +8,7 @@ const STORAGE_KEY = 'cookie-consent.v1';
  * Cookie-consent banner.
  *
  * Huidige modus: de site gebruikt cookieloze statistieken, dus deze banner is
- * puur informatief — geen verplichte opt-in. Toekomstige uitbreiding (zodra
+ * puur informatief, geen verplichte opt-in. Toekomstige uitbreiding (zodra
  * een betaalprovider cookies plaatst) is voorzien via het consent-object met
  * categorieën `necessary` en `functional`.
  */

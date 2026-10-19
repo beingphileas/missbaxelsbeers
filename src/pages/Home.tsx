@@ -252,7 +252,7 @@ export default function Home() {
                   margin: 0,
                 }}
               >
-                Nu op de kaart en in de maak
+                Samen gebrouwen
               </h2>
               <div className="hidden md:flex gap-2 shrink-0">
                 <Button

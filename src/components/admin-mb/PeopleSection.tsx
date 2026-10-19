@@ -48,7 +48,7 @@ export default function PeopleSection() {
       onSaved={() => { setEditing(null); setCreating(false); load(); }} />
   );
 
-  const brewName = (id: string | null) => breweries.find(b => b.id === id)?.name || '—';
+  const brewName = (id: string | null) => breweries.find(b => b.id === id)?.name || '-';
 
   return (
     <div>
@@ -71,7 +71,7 @@ export default function PeopleSection() {
                   <td className="px-4 py-2.5 font-medium">{r.name}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{ROLE_LABELS[r.role] || r.role}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{brewName(r.brewery_id)}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{r.location || '—'}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{r.location || '-'}</td>
                   <td className="px-4 py-2.5 text-right space-x-1">
                     <button onClick={() => setEditing(r)} className={btnGhost}><Pencil size={11} /> Bewerken</button>
                     <button onClick={() => remove(r.id)} className={btnDanger}><Trash2 size={11} /></button>
@@ -139,7 +139,7 @@ function PersonForm({ initial, breweries, onClose, onSaved }: {
               </Field>
               <Field label="Brouwerij">
                 <select className={inputCls} value={breweryId} onChange={e => setBreweryId(e.target.value)}>
-                  <option value="">—</option>
+                  <option value="">-</option>
                   {breweries.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </Field>

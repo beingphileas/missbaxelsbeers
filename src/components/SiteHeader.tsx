@@ -7,6 +7,7 @@ const LINKS = [
   { label: 'Verhalen', path: '/verhalen' },
   { label: 'Bieren', path: '/beers' },
   { label: 'Op de kaart', path: '/op-de-kaart' },
+  { label: 'Over', path: '/over' },
 ];
 
 export default function SiteHeader() {
@@ -123,7 +124,7 @@ export default function SiteHeader() {
             );
           })}
 
-          {/* Auth — small, quiet */}
+          {/* Auth, small, quiet */}
           {user ? (
             <button
               onClick={signOut}

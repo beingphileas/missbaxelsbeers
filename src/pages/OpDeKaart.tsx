@@ -46,22 +46,22 @@ const CATEGORIES: { key: string; title: string; intro: string }[] = [
   },
   {
     key: 'vaten',
-    title: 'Voor het donkere eind van de nacht — Vaten & imperial stouts',
+    title: 'Voor het donkere eind van de nacht: Vaten & imperial stouts',
     intro: 'Bourbon-, rum- en cognachout, en de stouts die erin gaan slapen.',
   },
   {
     key: 'zwaar',
-    title: 'Voor het donkere eind van de nacht — Zwaar',
+    title: 'Voor het donkere eind van de nacht: Zwaar',
     intro: 'De grootste bieren van de lijst, en de enige bladzijde met een gloeiend ijzer erop.',
   },
   {
     key: 'fruit',
-    title: 'Voor zoete zielen & zure tongen — Fruit',
+    title: 'Voor zoete zielen & zure tongen: Fruit',
     intro: 'Krieken, frambozen en de lambiekhuizen die nog met heel fruit werken.',
   },
   {
     key: 'wild',
-    title: 'Voor zoete zielen & zure tongen — Wild & Zuur',
+    title: 'Voor zoete zielen & zure tongen: Wild & Zuur',
     intro: 'Spontane gisting, Vlaams roodbruin en de huiscultuur van Desselgem.',
   },
 ];
@@ -112,7 +112,7 @@ export default function OpDeKaart() {
           >
             Bier is hier geen bijzaak. Het is een tweede keuken. We kiezen genoeg, niet alles:
             bieren met karakter, vaak van kleine brouwers. De lijst is geordend op stemming, niet op
-            strikte stijl — kies mee met de avond, het bord en het moment. Of vraag het aan Marijke.
+            strikte stijl, kies mee met de avond, het bord en het moment. Of vraag het aan Marijke.
           </p>
         </header>
 
@@ -226,7 +226,7 @@ export default function OpDeKaart() {
               margin: 0,
             }}
           >
-            Stachelen — het bier poken
+            Stachelen: het bier poken
           </h2>
           <p
             className="max-w-[70ch]"
@@ -243,7 +243,7 @@ export default function OpDeKaart() {
             style={{ fontSize: 16, lineHeight: 1.8, color: '#e0d1bf', margin: '18px 0 0' }}
           >
             Het werkt alleen bij donkere, moutige, vatgerijpte bieren met suiker die nog kan branden
-            — zoals onze Caramel Pale Stout. Bij een hoppig of sour bier doet het niets. Vraag het
+            zoals onze Caramel Pale Stout. Bij een hoppig of sour bier doet het niets. Vraag het
             ons en we doen het aan je tafel; het is de moeite om naar te kijken.
           </p>
         </section>

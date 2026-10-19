@@ -77,7 +77,10 @@ function headTags(p: Page) {
 export function renderPage(template: string, p: Page) {
   let html = template.replace(/<!--seo:start-->[\s\S]*?<!--seo:end-->/, `<!--seo:start-->\n${headTags(p)}\n    <!--seo:end-->`);
   if (p.lang === 'en') html = html.replace('<html lang="nl-BE">', '<html lang="en">');
-  return html.replace('<div id="root"></div>', `<div id="root"><main>${p.body}</main></div>`);
+  const style = `<style id="prerender-style">#root>main.pr{max-width:720px;margin:0 auto;padding:96px 20px;color:var(--ink,#2b1d16);background:var(--bg,#faf8f5);font-family:'Nunito Sans',sans-serif;line-height:1.7;opacity:0;animation:pr-in .2s ease 2.5s forwards}#root>main.pr h1,#root>main.pr h2,#root>main.pr h3{font-family:Lora,serif;line-height:1.15}#root>main.pr img{max-width:100%;height:auto}@keyframes pr-in{to{opacity:1}}</style>`;
+  return html
+    .replace('</head>', `${style}\n</head>`)
+    .replace('<div id="root"></div>', `<div id="root"><main class="pr">${p.body}</main></div>`);
 }
 
 async function fetchRows(base: string, key: string, query: string): Promise<any[]> {
@@ -87,7 +90,7 @@ async function fetchRows(base: string, key: string, query: string): Promise<any[
       headers: { apikey: key, Authorization: `Bearer ${key}`, Range: `${from}-${from + 999}` },
     });
     if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const rows = await res.json();
+    const rows = (await res.json()) as any[];
     out.push(...rows);
     if (rows.length < 1000) return out;
   }

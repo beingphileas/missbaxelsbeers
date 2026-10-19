@@ -97,7 +97,7 @@ export default function RestaurantSection() {
                 (Date.now() - new Date(row.hours_updated_at).getTime() > STALE_MS);
               return stale ? (
                 <div className="mb-3 px-3 py-2 rounded-[8px] bg-red-50 border border-red-300 text-red-800 text-[12px] leading-snug">
-                  ⚠️ Openingsuren mogelijk verouderd — controleer en sla opnieuw op.
+                  ⚠️ Openingsuren mogelijk verouderd, controleer en sla opnieuw op.
                 </div>
               ) : null;
             })()}
