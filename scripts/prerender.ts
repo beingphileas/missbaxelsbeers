@@ -90,7 +90,7 @@ async function fetchRows(base: string, key: string, query: string): Promise<any[
       headers: { apikey: key, Authorization: `Bearer ${key}`, Range: `${from}-${from + 999}` },
     });
     if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const rows = await res.json();
+    const rows = (await res.json()) as any[];
     out.push(...rows);
     if (rows.length < 1000) return out;
   }
