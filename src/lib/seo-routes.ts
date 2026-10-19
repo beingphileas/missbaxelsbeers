@@ -1,5 +1,6 @@
 /** Shared SEO helpers, used by the app (SEOHead) and the build-time prerender. */
-export const SITE_URL = 'https://missbaxels.lovable.app';
+/** Canonical public domain. Change here only. */
+export const SITE_URL = 'https://missbaxelsbeers.com';
 export const BRAND = "MissBaxel's Beers";
 export const HOME_TITLE = `${BRAND} | Ideeën brengen, bieren laten ontstaan`;
 

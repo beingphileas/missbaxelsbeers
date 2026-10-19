@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, Flame,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { SITE_URL } from '@/lib/seo-routes';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import type { Restaurant as RestaurantRow } from '@/types';
@@ -97,7 +98,7 @@ export default function Restaurant() {
     email: r?.email || undefined,
     url: r?.reservation_url || undefined,
     servesCuisine: 'Belgisch',
-    hasMenu: 'https://missbaxels.lovable.app/restaurant',
+    hasMenu: `${SITE_URL}/restaurant`,
     openingHoursSpecification: openingHoursSpecification.length ? openingHoursSpecification : undefined,
     priceRange: '€€',
   };

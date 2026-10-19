@@ -6,6 +6,7 @@ import {
   Utensils, ExternalLink, MapPin, ArrowLeft,
 } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
+import { SITE_URL } from '@/lib/seo-routes';
 import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
@@ -152,7 +153,7 @@ export default function BeerDetail() {
 
 
 
-  const beerUrl = `https://missbaxels.lovable.app/beers/${beer.slug || beer.id}`;
+  const beerUrl = `${SITE_URL}/beers/${beer.slug || beer.id}`;
   const jsonLd = [
     {
       '@context': 'https://schema.org',
@@ -171,8 +172,8 @@ export default function BeerDetail() {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://missbaxels.lovable.app/' },
-        { '@type': 'ListItem', position: 2, name: 'Bieren', item: 'https://missbaxels.lovable.app/beers' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: 'Bieren', item: `${SITE_URL}/beers` },
         { '@type': 'ListItem', position: 3, name: beer.name, item: beerUrl },
       ],
     },
