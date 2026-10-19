@@ -10,21 +10,21 @@ export default function PrivacyBeleid() {
       title="Privacybeleid"
       description="Hoe MissBaxel's Beers omgaat met je persoonsgegevens in overeenstemming met de AVG/GDPR."
       url="/privacy"
-      updated="24 mei 2026"
+      updated="19 oktober 2026"
     >
       <p>
         Dit privacybeleid legt uit hoe wij persoonsgegevens verwerken wanneer je onze website
-        bezoekt, een reservering of bestelling plaatst, of je inschrijft op onze nieuwsbrief. We
+        bezoekt, een reservering plaatst, of je inschrijft op onze nieuwsbrief. We
         houden ons aan de Algemene Verordening Gegevensbescherming (AVG/GDPR) en de Belgische
         privacywetgeving.
       </p>
 
       <h2>1. Wie zijn wij?</h2>
       <p>
-        Verantwoordelijke voor de verwerking: <P>BEDRIJFSNAAM</P>, gevestigd te{' '}
-        <P>ADRES</P>, ingeschreven in de Kruispuntbank van Ondernemingen onder nummer{' '}
-        <P>KBO-NUMMER</P>. Voor alle vragen over privacy kan je ons bereiken via{' '}
-        <P>E-MAILADRES</P>.
+        Verantwoordelijke voor de verwerking: Nieuw Museum BV, gevestigd te{' '}
+        Hooistraat 42, 8000 Brugge, ingeschreven in de Kruispuntbank van Ondernemingen met{' '}
+        ondernemingsnummer 0894.806.489. Voor alle vragen over privacy kan je ons bereiken via{' '}
+        <a href="mailto:privacy@koen-marijke.be">privacy@koen-marijke.be</a>.
       </p>
 
       <h2>2. Welke gegevens verzamelen we?</h2>
@@ -34,13 +34,7 @@ export default function PrivacyBeleid() {
           personen.
         </li>
         <li>
-          <strong>Bestelgegevens (webshop):</strong> naam, leverings- en facturatieadres,
-          e-mailadres, telefoonnummer en betaalinformatie. Betalingen verlopen via onze
-          betaalprovider <P>BETAALPROVIDER</P>; wij ontvangen zelf nooit je volledige
-          kaartgegevens.
-        </li>
-        <li>
-          <strong>Nieuwsbrief:</strong> je e-mailadres en — indien opgegeven — je voornaam.
+          <strong>Nieuwsbrief:</strong> je e-mailadres en, indien opgegeven, je voornaam.
         </li>
         <li>
           <strong>Websitestatistieken:</strong> geanonimiseerde, cookieloze bezoekersgegevens
@@ -52,8 +46,8 @@ export default function PrivacyBeleid() {
       <h2>3. Waarom en op welke rechtsgrond?</h2>
       <ul>
         <li>
-          <strong>Uitvoering van de overeenkomst (art. 6.1.b AVG):</strong> reserveringen en
-          bestellingen verwerken, leveringen organiseren, klantenservice bieden.
+          <strong>Uitvoering van de overeenkomst (art. 6.1.b AVG):</strong> reserveringen
+          verwerken en vragen over je bezoek beantwoorden.
         </li>
         <li>
           <strong>Toestemming (art. 6.1.a AVG):</strong> de nieuwsbrief versturen. Je kan je
@@ -63,17 +57,11 @@ export default function PrivacyBeleid() {
           <strong>Gerechtvaardigd belang (art. 6.1.f AVG):</strong> beveiliging van de site,
           fraudepreventie en geanonimiseerde statistieken om onze content te verbeteren.
         </li>
-        <li>
-          <strong>Wettelijke verplichting (art. 6.1.c AVG):</strong> facturatie- en boekhoudplichten.
-        </li>
       </ul>
 
       <h2>4. Hoe lang bewaren we je gegevens?</h2>
       <ul>
         <li>Reserveringsgegevens: tot 12 maanden na het bezoek.</li>
-        <li>
-          Bestel- en facturatiegegevens: 7 jaar (wettelijke bewaartermijn voor boekhouding).
-        </li>
         <li>Nieuwsbrief-inschrijving: tot je je uitschrijft.</li>
         <li>Geanonimiseerde statistieken: tot 24 maanden.</li>
       </ul>
@@ -85,12 +73,8 @@ export default function PrivacyBeleid() {
       </p>
       <ul>
         <li>
-          <strong>Hosting & database:</strong> Supabase (EU-regio) voor de opslag van site- en
-          bestelgegevens.
-        </li>
-        <li>
-          <strong>Betalingen:</strong> <P>BETAALPROVIDER</P> verwerkt de betaling en bewaart je
-          betaalgegevens onder hun eigen privacybeleid.
+          <strong>Hosting & database:</strong> Lovable Cloud voor de opslag van site- en
+          reserveringsgegevens.
         </li>
         <li>
           <strong>Nieuwsbrief:</strong> <P>NIEUWSBRIEFTOOL</P> voor het versturen van e-mails.
@@ -125,7 +109,7 @@ export default function PrivacyBeleid() {
 
       <h2>7. Hoe oefen je deze rechten uit?</h2>
       <p>
-        Stuur een e-mail naar <P>E-MAILADRES</P> met een omschrijving van je verzoek. We
+        Stuur een e-mail naar <a href="mailto:privacy@koen-marijke.be">privacy@koen-marijke.be</a> met een omschrijving van je verzoek. We
         antwoorden binnen 30 dagen. Om misbruik te voorkomen kunnen we je vragen je identiteit
         aan te tonen.
       </p>

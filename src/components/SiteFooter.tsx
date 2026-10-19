@@ -170,9 +170,7 @@ export default function SiteFooter() {
             </div>
           </div>
           <div className="text-center md:text-left text-muted-foreground/80" style={{ fontSize: '10.5px' }}>
-            <span className="placeholder-inline">[BEDRIJFSNAAM]</span> ·{' '}
-            <span className="placeholder-inline">[ADRES]</span> · BTW{' '}
-            <span className="placeholder-inline">[BTW-NUMMER]</span>
+            Nieuw Museum BV · Hooistraat 42, 8000 Brugge · BTW BE0894.806.489
           </div>
         </div>
       </div>

@@ -9,33 +9,26 @@ export default function Cookiebeleid() {
       updated="24 mei 2026"
     >
       <p>
-        We houden onze site bewust licht. Voor het meten van bezoekers gebruiken we{' '}
-        <strong>cookieloze, geanonimiseerde statistieken</strong> — er worden geen cookies
-        geplaatst en er worden geen persoonlijke profielen opgebouwd. Daarvoor is volgens de
-        Belgische e-Privacywet geen toestemming nodig.
+        Deze website gebruikt browseropslag om je taalkeuze, leeftijdsbevestiging en
+        eventuele aanmeldsessie te onthouden. Op de restaurantpagina laden we een kaart van
+        Google Maps. Google kan daarbij eigen cookies gebruiken.
       </p>
       <p>
-        Zodra je iets bestelt in onze webshop kunnen er wél een aantal{' '}
-        <strong>strikt noodzakelijke en functionele cookies</strong> worden geplaatst om je
-        winkelmandje en het betaalproces te laten werken. Deze worden pas actief op het moment
-        dat je aan een bestelling begint.
+        De site heeft geen webshop, winkelmandje of online betaalproces.
       </p>
 
       <h2>Welke cookies kunnen worden geplaatst?</h2>
 
       <h3>Strikt noodzakelijke cookies</h3>
       <p>
-        Deze cookies zijn nodig om de site te laten functioneren. Denk aan het onthouden van je
-        winkelmandje, je sessie tijdens het afrekenen en het beveiligen van betaalformulieren.
-        Zonder deze cookies werkt de webshop niet. Voor strikt noodzakelijke cookies is geen
-        toestemming vereist.
+        Voor het aanmelden gebruiken we browseropslag die je sessie onthoudt.
+        De eigen applicatiecode plaatst hiervoor geen cookies rechtstreeks.
       </p>
 
       <h3>Functionele cookies</h3>
       <p>
-        Deze cookies onthouden voorkeuren (zoals taal of leeftijdsbevestiging) zodat je ze niet
-        bij elk bezoek opnieuw moet instellen. Ze worden alleen geplaatst als je daarvoor
-        toestemming geeft.
+        We bewaren je taalkeuze, leeftijdsbevestiging, vertaalcache en bevestiging van de
+        bestaande cookiemelding in localStorage. Dit is opslag in je browser, geen cookie.
       </p>
 
       <h3>Analytische cookies</h3>
@@ -46,8 +39,8 @@ export default function Cookiebeleid() {
 
       <h3>Marketing- of trackingcookies</h3>
       <p>
-        We plaatsen <strong>geen marketing- of trackingcookies</strong> en delen geen
-        bezoekersgegevens met advertentienetwerken.
+        De eigen applicatiecode plaatst geen marketing- of trackingcookies.
+        De ingebedde kaart van Google Maps maakt wel verbinding met Google.
       </p>
 
       <h2>Hoe beheer je cookies in je browser?</h2>
@@ -77,14 +70,14 @@ export default function Cookiebeleid() {
         </li>
       </ul>
       <p>
-        Hou er rekening mee dat het volledig blokkeren van cookies betekent dat de webshop niet
-        zal werken.
+        Hou er rekening mee dat het blokkeren van browseropslag het onthouden van je
+        voorkeuren en je aanmeldsessie kan verhinderen.
       </p>
 
       <h2>Wijzigingen</h2>
       <p>
-        Dit cookiebeleid wordt geüpdatet wanneer we nieuwe functies (zoals betalingen) toevoegen.
-        Op dat moment breiden we ook onze cookiebanner uit met expliciete opt-in per categorie.
+        Dit cookiebeleid wordt bijgewerkt wanneer de gebruikte browseropslag of externe
+        diensten veranderen.
       </p>
     </LegalLayout>
   );
