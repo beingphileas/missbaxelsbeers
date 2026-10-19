@@ -44,6 +44,7 @@ const toTelHref = (phone: string) => {
 
 export default function Restaurant() {
   const [r, setR] = useState<RestaurantRow | null>(null);
+  const [showMap, setShowMap] = useState(false);
   const [pairings, setPairings] = useState<PairingBeer[]>([]);
 
   useEffect(() => {
