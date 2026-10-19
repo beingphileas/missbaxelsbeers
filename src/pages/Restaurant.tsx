@@ -218,6 +218,11 @@ export default function Restaurant() {
                 padding: 20, fontFamily: SANS,
               }}
             >
+              {r?.name && (
+                <p style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 15, color: 'var(--ink)', margin: 0 }}>
+                  {r.name}
+                </p>
+              )}
               {(r?.address || r?.city) && (
                 <div className="flex items-start gap-3" style={{ fontSize: 13 }}>
                   <MapPin size={16} style={{ color: 'var(--copper)', marginTop: 1, flexShrink: 0 }} />
@@ -229,7 +234,7 @@ export default function Restaurant() {
               {(r as any)?.phone && (
                 <div className="flex items-center gap-3" style={{ fontSize: 13 }}>
                   <Phone size={16} style={{ color: 'var(--copper)', flexShrink: 0 }} />
-                  <a href={`tel:${(r as any).phone}`} style={{ color: 'var(--ink)' }} className="no-underline">
+                  <a href={`tel:${(r as any).phone === '050 33 12 80' ? '+3250331280' : (r as any).phone}`} style={{ color: 'var(--ink)' }} className="no-underline">
                     {(r as any).phone}
                   </a>
                 </div>
@@ -286,6 +291,13 @@ export default function Restaurant() {
                 </div>
               )}
             </div>
+
+            <iframe
+              title="Kaart: Hooistraat 42, 8000 Brugge"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=3.2150%2C51.2040%2C3.2350%2C51.2140&layer=mapnik&marker=51.2090%2C3.2250"
+              style={{ width: '100%', height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16 }}
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
