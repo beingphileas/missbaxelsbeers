@@ -7,6 +7,7 @@ const LINKS = [
   { label: 'Verhalen', path: '/verhalen' },
   { label: 'Bieren', path: '/beers' },
   { label: 'Op de kaart', path: '/op-de-kaart' },
+  { label: 'Over', path: '/over' },
 ];
 
 export default function SiteHeader() {
