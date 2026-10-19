@@ -7,6 +7,7 @@ import ImageUploader from './ImageUploader';
 
 interface BeerRow {
   id: string; name: string; slug: string | null; style: string | null; style_category: string | null;
+  visual_notes: string | null; aroma_notes: string | null; taste_notes: string | null; food_pairing: string | null;
   abv: number | null; description: string | null; marijke_idea: string | null; brew_story: string | null;
   flavor_profile: string[] | null; pairing_suggestion: string | null; image_url: string | null; label_url: string | null;
   is_current: boolean | null; featured: boolean; is_collab: boolean | null; release_date: string | null;
@@ -30,7 +31,7 @@ export default function BeersSection() {
     setLoading(true);
     const { data, error } = await supabase
       .from('beers')
-      .select('id,name,slug,style,style_category,abv,description,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date,lifecycle_status,teaser,hide_name')
+      .select('id,name,slug,style,style_category,abv,description,visual_notes,aroma_notes,taste_notes,food_pairing,marijke_idea,brew_story,flavor_profile,pairing_suggestion,image_url,label_url,is_current,featured,is_collab,release_date,lifecycle_status,teaser,hide_name')
       .order('created_at', { ascending: false })
       .limit(500);
     if (error) toast.error(error.message); else setRows((data as any) || []);
@@ -134,7 +135,10 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
   const [marijkeIdea, setMarijkeIdea] = useState(initial?.marijke_idea || '');
   const [brewStory, setBrewStory] = useState(initial?.brew_story || '');
   const [flavorTags, setFlavorTags] = useState((initial?.flavor_profile || []).join(', '));
-  const [pairing, setPairing] = useState(initial?.pairing_suggestion || '');
+  const [pairing, setPairing] = useState(initial?.pairing_suggestion || initial?.food_pairing || '');
+  const [visual, setVisual] = useState(initial?.visual_notes || '');
+  const [aroma, setAroma] = useState(initial?.aroma_notes || '');
+  const [taste, setTaste] = useState(initial?.taste_notes || '');
   const [imageUrl, setImageUrl] = useState(initial?.image_url || null);
   const [labelUrl, setLabelUrl] = useState(initial?.label_url || null);
   const [isCurrent, setIsCurrent] = useState(initial?.is_current ?? true);
@@ -167,7 +171,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
     const payload: any = {
       name: name.trim(),
       slug: slug.trim() || slugify(name),
-      style: style.trim() || null,
+      style: style.trim(),
       style_category: styleCat || null,
       abv: abv ? Number(abv) : null,
       description: description.trim() || null,
@@ -175,6 +179,9 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       brew_story: brewStory.trim() || null,
       flavor_profile: flavorTags.split(',').map(t => t.trim()).filter(Boolean),
       pairing_suggestion: pairing.trim() || null,
+      visual_notes: visual.trim() || null,
+      aroma_notes: aroma.trim() || null,
+      taste_notes: taste.trim() || null,
       image_url: imageUrl,
       label_url: labelUrl,
       is_current: lifecycle === 'current' ? isCurrent : false,
@@ -203,7 +210,7 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
       await supabase.from('beer_breweries').delete().eq('beer_id', beerId);
       if (links.length) {
         const { error } = await supabase.from('beer_breweries').insert(
-          links.map(l => ({ beer_id: beerId!, brewery_id: l.brewery_id, role: l.role }))
+          links.map(l => ({ beer_id: beerId, brewery_id: l.brewery_id, role: l.role }))
         );
         if (error) toast.error('Brouwerij-links: ' + error.message);
       }
@@ -266,7 +273,10 @@ function BeerForm({ initial, onClose, onSaved }: { initial: BeerRow | null; onCl
               <Field label="Marijke's idee" hint="Het oorspronkelijke idee, de inspiratie."><textarea rows={3} className={inputCls} value={marijkeIdea} onChange={e => setMarijkeIdea(e.target.value)} /></Field>
               <Field label="Brouw-verhaal"><textarea rows={5} className={inputCls} value={brewStory} onChange={e => setBrewStory(e.target.value)} /></Field>
               <Field label="Smaak-tags" hint="Komma-gescheiden, bv. citrus, kruidig, bloemig"><input className={inputCls} value={flavorTags} onChange={e => setFlavorTags(e.target.value)} /></Field>
-              <Field label="Spijs-bier combinatie"><input className={inputCls} value={pairing} onChange={e => setPairing(e.target.value)} /></Field>
+              <Field label="Visueel"><textarea rows={3} className={inputCls} value={visual} onChange={e => setVisual(e.target.value)} /></Field>
+              <Field label="Geur"><textarea rows={3} className={inputCls} value={aroma} onChange={e => setAroma(e.target.value)} /></Field>
+              <Field label="Smaak"><textarea rows={3} className={inputCls} value={taste} onChange={e => setTaste(e.target.value)} /></Field>
+              <Field label="Pairing"><textarea rows={3} className={inputCls} value={pairing} onChange={e => setPairing(e.target.value)} /></Field>
             </div>
           </AdminCard>
 

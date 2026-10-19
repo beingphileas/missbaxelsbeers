@@ -55,6 +55,7 @@ export type Database = {
           abv: number | null
           added_at: string
           analysis_json: Json | null
+          aroma_notes: string | null
           aroma_profile: string[] | null
           beer_status: string | null
           brew_story: string | null
@@ -114,11 +115,13 @@ export type Database = {
           verification_score: number | null
           verification_status: string | null
           verified_at: string | null
+          visual_notes: string | null
         }
         Insert: {
           abv?: number | null
           added_at?: string
           analysis_json?: Json | null
+          aroma_notes?: string | null
           aroma_profile?: string[] | null
           beer_status?: string | null
           brew_story?: string | null
@@ -178,11 +181,13 @@ export type Database = {
           verification_score?: number | null
           verification_status?: string | null
           verified_at?: string | null
+          visual_notes?: string | null
         }
         Update: {
           abv?: number | null
           added_at?: string
           analysis_json?: Json | null
+          aroma_notes?: string | null
           aroma_profile?: string[] | null
           beer_status?: string | null
           brew_story?: string | null
@@ -242,6 +247,7 @@ export type Database = {
           verification_score?: number | null
           verification_status?: string | null
           verified_at?: string | null
+          visual_notes?: string | null
         }
         Relationships: [
           {

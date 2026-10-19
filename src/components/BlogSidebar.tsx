@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 interface BeerSpec {
   id: string;
+  slug?: string | null;
   name: string;
   style: string;
   abv: number;
@@ -32,7 +33,7 @@ export default function BlogSidebar({ beers }: BlogSidebarProps) {
         </div>
         <div className="divide-y divide-border/40">
           {beers.map(beer => (
-            <Link key={beer.id} to={`/beers/${beer.id}`} className="group block px-3 py-3 hover:bg-secondary/40 transition-colors">
+            <Link key={beer.id} to={`/beers/${beer.slug || beer.id}`} className="group block px-3 py-3 hover:bg-secondary/40 transition-colors">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <h4 className="font-display text-sm leading-tight group-hover:text-accent transition-colors">{beer.name}</h4>
                 <span className="text-[10px] font-bold tabular-nums shrink-0">{beer.abv}%</span>

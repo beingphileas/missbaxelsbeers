@@ -327,7 +327,7 @@ export default function BlogPost() {
                   Dit bier
                 </p>
                 <Link
-                  to={beer.id ? `/beers/${beer.id}` : `/beers`}
+                  to={`/beers/${beer.slug || beer.id}`}
                   className="no-underline block"
                   style={{ color: 'var(--ink)' }}
                 >
