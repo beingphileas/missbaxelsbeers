@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { EDITORIAL_RUBRICS, rubricLabel } from '@/lib/editorial';
+import { populatedFilters } from '@/lib/beer-presentation';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -47,6 +48,8 @@ const rubricFromParam = (value: string | null): CatKey =>
 
 export default function Verhalen() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [availableRubrics, setAvailableRubrics] = useState<Set<string> | null>(null);
+  const visibleFilters = populatedFilters(FILTERS, id => availableRubrics?.has(id) ?? false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -58,6 +61,19 @@ export default function Verhalen() {
   useEffect(() => {
     setCat(rubricFromParam(searchParams.get('rubriek')));
   }, [searchParams]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const counts = await Promise.all(EDITORIAL_RUBRICS.map(async rubric => {
+        const { count, error } = await supabase.from('blog_posts')
+          .select('id', { count: 'exact', head: true }).eq('status', 'published').eq('rubric', rubric.key);
+        return !error && (count ?? 0) > 0 ? rubric.key : null;
+      }));
+      if (!cancelled) setAvailableRubrics(new Set(counts.filter((key): key is typeof EDITORIAL_RUBRICS[number]['key'] => key !== null)));
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const selectCategory = (category: CatKey) => {
     setCat(category);
@@ -84,6 +100,7 @@ export default function Verhalen() {
       let query = supabase
         .from('blog_posts')
         .select('id, slug, title, date, style, style_category, excerpt, external_url, image_emoji, cover_image_url, rubric', { count: 'exact' })
+        .eq('status', 'published')
         .order('date', { ascending: false, nullsFirst: false });
 
       if (cat !== 'all') query = query.eq('rubric', cat);
@@ -173,7 +190,7 @@ export default function Verhalen() {
             className="verhalen-pills flex gap-2 overflow-x-auto"
             style={{ scrollbarWidth: 'none', flex: 1, minWidth: 0 }}
           >
-            {FILTERS.map((f) => {
+            {visibleFilters.map((f) => {
               const active = cat === f.id;
               return (
                 <button

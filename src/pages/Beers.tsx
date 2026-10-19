@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import { populatedFilters } from '@/lib/beer-presentation';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
@@ -64,14 +65,6 @@ function matchesCategory(b: BeerRow, cat: Cat): boolean {
   return true;
 }
 
-function pullCopy(b: BeerRow): string {
-  const flav = (b.primary_flavors || b.flavor_profile || []).slice(0, 4);
-  if (b.teaser) return b.teaser;
-  if (flav.length >= 2) return `${flav[0]}. ${flav.slice(1).join(', ')}.`;
-  if (flav.length === 1) return `${flav[0]}.`;
-  return 'Lokaal. Eerlijk. Geen poespas.';
-}
-
 export default function Beers() {
   const [beers, setBeers] = useState<BeerRow[]>([]);
   const [search, setSearch] = useState('');
@@ -117,6 +110,9 @@ export default function Beers() {
       setLoading(false);
     })();
   }, []);
+
+  const visibleFilters = populatedFilters(STYLE_FILTERS, id =>
+    beers.some(b => b.lifecycle_status !== 'pipeline' && matchesCategory(b, id as Cat)));
 
   const released = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -228,7 +224,7 @@ export default function Beers() {
           <style>{`.beer-pills::-webkit-scrollbar{display:none}`}</style>
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="beer-pills flex gap-2 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
-              {STYLE_FILTERS.map((f) => {
+              {visibleFilters.map((f) => {
                 const active = cat === f.id;
                 return (
                   <button
@@ -333,7 +329,7 @@ export default function Beers() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(40px, 5vw, 64px)' }}>
               {released.map((b) => {
                 const image = b.image_url || b.label_url;
-                const copy = pullCopy(b);
+                const copy = b.teaser?.trim();
                 return (
                   <article
                     key={b.id}
@@ -506,7 +502,7 @@ export default function Beers() {
                         </div>
 
                         {/* Copy */}
-                        <p
+                        {copy && <p
                           style={{
                             marginTop: 20,
                             fontFamily: SANS,
@@ -517,7 +513,7 @@ export default function Beers() {
                           }}
                         >
                           {copy}
-                        </p>
+                        </p>}
 
                         {/* CTA */}
                         <Link

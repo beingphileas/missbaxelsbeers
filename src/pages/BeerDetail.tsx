@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   Beer as BeerIcon, Leaf, Sun, Droplet, Citrus, Wheat, Flame, Sparkles,
@@ -9,6 +9,7 @@ import SEOHead from '@/components/SEOHead';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/T';
+import { hasEmptyBeerDetail, sensoryFields } from '@/lib/beer-presentation';
 
 
 type Brewery = {
@@ -40,6 +41,10 @@ type Beer = {
   is_collab: boolean | null;
   flavor_profile: string[] | null;
   primary_flavors: string[] | null;
+  visual_notes: string | null;
+  aroma_notes: string | null;
+  taste_notes: string | null;
+  menu_brewery: string | null;
 };
 
 function iconForStyle(style: string | null) {
@@ -65,17 +70,19 @@ export default function BeerDetail() {
     if (!id) return;
     (async () => {
       setLoading(true);
+      setNotFound(false);
+      setBreweries([]);
       // Try slug first, then id
       let { data: b } = await supabase
         .from('beers')
-        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
+        .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors, visual_notes, aroma_notes, taste_notes, brewery_id, menu_brewery')
         .eq('slug', id)
         .maybeSingle();
 
-      if (!b) {
+      if (!b && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)) {
         const r = await supabase
           .from('beers')
-          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors')
+          .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors, visual_notes, aroma_notes, taste_notes, brewery_id, menu_brewery')
           .eq('id', id)
           .maybeSingle();
         b = r.data;
@@ -94,7 +101,7 @@ export default function BeerDetail() {
         .select('brewery_id, role')
         .eq('beer_id', b.id);
 
-      const brewIds = (links || []).map(l => l.brewery_id);
+      const brewIds = Array.from(new Set([...(links || []).map(l => l.brewery_id), b.brewery_id]));
       if (brewIds.length) {
         const { data: brews } = await supabase
           .from('breweries')
@@ -138,13 +145,16 @@ export default function BeerDetail() {
     );
   }
 
+  if (beer.slug && id !== beer.slug) return <Navigate to={`/beers/${beer.slug}`} replace />;
+
   const Icon = iconForStyle(beer.style);
   const imgSrc = beer.image_url || beer.label_url;
   const tags = (beer.primary_flavors || beer.flavor_profile || []).slice(0, 8);
   const main = breweries.filter(b => b.role === 'main' || b.role === '' || !b.role);
   const co = breweries.filter(b => b.role !== 'main' && b.role !== '' && b.role);
   const brewerNames = breweries.map(b => b.name);
-  const pairing = beer.pairing_suggestion || beer.food_pairing;
+  const tasting = sensoryFields(beer);
+  const emptyDetail = hasEmptyBeerDetail(beer);
 
 
 
@@ -239,7 +249,7 @@ export default function BeerDetail() {
             {breweries.length > 0 && (
               <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
                 Gebrouwen bij{' '}
-                {main.map((b) => b.name).join(' & ')}
+                {beer.menu_brewery || main.map((b) => b.name).join(' & ')}
                 {co.map((b) => (
                   <span key={b.id}>
                     {' '}&amp;{' '}
@@ -248,6 +258,13 @@ export default function BeerDetail() {
                   </span>
                 ))}
               </p>
+            )}
+
+            {beer.description?.trim() && (
+              <p className="mt-5 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">{beer.description}</p>
+            )}
+            {emptyDetail && (
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground">Ik schrijf hier binnenkort over. Hubby mag alvast voorproeven.</p>
             )}
 
             {beer.is_collab && (
@@ -364,63 +381,18 @@ export default function BeerDetail() {
       )}
 
       {/* SMAAKPROFIEL */}
-      {(tags.length > 0 || pairing) && (
-        <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
+      {tasting.length > 0 && (
+        <section className="border-b border-border py-9">
           <div className="max-w-3xl mx-auto px-5">
-            <h2
-              className="mb-5"
-              style={{ fontFamily: 'Fraunces, serif', fontWeight: 700, fontSize: 24 }}
-            >
-              Smaakprofiel
-            </h2>
-
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full"
-                    style={{ background: 'var(--hop-light)', color: 'var(--hop-dark)', fontFamily: 'DM Sans, sans-serif' }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {pairing && (
-              <div
-                style={{
-                  background: '#fff', border: '1px solid var(--line)',
-                  borderRadius: 12, padding: 20,
-                }}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="flex items-center justify-center shrink-0"
-                    style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--copper-light)', color: 'var(--copper)' }}
-                  >
-                    <Utensils size={18} />
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
-                        color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
-                      }}
-                    >
-                      Spijs-biercombinatie
-                    </div>
-                    <div
-                      className="mt-1.5"
-                      style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--ink)', lineHeight: 1.6 }}
-                    >
-                      {pairing}
-                    </div>
-                  </div>
+            <h2 className="font-display text-2xl font-bold mb-5">Smaakprofiel</h2>
+            <dl className="space-y-5">
+              {tasting.map(field => (
+                <div key={field.key}>
+                  <dt className="font-semibold text-foreground">{field.label}</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">{field.value}</dd>
                 </div>
-              </div>
-            )}
+              ))}
+            </dl>
           </div>
         </section>
       )}
