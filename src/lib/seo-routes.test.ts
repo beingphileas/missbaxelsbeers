@@ -6,7 +6,7 @@ describe('formatTitle', () => {
     expect(formatTitle('Bieren')).toBe("Bieren | MissBaxel's Beers");
   });
   it('never doubles the brand', () => {
-    expect(formatTitle("Verhalen, MissBaxel's Beers")).toBe("Verhalen | MissBaxel's Beers");
+    expect(formatTitle("Verhalen - MissBaxel's Beers")).toBe("Verhalen | MissBaxel's Beers");
     expect(formatTitle("Vie | MissBaxel's Beers")).toBe("Vie | MissBaxel's Beers");
   });
 });
