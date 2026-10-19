@@ -33,6 +33,15 @@ const DAYS: { key: string; label: string }[] = [
 
 const isClosed = (v: string) => /gesloten|closed|—|^-$/i.test(v.trim());
 
+// '050 33 12 80' -> '+3250331280'; keeps an already-international number as-is.
+const toTelHref = (phone: string) => {
+  const digits = phone.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) return `tel:${digits}`;
+  if (digits.startsWith('00')) return `tel:+${digits.slice(2)}`;
+  if (digits.startsWith('0')) return `tel:+32${digits.slice(1)}`;
+  return `tel:${digits}`;
+};
+
 export default function Restaurant() {
   const [r, setR] = useState<RestaurantRow | null>(null);
   const [pairings, setPairings] = useState<PairingBeer[]>([]);
@@ -234,7 +243,7 @@ export default function Restaurant() {
               {(r as any)?.phone && (
                 <div className="flex items-center gap-3" style={{ fontSize: 13 }}>
                   <Phone size={16} style={{ color: 'var(--copper)', flexShrink: 0 }} />
-                  <a href={`tel:${(r as any).phone === '050 33 12 80' ? '+3250331280' : (r as any).phone}`} style={{ color: 'var(--ink)' }} className="no-underline">
+                  <a href={toTelHref((r as any).phone)} style={{ color: 'var(--ink)' }} className="no-underline">
                     {(r as any).phone}
                   </a>
                 </div>
@@ -294,7 +303,7 @@ export default function Restaurant() {
 
             <iframe
               title="Kaart: Hooistraat 42, 8000 Brugge"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=3.2150%2C51.2040%2C3.2350%2C51.2140&layer=mapnik&marker=51.2090%2C3.2250"
+              src={'https://maps.google.com/maps?q=Hooistraat%2042%2C%208000%20Brugge&output=embed'}
               style={{ width: '100%', height: 240, border: '1px solid var(--line)', borderRadius: 12, marginTop: 16 }}
               loading="lazy"
             />
