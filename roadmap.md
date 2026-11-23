@@ -1,4 +1,9 @@
 # Taken
+- [x] Review 1-3: publicatiebeveiliging, provincie apart en migratiebackfill controleren/herstellen.
+- [x] Review 4-8,14-15: lead, recente brouwers, stempelkaart, kaartgebaren, contrast, koppen en mobiele filters.
+- [x] Review 9-11: tips via beveiligde functie, interviewverval/autosave en alleen publieke bieren.
+- [x] Review 12-13: brouwerijnaamvoorrang, robots en Engelse atlasprerender.
+- [x] 62 unit-, 10 integratie- en 4 functietests; aangemeld beheer, NL/EN desktop/390 px en Reviewronde gecontroleerd, geen publicatie.
 - [x] Alleen regel 7 van atlasvoorvertoning gecorrigeerd; 198 zichtbare brouwers en 14 feitenbeschrijvingen geladen zonder migratie of gewijzigde controle.
 - [x] Atlas en details in NL/EN op desktop en 390 px gecontroleerd; 198 kaartlocaties, 20 brewpubresultaten en 14 bestaande tests geslaagd, geen opmaakproblemen gevonden.
 - [x] Persoonlijke interviewlinks, beveiligd bewaren/insturen en conceptverhalen toegevoegd; lege testinzendingen verwijderd.

@@ -1,0 +1,3 @@
+import {useLanguage} from '@/hooks/useLanguage';
+import {Check} from 'lucide-react';
+export default function MapLegend(){const {lang}=useLanguage();const en=lang==='en';return <ul className="atlas-map-legend flex flex-wrap gap-x-6 gap-y-3 mt-4 text-sm text-muted-foreground" aria-label={en?'Map legend':'Kaartlegende'}><li><span className="atlas-legend-dot tasted" aria-hidden="true"/>{en?'MissBaxel tasted here':'MissBaxel proefde hier'}</li><li><span className="atlas-legend-dot" aria-hidden="true"/>{en?'Not tasted by MissBaxel yet':'Nog niet geproefd door MissBaxel'}</li><li><Check size={18} aria-hidden="true"/>{en?"You've been here":'Jij was hier'}</li></ul>;}

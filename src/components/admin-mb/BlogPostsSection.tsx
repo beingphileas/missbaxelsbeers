@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowLeft, Save } from 'lucide-react';
 import { AdminHeader, AdminCard, Field, inputCls, btnPrimary, btnGhost, btnDanger } from './ui';
 import { EDITORIAL_RUBRICS, ROLE_LABELS } from '@/lib/editorial';
+import {useLanguage} from '@/hooks/useLanguage';
+import {canPublishPost} from '@/lib/review-rules';
 import InterviewQuestionsPanel from './InterviewQuestionsPanel';
 
 interface PostRow {
@@ -83,6 +85,8 @@ export default function BlogPostsSection({initialEditId,onEditOpened}:{initialEd
 }
 
 function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onClose: () => void; onSaved: () => void }) {
+  const {lang}=useLanguage();const en=lang==='en';
+  const [status,setStatus]=useState(initial?.status || 'draft');
   const [title, setTitle] = useState(initial?.title || '');
   const [slug, setSlug] = useState(initial?.slug || '');
   const [date, setDate] = useState(initial?.date || '');
@@ -130,6 +134,8 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
 
   async function save() {
     if (!title.trim()) return toast.error('Titel verplicht');
+    if(status==='published'&&!canPublishPost([content,contentEn,excerpt,excerptEn,title,titleEn]))return toast.error(en?'Replace the [Marijke: placeholder before publishing.':'Vervang eerst de [Marijke: placeholder voordat je publiceert.');
+    if(status==='published'&&initial?.status!=='published'&&!window.confirm(en?'Publish this story? It will become visible to everyone.':'Dit verhaal publiceren? Het wordt voor iedereen zichtbaar.'))return;
     setSaving(true);
     const payload: any = {
       title: title.trim(), slug: slug.trim() || slugify(title),
@@ -144,7 +150,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       excerpt_en: excerptEn.trim() || null,
       content_en: contentEn.trim() || null,
       cover_image_url: coverImageUrl.trim() || null,
-      status: initial?.status || 'published',
+      status,
     };
     if (initial) {
       const { error } = await supabase.from('blog_posts').update(payload).eq('id', initial.id);
@@ -169,6 +175,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       <div className={showQuestions ? "grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5 items-start" : ""}>
       <AdminCard className="space-y-4 min-w-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label={en?'Status':'Status'}><select aria-label="Status" className={inputCls} value={status} onChange={e=>setStatus(e.target.value)}><option value="draft">{en?'Draft':'Concept'}</option><option value="published">{en?'Published':'Gepubliceerd'}</option></select></Field>
           <Field label="Titel"><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} /></Field>
           <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
           <Field label="Datum"><input type="date" className={inputCls} value={date} onChange={e => setDate(e.target.value)} /></Field>
@@ -225,7 +232,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
           )}
         </div>
       </AdminCard>
-      {showQuestions && <div className="lg:sticky lg:top-24"><InterviewQuestionsPanel role={person!.role} /></div>}
+      {showQuestions && <div className="lg:sticky lg:top-24"><InterviewQuestionsPanel role={person?.role || 'brewer'} /></div>}
       </div>
 
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2">

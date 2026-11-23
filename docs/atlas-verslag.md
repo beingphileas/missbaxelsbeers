@@ -189,3 +189,55 @@ De werkruimte had daarnaast al platformaanpassingen in `package.json` en `bun.lo
 - `src/pages/BrouwerDetail.tsx`
 
 Voor beide uitbreidingen zijn ook `AGENTS.md`, `roadmap.md` en dit verslag bijgewerkt. Niets gepubliceerd.
+## Reviewronde
+
+De vijftien punten zijn eerst getoetst aan de code, de draft en de app. Niets gepubliceerd. Er zijn geen brouwers, proefnotities of interviewantwoorden toegevoegd. Tijdelijke lege uitnodigingen, het tijdelijke concept en de formuliercontrole zijn verwijderd.
+
+| Punt | Status | Bevinding en herstel |
+| --- | --- | --- |
+| 1 | Opgelost | De editor behield inderdaad de oude status en maakte nieuwe posts standaard gepubliceerd. Er is nu een expliciete keuze Concept/Gepubliceerd, standaard concept voor nieuwe posts, plus bevestiging bij overgang naar gepubliceerd. De placeholder `[Marijke:` blokkeert publicatie in beide taalvelden, zowel in het formulier als via een database-trigger. De bevestiging is in beheer geweigerd tijdens de controle: er is niets gepubliceerd. |
+| 2 | Opgelost | Regio overschreef inderdaad provincie. Beide zijn nu afzonderlijke velden, provincie is een keuze met behoud van een eventuele bestaande afwijkende waarde. België heeft tien provincies plus Brussel, samen elf atlaskeuzes, niet elf provincies plus Brussel. Een regioaanpassing voor KEUN liet Oost-Vlaanderen intact; de oorspronkelijke regio is hersteld. |
+| 3 | Opgelost | Alleen-lezencontrole op de app bevestigde dat `atlas_visible` daar nog niet bestaat. Daarom is de nog niet op de app uitgevoerde migratie 0002 gericht aangepast: geen automatische zichtbaarheid, bestaande `first_seen` uit `created_at::date`. De geïmporteerde draftgegevens en hun expliciete importdatum zijn niet overschreven. |
+| 4 | Opgelost | De lead is letterlijk in NL en EN aangepast. Net ontdekt gebruikt alleen datums binnen de laatste zestig dagen, maximaal zes brouwers, en verdwijnt zonder recente rijen. Oudere en toekomstige datums zijn getest. |
+| 5 | Opgelost | Jouw stempelkaart heeft een eigen afgebakend blok. Bezoekkeuzes zijn vierkante aanvinkvakken, apart van MissBaxels pillen. Nieuwe NL/EN-labels op kaarten, detail en filters. Kaartlegende op overzicht en detail voor gevulde marker, open ring en persoonlijk vinkje. |
+| 6 | Opgelost | Gangbare Leaflet gesture handling laat eenvinger-paginascrollen en tweevinger-kaartbediening toe met NL/EN-hint. Mapinstantie en tegellaag blijven behouden tijdens bezoekkeuzes; alleen veranderde iconen worden bijgewerkt. Markers, clusters, zoomknoppen, chips en knoppen zijn minimaal 44 px. Clustertekst is opnieuw gecentreerd nadat de bestaande globale spanstijl die naar de hoek duwde. |
+| 7 | Opgelost | De originele koperkleur haalde voor kleine tekst onvoldoende contrast. Een atlasgebonden donkere kopertoken gebruikt de bestaande donkere koperfamilie, zonder het algemene sitepalet te veranderen. Automatische berekening controleert minimaal 4,5:1 voor accenttekst, gevulde pillen en de grijze stempel. |
+| 8 | Opgelost | Atlaskoppen gebruiken Outfit; Lora blijft voor de cursieve lead. De Home-atlaskop volgt de naastliggende sectiekoppen. Atlaskaarten gebruiken de bestaande zachte schaduwtoken. |
+| 9 | Opgelost | Rechtstreekse bezoekersinsert was inderdaad toegestaan. Deze rechten en de insertpolicy zijn ingetrokken. Het formulier gebruikt de beveiligde functie `brewer-tip`, vijf verzoeken per tien minuten per IP, honeypot en servervalidatie van lengtes, e-mail, soort en een zichtbare gekoppelde brouwerij. Correcties vereisen een zichtbare brouwerij; nieuwe tips hebben geen gekoppelde rij. |
+| 10 | Opgelost | Automatisch bewaren stond op 1,2 seconden. Nu vijf seconden na de laatste wijziging, met 240 verzoeken per tien minuten per gehashte token. Vervaldatum is zestig dagen na aanmaak, verlengbaar door beheer met zestig dagen. Verlopen links geven 410 en een vriendelijke taalgebonden melding; verwerkte links geven 404 zonder antwoorden. Ingestuurde antwoorden blijven niet wijzigbaar. |
+| 11 | Opgelost | Detailqueries en statusbackfill namen eerder verborgen bieren mee. Nu alleen `hide_name != true` en lifecycle current/coming_soon/sold_out/archive. Het publieke bieroverzicht, bierdetail en crawlerselectie gebruiken dezelfde grens, zodat niet-publieke namen geen detailroute of atlascollectie krijgen. Statusbackfill telt alleen gepubliceerde verhalen. Bestaande MissBaxel-notities zijn niet veranderd. |
+| 12 | Opgelost | Gekoppelde namen hadden inderdaad voorrang. `menu_brewery` krijgt weer voorrang, ook zonder gekoppelde brouwerij. De zichtbare atlaslink blijft wanneer er een passende hoofdbrouwerij is. |
+| 13 | Opgelost | Robots sluit `/aan-de-toog` uit. De bestaande prerenderaanpak ondersteunt Engelse atlasroutes: `/en/brouwers` en `/en/brouwers/:slug`, gedeelde slugs, expliciete Engelse inhoud, canonical en hreflang-paren. Geen persoonlijke tokenpagina in sitemap of prerender. |
+| 14 | Opgelost | De volledige stempeltekst is NL/EN aangepast. Lege mening op detail is uitsluitend “Hier heb ik nog niet geproefd.” met de bestaande startlink; Engelse versie overeenkomstig. Geen mening verzonnen. |
+| 15 | Opgelost | Mobiele algemene filters staan achter één Filters-knop met aantal actieve filters en aria-expanded. Het afzonderlijke stempelkaartblok blijft herkenbaar. Desktopfilters blijven direct beschikbaar. |
+
+### Verificatie
+
+- 62 Vitest-tests, 10 lokale functie-integratietests en 4 Deno-functietests slagen.
+- De nieuwste compilatiecontrole meldt `build OK`.
+- Desktop 1280 px en mobiel 390 px, beide in NL en EN: atlas, KEUN, lange brouwerijnaam, filters, stempelkaart en kaartlegende gecontroleerd; geen runtimefouten of horizontale overflow.
+- Alle 198 kaartlocaties zijn vertegenwoordigd. Een stempelklik behoudt dezelfde Leaflet-mapinstantie. Kaart met toetsenbord verschoven; touchsimulatie toont de juiste tweevingerhint. Eén vinger scrolt de pagina terwijl de kaartpositie vast blijft; twee afzonderlijke vingers verplaatsen de kaartmarkers.
+- Aangemeld beheer: conceptstatus opgeslagen en teruggelezen, placeholder geweigerd, publicatiebevestiging geweigerd, provincie apart van regio opgeslagen en teruggelezen.
+- Leeg interview: geen autosave voor vijf seconden, eenmaal bewaard na die wachttijd, toestemming teruggelezen na herladen. Verval 410, verlenging via beheer, alleen-lezen na insturen, conceptvorming en publieke 404 na verwerking gecontroleerd. Alle antwoorden bleven leeg.
+- De publicatie-trigger weigerde ook rechtstreeks een placeholderconcept als gepubliceerd op te slaan.
+- Correctieformulier op KEUN daadwerkelijk verstuurd en als aangemelde beheerder teruggelezen. Rechtstreekse anon insert geweigerd; verborgen brouwerij, verkeerde soort en ontbrekende correctiekoppeling geweigerd; honeypot weggegooid. Tijdelijke correctie verwijderd.
+- Prerender apart uitgevoerd tegen deze draft, zonder de app te bouwen of te publiceren: 198 NL- en 198 EN-brouwerijdetails, Engelse KEUN-inhoud, canonical, hreflang, sitemapparen en robotsuitsluiting gecontroleerd.
+- Draft behoudt 198 echte zichtbare brouwers en veertien feitenbeschrijvingen. De drie eerder verborgen verzonnen brouwers blijven verborgen.
+
+### Migraties en grenzen
+
+- 0002 is alleen gericht hersteld voor toekomstige toepassing op de app; de bijbehorende migratiejournaalvermelding is niet herschreven.
+- Nieuwe 0005 voegt interviewverval toe, trekt rechtstreekse tipinsert in en bewaakt verhaalpublicatie. Nu uitsluitend deze draft. Bij aanvaarden gaan structuurwijzigingen mee, zonder de draftgegevens.
+- De tip- en interviewfuncties zijn alleen in de draft beschikbaar gemaakt voor verificatie, geen sitepublicatie.
+- Geen echte inzending of verhaal gepubliceerd; de geslaagde publicatiehandeling is bewust niet uitgevoerd. De bevestigings- en blokkeerregels zijn wel getest.
+- Beheer op 390 px toont de bestaande desktopvereist-melding. Die bestaande toegangsvorm is niet aangepast omdat de review dat niet vraagt. Nieuwe publieke onderdelen zijn wel op 390 px gecontroleerd.
+- Touchsimulatie en toetsenbordcontrole zijn uitgevoerd; geen fysiek iOS/Android-toestel of brede screenreaderaudit gebruikt. Live crawler-serving blijft ongecontroleerd omdat niets gepubliceerd is.
+
+### Bestanden in deze review
+
+- Beheer: `BlogPostsSection.tsx`, `BreweriesSection.tsx`, `InterviewInvitesSection.tsx`.
+- Publiek: `Brouwers.tsx`, `BrouwerDetail.tsx`, `AanDeToog.tsx`, `BeerDetail.tsx`, `Beers.tsx`, `App.tsx`.
+- Atlas: `AtlasMap.tsx`, `MapLegend.tsx`, `AtlasLanguage.tsx`, `AtlasCards.tsx`, `VisitButton.tsx`, `BrewerTipForm.tsx`, `HomeAtlas.tsx`, `atlas.css` en de atlasaccenttoken in `src/index.css`.
+- Regels en tests: `review-rules.ts`, `review-rules.test.ts`, `atlas-contrast.test.ts`, `atlas.ts`, `atlas.test.ts`, `seo-routes.ts`, `seo-routes.test.ts`, `scripts/prerender.ts`, `public/robots.txt`.
+- Functies: `brewer-tip/index.ts`, `validation.ts`, `validation_test.ts`, `access.integration.ts`, `interview/index.ts`, `interview/access_test.ts`, `_shared/interviewAccess.ts`.
+- Structuur en documentatie: migraties 0002 en 0005, automatisch bijgewerkt migratiejournaal/snapshot/types, `package.json`, `bun.lock`, `AGENTS.md`, `roadmap.md` en dit verslag.

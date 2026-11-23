@@ -7,20 +7,21 @@ import {Button} from '@/components/ui/button';
 import SEOHead from '@/components/SEOHead';
 import NotFound from './NotFound';
 import {closingLabel,validInterviewToken,type InterviewAnswer} from '@/lib/interview';
+import {AUTOSAVE_MS} from '../../supabase/functions/_shared/interviewAccess';
 import '@/components/atlas/atlas.css';
 type Invite={person_name:string;language:'nl'|'en';status:string;answers:InterviewAnswer[];closing_answer:string;consent_publish:boolean;updated_at:string};
 async function request(body:unknown):Promise<Invite>{
  const {data,error}=await supabase.functions.invoke('interview',{body});
- if(error){let status=500;try{status=error.context?.status||500;}catch{/* generic error */}throw Object.assign(new Error('Interview request failed'),{status});}return data;
+ if(error){let status=500;let language;try{status=error.context?.status||500;const body=await error.context?.clone().json();language=body?.language;}catch{/* generic error */}throw Object.assign(new Error('Interview request failed'),{status,language});}return data;
 }
 export default function AanDeToog(){
  const {token=''}=useParams();const {lang,setLang}=useLanguage();
- const [invite,setInvite]=useState<Invite|null>(null);const [state,setState]=useState<'loading'|'ready'|'missing'|'error'>('loading');const [saved,setSaved]=useState<'saved'|'saving'|'changed'|'error'>('saved');const [sending,setSending]=useState(false);const [error,setError]=useState('');
+ const [invite,setInvite]=useState<Invite|null>(null);const [state,setState]=useState<'loading'|'ready'|'missing'|'expired'|'error'>('loading');const [saved,setSaved]=useState<'saved'|'saving'|'changed'|'error'>('saved');const [sending,setSending]=useState(false);const [error,setError]=useState('');
  const current=useRef<Invite|null>(null);const version=useRef('');const revision=useRef(0);const savedRevision=useRef(0);const queue=useRef<Promise<unknown>>(Promise.resolve());const timer=useRef<ReturnType<typeof setTimeout>>();const alive=useRef(true);const locked=useRef(false);
  const en=(invite?.language||lang)==='en';
  useEffect(()=>{alive.current=true;locked.current=false;revision.current=0;savedRevision.current=0;
   if(!validInterviewToken(token)){setState('missing');return;}
-  setState('loading');request({action:'get',token}).then(data=>{if(!alive.current)return;current.current=data;version.current=data.updated_at;setInvite(data);setLang(data.language);setState('ready');}).catch(e=>{if(alive.current)setState(e.status===404?'missing':'error');});
+  setState('loading');request({action:'get',token}).then(data=>{if(!alive.current)return;current.current=data;version.current=data.updated_at;setInvite(data);setLang(data.language);setState('ready');}).catch(e=>{if(alive.current){if(e.status===410&&(e.language==='nl'||e.language==='en'))setLang(e.language);setState(e.status===404?'missing':e.status===410?'expired':'error');}});
   return()=>{alive.current=false;clearTimeout(timer.current);};
  },[token]);
  useEffect(()=>{const warn=(e:BeforeUnloadEvent)=>{if(revision.current!==savedRevision.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
@@ -39,10 +40,11 @@ export default function AanDeToog(){
   };
   const promise=queue.current.catch(()=>{}).then(run);queue.current=promise;return promise;
  }
- function edit(next:Invite){if(locked.current)return;current.current=next;setInvite(next);revision.current+=1;setSaved('changed');clearTimeout(timer.current);timer.current=setTimeout(()=>{void persist('save').catch(()=>{});},1200);}
+ function edit(next:Invite){if(locked.current)return;current.current=next;setInvite(next);revision.current+=1;setSaved('changed');clearTimeout(timer.current);timer.current=setTimeout(()=>{void persist('save').catch(()=>{});},AUTOSAVE_MS);}
  async function submit(e:React.FormEvent){e.preventDefault();if(!current.current?.consent_publish)return;clearTimeout(timer.current);locked.current=true;setSending(true);try{await persist('submit');}catch{/* show retained answers and retry */}finally{locked.current=false;setSending(false);}}
  const head=<><SEOHead title={en?'At the bar with…':'Aan de toog met…'} description={en?'Your personal interview with MissBaxel.':'Jouw persoonlijke interview met MissBaxel.'} noindex/><Helmet><meta name="referrer" content="no-referrer"/></Helmet></>;
  if(state==='missing')return <>{head}<NotFound/></>;
+ if(state==='expired')return <div className="atlas max-w-3xl mx-auto px-5 py-14">{head}<h1 className="text-3xl mb-6">{en?'This link has expired':'Deze link is verlopen'}</h1><p>{en?'Your answers are still saved. Ask Marijke to extend your link so you can return to the bar.':'Je antwoorden blijven bewaard. Vraag Marijke om je link te verlengen, dan kan je weer aan de toog komen zitten.'}</p></div>;
  if(state==='loading')return <div className="atlas max-w-3xl mx-auto px-5 py-14">{head}<p role="status">{en?'Loading your questions…':'Je vragen laden…'}</p></div>;
  if(state==='error'||!invite)return <div className="atlas max-w-3xl mx-auto px-5 py-14">{head}<p role="alert">{en?'I could not load your interview. Please try again.':'Ik kon je interview niet laden. Probeer opnieuw.'}</p><Button onClick={()=>window.location.reload()}>{en?'Try again':'Probeer opnieuw'}</Button></div>;
  const readOnly=['ingestuurd','verwerkt'].includes(invite.status);

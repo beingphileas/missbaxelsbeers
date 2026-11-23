@@ -10,7 +10,7 @@ export function AtlasCounters({rows}:{rows:AtlasBrewery[]}) {
 }
 export function BreweryCard({brewery:b}:{brewery:AtlasBrewery}) {
  const {lang}=useLanguage();
- return <article><Link to={`/brouwers/${b.slug}`} className="group block rounded-lg bg-card p-6 no-underline border border-border transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
+ return <article><Link to={`/brouwers/${b.slug}`} className="atlas-card group block rounded-lg bg-card p-6 no-underline border border-border transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
  <p className="text-sm text-muted-foreground">{[municipality(b),provinceLabel(b.province,lang)].filter(Boolean).join(', ')}</p>
  <h3 className="text-xl mt-2 font-display break-words group-hover:text-primary">{b.name}</h3>
  <p className="text-sm mt-3 text-muted-foreground">{KINDS[breweryKind(b)][lang==='en'?1:0]}{b.established_year?` · ${b.established_year}`:''}</p>

@@ -70,6 +70,8 @@ const App = () => {
                 <Route path="/verhalen/:slug" element={<BlogPost />} />
                 <Route path="/en/verhalen/:slug" element={<BlogPost routeLang="en" />} />
                 <Route path="/aan-de-toog/:token" element={<AanDeToog />} />
+                <Route path="/en/brouwers" element={<Brouwers routeLang="en" />} />
+                <Route path="/en/brouwers/:slug" element={<BrouwerDetail routeLang="en" />} />
                 <Route path="/brouwers" element={<Brouwers />} />
                 <Route path="/brouwers/:slug" element={<BrouwerDetail />} />
                 <Route path="/beers" element={<Beers />} />

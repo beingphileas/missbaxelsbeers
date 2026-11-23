@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin } from 'vite';
 import { STATIC_ROUTES, SITE_URL, BRAND, formatTitle, buildSitemap, atlasSeoRoutes, type SitemapEntry } from '../src/lib/seo-routes';
+import {PUBLIC_BEER_STATUSES} from '../src/lib/review-rules';
 import { normalizeMarkdownEmphasis } from '../src/lib/markdown';
 
 const MAX_PRERENDER_PAGES = Number(process.env.MAX_PRERENDER_PAGES || 2000);
@@ -121,16 +122,18 @@ export function prerenderPlugin(env: Record<string, string>): Plugin {
       for (const r of STATIC_ROUTES) {
         pages.push({
           path: r.path, title: r.title || formatTitle(r.name), description: r.description,
+          lang: r.path.startsWith('/en/')?'en':'nl-BE',
+          alternates: r.path.endsWith('/brouwers')?{nl:'/brouwers',en:'/en/brouwers'}:null,
           body: `<h1>${esc(r.path === '/' ? BRAND : r.name)}</h1>\n<p>${esc(r.description)}</p>`,
         });
-        sitemap.push({ path: r.path });
+        if(r.path!=='/en/brouwers')sitemap.push({ path: r.path, ...(r.path==='/brouwers'?{enPath:'/en/brouwers'}:{}) });
       }
 
       let beers: any[] = []; let posts: any[] = []; let breweries: any[] = [];
       try {
         if (!base || !key) throw new Error('missing backend env');
         [beers, posts, breweries] = await Promise.all([
-          fetchRows(base, key, 'beers?select=slug,name,style,description,teaser,image_url,label_url,updated_at&slug=not.is.null&order=name'),
+          fetchRows(base, key, `beers?select=slug,name,style,description,teaser,image_url,label_url,updated_at&slug=not.is.null&or=(hide_name.is.null,hide_name.eq.false)&lifecycle_status=in.(${PUBLIC_BEER_STATUSES.join(',')})&order=name`),
           fetchRows(base, key, 'blog_posts?select=slug,title,excerpt,content,title_en,excerpt_en,content_en,cover_image_url,updated_at,date&status=eq.published&order=date.desc.nullslast'),
           fetchRows(base, key, 'breweries?select=id,name,slug,atlas_visible,municipality,location,province,address,location_precision,website_url,established_year,facts_nl,facts_en,missbaxel_note,missbaxel_note_en,has_own_installation,visitable,flagship_beers,sources,last_verified_at&atlas_visible=eq.true&slug=not.is.null&order=name'),
         ]);
@@ -140,19 +143,20 @@ export function prerenderPlugin(env: Record<string, string>): Plugin {
 
       const breweryList=breweries.map(b=>`<li><a href="/brouwers/${esc(b.slug)}">${esc(b.name)}</a> ${esc(b.municipality||b.location||'')}</li>`).join('');
       const safeLink=(s:unknown)=>{try {const u=new URL(String(s));return ['http:','https:'].includes(u.protocol)?u.href:null;}catch{return null;}};
-      for(const route of atlasSeoRoutes(breweries)) {
-        const b=breweries.find(b=>route.path===`/brouwers/${b.slug}`);
+      for(const route of [...atlasSeoRoutes(breweries),...atlasSeoRoutes(breweries,'en')]) {
+        const en=route.path.startsWith('/en/');
+        const b=breweries.find(b=>route.path===`${en?'/en':''}/brouwers/${b.slug}`);
         if(!b)continue;
         const sources=(Array.isArray(b.sources)?b.sources:[]).map(safeLink).filter(Boolean);
         const website=safeLink(b.website_url);
         const schema=[{'@context':'https://schema.org','@type':'Brewery',name:b.name,url:SITE_URL+route.path,address:{'@type':'PostalAddress',streetAddress:b.location_precision==='adres'?b.address||undefined:undefined,addressLocality:b.municipality||b.location||undefined,addressRegion:b.province,addressCountry:'BE'},sameAs:website||undefined},{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:SITE_URL+'/'},{'@type':'ListItem',position:2,name:'Atlas',item:SITE_URL+'/brouwers'},{'@type':'ListItem',position:3,name:b.name,item:SITE_URL+route.path}]}];
-        pages.push({path:route.path,title:formatTitle(route.name),description:route.description,body:`<h1>${esc(b.name)}</h1><p>${esc([b.municipality||b.location,b.province,b.established_year].filter(Boolean).join(', '))}</p><h2>De feiten</h2>${markdownToHtml(b.facts_nl||'')}<p>Eigen installatie: ${b.has_own_installation===null?'onbekend':b.has_own_installation?'ja':'nee'}. Te bezoeken: ${esc(b.visitable||'onbekend')}.</p>${b.flagship_beers?.length?`<p>Bekendste bieren: ${esc(b.flagship_beers.join(', '))}</p>`:''}${website?`<a href="${esc(website)}" rel="noopener">Website</a>`:''}<h2>Wat ik ervan vind</h2>${b.missbaxel_note?markdownToHtml(b.missbaxel_note)+'<p>MissBaxel</p>':'<p>Hier heb ik nog niet geproefd. Dat staat er eerlijk bij.</p>'}${sources.length?`<details><summary>Bronnen</summary><ul>${sources.map((u:string)=>`<li><a href="${esc(u)}" rel="nofollow noopener">${esc(u)}</a></li>`).join('')}</ul></details>`:''}<script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script>`});
-        sitemap.push({path:route.path});
+        pages.push({path:route.path,title:formatTitle(route.name),description:route.description,lang:en?'en':'nl-BE',alternates:{nl:`/brouwers/${b.slug}`,en:`/en/brouwers/${b.slug}`},body:`<h1>${esc(b.name)}</h1><p>${esc([b.municipality||b.location,b.province,b.established_year].filter(Boolean).join(', '))}</p><h2>${en?'The facts':'De feiten'}</h2>${markdownToHtml((en?b.facts_en:b.facts_nl)||'')}<p>${en?'Own installation':'Eigen installatie'}: ${b.has_own_installation===null?(en?'unknown':'onbekend'):b.has_own_installation?(en?'yes':'ja'):(en?'no':'nee')}. ${en?'Open to visitors':'Te bezoeken'}: ${esc(en?(({ja:'Yes','op afspraak':'By appointment',nee:'No',onbekend:'Unknown'} as Record<string,string>)[b.visitable]||'Unknown'):(b.visitable||'onbekend'))}.</p>${b.flagship_beers?.length?`<p>${en?'Best-known beers':'Bekendste bieren'}: ${esc(b.flagship_beers.join(', '))}</p>`:''}${website?`<a href="${esc(website)}" rel="noopener">${en?'Brewery website':'Website'}</a>`:''}<h2>${en?'What I think':'Wat ik ervan vind'}</h2>${(en?b.missbaxel_note_en:b.missbaxel_note)?markdownToHtml(en?b.missbaxel_note_en:b.missbaxel_note)+'<p>MissBaxel</p>':`<p>${en?'I have not tasted here yet.':'Hier heb ik nog niet geproefd.'}</p>`}${sources.length?`<details><summary>${en?'Sources':'Bronnen'}</summary><ul>${sources.map((u:string)=>`<li><a href="${esc(u)}" rel="nofollow noopener">${esc(u)}</a></li>`).join('')}</ul></details>`:''}<script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script>`});
+        if(!en)sitemap.push({path:route.path,enPath:`/en/brouwers/${b.slug}`});
       }
       const beerList = beers.map(b => `<li><a href="/beers/${esc(b.slug)}">${esc(b.name)}</a></li>`).join('');
       const postList = posts.map(p => `<li><a href="/verhalen/${esc(p.slug)}">${esc(p.title)}</a></li>`).join('');
       for (const p of pages) {
-        if (p.path === '/brouwers') p.body += `\n<ul>${breweryList}</ul>`;
+        if (p.path === '/brouwers' || p.path === '/en/brouwers') p.body += `\n<ul>${p.lang==='en'?breweryList.replaceAll('href="/brouwers/','href="/en/brouwers/'):breweryList}</ul>`;
         if (p.path === '/beers' && beerList) p.body += `\n<ul>${beerList}</ul>`;
         if (p.path === '/verhalen' && postList) p.body += `\n<ul>${postList}</ul>`;
       }
@@ -192,7 +196,7 @@ export function prerenderPlugin(env: Record<string, string>): Plugin {
       for (const p of capped) writePage(outDir, renderPage(template, p), p.path);
       fs.writeFileSync(path.join(outDir, 'sitemap.xml'), buildSitemap(sitemap));
       fs.writeFileSync(path.join(outDir, 'robots.txt'),
-        `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+        `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /aan-de-toog\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
       console.log(`[prerender] wrote ${capped.length} pages, ${sitemap.length} sitemap entries`);
     },
   };

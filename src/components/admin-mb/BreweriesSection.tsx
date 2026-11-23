@@ -7,7 +7,8 @@ import ImageUploader from './ImageUploader';
 import AtlasBreweryFields, {initialAtlas} from './AtlasBreweryFields';
 import {Button} from '@/components/ui/button';
 import {useLanguage} from '@/hooks/useLanguage';
-import {safeUrl} from '@/lib/atlas';
+import {ATLAS_PROVINCES} from '@/lib/review-rules';
+import {safeUrl,provinceLabel} from '@/lib/atlas';
 import type {Database} from '@/integrations/supabase/types';
 import {useQueryClient} from '@tanstack/react-query';
 
@@ -91,7 +92,9 @@ export default function BreweriesSection() {
 }
 
 function BreweryForm({ initial, onClose, onSaved }: { initial: BreweryRow | null; onClose: () => void; onSaved: () => void }) {
+  const {lang}=useLanguage();const en=lang==='en';
   const queryClient=useQueryClient();
+  const [province,setProvince]=useState(initial?.province || 'Onbekend');
   const [atlas,setAtlas]=useState(()=>initialAtlas(initial));
   const [name, setName] = useState(initial?.name || '');
   const [slug, setSlug] = useState(initial?.slug || '');
@@ -113,7 +116,7 @@ function BreweryForm({ initial, onClose, onSaved }: { initial: BreweryRow | null
       location: location.trim() || null, region: region.trim() || null,
       website_url: website.trim() || null, description: description.trim() || null,
       image_url: imageUrl, ...atlas,
-      province: region.trim() || initial?.province || 'Onbekend',
+      province,
       sources: (Array.isArray(atlas.sources)?atlas.sources:[]).filter(s=>typeof s==='string'&&s.trim()).map(s=>String(s).trim()),
       flagship_beers: atlas.flagship_beers.map(s=>s.trim()).filter(Boolean),
     };
@@ -149,7 +152,8 @@ function BreweryForm({ initial, onClose, onSaved }: { initial: BreweryRow | null
               <Field label="Naam"><input className={inputCls} value={name} onChange={e => setName(e.target.value)} /></Field>
               <Field label="Slug"><input className={inputCls} value={slug} onChange={e => setSlug(e.target.value)} /></Field>
               <Field label="Locatie (stad)"><input className={inputCls} value={location} onChange={e => setLocation(e.target.value)} /></Field>
-              <Field label="Regio / provincie"><input className={inputCls} value={region} onChange={e => setRegion(e.target.value)} /></Field>
+              <Field label={en?'Region':'Regio'}><input className={inputCls} value={region} onChange={e => setRegion(e.target.value)} /></Field>
+              <Field label={en?'Province':'Provincie'}><select aria-label={en?'Province':'Provincie'} className={inputCls} value={province} onChange={e=>setProvince(e.target.value)}>{!ATLAS_PROVINCES.some(p=>p===province)&&<option value={province}>{province}</option>}{ATLAS_PROVINCES.map(p=><option key={p} value={p}>{provinceLabel(p,lang)}</option>)}</select></Field>
               <Field label="Website"><input className={inputCls} value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://…" /></Field>
             </div>
           </AdminCard>

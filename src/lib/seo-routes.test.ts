@@ -37,3 +37,5 @@ describe('atlas crawler routes', () => {
     expect(xml).not.toContain('<lastmod>');
   });
 });
+
+it('pairs English atlas details with the same visible slugs',()=>{const rows=[{name:'KEUN',slug:'keun',atlas_visible:true},{name:'Hidden',slug:'hidden',atlas_visible:false}];expect(atlasSeoRoutes(rows,'en').map(r=>r.path)).toEqual(['/en/brouwers/keun']);const xml=buildSitemap([{path:'/brouwers/keun',enPath:'/en/brouwers/keun'}]);expect(xml).toContain('hreflang="en" href="https://missbaxelsbeers.com/en/brouwers/keun"');});

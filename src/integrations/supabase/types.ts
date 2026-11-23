@@ -688,6 +688,7 @@ export type Database = {
           closing_answer: string
           consent_publish: boolean
           created_at: string
+          expires_at: string
           id: string
           language: string
           person_name: string
@@ -705,6 +706,7 @@ export type Database = {
           closing_answer?: string
           consent_publish?: boolean
           created_at?: string
+          expires_at?: string
           id?: string
           language?: string
           person_name: string
@@ -722,6 +724,7 @@ export type Database = {
           closing_answer?: string
           consent_publish?: boolean
           created_at?: string
+          expires_at?: string
           id?: string
           language?: string
           person_name?: string

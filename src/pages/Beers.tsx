@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import CollectionBeerCard from '@/components/atlas/CollectionBeerCard';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
+import {isPublicBeer} from '@/lib/review-rules';
 import { populatedFilters } from '@/lib/beer-presentation';
 
 const DISPLAY = "'Outfit', 'Inter', system-ui, sans-serif";
@@ -113,12 +114,12 @@ export default function Beers() {
   }, []);
 
   const visibleFilters = populatedFilters(STYLE_FILTERS, id =>
-    beers.some(b => b.lifecycle_status !== 'pipeline' && matchesCategory(b, id as Cat)));
+    beers.some(b => isPublicBeer(b) && matchesCategory(b, id as Cat)));
 
   const released = useMemo(() => {
     const q = search.trim().toLowerCase();
     return beers
-      .filter(b => b.lifecycle_status !== 'pipeline')
+      .filter(b => isPublicBeer(b))
       .filter(b => matchesCategory(b, cat))
       .filter(b => {
         if (!q) return true;
@@ -129,7 +130,7 @@ export default function Beers() {
 
   const collabs = useMemo(() =>
     beers
-      .filter(b => b.is_collab && b.lifecycle_status !== 'archive')
+      .filter(b => b.is_collab && isPublicBeer(b) && b.lifecycle_status !== 'archive')
       .sort((a, b) => {
         if (!a.release_date && !b.release_date) return 0;
         if (!a.release_date) return 1;

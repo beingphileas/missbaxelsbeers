@@ -11,6 +11,7 @@ import NotFound from '@/pages/NotFound';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/T';
+import {PUBLIC_BEER_STATUSES} from '@/lib/review-rules';
 import { hasEmptyBeerDetail, sensoryFields } from '@/lib/beer-presentation';
 
 
@@ -80,6 +81,7 @@ export default function BeerDetail() {
         .from('beers')
         .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors, visual_notes, aroma_notes, taste_notes, brewery_id, menu_brewery')
         .eq('slug', id)
+        .or('hide_name.is.null,hide_name.eq.false').in('lifecycle_status',[...PUBLIC_BEER_STATUSES])
         .maybeSingle();
 
       if (!b && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)) {
@@ -87,6 +89,7 @@ export default function BeerDetail() {
           .from('beers')
           .select('id, slug, name, style, style_category, abv, description, marijke_idea, brew_story, pairing_suggestion, food_pairing, image_url, label_url, is_collab, is_current, flavor_profile, primary_flavors, visual_notes, aroma_notes, taste_notes, brewery_id, menu_brewery')
           .eq('id', id)
+          .or('hide_name.is.null,hide_name.eq.false').in('lifecycle_status',[...PUBLIC_BEER_STATUSES])
           .maybeSingle();
         b = r.data;
       }
@@ -251,10 +254,10 @@ export default function BeerDetail() {
               {tBeerName}
             </h1>
 
-            {breweries.length > 0 && (
+            {(breweries.length > 0 || beer.menu_brewery) && (
               <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
                 Gebrouwen bij{' '}
-                {main.length?main.map((b,i)=><span key={b.id}>{i>0?' & ':''}{b.atlas_visible&&b.slug?<Link to={`/brouwers/${b.slug}`} className="text-primary underline">{b.name}</Link>:b.name}</span>):beer.menu_brewery}
+                {beer.menu_brewery ? (main[0]?.atlas_visible&&main[0]?.slug?<Link to={`/brouwers/${main[0].slug}`} className="text-primary underline">{beer.menu_brewery}</Link>:beer.menu_brewery) : main.map((b,i)=><span key={b.id}>{i>0?' & ':''}{b.atlas_visible&&b.slug?<Link to={`/brouwers/${b.slug}`} className="text-primary underline">{b.name}</Link>:b.name}</span>)}
                 {co.map((b) => (
                   <span key={b.id}>
                     {' '}&amp;{' '}
@@ -403,7 +406,7 @@ export default function BeerDetail() {
       )}
 
       {/* DE BROUWERIJ(EN) */}
-      {breweries.length > 0 && (
+      {(breweries.length > 0 || beer.menu_brewery) && (
         <section style={{ borderBottom: '1px solid var(--line)', padding: '36px 0' }}>
           <div className="max-w-3xl mx-auto px-5">
             <h2

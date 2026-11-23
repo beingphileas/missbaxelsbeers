@@ -4,7 +4,7 @@ export type AtlasLang = 'nl' | 'en';
 export const ATLAS_SELECT = 'id,name,slug,municipality,location,province,type,brewery_category,established_year,website_url,address,lat,lng,atlas_visible,has_own_installation,visitable,facts_nl,facts_en,sources,flagship_beers,location_precision,missbaxel_status,missbaxel_note,missbaxel_note_en,first_seen,last_verified_at';
 export const STAMPS: Record<string, [string,string]> = {
  samen_gebrouwen: ['Samen gebrouwen','Brewed together'], aan_de_toog: ['Aan de toog geweest','Met at the bar'],
- geproefd: ['Geproefd door MissBaxel','Tasted by MissBaxel'], nog_niet_geproefd: ['Nog niet geproefd','Not tasted yet'],
+ geproefd: ['Geproefd door MissBaxel','Tasted by MissBaxel'], nog_niet_geproefd: ['Nog niet geproefd door MissBaxel','Not tasted by MissBaxel yet'],
 };
 export const KINDS: Record<string,[string,string]> = {
  microbrouwerij:['Microbrouwerij','Microbrewery'],brewpub:['Brewpub','Brewpub'],bierfirma:['Bierfirma','Beer company'],steker:['Steker','Beer blender'],hoevebrouwerij:['Hoevebrouwerij','Farm brewery'],

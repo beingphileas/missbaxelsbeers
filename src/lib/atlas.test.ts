@@ -15,5 +15,5 @@ describe('atlas filters',()=>{
  it('supports all five kinds without rewriting stored type',()=>{expect(breweryKind(b({brewery_category:'brewpub'}))).toBe('brewpub');expect(breweryKind(b({brewery_category:'hoevebrouwerij'}))).toBe('hoevebrouwerij');expect(breweryKind(b({type:'Blender/Stekerij'}))).toBe('steker');});
 });
 describe('atlas stamps',()=>{
- it.each([['samen_gebrouwen','Samen gebrouwen','Brewed together'],['aan_de_toog','Aan de toog geweest','Met at the bar'],['geproefd','Geproefd door MissBaxel','Tasted by MissBaxel'],['nog_niet_geproefd','Nog niet geproefd','Not tasted yet']])('%s uses the requested label', (key,nl,en)=>{expect(stampLabel(key)).toBe(nl);expect(stampLabel(key,'en')).toBe(en);});
+ it.each([['samen_gebrouwen','Samen gebrouwen','Brewed together'],['aan_de_toog','Aan de toog geweest','Met at the bar'],['geproefd','Geproefd door MissBaxel','Tasted by MissBaxel'],['nog_niet_geproefd','Nog niet geproefd door MissBaxel','Not tasted by MissBaxel yet']])('%s uses the requested label', (key,nl,en)=>{expect(stampLabel(key)).toBe(nl);expect(stampLabel(key,'en')).toBe(en);});
 });

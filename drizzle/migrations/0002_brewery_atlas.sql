@@ -17,10 +17,11 @@ WITH bases AS (
 ), ranked AS (SELECT id,base,row_number() OVER (PARTITION BY base ORDER BY id) n FROM bases)
 UPDATE public.breweries b SET slug=r.base || CASE WHEN r.n>1 THEN '-'||b.id::text ELSE '' END FROM ranked r WHERE b.id=r.id AND (b.slug IS DISTINCT FROM (r.base || CASE WHEN r.n>1 THEN '-'||b.id::text ELSE '' END));
 CREATE UNIQUE INDEX breweries_atlas_slug_unique ON public.breweries(slug);
-UPDATE public.breweries b SET atlas_visible = b.name NOT IN ('Diverse brouwerijen','MissBaxel''s Beers','Brouwerij Halve Maan','Brouwerij Verhaeghe'),
+-- Existing breweries stay hidden until an explicit import or admin action.
+UPDATE public.breweries b SET first_seen = b.created_at::date,
  missbaxel_status = CASE
- WHEN EXISTS (SELECT 1 FROM public.beers e WHERE e.is_collab=true AND (e.brewery_id=b.id OR EXISTS (SELECT 1 FROM public.beer_breweries j WHERE j.beer_id=e.id AND j.brewery_id=b.id))) THEN 'samen_gebrouwen'
- WHEN EXISTS (SELECT 1 FROM public.beers e WHERE e.brewery_id=b.id) OR EXISTS (SELECT 1 FROM public.beer_breweries j WHERE j.brewery_id=b.id) OR EXISTS (SELECT 1 FROM public.blog_posts p WHERE p.brewery_id=b.id) OR EXISTS (SELECT 1 FROM public.blog_post_breweries j WHERE j.brewery_id=b.id) THEN 'geproefd'
+ WHEN EXISTS (SELECT 1 FROM public.beers e WHERE e.is_collab=true AND COALESCE(e.hide_name,false)=false AND e.lifecycle_status IN ('current','coming_soon','sold_out','archive') AND (e.brewery_id=b.id OR EXISTS (SELECT 1 FROM public.beer_breweries j WHERE j.beer_id=e.id AND j.brewery_id=b.id))) THEN 'samen_gebrouwen'
+ WHEN EXISTS (SELECT 1 FROM public.beers e WHERE COALESCE(e.hide_name,false)=false AND e.lifecycle_status IN ('current','coming_soon','sold_out','archive') AND (e.brewery_id=b.id OR EXISTS (SELECT 1 FROM public.beer_breweries j WHERE j.brewery_id=b.id AND j.beer_id=e.id))) OR EXISTS (SELECT 1 FROM public.blog_posts p WHERE p.status='published' AND (p.brewery_id=b.id OR EXISTS (SELECT 1 FROM public.blog_post_breweries j WHERE j.brewery_id=b.id AND j.blog_post_id=p.id))) THEN 'geproefd'
  ELSE 'nog_niet_geproefd' END;
 CREATE TABLE public.brewer_tips (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz NOT NULL DEFAULT now(),
