@@ -1,4 +1,5 @@
 # Taken
+- [x] Zes hercontrolepunten: tikvlakken, markerpositie, taalroutes, bezoektekst en stil bewaren na linkverlenging; 82 tests, NL/EN desktop/390 px en verslag gecontroleerd, niets gepubliceerd.
 - [x] Review 1-3: publicatiebeveiliging, provincie apart en migratiebackfill controleren/herstellen.
 - [x] Review 4-8,14-15: lead, recente brouwers, stempelkaart, kaartgebaren, contrast, koppen en mobiele filters.
 - [x] Review 9-11: tips via beveiligde functie, interviewverval/autosave en alleen publieke bieren.

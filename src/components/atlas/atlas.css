@@ -3,7 +3,7 @@
 .atlas-lead { font-family: Lora, serif; font-style: italic; }
 .atlas-map { height: 440px; width: 100%; z-index: 0; border-radius: 8px; overflow: hidden; }
 .atlas-map.compact { height: 260px; }
-.atlas-pin { background: transparent; border: 0; display: grid; place-items: center; }
+.atlas .atlas-pin { background: transparent; border: 0; display: grid; place-items: center; }
 .atlas-pin span { display: block; width: 20px; height: 20px; border: 3px solid hsl(var(--primary)); border-radius: 50%; background: hsl(var(--background)); }
 .atlas-pin.tasted span { background: hsl(var(--primary)); }
 .atlas-cluster { display: grid; place-items: center; border-radius: 50%; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: 2px solid hsl(var(--background)); font-weight: 700; }
@@ -15,10 +15,11 @@
 
 .collection-beer { --atlas-beer-image: var(--bg-cream); --atlas-beer-shadow: var(--shadow-soft); --atlas-beer-muted: #8a7868; }
 
-.atlas-visit-check { position: absolute; right: 0; bottom: 0; display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; font-size: 11px; font-weight: 700; background: hsl(var(--foreground)); color: hsl(var(--background)); border: 1px solid hsl(var(--background)); }
+.atlas-visit-check { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; font-size: 11px; font-weight: 700; background: hsl(var(--foreground)); color: hsl(var(--background)); border: 1px solid hsl(var(--background)); }
 
 .atlas button, .atlas [role="checkbox"], .atlas input:not([type="checkbox"]), .atlas select { min-height: 44px; }
 .atlas .leaflet-control-zoom a { width: 44px; height: 44px; line-height: 44px; }
+.atlas .leaflet-popup a.leaflet-popup-close-button { width: 44px; height: 44px; display: grid; place-items: center; }
 .atlas .leaflet-popup-content a { display: inline-flex; align-items: center; min-height: 44px; }
 .atlas .leaflet-popup-content { overflow-wrap: anywhere; }
 .atlas-map-legend li { display: flex; align-items: center; gap: 8px; }

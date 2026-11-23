@@ -8,6 +8,7 @@ import SEOHead from '@/components/SEOHead';
 import NotFound from './NotFound';
 import {closingLabel,validInterviewToken,type InterviewAnswer} from '@/lib/interview';
 import {AUTOSAVE_MS} from '../../supabase/functions/_shared/interviewAccess';
+import {saveAfterRenewal} from '@/lib/interview-save';
 import '@/components/atlas/atlas.css';
 type Invite={person_name:string;language:'nl'|'en';status:string;answers:InterviewAnswer[];closing_answer:string;consent_publish:boolean;updated_at:string};
 async function request(body:unknown):Promise<Invite>{
@@ -17,11 +18,11 @@ async function request(body:unknown):Promise<Invite>{
 export default function AanDeToog(){
  const {token=''}=useParams();const {lang,setLang}=useLanguage();
  const [invite,setInvite]=useState<Invite|null>(null);const [state,setState]=useState<'loading'|'ready'|'missing'|'expired'|'error'>('loading');const [saved,setSaved]=useState<'saved'|'saving'|'changed'|'error'>('saved');const [sending,setSending]=useState(false);const [error,setError]=useState('');
- const current=useRef<Invite|null>(null);const version=useRef('');const revision=useRef(0);const savedRevision=useRef(0);const queue=useRef<Promise<unknown>>(Promise.resolve());const timer=useRef<ReturnType<typeof setTimeout>>();const alive=useRef(true);const locked=useRef(false);
+ const current=useRef<Invite|null>(null);const baseline=useRef<Invite|null>(null);const version=useRef('');const revision=useRef(0);const savedRevision=useRef(0);const queue=useRef<Promise<unknown>>(Promise.resolve());const timer=useRef<ReturnType<typeof setTimeout>>();const alive=useRef(true);const locked=useRef(false);
  const en=(invite?.language||lang)==='en';
  useEffect(()=>{alive.current=true;locked.current=false;revision.current=0;savedRevision.current=0;
   if(!validInterviewToken(token)){setState('missing');return;}
-  setState('loading');request({action:'get',token}).then(data=>{if(!alive.current)return;current.current=data;version.current=data.updated_at;setInvite(data);setLang(data.language);setState('ready');}).catch(e=>{if(alive.current){if(e.status===410&&(e.language==='nl'||e.language==='en'))setLang(e.language);setState(e.status===404?'missing':e.status===410?'expired':'error');}});
+  setState('loading');request({action:'get',token}).then(data=>{if(!alive.current)return;current.current=data;baseline.current=data;version.current=data.updated_at;setInvite(data);setLang(data.language);setState('ready');}).catch(e=>{if(alive.current){if(e.status===410&&(e.language==='nl'||e.language==='en'))setLang(e.language);setState(e.status===404?'missing':e.status===410?'expired':'error');}});
   return()=>{alive.current=false;clearTimeout(timer.current);};
  },[token]);
  useEffect(()=>{const warn=(e:BeforeUnloadEvent)=>{if(revision.current!==savedRevision.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
@@ -32,8 +33,8 @@ export default function AanDeToog(){
    if(action==='save'&&rev===savedRevision.current)return;
    if(alive.current)setSaved('saving');
    try{
-    const response=await request({action,token,answers:value.answers.map(({question_id,answer})=>({question_id,answer})),closing_answer:value.closing_answer,consent_publish:value.consent_publish,version:version.current});
-    version.current=response.updated_at;savedRevision.current=rev;
+    const response=await saveAfterRenewal(baseline.current||value,nextVersion=>request({action,token,answers:value.answers.map(({question_id,answer})=>({question_id,answer})),closing_answer:value.closing_answer,consent_publish:value.consent_publish,version:nextVersion}),()=>request({action:'get',token}));
+    baseline.current=response;version.current=response.updated_at;savedRevision.current=rev;
     if(action==='submit'){current.current=response;if(alive.current)setInvite(response);}else if(current.current)current.current={...current.current,updated_at:response.updated_at,status:response.status};
     if(alive.current){setSaved(revision.current===rev?'saved':'changed');setError('');}
    }catch(e){if(alive.current){setSaved('error');setError(en?'I could not save your answers. Please try again before closing this page.':'Ik kon je antwoorden niet bewaren. Probeer opnieuw voordat je deze pagina sluit.');}throw e;}

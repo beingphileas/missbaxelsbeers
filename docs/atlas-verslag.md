@@ -241,3 +241,21 @@ De vijftien punten zijn eerst getoetst aan de code, de draft en de app. Niets ge
 - Regels en tests: `review-rules.ts`, `review-rules.test.ts`, `atlas-contrast.test.ts`, `atlas.ts`, `atlas.test.ts`, `seo-routes.ts`, `seo-routes.test.ts`, `scripts/prerender.ts`, `public/robots.txt`.
 - Functies: `brewer-tip/index.ts`, `validation.ts`, `validation_test.ts`, `access.integration.ts`, `interview/index.ts`, `interview/access_test.ts`, `_shared/interviewAccess.ts`.
 - Structuur en documentatie: migraties 0002 en 0005, automatisch bijgewerkt migratiejournaal/snapshot/types, `package.json`, `bun.lock`, `AGENTS.md`, `roadmap.md` en dit verslag.
+
+### Laatste hercontrole: zes gerichte punten
+
+| Punt | Status | Herstel en controle |
+| --- | --- | --- |
+| 1 | Opgelost | De sluitlink van de Leaflet-popup heeft expliciet een tikvlak van 44 × 44 px. In de browser gemeten op desktop en 390 px. |
+| 2 | Opgelost | Het bezoekvinkje staat in het midden van het markerbolletje. De atlasgebonden gridregel krijgt voorrang op Leaflets blokweergave. De gemeten middelpunten van bolletje en vinkje verschillen 0 px, zowel mobiel als desktop. |
+| 3 | Opgelost | De Home-knop heeft expliciet minimaal 44 px hoogte, ook als de knop als link wordt weergegeven. Beide talen gemeten. |
+| 4 | Opgelost | De Engelse atlasroutes bestaan. Kaartpopup, atlaskaarten, teruglink, startlink en atlasbreadcrumb volgen nu de actieve taal via één gedeelde routehelper. Ook de Home-atlaslink blijft in de gekozen taal. NL- en EN-links gecontroleerd op 1280 en 390 px. |
+| 5 | Opgelost | Marker-title, alt en aria-label vermelden bij een bezoek opnieuw “jij was hier” of “you've been here”. De tekst wordt meteen bijgewerkt bij aan- en uitvinken, ook wanneer een marker later uit een cluster verschijnt. Beide talen in de browser en in een gerichte test gecontroleerd. |
+| 6 | Opgelost | Na een versieconflict haalt de pagina de actuele opgeslagen versie op en bewaart één keer opnieuw zonder foutmelding, uitsluitend als de opgeslagen antwoorden, toestemming en bewerkbare status sinds het laden of vorige bewaren ongewijzigd zijn. Zo wordt een linkverlenging stil opgevangen zonder wijzigingen uit een andere sessie te overschrijven. Aangemeld beheer verlengde een link tijdens een wachtende autosave: eerst 409, daarna automatisch 200, geen zichtbare fout, keuze na herladen behouden. Antwoordvelden bleven leeg; de tijdelijke uitnodiging is verwijderd. |
+
+#### Controles en bestanden
+
+- 68 Vitest-tests, 10 lokale integratietests en 4 Deno-functietests slagen, samen 82 tests. Nieuwe tests dekken taalroutes, markerbezoektekst en veilig opnieuw bewaren.
+- Laatste compilatie: `build OK`. NL/EN op 1280 en 390 px gecontroleerd, zonder runtimefouten of horizontale overflow.
+- Alleen de zes gevraagde punten aangepast. Geen nieuwe migratie, geen verhaal of antwoord toegevoegd, niets gepubliceerd.
+- Gewijzigd: `src/components/atlas/atlas.css`, `HomeAtlas.tsx`, `AtlasMap.tsx`, `AtlasCards.tsx`, `src/pages/BrouwerDetail.tsx`, `src/pages/AanDeToog.tsx`, `src/lib/atlas-navigation.ts`, `atlas-navigation.test.ts`, `interview-save.ts`, `interview-save.test.ts`, `AGENTS.md`, `roadmap.md` en dit verslag.

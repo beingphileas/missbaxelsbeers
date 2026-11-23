@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import {type AtlasBrewery,type AtlasLang,municipality,stampLabel} from '@/lib/atlas';
 import {useStampCard} from '@/hooks/useStampCard';
+import {atlasPath,atlasMarkerLabel} from '@/lib/atlas-navigation';
 import './atlas.css';
 L.Map.addInitHook('addHandler','gestureHandling',GestureHandling);
 const icon=(b:AtlasBrewery,visited:boolean)=>L.divIcon({html:`<span></span>${visited?'<small class="atlas-visit-check" aria-hidden="true">✓</small>':''}`,className:`atlas-pin ${b.missbaxel_status==='nog_niet_geproefd'?'':'tasted'}`,iconSize:[44,44],iconAnchor:[22,22]});
@@ -27,15 +28,16 @@ export default function AtlasMap({rows,lang,compact=false}:{rows:AtlasBrewery[];
   for(const [id,marker] of markers.current){if(!ids.has(id)){cluster.removeLayer(marker);markers.current.delete(id);changed=true;}}
   for(const b of valid){
    if(markers.current.has(b.id))continue;
-   const popup=document.createElement('div');const name=document.createElement('strong');name.textContent=b.name;const place=document.createElement('p');place.textContent=municipality(b);const status=document.createElement('p');status.textContent=stampLabel(b.missbaxel_status,lang);const link=document.createElement('a');link.href=`/brouwers/${b.slug}`;link.textContent=lang==='nl'?'Bekijk brouwerij':'View brewery';popup.append(name,place,status,link);
-   const marker=L.marker([b.lat,b.lng],{keyboard:true,title:`${b.name}, ${municipality(b)}`,alt:b.name,icon:icon(b,latestVisited.current.includes(b.id))}).bindPopup(popup);markers.current.set(b.id,marker);cluster.addLayer(marker);changed=true;
+   const popup=document.createElement('div');const name=document.createElement('strong');name.textContent=b.name;const place=document.createElement('p');place.textContent=municipality(b);const status=document.createElement('p');status.textContent=stampLabel(b.missbaxel_status,lang);const link=document.createElement('a');link.href=atlasPath(lang,b.slug);link.textContent=lang==='nl'?'Bekijk brouwerij':'View brewery';popup.append(name,place,status,link);
+   const label=atlasMarkerLabel(b,lang,latestVisited.current.includes(b.id));
+   const marker=L.marker([b.lat,b.lng],{keyboard:true,title:label,alt:label,icon:icon(b,latestVisited.current.includes(b.id))}).bindPopup(popup);marker.on('add',()=>marker.getElement()?.setAttribute('aria-label',marker.options.title||''));markers.current.set(b.id,marker);cluster.addLayer(marker);changed=true;
   }
   if(changed&&valid.length)map.fitBounds(valid.map(b=>[b.lat,b.lng] as L.LatLngTuple),{padding:[35,35],maxZoom:compact?13:10});
  },[rows,lang,compact]);
  useEffect(()=>{
   const next=new Set(visited);const before=previousVisited.current;
-  for(const b of rows){if(next.has(b.id)!==before.has(b.id))markers.current.get(b.id)?.setIcon(icon(b,next.has(b.id)));}
+  for(const b of rows){if(next.has(b.id)!==before.has(b.id)){const marker=markers.current.get(b.id);if(!marker)continue;const label=atlasMarkerLabel(b,lang,next.has(b.id));marker.options.title=label;marker.options.alt=label;marker.setIcon(icon(b,next.has(b.id)));marker.getElement()?.setAttribute('aria-label',label);}}
   previousVisited.current=next;
- },[visited,rows]);
+ },[visited,rows,lang]);
  return <div ref={ref} className={`atlas-map ${compact?'compact':''}`} role="region" aria-label={lang==='nl'?'Kaart van brouwerijen':'Brewery map'} tabIndex={0}/>;
 }

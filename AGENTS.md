@@ -17,3 +17,4 @@
 - Public atlas beer links and status backfills use named beers in the shared public lifecycle states; brewery province remains independent of region.
 - Personal interview access expires after the stored deadline and closes after processing; only admins can extend deadlines.
 - Atlas NL/EN routes share slugs and data fields with build-time prerender and hreflang pairs, preserving the existing language store.
+- Use the shared atlas path helper for atlas navigation and retry interview version conflicts only when the saved answer snapshot is unchanged, so language and concurrent answers are preserved.
