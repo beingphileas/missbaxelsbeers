@@ -24,4 +24,4 @@ export const ROLE_LABELS: Record<string, string> = {
 
 export const ROLE_KEYS = Object.keys(ROLE_LABELS);
 
-export const INTERVIEW_CLOSING_LINE = 'Heb je al gegeten?';
+export { INTERVIEW_CLOSING_LINE } from '../../supabase/functions/_shared/interviewContent';

@@ -7,13 +7,15 @@ import BreweriesSection from '@/components/admin-mb/BreweriesSection';
 import BlogPostsSection from '@/components/admin-mb/BlogPostsSection';
 import BierstekersSection from '@/components/admin-mb/BierstekersSection';
 import RestaurantSection from '@/components/admin-mb/RestaurantSection';
+import InterviewInvitesSection from '@/components/admin-mb/InterviewInvitesSection';
 import TipsSection from '@/components/admin-mb/TipsSection';
 import PeopleSection from '@/components/admin-mb/PeopleSection';
 
-type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'mensen' | 'tips';
+type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'mensen' | 'tips' | 'toog';
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bieren', label: 'Bieren', icon: Beer },
+  { key: 'toog', label: 'Aan de toog', icon: Users },
   { key: 'tips', label: 'Tips', icon: Newspaper },
   { key: 'brouwerijen', label: 'Brouwerijen', icon: Building2 },
   { key: 'blogposts', label: 'Blogposts', icon: Newspaper },
@@ -24,6 +26,7 @@ const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any>
 
 export default function AdminPanel() {
   const { user } = useAuth();
+  const [editPostId,setEditPostId]=useState<string|null>(null);
   const [section, setSection] = useState<SectionKey>('bieren');
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
@@ -97,9 +100,10 @@ export default function AdminPanel() {
         <div>
           {section === 'bieren' && <BeersSection />}
           {section === 'brouwerijen' && <BreweriesSection />}
-          {section === 'blogposts' && <BlogPostsSection />}
+          {section === 'blogposts' && <BlogPostsSection initialEditId={editPostId} onEditOpened={()=>setEditPostId(null)} />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
+          {section === 'toog' && <InterviewInvitesSection onOpenPost={id=>{setEditPostId(id);setSection('blogposts');}} />}
           {section === 'tips' && <TipsSection />}
           {section === 'mensen' && <PeopleSection />}
         </div>

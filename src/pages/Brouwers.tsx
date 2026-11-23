@@ -1,6 +1,8 @@
 import {useMemo} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {useLanguage} from '@/hooks/useLanguage';
+import {useStampCard} from '@/hooks/useStampCard';
+import {filterVisits,visitCount} from '@/lib/stamp-card';
 import {useAtlas} from '@/hooks/useAtlas';
 import {filterBreweries,readAtlasFilters,KINDS,STAMPS,stampLabel,provinceLabel} from '@/lib/atlas';
 import {Button} from '@/components/ui/button';
@@ -12,7 +14,8 @@ import BrewerTipForm from '@/components/atlas/BrewerTipForm';
 import '@/components/atlas/atlas.css';
 export default function Brouwers(){
  const {lang}=useLanguage();const en=lang==='en';const [params,setParams]=useSearchParams();const {data=[],isLoading,isError,refetch}=useAtlas();
- const filters=readAtlasFilters(params);const filtered=useMemo(()=>filterBreweries(data,filters),[data,params.toString()]);
+ const {visited}=useStampCard();const visitMode=params.get('stempelkaart')||'';
+ const filters=readAtlasFilters(params);const filtered=useMemo(()=>filterVisits(filterBreweries(data,filters),visited,visitMode),[data,params.toString(),visited]);
  const recent=useMemo(()=>[...data].sort((a,b)=>b.first_seen.localeCompare(a.first_seen)||a.name.localeCompare(b.name)).slice(0,6),[data]);
  function update(key:string,value:string){const next=new URLSearchParams(params);if(value)next.set(key,value);else next.delete(key);setParams(next,{replace:true});}
  const chip=(key:string,value:string,label:string,active:boolean)=><Button key={value} size="sm" className="rounded-full whitespace-normal h-auto min-h-9 text-left" variant={active?'default':'outline'} aria-pressed={active} onClick={()=>update(key,active?'':value)}>{label}</Button>;
@@ -24,9 +27,9 @@ export default function Brouwers(){
  <fieldset className="mb-4"><legend className="text-sm text-muted-foreground mb-2">{en?'Province':'Provincie'}</legend><div className="flex flex-wrap gap-2">{Array.from(new Set(data.map(b=>b.province).filter(Boolean))).sort().map(p=>chip('provincie',p,provinceLabel(p,lang),filters.province===p))}</div></fieldset>
  <fieldset className="mb-4"><legend className="text-sm text-muted-foreground mb-2">{en?'Type':'Soort'}</legend><div className="flex flex-wrap gap-2">{Object.entries(KINDS).map(([k,labels])=>chip('soort',k,labels[en?1:0],filters.kind===k))}</div></fieldset>
  <fieldset className="mb-4"><legend className="text-sm text-muted-foreground mb-2">MissBaxel</legend><div className="flex flex-wrap gap-2">{Object.keys(STAMPS).map(k=>chip('status',k,stampLabel(k,lang),filters.status===k))}</div></fieldset>
- <div className="flex flex-wrap gap-2 mb-6">{chip('bezoek','ja',en?'Open to visitors':'Te bezoeken',filters.visitable)}{chip('installatie','ja',en?'Own installation':'Eigen installatie',filters.own)}{params.size>0&&<Button variant="ghost" onClick={()=>setParams({})}>{en?'Clear filters':'Wis filters'}</Button>}</div>
+ <div className="flex flex-wrap gap-2 mb-6">{chip('bezoek','ja',en?'Open to visitors':'Te bezoeken',filters.visitable)}{chip('installatie','ja',en?'Own installation':'Eigen installatie',filters.own)}{chip('stempelkaart','bezocht',en?'Where I have been':'Waar ik was',visitMode==='bezocht')}{chip('stempelkaart','nog_niet',en?'Where I still want to go':'Waar ik nog moet langsgaan',visitMode==='nog_niet')}{params.size>0&&<Button variant="ghost" onClick={()=>setParams({})}>{en?'Clear filters':'Wis filters'}</Button>}</div>
  {isLoading?<p role="status" className="py-16">{en?'Loading breweries…':'Brouwers laden…'}</p>:isError?<div role="alert" className="py-10"><p>{en?'The atlas could not be loaded.':'De atlas kon niet geladen worden.'}</p><Button onClick={()=>refetch()}>{en?'Try again':'Probeer opnieuw'}</Button></div>:<>
- <LazyAtlasMap rows={filtered} lang={lang}/><div aria-live="polite" className="my-6 text-muted-foreground">{filtered.length} {en?'breweries':'brouwers'}</div>
+ <LazyAtlasMap rows={filtered} lang={lang}/><p className="mt-6 text-sm text-muted-foreground" aria-live="polite">{en?`Your stamp card: ${visitCount(data,visited)} of ${data.length}`:`Jouw stempelkaart: ${visitCount(data,visited)} van ${data.length}`}</p><div aria-live="polite" className="my-6 text-muted-foreground">{filtered.length} {en?'breweries':'brouwers'}</div>
  {filtered.length?<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">{filtered.map(b=><BreweryCard key={b.id} brewery={b}/>)}</div>:<p className="py-10">{en?'No breweries match these filters.':'Met deze filters vind ik geen brouwers.'}</p>}
  </>}
  </section>

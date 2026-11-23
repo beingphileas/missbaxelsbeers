@@ -680,6 +680,75 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_invites: {
+        Row: {
+          answers: Json
+          blog_post_id: string | null
+          brewery_id: string | null
+          closing_answer: string
+          consent_publish: boolean
+          created_at: string
+          id: string
+          language: string
+          person_name: string
+          photo_url: string | null
+          role: string
+          status: string
+          submitted_at: string | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          answers?: Json
+          blog_post_id?: string | null
+          brewery_id?: string | null
+          closing_answer?: string
+          consent_publish?: boolean
+          created_at?: string
+          id?: string
+          language?: string
+          person_name: string
+          photo_url?: string | null
+          role?: string
+          status?: string
+          submitted_at?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          blog_post_id?: string | null
+          brewery_id?: string | null
+          closing_answer?: string
+          consent_publish?: boolean
+          created_at?: string
+          id?: string
+          language?: string
+          person_name?: string
+          photo_url?: string | null
+          role?: string
+          status?: string
+          submitted_at?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_invites_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_invites_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interview_questions: {
         Row: {
           id: string
@@ -846,6 +915,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_interview_draft: {
+        Args: { p_content: string; p_invite_id: string }
+        Returns: string
+      }
       fuzzy_match_brewery: {
         Args: { search_name: string }
         Returns: {

@@ -15,6 +15,7 @@ import { installErrorReporter } from "@/lib/errorReporter";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+const AanDeToog = lazy(() => import("./pages/AanDeToog"));
 const Brouwers = lazy(() => import("./pages/Brouwers"));
 const BrouwerDetail = lazy(() => import("./pages/BrouwerDetail"));
 const Home = lazy(() => import("./pages/Home"));
@@ -68,6 +69,7 @@ const App = () => {
                 <Route path="/verhalen" element={<Verhalen />} />
                 <Route path="/verhalen/:slug" element={<BlogPost />} />
                 <Route path="/en/verhalen/:slug" element={<BlogPost routeLang="en" />} />
+                <Route path="/aan-de-toog/:token" element={<AanDeToog />} />
                 <Route path="/brouwers" element={<Brouwers />} />
                 <Route path="/brouwers/:slug" element={<BrouwerDetail />} />
                 <Route path="/beers" element={<Beers />} />

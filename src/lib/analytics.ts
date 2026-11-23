@@ -10,6 +10,7 @@ const ENDPOINT =
 function send(name: string, props?: Record<string, string | number | boolean>) {
   if (!DOMAIN) return; // silently disabled
   if (typeof window === 'undefined') return;
+  if (window.location.pathname.startsWith('/aan-de-toog/')) return;
   try {
     const payload = {
       name,

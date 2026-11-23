@@ -1,4 +1,8 @@
 # Taken
+- [x] Persoonlijke interviewlinks, beveiligd bewaren/insturen en conceptverhalen toegevoegd; lege testinzendingen verwijderd.
+- [x] Bezoekersstempelkaart met lokale opslag, filters en kaartvinkjes toegevoegd.
+- [x] 53 tests en 6 tokenintegratietests slagen; desktop, 390 px, toetsenbord en conceptstatus gecontroleerd.
+- [x] Uitbreidingsverslag per onderdeel bijgewerkt, beperkingen benoemd; niets gepubliceerd.
 - [x] Atlasvelden, unieke slugs, statusbackfill en afgeschermde tips toegevoegd.
 - [x] Tweetalige atlas, kaart, filters, detail en tipformulier gebouwd.
 - [x] Atlas geïntegreerd in Home, navigatie, bierdetail en crawlerbestanden.

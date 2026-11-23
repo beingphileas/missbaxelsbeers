@@ -14,3 +14,5 @@
 @media (max-width: 640px) { .atlas-map { height: 360px; } }
 
 .collection-beer { --atlas-beer-image: var(--bg-cream); --atlas-beer-shadow: var(--shadow-soft); --atlas-beer-muted: #8a7868; }
+
+.atlas-visit-check { position: absolute; right: -7px; bottom: -7px; display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; font-size: 11px; font-weight: 700; background: hsl(var(--foreground)); color: hsl(var(--background)); border: 1px solid hsl(var(--background)); }

@@ -90,3 +90,102 @@ Deze wijzigingen gelden nu alleen voor deze draft. Aanvaarden neemt de wijziging
 - `docs/atlas-verslag.md`
 
 De werkruimte had daarnaast al platformaanpassingen in `package.json` en `bun.lock` voor de voorvertoning. Voor de atlas waren geen extra pakketten nodig: Leaflet en markercluster waren al aanwezig.
+
+## Uitbreiding A: Aan de toog met…
+
+### Wat toegevoegd is
+
+- Beheeronderdeel “Aan de toog” om een persoonlijke uitnodiging te maken met naam, brouwerij, rol en taal.
+- Willekeurige persoonlijke token van 64 tekens, uitsluitend rechtstreeks leesbaar en wijzigbaar voor beheerders.
+- Kopieerbare link en persoonlijk berichtje; er wordt niets automatisch gemaild.
+- Pagina `/aan-de-toog/:token` met de vaste rolvragen in uitnodigingstaal, de afsluiter en maximaal 3000 tekens per antwoord. Geen antwoord is verplicht.
+- De bestaande vragenset wordt bij uitnodigen in volgorde vastgelegd. Geen nieuwe vragen of antwoorden verzonnen.
+- Tussentijds bewaren met een korte wachttijd, melding “bewaard”, herstel na herladen en waarschuwing bij sluiten met onbevestigde wijzigingen.
+- Verplichte publicatietoestemming voor insturen. Na insturen blijven antwoorden voor de brouwer alleen leesbaar.
+- Beveiligde functie met de bestaande verzoeklimiethelper, lengtecontroles, versiecontrole tegen overschrijven en minimale antwoorden zonder token in de response.
+- Ingestuurde uitnodigingen met toestemming worden één conceptverhaal. Bestaande personen worden hergebruikt. Nieuwe personen worden alleen gemaakt voor een daadwerkelijk uitgenodigde naam als die nog niet bestaat.
+- Antwoorden worden letterlijk overgenomen, alleen dubbele spaties worden teruggebracht tot één spatie. De opgegeven regel voor Marijkes aanloopje staat bovenaan.
+- Een Engelstalig interview bewaart dezelfde inhoud ook in de Engelse verhaalvelden; er wordt geen Nederlandse vertaling verzonnen.
+- Concept blijft `draft`, ook bij opslaan in het bestaande verhaalbeheer. Brouwerijstatus verandert niet automatisch.
+- `noindex`, `no-referrer`, `no-store`, geen sitemap of prerender voor persoonlijke links, geen verzending naar de eigen appstatistieken. Leeftijdscontrole blijft staan.
+
+### Migratie
+
+- `drizzle/migrations/0004_interview_invites.sql`: uitnodigingen, strikte velden, adminregels en een afgeschermde transactie voor eenmalige conceptaanmaak.
+- Nu alleen in deze draft toegepast. Bij aanvaarden gaan de structuurwijzigingen mee naar de app; de data van deze draft niet.
+
+### Controles
+
+- Persoonlijke link gemaakt als aangemelde beheerder voor een reeds bestaande persoon in deze draft.
+- Publieke vragen, automatisch bewaren, teruglezen na herladen en insturen gecontroleerd. Antwoordvelden bleven leeg; er zijn geen voorbeeldantwoorden ingevoerd.
+- Toestemming verplicht, alleen-lezen na insturen in de pagina én weigering van een nieuwe schrijfopdracht met status 409 gecontroleerd.
+- Concept aangemaakt, gekoppelde bestaande persoon en brouwerij gecontroleerd, vervolgens via de bestaande editor opgeslagen. Status bleef `draft`; brouwerijstatus bleef `geproefd`.
+- Nederlandse desktopversie en Engelse versie op 390 px bekeken, zonder horizontale overflow of runtimefouten. Toestemmingsvinkje met toetsenbord bediend.
+- Bestaande leeftijdscontrole op een schone browser gecontroleerd.
+- Tien interviewtests controleren tokens, letterlijk overnemen, vraagvolgorde, lege antwoorden, dubbele spaties en de grens van 3000 tekens.
+- Zes integratietests slagen: geen token, ongeldig token en onbekend token geven niets leesbaars; publieke callers kunnen geen uitnodiging of concept maken en geen uitnodigingsrijen lezen.
+- Tijdelijke lege uitnodigingen en het lege concept verwijderd. Geen brouwers, personen of antwoorden toegevoegd aan de blijvende data.
+
+### Niet gecontroleerd
+
+- Een interview met echte antwoorden is niet ingestuurd, omdat die niet zijn aangeleverd en niet verzonnen mogen worden. Letterlijk overnemen is met afzonderlijke tests gecontroleerd.
+- Geen nieuwe persoon aangemaakt tijdens de browsercontrole; die tak is aanwezig maar niet end-to-end uitgevoerd om geen verzonnen personen toe te voegen.
+- Geen echte mail, publicatie of beoordeling door een brouwer uitgevoerd.
+- Geen brede screenreaderaudit en geen belastingtest van de verzoeklimiet uitgevoerd.
+- De app stuurt tokenpagina’s niet naar haar eigen statistieken. Logging van hosting en externe infrastructuur op de gepubliceerde site is niet gecontroleerd. Behandel de persoonlijke link als geheim en deel hem uitsluitend met de bedoelde brouwer.
+
+### Gewijzigde bestanden
+
+- `src/pages/AanDeToog.tsx`
+- `src/components/admin-mb/InterviewInvitesSection.tsx`
+- `src/components/admin-mb/BlogPostsSection.tsx`
+- `src/pages/AdminPanel.tsx`
+- `src/App.tsx`
+- `src/lib/interview.ts`, `src/lib/interview.test.ts`
+- `src/lib/editorial.ts` (bestaande afsluiter centraal hergebruikt)
+- `src/lib/analytics.ts`
+- `src/lib/seo-routes.test.ts`
+- `supabase/functions/interview/index.ts`
+- `supabase/functions/interview/access.integration.ts`
+- `supabase/functions/_shared/interviewContent.ts`
+- `src/integrations/supabase/types.ts`
+- `drizzle/migrations/0004_interview_invites.sql`
+- `drizzle/migrations/meta/0004_snapshot.json`, `drizzle/migrations/meta/_journal.json`
+
+## Uitbreiding B: Mijn stempelkaart
+
+### Wat toegevoegd is
+
+- Kleine aan/uitknop “Ik was hier” op iedere atlaskaart en op brouwerijdetail, ook in het Engels.
+- Opslag uitsluitend op het apparaat onder `missbaxels_visited_breweries.v1`. Geen account en geen gegevens naar de server.
+- Lezen en schrijven gebeurt met try/catch; bij geblokkeerde opslag blijft de keuze voor de huidige sessie in geheugen beschikbaar.
+- Regel “Jouw stempelkaart: n van totaal” boven de lijst, met alleen bezoeken aan momenteel zichtbare brouwerijen in de telling.
+- Deelbare filters “Waar ik was” en “Waar ik nog moet langsgaan”. De bezoekkeuzes zelf worden niet meegedeeld in de URL.
+- Klein eigen vinkje op bezochte kaartmarkers. De koperkleurige MissBaxel-stempel en het afzonderlijke bezoekersknopje blijven verschillende signalen.
+- Geen scores, ranglijsten, extra badges of effecten toegevoegd.
+
+### Controles
+
+- Acht tests voor aan/uit, opslagherstel, corrupte opslag, geheugenfallback, tabbladmeldingen, filters en tellen.
+- Desktop: knop met Enter bediend, telling en kaartvinkje gecontroleerd, keuze na herladen behouden, beide filters getest en keuze op detail weer uitgezet.
+- 390 px: kaarten, telling en Engelse detailknop bekeken en gebruikt; geen horizontale overflow.
+- Laatste browsercontroles melden geen runtimefouten.
+- Alle 53 Vitest-tests en de zes aparte tokenintegratietests slagen. Compilatie meldt `build OK`.
+
+### Niet gecontroleerd
+
+- Opslagblokkering is in een afzonderlijke test gecontroleerd, niet in elke browserprivacyvariant.
+- Geen vergelijking tussen verschillende apparaten: stempels zijn bewust lokaal en worden niet gesynchroniseerd.
+
+### Gewijzigde bestanden
+
+- `src/lib/stamp-card.ts`, `src/lib/stamp-card.test.ts`
+- `src/hooks/useStampCard.ts`
+- `src/components/atlas/VisitButton.tsx`
+- `src/components/atlas/AtlasCards.tsx`
+- `src/components/atlas/AtlasMap.tsx`
+- `src/components/atlas/atlas.css`
+- `src/pages/Brouwers.tsx`
+- `src/pages/BrouwerDetail.tsx`
+
+Voor beide uitbreidingen zijn ook `AGENTS.md`, `roadmap.md` en dit verslag bijgewerkt. Niets gepubliceerd.

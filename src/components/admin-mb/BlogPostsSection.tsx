@@ -7,7 +7,7 @@ import { EDITORIAL_RUBRICS, ROLE_LABELS } from '@/lib/editorial';
 import InterviewQuestionsPanel from './InterviewQuestionsPanel';
 
 interface PostRow {
-  id: string; title: string; slug: string; date: string | null; style: string | null;
+  status: string; id: string; title: string; slug: string; date: string | null; style: string | null;
   style_category: string | null; brewery_name: string | null; excerpt: string | null;
   content: string; external_url: string | null; image_emoji: string | null;
   rubric: string | null; person_id: string | null;
@@ -17,7 +17,7 @@ interface PostRow {
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-export default function BlogPostsSection() {
+export default function BlogPostsSection({initialEditId,onEditOpened}:{initialEditId?:string|null;onEditOpened?:()=>void}={}) {
   const [rows, setRows] = useState<PostRow[]>([]);
   const [editing, setEditing] = useState<PostRow | null>(null);
   const [creating, setCreating] = useState(false);
@@ -26,13 +26,15 @@ export default function BlogPostsSection() {
   async function load() {
     setLoading(true);
     const { data, error } = await supabase.from('blog_posts')
-      .select('id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji,rubric,person_id,title_en,excerpt_en,content_en')
+      .select('status,id,title,slug,date,style,style_category,brewery_name,excerpt,content,external_url,image_emoji,rubric,person_id,title_en,excerpt_en,content_en')
       .order('date', { ascending: false, nullsFirst: false })
       .limit(1000);
     if (error) toast.error(error.message); else setRows((data as any) || []);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
+
+  useEffect(()=>{if(initialEditId&&rows.length){const row=rows.find(r=>r.id===initialEditId);if(row){setEditing(row);onEditOpened?.();}}},[initialEditId,rows,onEditOpened]);
 
   async function remove(id: string) {
     if (!confirm('Blogpost verwijderen?')) return;
@@ -142,7 +144,7 @@ function PostForm({ initial, onClose, onSaved }: { initial: PostRow | null; onCl
       excerpt_en: excerptEn.trim() || null,
       content_en: contentEn.trim() || null,
       cover_image_url: coverImageUrl.trim() || null,
-      status: 'published',
+      status: initial?.status || 'published',
     };
     if (initial) {
       const { error } = await supabase.from('blog_posts').update(payload).eq('id', initial.id);

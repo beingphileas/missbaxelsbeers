@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatTitle, buildSitemap, atlasSeoRoutes } from './seo-routes';
+import { formatTitle, buildSitemap, atlasSeoRoutes, STATIC_ROUTES } from './seo-routes';
 
 describe('formatTitle', () => {
   it('appends the brand once', () => {
@@ -21,6 +21,10 @@ describe('buildSitemap', () => {
 });
 
 describe('atlas crawler routes', () => {
+  it('never lists personal interview links among crawler routes', () => {
+    expect(STATIC_ROUTES.some(route => route.path.startsWith('/aan-de-toog'))).toBe(false);
+    expect(buildSitemap(STATIC_ROUTES)).not.toContain('/aan-de-toog/');
+  });
   it('only includes visible breweries with a slug and omits inferred modification dates', () => {
     const routes = atlasSeoRoutes([
       { name: 'Brouwerij A', slug: 'brouwerij-a', atlas_visible: true, municipality: 'Brugge' },

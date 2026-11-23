@@ -1,0 +1,35 @@
+import {useEffect,useState} from 'react';
+import {Copy,Plus} from 'lucide-react';
+import {supabase} from '@/integrations/supabase/client';
+import {Button} from '@/components/ui/button';
+import {useLanguage} from '@/hooks/useLanguage';
+import {toast} from 'sonner';
+import {ROLE_KEYS,roleLabel,inviteMessage,closingLabel,type InterviewAnswer} from '@/lib/interview';
+import {SITE_URL} from '@/lib/seo-routes';
+import type {Database} from '@/integrations/supabase/types';
+type Invite=Database['public']['Tables']['interview_invites']['Row'];
+const statusLabels:Record<string,[string,string]>={uitgenodigd:['Uitgenodigd','Invited'],bezig:['Bezig','In progress'],ingestuurd:['Ingestuurd','Submitted'],verwerkt:['Verwerkt','Processed']};
+export default function InterviewInvitesSection({onOpenPost}:{onOpenPost:(id:string)=>void}){
+ const {lang}=useLanguage();const en=lang==='en';const [rows,setRows]=useState<Invite[]>([]);const [breweries,setBreweries]=useState<{id:string;name:string}[]>([]);const [loading,setLoading]=useState(true);const [creating,setCreating]=useState(false);const [name,setName]=useState('');const [brewery,setBrewery]=useState('');const [role,setRole]=useState('brewer');const [language,setLanguage]=useState<'nl'|'en'>('nl');const [busy,setBusy]=useState(false);const [selected,setSelected]=useState<string|null>(null);const [error,setError]=useState('');
+ async function load(){setLoading(true);try{const all:Invite[]=[];const bs:{id:string;name:string}[]=[];
+  for(let start=0;;start+=1000){const {data,error}=await supabase.from('interview_invites').select('*').order('created_at',{ascending:false}).range(start,start+999);if(error)throw error;all.push(...(data||[]));if(!data||data.length<1000)break;}
+  for(let start=0;;start+=1000){const {data,error}=await supabase.from('breweries').select('id,name').order('name').range(start,start+999);if(error)throw error;bs.push(...(data||[]));if(!data||data.length<1000)break;}
+  setRows(all);setBreweries(bs);setError('');
+ }catch{setError(en?'The invitations could not be loaded.':'De uitnodigingen konden niet geladen worden.');}finally{setLoading(false);}}
+ useEffect(()=>{void load();},[]);
+ async function create(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');const {data,error}=await supabase.functions.invoke('interview',{body:{action:'create',person_name:name,brewery_id:brewery||null,role,language}});setBusy(false);if(error){setError(en?'The invitation could not be created. Check that this role has a question set.':'De uitnodiging kon niet gemaakt worden. Controleer of er een vragenset voor deze rol is.');return;}setSelected(data.id);setCreating(false);setName('');await load();}
+ async function draft(row:Invite){setBusy(true);const {data,error}=await supabase.functions.invoke('interview',{body:{action:'draft',invite_id:row.id}});setBusy(false);if(error){toast.error(en?'The draft could not be created.':'Het concept kon niet gemaakt worden.');return;}await load();toast.success(en?'Draft created, not published.':'Concept gemaakt, niet gepubliceerd.');setSelected(row.id);}
+ async function copy(text:string){try{await navigator.clipboard.writeText(text);toast.success(en?'Copied':'Gekopieerd');}catch{toast.error(en?'Copy failed. You can select the text below.':'Kopiëren lukte niet. Je kan de tekst hieronder selecteren.');}}
+ const cls='w-full border border-border rounded-lg p-3 bg-card';
+ const current=rows.find(r=>r.id===selected);const link=current?`${SITE_URL}/aan-de-toog/${current.token}`:'';
+ return <section><div className="flex justify-between items-center gap-4 mb-6"><h1 className="text-2xl">{en?'At the bar':'Aan de toog'}</h1><Button onClick={()=>setCreating(v=>!v)}><Plus/>{en?'Create invitation':'Uitnodiging maken'}</Button></div>
+ {error&&<p role="alert" className="my-4">{error}</p>}
+ {creating&&<form onSubmit={create} className="grid md:grid-cols-2 gap-4 mb-8 border-b border-border pb-6"><label>{en?'Name':'Naam'}<input className={cls} required minLength={2} maxLength={160} value={name} onChange={e=>setName(e.target.value)}/></label><label>{en?'Brewery':'Brouwerij'}<select aria-label={en?'Brewery':'Brouwerij'} className={cls} value={brewery} onChange={e=>setBrewery(e.target.value)}><option value="">{en?'Not linked':'Niet gekoppeld'}</option>{breweries.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label><label>{en?'Role':'Rol'}<select aria-label={en?'Role':'Rol'} className={cls} value={role} onChange={e=>setRole(e.target.value)}>{ROLE_KEYS.map(r=><option key={r} value={r}>{roleLabel(r,lang)}</option>)}</select></label><label>{en?'Invitation language':'Taal van uitnodiging'}<select aria-label={en?'Invitation language':'Taal van uitnodiging'} className={cls} value={language} onChange={e=>setLanguage(e.target.value==='en'?'en':'nl')}><option value="nl">Nederlands</option><option value="en">English</option></select></label><Button type="submit" disabled={busy} className="justify-self-start">{en?'Create link':'Maak link'}</Button></form>}
+ {loading?<p role="status">{en?'Loading…':'Laden…'}</p>:rows.length===0?<p>{en?'No invitations yet.':'Er zijn nog geen uitnodigingen.'}</p>:<div className="space-y-3">{rows.map(r=><article key={r.id} className="bg-card rounded-lg border border-border p-4 flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-lg">{r.person_name}</h2><p className="text-sm text-muted-foreground">{statusLabels[r.status]?.[en?1:0]} · {roleLabel(r.role,lang)} · {r.language.toUpperCase()}</p></div><Button variant="outline" onClick={()=>setSelected(r.id)}>{en?'View invitation':'Bekijk uitnodiging'}</Button></article>)}</div>}
+ {current&&<div className="mt-8 border-t border-border pt-6 space-y-5"><h2 className="text-xl">{current.person_name}</h2><div className="flex items-start gap-2"><input readOnly value={link} aria-label={en?'Personal link':'Persoonlijke link'} className={`${cls} min-w-0`}/><Button variant="outline" size="icon" title={en?'Copy link':'Kopieer link'} aria-label={en?'Copy link':'Kopieer link'} onClick={()=>copy(link)}><Copy/></Button></div><div><p className="whitespace-pre-wrap break-words leading-relaxed">{inviteMessage(current.person_name,link,current.language)}</p><Button variant="outline" className="mt-3" onClick={()=>copy(inviteMessage(current.person_name,link,current.language))}><Copy/>{en?'Copy message':'Kopieer bericht'}</Button></div>
+ <div className="space-y-5">{(current.answers as unknown as InterviewAnswer[]).map(a=><div key={a.question_id}><h3 className="font-semibold mb-2">{a.question}</h3><p className="whitespace-pre-wrap break-words">{a.answer}</p></div>)}<h3 className="font-semibold">{closingLabel(current.language)}</h3><p className="whitespace-pre-wrap">{current.closing_answer}</p></div>
+ {current.status==='ingestuurd'&&current.consent_publish&&<Button disabled={busy} onClick={()=>draft(current)}>{en?'Create draft story':'Maak conceptverhaal'}</Button>}
+ {current.blog_post_id&&<Button variant="outline" onClick={()=>{if(current.blog_post_id)onOpenPost(current.blog_post_id);}}>{en?'Edit draft story':'Bewerk conceptverhaal'}</Button>}
+ </div>}
+ </section>;
+}
