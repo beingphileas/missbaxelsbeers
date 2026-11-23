@@ -1,4 +1,6 @@
 # Taken
+- [x] Alleen regel 7 van atlasvoorvertoning gecorrigeerd; 198 zichtbare brouwers en 14 feitenbeschrijvingen geladen zonder migratie of gewijzigde controle.
+- [x] Atlas en details in NL/EN op desktop en 390 px gecontroleerd; 198 kaartlocaties, 20 brewpubresultaten en 14 bestaande tests geslaagd, geen opmaakproblemen gevonden.
 - [x] Persoonlijke interviewlinks, beveiligd bewaren/insturen en conceptverhalen toegevoegd; lege testinzendingen verwijderd.
 - [x] Bezoekersstempelkaart met lokale opslag, filters en kaartvinkjes toegevoegd.
 - [x] 53 tests en 6 tokenintegratietests slagen; desktop, 390 px, toetsenbord en conceptstatus gecontroleerd.
