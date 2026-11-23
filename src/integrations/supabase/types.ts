@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   public: {
     Tables: {
       beer_breweries: {
@@ -479,9 +474,57 @@ export type Database = {
           },
         ]
       }
+      brewer_tips: {
+        Row: {
+          brewery_id: string | null
+          brewery_name: string
+          contact_email: string | null
+          created_at: string
+          id: string
+          is_brewer: boolean
+          kind: string
+          municipality: string
+          status: string
+          why: string
+        }
+        Insert: {
+          brewery_id?: string | null
+          brewery_name: string
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          is_brewer?: boolean
+          kind?: string
+          municipality: string
+          status?: string
+          why: string
+        }
+        Update: {
+          brewery_id?: string | null
+          brewery_name?: string
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          is_brewer?: boolean
+          kind?: string
+          municipality?: string
+          status?: string
+          why?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brewer_tips_brewery_id_fkey"
+            columns: ["brewery_id"]
+            isOneToOne: false
+            referencedRelation: "breweries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       breweries: {
         Row: {
           address: string | null
+          atlas_visible: boolean
           brewery_category: string
           code: string | null
           company_number: string | null
@@ -490,17 +533,27 @@ export type Database = {
           email: string | null
           established_year: number | null
           facebook_url: string | null
+          facts_en: string | null
+          facts_nl: string | null
           featured: boolean
+          first_seen: string
+          flagship_beers: string[]
           google_rating: number | null
           google_review_count: number | null
           google_url: string | null
+          has_own_installation: boolean | null
           id: string
           image_url: string | null
           is_brewsite: boolean
           last_scraped_at: string | null
+          last_verified_at: string | null
           lat: number
           lng: number
           location: string | null
+          location_precision: string | null
+          missbaxel_note: string | null
+          missbaxel_note_en: string | null
+          missbaxel_status: string
           municipality: string | null
           name: string
           official_name: string | null
@@ -510,6 +563,7 @@ export type Database = {
           rating_weight: number | null
           region: string | null
           slug: string | null
+          sources: Json
           story: string | null
           story_ai_generated: boolean
           type: string
@@ -517,10 +571,12 @@ export type Database = {
           untappd_review_count: number | null
           untappd_url: string | null
           updated_at: string
+          visitable: string | null
           website_url: string | null
         }
         Insert: {
           address?: string | null
+          atlas_visible?: boolean
           brewery_category?: string
           code?: string | null
           company_number?: string | null
@@ -529,17 +585,27 @@ export type Database = {
           email?: string | null
           established_year?: number | null
           facebook_url?: string | null
+          facts_en?: string | null
+          facts_nl?: string | null
           featured?: boolean
+          first_seen?: string
+          flagship_beers?: string[]
           google_rating?: number | null
           google_review_count?: number | null
           google_url?: string | null
+          has_own_installation?: boolean | null
           id?: string
           image_url?: string | null
           is_brewsite?: boolean
           last_scraped_at?: string | null
+          last_verified_at?: string | null
           lat: number
           lng: number
           location?: string | null
+          location_precision?: string | null
+          missbaxel_note?: string | null
+          missbaxel_note_en?: string | null
+          missbaxel_status?: string
           municipality?: string | null
           name: string
           official_name?: string | null
@@ -549,6 +615,7 @@ export type Database = {
           rating_weight?: number | null
           region?: string | null
           slug?: string | null
+          sources?: Json
           story?: string | null
           story_ai_generated?: boolean
           type: string
@@ -556,10 +623,12 @@ export type Database = {
           untappd_review_count?: number | null
           untappd_url?: string | null
           updated_at?: string
+          visitable?: string | null
           website_url?: string | null
         }
         Update: {
           address?: string | null
+          atlas_visible?: boolean
           brewery_category?: string
           code?: string | null
           company_number?: string | null
@@ -568,17 +637,27 @@ export type Database = {
           email?: string | null
           established_year?: number | null
           facebook_url?: string | null
+          facts_en?: string | null
+          facts_nl?: string | null
           featured?: boolean
+          first_seen?: string
+          flagship_beers?: string[]
           google_rating?: number | null
           google_review_count?: number | null
           google_url?: string | null
+          has_own_installation?: boolean | null
           id?: string
           image_url?: string | null
           is_brewsite?: boolean
           last_scraped_at?: string | null
+          last_verified_at?: string | null
           lat?: number
           lng?: number
           location?: string | null
+          location_precision?: string | null
+          missbaxel_note?: string | null
+          missbaxel_note_en?: string | null
+          missbaxel_status?: string
           municipality?: string | null
           name?: string
           official_name?: string | null
@@ -588,6 +667,7 @@ export type Database = {
           rating_weight?: number | null
           region?: string | null
           slug?: string | null
+          sources?: Json
           story?: string | null
           story_ai_generated?: boolean
           type?: string
@@ -595,6 +675,7 @@ export type Database = {
           untappd_review_count?: number | null
           untappd_url?: string | null
           updated_at?: string
+          visitable?: string | null
           website_url?: string | null
         }
         Relationships: []
@@ -921,3 +1002,4 @@ export const Constants = {
     },
   },
 } as const
+

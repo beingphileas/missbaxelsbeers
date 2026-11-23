@@ -1,0 +1,16 @@
+.atlas { font-family: 'Nunito Sans', sans-serif; color: hsl(var(--foreground)); }
+.atlas h1, .atlas h2 { font-family: Lora, serif; letter-spacing: 0; }
+.atlas-lead { font-family: Lora, serif; font-style: italic; }
+.atlas-map { height: 440px; width: 100%; z-index: 0; border-radius: 8px; overflow: hidden; }
+.atlas-map.compact { height: 260px; }
+.atlas-pin { background: transparent; border: 0; }
+.atlas-pin span { display: block; width: 20px; height: 20px; border: 3px solid hsl(var(--primary)); border-radius: 50%; background: hsl(var(--background)); }
+.atlas-pin.tasted span { background: hsl(var(--primary)); }
+.atlas-cluster { display: grid; place-items: center; border-radius: 50%; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: 2px solid hsl(var(--background)); font-weight: 700; }
+.atlas .leaflet-popup-content-wrapper { background: hsl(var(--card)); color: hsl(var(--foreground)); border-radius: 8px; }
+.atlas .leaflet-popup-content a { color: hsl(var(--primary)); }
+.atlas .leaflet-marker-icon:focus-visible { outline: 3px solid hsl(var(--ring)); outline-offset: 4px; }
+.atlas input, .atlas select, .atlas textarea { min-width: 0; }
+@media (max-width: 640px) { .atlas-map { height: 360px; } }
+
+.collection-beer { --atlas-beer-image: var(--bg-cream); --atlas-beer-shadow: var(--shadow-soft); --atlas-beer-muted: #8a7868; }

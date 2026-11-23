@@ -18,6 +18,7 @@ export type StaticRoute = { path: string; name: string; description: string; tit
 
 export const STATIC_ROUTES: StaticRoute[] = [
   { path: '/', name: BRAND, title: HOME_TITLE, description: 'Lees mee over onze ontdekkingen, de brouwers achter de ketels en proef onze eigen collabs.' },
+  { path: '/brouwers', name: 'De atlas van de kleine brouwers', description: 'Kleine onafhankelijke Belgische brouwers op één kaart, met feiten, bronnen en MissBaxels eigen woorden.' },
   { path: '/beers', name: 'Bieren', description: 'Onze collabs, uitgebracht en in de maak.' },
   { path: '/verhalen', name: 'Verhalen', description: 'Hier staat wat ik van de bieren vind. Soms gaat het over het bier zelf, soms over de open haard ernaast.' },
   { path: '/op-de-kaart', name: 'Op de kaart', description: 'Onze volledige bierkaart: de bieren die we schenken bij Koen & Marijke, geordend op stemming.' },
@@ -51,4 +52,9 @@ export function buildSitemap(entries: SitemapEntry[]): string {
     }
   }
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${rows.join('\n')}\n</urlset>\n`;
+}
+
+/** Atlas detail routes are public only when explicitly visible. No inferred lastmod. */
+export function atlasSeoRoutes(breweries: {slug:string|null;name:string;atlas_visible:boolean;municipality?:string|null;location?:string|null;province?:string|null}[]): StaticRoute[] {
+ return breweries.filter(b=>b.atlas_visible && b.slug).map(b=>({path:`/brouwers/${b.slug}`,name:b.name,description:`${b.name}, ${b.municipality||b.location||'België'}${b.province?`, ${b.province}`:''}. Feiten en MissBaxels eigen woorden.`}));
 }

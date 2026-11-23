@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import CollectionBeerCard from '@/components/atlas/CollectionBeerCard';
 import SEOHead from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { populatedFilters } from '@/lib/beer-presentation';
@@ -159,27 +160,7 @@ export default function Beers() {
               Samen gebrouwen
             </h2>
             <div className="flex gap-5 overflow-x-auto pb-4 mt-6" style={{ scrollbarWidth: 'none' }}>
-              {collabs.map(b => {
-                const badge = b.lifecycle_status === 'coming_soon' ? 'Binnenkort' : b.lifecycle_status === 'sold_out' ? 'Uitverkocht' : null;
-                const img = b.label_url || b.image_url;
-                return (
-                  <Link key={b.id} to={`/beers/${b.slug || b.id}`} className="shrink-0 w-[240px] block"
-                    style={{ background: SURFACE, borderRadius: 20, boxShadow: SHADOW_SM, overflow: 'hidden' }}>
-                    <div className="relative" style={{ aspectRatio: '4 / 5', background: CREAM }}>
-                      {img && <img src={img} alt={b.name} loading="lazy" className="w-full h-full object-cover" />}
-                      {badge && (
-                        <span className="absolute top-3 left-3" style={{ background: ACCENT, color: '#fff', fontFamily: DISPLAY, fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 9999 }}>
-                          {badge}
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ padding: 16 }}>
-                      <p style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 18, color: INK, margin: 0 }}>{b.hide_name ? '???' : b.name}</p>
-                      {b.breweries.length > 0 && <p style={{ fontSize: 13, color: MUTED, marginTop: 4 }}>{b.breweries.join(' × ')}</p>}
-                    </div>
-                  </Link>
-                );
-              })}
+              {collabs.map(b => <CollectionBeerCard key={b.id} beer={b} variant="existing" />)}
             </div>
           </div>
         </section>

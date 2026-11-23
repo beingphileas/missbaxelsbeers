@@ -26,3 +26,10 @@ Marijke is geen brouwer en geen klassieke biersommelier. Voor haar gaat bier ove
 Restaurant Bij Koen & Marijke: Hooistraat 42, 8000 Brugge
 Website: bijkoenenmarijke.be
 MissBaxel's Beers: missbaxelsbeers.com
+
+
+## De atlas van de kleine brouwers
+
+/brouwers verzamelt kleine, onafhankelijke Belgische brouwers op een kaart en in een doorzoekbare lijst. Per brouwerij staan feiten met bronnen apart van Marijkes eigen woorden. Waar zij nog niet proefde, staat dat er bij. De atlas toont geen scores of ranglijsten. Bezoekers kunnen een ontbrekende brouwer of correctie doorgeven.
+
+The atlas at /brouwers lists small independent Belgian breweries with sourced facts, separate personal notes by MissBaxel, and an honest indication when she has not tasted yet. Available in Dutch and English.

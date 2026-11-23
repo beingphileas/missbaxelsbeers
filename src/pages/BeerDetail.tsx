@@ -24,6 +24,7 @@ type Brewery = {
   image_url: string | null;
   website_url: string | null;
   role: string;
+  atlas_visible: boolean;
 };
 
 type Beer = {
@@ -107,7 +108,7 @@ export default function BeerDetail() {
       if (brewIds.length) {
         const { data: brews } = await supabase
           .from('breweries')
-          .select('id, name, slug, location, region, description, image_url, website_url')
+          .select('id, name, slug, location, region, description, image_url, website_url, atlas_visible')
           .in('id', brewIds);
         const linkMap = new Map((links || []).map(l => [l.brewery_id, l.role]));
         const ordered = (brews || [])
@@ -253,11 +254,11 @@ export default function BeerDetail() {
             {breweries.length > 0 && (
               <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--muted)' }}>
                 Gebrouwen bij{' '}
-                {beer.menu_brewery || main.map((b) => b.name).join(' & ')}
+                {main.length?main.map((b,i)=><span key={b.id}>{i>0?' & ':''}{b.atlas_visible&&b.slug?<Link to={`/brouwers/${b.slug}`} className="text-primary underline">{b.name}</Link>:b.name}</span>):beer.menu_brewery}
                 {co.map((b) => (
                   <span key={b.id}>
                     {' '}&amp;{' '}
-                    <span style={{ color: 'var(--ink)' }}>{b.name}</span>{' '}
+                    <span style={{ color: 'var(--ink)' }}>{b.atlas_visible&&b.slug?<Link to={`/brouwers/${b.slug}`}>{b.name}</Link>:b.name}</span>{' '}
                     <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>(co-brouwer)</span>
                   </span>
                 ))}

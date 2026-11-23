@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 const LINKS = [
-  { label: 'Verhalen', path: '/verhalen' },
   { label: 'Bieren', path: '/beers' },
+  { label: 'Atlas', path: '/brouwers' },
+  { label: 'Verhalen', path: '/verhalen' },
   { label: 'Op de kaart', path: '/op-de-kaart' },
   { label: 'Over', path: '/over' },
 ];

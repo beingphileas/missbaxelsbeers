@@ -7,12 +7,14 @@ import BreweriesSection from '@/components/admin-mb/BreweriesSection';
 import BlogPostsSection from '@/components/admin-mb/BlogPostsSection';
 import BierstekersSection from '@/components/admin-mb/BierstekersSection';
 import RestaurantSection from '@/components/admin-mb/RestaurantSection';
+import TipsSection from '@/components/admin-mb/TipsSection';
 import PeopleSection from '@/components/admin-mb/PeopleSection';
 
-type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'mensen';
+type SectionKey = 'bieren' | 'brouwerijen' | 'blogposts' | 'bierstekers' | 'restaurant' | 'mensen' | 'tips';
 
 const SECTIONS: { key: SectionKey; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bieren', label: 'Bieren', icon: Beer },
+  { key: 'tips', label: 'Tips', icon: Newspaper },
   { key: 'brouwerijen', label: 'Brouwerijen', icon: Building2 },
   { key: 'blogposts', label: 'Blogposts', icon: Newspaper },
   { key: 'mensen', label: 'Mensen', icon: Users },
@@ -98,6 +100,7 @@ export default function AdminPanel() {
           {section === 'blogposts' && <BlogPostsSection />}
           {section === 'bierstekers' && <BierstekersSection />}
           {section === 'restaurant' && <RestaurantSection />}
+          {section === 'tips' && <TipsSection />}
           {section === 'mensen' && <PeopleSection />}
         </div>
       </div>

@@ -1,4 +1,9 @@
 # Taken
+- [x] Atlasvelden, unieke slugs, statusbackfill en afgeschermde tips toegevoegd.
+- [x] Tweetalige atlas, kaart, filters, detail en tipformulier gebouwd.
+- [x] Atlas geïntegreerd in Home, navigatie, bierdetail en crawlerbestanden.
+- [x] Brouwerijbeheer en tipsbeheer uitgebreid; opslaan en status teruggelezen als admin.
+- [x] 34 tests, veldcontroles, desktop, 390 px en toetsenbord gecontroleerd; niets gepubliceerd. Beperkingen staan in docs/atlas-verslag.md.
 - [x] Lege bierdetails opgevangen en placeholderfallback verwijderd; bestaande beschrijvingen zichtbaar.
 - [x] Lege categorieën verborgen op Bieren en Verhalen, browsercontrole geslaagd.
 - [x] Bestaande smaak/pairing hergebruikt, visueel/geur toegevoegd; beheeropslaan en publieke weergave gecontroleerd, testinhoud hersteld.

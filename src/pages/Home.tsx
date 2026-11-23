@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import HomeAtlas from '@/components/atlas/HomeAtlas';
 import SEOHead from '@/components/SEOHead';
 import { HOME_TITLE } from '@/lib/seo-routes';
 import { Button } from '@/components/ui/button';
@@ -356,6 +357,8 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      <HomeAtlas />
 
       {/* ═══ CONTENT TEASER ═══ */}
       {(latestPosts.length > 0 || featuredBeer) && (

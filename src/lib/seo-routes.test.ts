@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatTitle, buildSitemap } from './seo-routes';
+import { formatTitle, buildSitemap, atlasSeoRoutes } from './seo-routes';
 
 describe('formatTitle', () => {
   it('appends the brand once', () => {
@@ -17,5 +17,19 @@ describe('buildSitemap', () => {
     expect(xml).toContain('<loc>https://missbaxelsbeers.com/en/verhalen/vie</loc>');
     expect(xml).not.toContain('/en/verhalen/x');
     expect(xml.match(/hreflang="x-default"/g)?.length).toBe(2);
+  });
+});
+
+describe('atlas crawler routes', () => {
+  it('only includes visible breweries with a slug and omits inferred modification dates', () => {
+    const routes = atlasSeoRoutes([
+      { name: 'Brouwerij A', slug: 'brouwerij-a', atlas_visible: true, municipality: 'Brugge' },
+      { name: 'Brouwerij B', slug: 'brouwerij-b', atlas_visible: false },
+      { name: 'Brouwerij C', slug: null, atlas_visible: true },
+    ]);
+    expect(routes.map(r => r.path)).toEqual(['/brouwers/brouwerij-a']);
+    const xml = buildSitemap(routes);
+    expect(xml).toContain('https://missbaxelsbeers.com/brouwers/brouwerij-a');
+    expect(xml).not.toContain('<lastmod>');
   });
 });

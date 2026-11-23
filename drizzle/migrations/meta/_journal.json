@@ -15,6 +15,20 @@
       "when": 1792395342250,
       "tag": "0001_blog_posts_english_version",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795439990740,
+      "tag": "0002_brewery_atlas",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795440395781,
+      "tag": "0003_atlas_brewery_slug_guard",
+      "breakpoints": true
     }
   ]
 }
